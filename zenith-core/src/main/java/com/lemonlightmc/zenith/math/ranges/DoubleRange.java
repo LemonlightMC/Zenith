@@ -19,7 +19,7 @@ public class DoubleRange implements Range<DoubleRange, Double> {
       if (o2 == null) {
         return 1;
       }
-      return Double.compare(o1.max - o2.min, o2.max - o2.min);
+      return Double.compare(o1.max - o1.min, o2.max - o2.min);
     }
   };
 
@@ -86,7 +86,7 @@ public class DoubleRange implements Range<DoubleRange, Double> {
 
   @Override
   public Double getMiddle() {
-    return Math.abs(this.max - this.min) / 2;
+    return min + (max - min) / 2;
   }
 
   @Override
@@ -111,7 +111,7 @@ public class DoubleRange implements Range<DoubleRange, Double> {
 
   @Override
   public boolean isOutsideRange(final Double num) {
-    return num == null ? true : num < min && num > max;
+    return num == null ? true : num < min || num > max;
   }
 
   @Override
@@ -136,22 +136,22 @@ public class DoubleRange implements Range<DoubleRange, Double> {
 
   @Override
   public boolean startsWith(final Double num) {
-    return num == null ? false : min == num;
+    return num == null ? false : min.doubleValue() == num.doubleValue();
   }
 
   @Override
   public boolean startsWith(final DoubleRange range) {
-    return range == null ? false : min == range.max;
+    return range == null ? false : min.doubleValue() == range.min.doubleValue();
   }
 
   @Override
   public boolean endsWith(final Double num) {
-    return num == null ? false : max == num;
+    return num == null ? false : max.doubleValue() == num.doubleValue();
   }
 
   @Override
   public boolean endsWith(final DoubleRange range) {
-    return range == null ? false : max == range.min;
+    return range == null ? false : max.doubleValue() == range.max.doubleValue();
   }
 
   @Override
@@ -171,7 +171,7 @@ public class DoubleRange implements Range<DoubleRange, Double> {
 
   @Override
   public boolean overlaps(final DoubleRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max < range.min || min > range.max);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class DoubleRange implements Range<DoubleRange, Double> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new DoubleRange(min < range.min ? range.min : min, max < range.max ? range.max : max);
+    return new DoubleRange(Math.max(min, range.min), Math.min(max, range.max));
   }
 
   @Override
@@ -189,7 +189,10 @@ public class DoubleRange implements Range<DoubleRange, Double> {
 
   @Override
   public DoubleRange clamp(final DoubleRange range) {
-    return range != null && contains(range) ? range : new DoubleRange();
+    if (range == null) {
+      return new DoubleRange(min, max);
+    }
+    return new DoubleRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
@@ -252,9 +255,6 @@ public class DoubleRange implements Range<DoubleRange, Double> {
       return false;
     }
     final DoubleRange other = (DoubleRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

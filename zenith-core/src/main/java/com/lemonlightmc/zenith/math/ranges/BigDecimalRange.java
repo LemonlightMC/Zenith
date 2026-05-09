@@ -22,7 +22,7 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
       if (o2 == null) {
         return 1;
       }
-      return o1.max.subtract(o2.min).compareTo(o2.max.subtract(o2.min));
+      return o1.max.subtract(o1.min).compareTo(o2.max.subtract(o2.min));
     }
   };
 
@@ -89,7 +89,7 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
 
   @Override
   public BigDecimal getMiddle() {
-    return this.max.subtract(this.min).abs().divide(BigDecimal.valueOf(2));
+    return min.add(max.subtract(min).divide(BigDecimal.valueOf(2)));
   }
 
   @Override
@@ -144,7 +144,7 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
 
   @Override
   public boolean startsWith(final BigDecimalRange range) {
-    return range == null ? false : min.equals(range.max);
+    return range == null ? false : min.equals(range.min);
   }
 
   @Override
@@ -174,7 +174,7 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
 
   @Override
   public boolean overlaps(final BigDecimalRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max.compareTo(range.min) < 0 || min.compareTo(range.max) > 0);
   }
 
   @Override
@@ -182,8 +182,9 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new BigDecimalRange(min.compareTo(range.min) < 0 ? range.min : min,
-        max.compareTo(range.max) < 0 ? max : range.max);
+    BigDecimal newMin = min.compareTo(range.min) > 0 ? min : range.min;
+    BigDecimal newMax = max.compareTo(range.max) < 0 ? max : range.max;
+    return new BigDecimalRange(newMin, newMax);
   }
 
   @Override
@@ -193,7 +194,10 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
 
   @Override
   public BigDecimalRange clamp(final BigDecimalRange range) {
-    return range != null && contains(range) ? range : new BigDecimalRange();
+    if (range == null) {
+      return new BigDecimalRange(min, max);
+    }
+    return new BigDecimalRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
@@ -256,9 +260,6 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
       return false;
     }
     final BigDecimalRange other = (BigDecimalRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

@@ -19,7 +19,7 @@ public class FloatRange implements Range<FloatRange, Float> {
       if (o2 == null) {
         return 1;
       }
-      return Float.compare(o1.max - o2.min, o2.max - o2.min);
+      return Float.compare(o1.max - o1.min, o2.max - o2.min);
     }
   };
 
@@ -86,7 +86,7 @@ public class FloatRange implements Range<FloatRange, Float> {
 
   @Override
   public Float getMiddle() {
-    return Math.abs(this.max - this.min) / 2;
+    return min + (max - min) / 2;
   }
 
   @Override
@@ -111,7 +111,7 @@ public class FloatRange implements Range<FloatRange, Float> {
 
   @Override
   public boolean isOutsideRange(final Float num) {
-    return num == null ? true : num < min && num > max;
+    return num == null ? true : num < min || num > max;
   }
 
   @Override
@@ -136,22 +136,22 @@ public class FloatRange implements Range<FloatRange, Float> {
 
   @Override
   public boolean startsWith(final Float num) {
-    return num == null ? false : min == num;
+    return num == null ? false : min.floatValue() == num.floatValue();
   }
 
   @Override
   public boolean startsWith(final FloatRange range) {
-    return range == null ? false : min == range.max;
+    return range == null ? false : min.floatValue() == range.min.floatValue();
   }
 
   @Override
   public boolean endsWith(final Float num) {
-    return num == null ? false : max == num;
+    return num == null ? false : max.floatValue() == num.floatValue();
   }
 
   @Override
   public boolean endsWith(final FloatRange range) {
-    return range == null ? false : max == range.min;
+    return range == null ? false : max.floatValue() == range.max.floatValue();
   }
 
   @Override
@@ -171,7 +171,7 @@ public class FloatRange implements Range<FloatRange, Float> {
 
   @Override
   public boolean overlaps(final FloatRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max < range.min || min > range.max);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class FloatRange implements Range<FloatRange, Float> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new FloatRange(min < range.min ? range.min : min, max < range.max ? range.max : max);
+    return new FloatRange(Math.max(min, range.min), Math.min(max, range.max));
   }
 
   @Override
@@ -189,7 +189,10 @@ public class FloatRange implements Range<FloatRange, Float> {
 
   @Override
   public FloatRange clamp(final FloatRange range) {
-    return range != null && contains(range) ? range : new FloatRange();
+    if (range == null) {
+      return new FloatRange(min, max);
+    }
+    return new FloatRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
@@ -252,9 +255,6 @@ public class FloatRange implements Range<FloatRange, Float> {
       return false;
     }
     final FloatRange other = (FloatRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

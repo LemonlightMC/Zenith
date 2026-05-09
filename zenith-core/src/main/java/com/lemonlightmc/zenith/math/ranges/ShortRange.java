@@ -19,7 +19,7 @@ public class ShortRange implements Range<ShortRange, Short> {
       if (o2 == null) {
         return 1;
       }
-      return Integer.compare(o1.max - o2.min, o2.max - o2.min);
+      return Integer.compare(o1.max - o1.min, o2.max - o2.min);
     }
   };
 
@@ -86,7 +86,7 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public Short getMiddle() {
-    throw new UnsupportedOperationException("Short cant be converted correctly!");
+    return (short) (min + (max - min) / 2);
   }
 
   @Override
@@ -111,7 +111,7 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public boolean isOutsideRange(final Short num) {
-    return num == null ? true : num < min && num > max;
+    return num == null ? true : num < min || num > max;
   }
 
   @Override
@@ -136,22 +136,22 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public boolean startsWith(final Short num) {
-    return num == null ? false : min == num;
+    return num == null ? false : min.shortValue() == num.shortValue();
   }
 
   @Override
   public boolean startsWith(final ShortRange range) {
-    return range == null ? false : min == range.max;
+    return range == null ? false : min.shortValue() == range.min.shortValue();
   }
 
   @Override
   public boolean endsWith(final Short num) {
-    return num == null ? false : max == num;
+    return num == null ? false : max.shortValue() == num.shortValue();
   }
 
   @Override
   public boolean endsWith(final ShortRange range) {
-    return range == null ? false : max == range.min;
+    return range == null ? false : max.shortValue() == range.max.shortValue();
   }
 
   @Override
@@ -171,7 +171,7 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public boolean overlaps(final ShortRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max < range.min || min > range.max);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class ShortRange implements Range<ShortRange, Short> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new ShortRange(min < range.min ? range.min : min, max < range.max ? range.max : max);
+    return new ShortRange(min >= range.min ? min : range.min, max <= range.max ? max : range.max);
   }
 
   @Override
@@ -189,12 +189,15 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public ShortRange clamp(final ShortRange range) {
-    return range != null && contains(range) ? range : new ShortRange();
+    if (range == null) {
+      return new ShortRange(min, max);
+    }
+    return new ShortRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
   public Short getLength() {
-    throw new UnsupportedOperationException("Short cant be converted correctly!");
+    return (short) (max - min);
   }
 
   @Override
@@ -240,7 +243,7 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public int hashCode() {
-    return 31 * (31 * min) + max;
+    return 31 * (31 * Short.hashCode(min)) + Short.hashCode(max);
   }
 
   @Override
@@ -252,9 +255,6 @@ public class ShortRange implements Range<ShortRange, Short> {
       return false;
     }
     final ShortRange other = (ShortRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

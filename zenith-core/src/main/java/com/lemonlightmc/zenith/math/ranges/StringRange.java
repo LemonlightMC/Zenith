@@ -19,7 +19,7 @@ public class StringRange implements Range<StringRange, Integer> {
       if (o2 == null) {
         return 1;
       }
-      return Integer.compare(o1.max - o2.min, o2.max - o2.min);
+      return Integer.compare(o1.max - o1.min, o2.max - o2.min);
     }
   };
 
@@ -86,7 +86,7 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public Integer getMiddle() {
-    return Math.abs(this.max - this.min) / 2;
+    return min + (max - min) / 2;
   }
 
   @Override
@@ -111,7 +111,7 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public boolean isOutsideRange(final Integer num) {
-    return num == null ? true : num < min && num > max;
+    return num == null ? true : num < min || num > max;
   }
 
   @Override
@@ -136,22 +136,22 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public boolean startsWith(final Integer num) {
-    return num == null ? false : min == num;
+    return num == null ? false : min.intValue() == num.intValue();
   }
 
   @Override
   public boolean startsWith(final StringRange range) {
-    return range == null ? false : min == range.max;
+    return range == null ? false : min.intValue() == range.min.intValue();
   }
 
   @Override
   public boolean endsWith(final Integer num) {
-    return num == null ? false : max == num;
+    return num == null ? false : max.intValue() == num.intValue();
   }
 
   @Override
   public boolean endsWith(final StringRange range) {
-    return range == null ? false : max == range.min;
+    return range == null ? false : max.intValue() == range.max.intValue();
   }
 
   @Override
@@ -171,7 +171,7 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public boolean overlaps(final StringRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max < range.min || min > range.max);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class StringRange implements Range<StringRange, Integer> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new StringRange(min < range.min ? range.min : min, max < range.max ? range.max : max);
+    return new StringRange(Math.max(min, range.min), Math.min(max, range.max));
   }
 
   @Override
@@ -189,7 +189,10 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public StringRange clamp(final StringRange range) {
-    return range != null && contains(range) ? range : new StringRange();
+    if (range == null) {
+      return new StringRange(min, max);
+    }
+    return new StringRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
@@ -240,7 +243,7 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public int hashCode() {
-    return 31 * (31 * min) + max;
+    return 31 * (31 * Integer.hashCode(min)) + Integer.hashCode(max);
   }
 
   @Override
@@ -252,9 +255,6 @@ public class StringRange implements Range<StringRange, Integer> {
       return false;
     }
     final StringRange other = (StringRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

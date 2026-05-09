@@ -20,7 +20,7 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
       if (o2 == null) {
         return 1;
       }
-      return Integer.compare(o1.max - o2.min, o2.max - o2.min);
+      return Integer.compare(o1.max - o1.min, o2.max - o2.min);
     }
   };
 
@@ -87,7 +87,7 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
 
   @Override
   public Integer getMiddle() {
-    return Math.abs(this.max - this.min) / 2;
+    return min + (max - min) / 2;
   }
 
   @Override
@@ -112,7 +112,7 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
 
   @Override
   public boolean isOutsideRange(final Integer num) {
-    return num == null ? true : num < min && num > max;
+    return num == null ? true : num < min || num > max;
   }
 
   @Override
@@ -137,22 +137,22 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
 
   @Override
   public boolean startsWith(final Integer num) {
-    return num == null ? false : min == num;
+    return num == null ? false : min.intValue() == num.intValue();
   }
 
   @Override
   public boolean startsWith(final IntegerRange range) {
-    return range == null ? false : min == range.max;
+    return range == null ? false : min.intValue() == range.min.intValue();
   }
 
   @Override
   public boolean endsWith(final Integer num) {
-    return num == null ? false : max == num;
+    return num == null ? false : max.intValue() == num.intValue();
   }
 
   @Override
   public boolean endsWith(final IntegerRange range) {
-    return range == null ? false : max == range.min;
+    return range == null ? false : max.intValue() == range.max.intValue();
   }
 
   @Override
@@ -172,7 +172,7 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
 
   @Override
   public boolean overlaps(final IntegerRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max < range.min || min > range.max);
   }
 
   @Override
@@ -180,7 +180,7 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new IntegerRange(min < range.min ? range.min : min, max < range.max ? range.max : max);
+    return new IntegerRange(Math.max(min, range.min), Math.min(max, range.max));
   }
 
   @Override
@@ -190,7 +190,10 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
 
   @Override
   public IntegerRange clamp(final IntegerRange range) {
-    return range != null && contains(range) ? range : new IntegerRange();
+    if (range == null) {
+      return new IntegerRange(min, max);
+    }
+    return new IntegerRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
@@ -253,9 +256,6 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
       return false;
     }
     final IntegerRange other = (IntegerRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

@@ -4,21 +4,22 @@ import java.util.Comparator;
 
 import com.lemonlightmc.zenith.interfaces.Cloneable;
 
+// TODO: Rework endsWith/startsWith
 public interface Range<T extends Range<T, V>, V extends Number> extends Cloneable<T>, Comparable<T> {
 
   public static String[] parse(String str) {
     if (str == null || str.length() == 0) {
-      return null;
+      return new String[] { "", "" };
     }
     if (str.charAt(0) == '[') {
       str = str.substring(1);
     }
     if (str.charAt(str.length() - 1) == ']') {
-      str = str.substring(str.length() - 1);
+      str = str.substring(0, str.length() - 1);
     }
-    final String[] parts = str.split("/[,.\\\\s]+/");
+    final String[] parts = str.split("[,\\.\\s]+");
     if (parts == null || parts.length != 2) {
-      return null;
+      return new String[] { "", "" };
     }
 
     return new String[] { parts[0].strip(), parts[1].strip() };

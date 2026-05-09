@@ -22,7 +22,7 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
       if (o2 == null) {
         return 1;
       }
-      return o1.max.subtract(o2.min).compareTo(o2.max.subtract(o2.min));
+      return o1.max.subtract(o1.min).compareTo(o2.max.subtract(o2.min));
     }
   };
 
@@ -89,7 +89,7 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
 
   @Override
   public BigInteger getMiddle() {
-    return this.max.subtract(this.min).abs().divide(BigInteger.valueOf(2));
+    return min.add(max.subtract(min).divide(BigInteger.valueOf(2)));
   }
 
   @Override
@@ -144,7 +144,7 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
 
   @Override
   public boolean startsWith(final BigIntegerRange range) {
-    return range == null ? false : min.equals(range.max);
+    return range == null ? false : min.equals(range.min);
   }
 
   @Override
@@ -174,7 +174,7 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
 
   @Override
   public boolean overlaps(final BigIntegerRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max.compareTo(range.min) < 0 || min.compareTo(range.max) > 0);
   }
 
   @Override
@@ -182,8 +182,7 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new BigIntegerRange(min.compareTo(range.min) < 0 ? range.min : min,
-        max.compareTo(range.max) < 0 ? max : range.max);
+    return new BigIntegerRange(min.max(range.min), max.min(range.max));
   }
 
   @Override
@@ -193,7 +192,10 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
 
   @Override
   public BigIntegerRange clamp(final BigIntegerRange range) {
-    return range != null && contains(range) ? range : new BigIntegerRange();
+    if (range == null) {
+      return new BigIntegerRange(min, max);
+    }
+    return new BigIntegerRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
@@ -256,9 +258,6 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
       return false;
     }
     final BigIntegerRange other = (BigIntegerRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

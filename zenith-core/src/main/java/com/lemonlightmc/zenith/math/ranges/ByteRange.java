@@ -19,7 +19,7 @@ public class ByteRange implements Range<ByteRange, Byte> {
       if (o2 == null) {
         return 1;
       }
-      return Integer.compare(o1.max.intValue() - o2.min.intValue(), o2.max.intValue() - o2.min.intValue());
+      return Integer.compare(o1.max.intValue() - o1.min.intValue(), o2.max.intValue() - o2.min.intValue());
     }
   };
 
@@ -86,7 +86,7 @@ public class ByteRange implements Range<ByteRange, Byte> {
 
   @Override
   public Byte getMiddle() {
-    throw new UnsupportedOperationException("Byte cant be converted correctly!");
+    return (byte) (min + (max - min) / 2);
   }
 
   @Override
@@ -111,7 +111,7 @@ public class ByteRange implements Range<ByteRange, Byte> {
 
   @Override
   public boolean isOutsideRange(final Byte num) {
-    return num == null ? true : num < min && num > max;
+    return num == null ? true : num < min || num > max;
   }
 
   @Override
@@ -136,22 +136,22 @@ public class ByteRange implements Range<ByteRange, Byte> {
 
   @Override
   public boolean startsWith(final Byte num) {
-    return num == null ? false : min == num;
+    return num == null ? false : min.byteValue() == num.byteValue();
   }
 
   @Override
   public boolean startsWith(final ByteRange range) {
-    return range == null ? false : min == range.max;
+    return range == null ? false : min.byteValue() == range.min.byteValue();
   }
 
   @Override
   public boolean endsWith(final Byte num) {
-    return num == null ? false : max == num;
+    return num == null ? false : max.byteValue() == num.byteValue();
   }
 
   @Override
   public boolean endsWith(final ByteRange range) {
-    return range == null ? false : max == range.min;
+    return range == null ? false : max.byteValue() == range.max.byteValue();
   }
 
   @Override
@@ -171,7 +171,7 @@ public class ByteRange implements Range<ByteRange, Byte> {
 
   @Override
   public boolean overlaps(final ByteRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max < range.min || min > range.max);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class ByteRange implements Range<ByteRange, Byte> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new ByteRange(min < range.min ? range.min : min, max < range.max ? range.max : max);
+    return new ByteRange(min >= range.min ? min : range.min, max <= range.max ? max : range.max);
   }
 
   @Override
@@ -189,12 +189,15 @@ public class ByteRange implements Range<ByteRange, Byte> {
 
   @Override
   public ByteRange clamp(final ByteRange range) {
-    return range != null && contains(range) ? range : new ByteRange();
+    if (range == null) {
+      return new ByteRange(min, max);
+    }
+    return new ByteRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
   public Byte getLength() {
-    throw new UnsupportedOperationException("Byte cant be converted correctly!");
+    return (byte) (max - min);
   }
 
   @Override
@@ -252,9 +255,6 @@ public class ByteRange implements Range<ByteRange, Byte> {
       return false;
     }
     final ByteRange other = (ByteRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

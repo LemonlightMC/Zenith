@@ -19,7 +19,7 @@ public class LongRange implements Range<LongRange, Long> {
       if (o2 == null) {
         return 1;
       }
-      return Long.compare(o1.max - o2.min, o2.max - o2.min);
+      return Long.compare(o1.max - o1.min, o2.max - o2.min);
     }
   };
 
@@ -85,13 +85,13 @@ public class LongRange implements Range<LongRange, Long> {
   }
 
   @Override
-  public Long getMiddle() {
-    return Math.abs(this.max - this.min) / 2;
+  public Long getMax() {
+    return this.max;
   }
 
   @Override
-  public Long getMax() {
-    return this.max;
+  public Long getMiddle() {
+    return min + (max - min) / 2;
   }
 
   @Override
@@ -111,7 +111,7 @@ public class LongRange implements Range<LongRange, Long> {
 
   @Override
   public boolean isOutsideRange(final Long num) {
-    return num == null ? true : num < min && num > max;
+    return num == null ? true : num < min || num > max;
   }
 
   @Override
@@ -136,27 +136,27 @@ public class LongRange implements Range<LongRange, Long> {
 
   @Override
   public boolean startsWith(final Long num) {
-    return num == null ? false : min == num;
+    return num == null ? false : min.longValue() == num.longValue();
   }
 
   @Override
   public boolean startsWith(final LongRange range) {
-    return range == null ? false : min == range.max;
+    return range == null ? false : min.longValue() == range.min.longValue();
   }
 
   @Override
   public boolean endsWith(final Long num) {
-    return num == null ? false : max == num;
+    return num == null ? false : max.longValue() == num.longValue();
   }
 
   @Override
   public boolean endsWith(final LongRange range) {
-    return range == null ? false : max == range.min;
+    return range == null ? false : max.longValue() == range.max.longValue();
   }
 
   @Override
   public boolean isEmpty() {
-    return min == max;
+    return min.longValue() == max.longValue();
   }
 
   @Override
@@ -171,7 +171,7 @@ public class LongRange implements Range<LongRange, Long> {
 
   @Override
   public boolean overlaps(final LongRange range) {
-    return range == null ? false : isInRange(range.min) || isInRange(range.max);
+    return range == null ? false : !(max < range.min || min > range.max);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class LongRange implements Range<LongRange, Long> {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new LongRange(min < range.min ? range.min : min, max < range.max ? range.max : max);
+    return new LongRange(Math.max(min, range.min), Math.min(max, range.max));
   }
 
   @Override
@@ -189,7 +189,10 @@ public class LongRange implements Range<LongRange, Long> {
 
   @Override
   public LongRange clamp(final LongRange range) {
-    return range != null && contains(range) ? range : new LongRange();
+    if (range == null) {
+      return new LongRange(min, max);
+    }
+    return new LongRange(clamp(range.min), clamp(range.max));
   }
 
   @Override
@@ -252,9 +255,6 @@ public class LongRange implements Range<LongRange, Long> {
       return false;
     }
     final LongRange other = (LongRange) obj;
-    if (min == null && other.min != null || max == null && other.max != null) {
-      return false;
-    }
     return min.equals(other.min) && max.equals(other.max);
   }
 }

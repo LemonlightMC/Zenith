@@ -4,13 +4,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-public class Registry<T extends Registrable> implements Iterable<T>, Cloneable, Comparable<Registry<T>> {
+import org.bukkit.NamespacedKey;
 
-  private static final Pattern ID_PATTERN = Pattern.compile("[a-z0-9_]{1,100}");
+import com.lemonlightmc.zenith.interfaces.Cloneable;
 
-  private final Map<String, T> registry;
+public class Registry<T extends Registrable>
+    implements Iterable<Map.Entry<NamespacedKey, T>>, Cloneable<Registry<T>>, Comparable<Registry<T>> {
+
+  private final Map<NamespacedKey, T> registry;
   private boolean isLocked = false;
   private Object locker = null;
 
@@ -18,7 +21,7 @@ public class Registry<T extends Registrable> implements Iterable<T>, Cloneable, 
     registry = new HashMap<>();
   }
 
-  public Registry(final Map<String, T> map) {
+  public Registry(final Map<NamespacedKey, T> map) {
     registry = new HashMap<>(map);
   }
 
@@ -26,67 +29,68 @@ public class Registry<T extends Registrable> implements Iterable<T>, Cloneable, 
     return new Registry<>();
   }
 
-  public static <T extends Registrable> Registry<T> of(final Map<String, T> map) {
+  public static <T extends Registrable> Registry<T> of(final Class<T> map) {
+    return new Registry<>();
+  }
+
+  public static <T extends Registrable> Registry<T> of(final Map<NamespacedKey, T> map) {
     return new Registry<>(map);
   }
 
-  public Registry<T> clone() {
-    return new Registry<>(this.registry);
-  }
-
   public T register(final T element) {
-    if (element == null) {
-      throw new IllegalArgumentException("Cannot register null element!");
-    }
-    final String id = checkID(element.getID());
+    final NamespacedKey key = checkKey(element);
     if (this.isLocked) {
       throw new IllegalStateException(
-          "Cannot add to locked registry! (ID: " + id + ")");
+          "Cannot add to locked registry! (ID: " + key + ")");
     }
 
-    registry.put(id, element);
+    registry.put(key, element);
     element.onRegister();
     onRegister(element);
     return element;
   }
 
   public T remove(final T element) {
-    if (element == null) {
-      throw new IllegalArgumentException("Cannot register null element!");
-    }
-    final String id = checkID(element.getID());
+    final NamespacedKey key = checkKey(element);
     if (this.isLocked) {
       throw new IllegalStateException(
-          "Cannot remove from locked registry! (ID: " + id + ")");
+          "Cannot remove from locked registry! (ID: " + key + ")");
     }
 
     element.onRemove();
     onRemove(element);
-    registry.remove(id);
+    registry.remove(key);
     return element;
   }
 
-  public T remove(final String id) {
-    checkID(id);
+  public T remove(final NamespacedKey key) {
+    checkKey(key);
     if (this.isLocked) {
       throw new IllegalStateException(
-          "Cannot remove from locked registry! (ID: " + id + ")");
+          "Cannot remove from locked registry! (ID: " + key + ")");
     }
 
-    final T element = registry.get(id);
+    final T element = registry.get(key);
     if (element != null) {
       return remove(element);
     }
     return element;
   }
 
-  public T get(final String id) {
-    return registry.get(id);
+  public T get(final NamespacedKey key) {
+    checkKey(key);
+    return registry.get(key);
   }
 
   public void clear() {
-    for (final T value : registry.values()) {
-      remove(value);
+    if (this.isLocked) {
+      throw new IllegalStateException(
+          "Cannot clear a locked registry!");
+    }
+    for (final Map.Entry<NamespacedKey, T> entry : registry.entrySet()) {
+      entry.getValue().onRemove();
+      onRemove(entry.getValue());
+      registry.remove(entry.getKey());
     }
   }
 
@@ -139,16 +143,33 @@ public class Registry<T extends Registrable> implements Iterable<T>, Cloneable, 
     return !registry.isEmpty();
   }
 
+  public Registry<T> clone() {
+    return new Registry<>(this.registry);
+  }
+
   @Override
-  public Iterator<T> iterator() {
-    return Set.copyOf(registry.values()).iterator();
+  public int compareTo(final Registry<T> o) {
+    if (this == o) {
+      return 0;
+    }
+    if (o == null) {
+      return 1;
+    }
+    return Integer.compare(this.registry.size(), o.registry.size());
+  }
+
+  @Override
+  public Iterator<Map.Entry<NamespacedKey, T>> iterator() {
+    return Set.copyOf(registry.entrySet()).iterator();
+  }
+
+  public Stream<Map.Entry<NamespacedKey, T>> stream() {
+    return registry.entrySet().stream();
   }
 
   @Override
   public int hashCode() {
-    int result = 31 + ((registry == null) ? 0 : registry.hashCode());
-    result = 31 * result + (isLocked ? 1231 : 1237);
-    return 31 * result + ((locker == null) ? 0 : locker.hashCode());
+    return 31 * (31 + registry.hashCode()) + (isLocked ? 1231 : 1237);
   }
 
   @Override
@@ -160,10 +181,7 @@ public class Registry<T extends Registrable> implements Iterable<T>, Cloneable, 
       return false;
     }
     final Registry<?> other = (Registry<?>) obj;
-    if (registry == null && other.registry != null || locker == null && other.locker != null) {
-      return false;
-    }
-    return isLocked != other.isLocked && registry.equals(other.registry) && locker.equals(other.locker);
+    return isLocked != other.isLocked && registry.equals(other.registry);
   }
 
   @Override
@@ -171,20 +189,20 @@ public class Registry<T extends Registrable> implements Iterable<T>, Cloneable, 
     return "Registry [registry=" + registry + ", isLocked=" + isLocked + ", locker=" + locker + "]";
   }
 
-  private String checkID(final String id) {
-    if (id == null || id.length() == 0 || !ID_PATTERN.matcher(id).matches()) {
-      throw new IllegalArgumentException(
-          "Invalid ID: " +
-              id +
-              " (Must match pattern: " +
-              ID_PATTERN.pattern() +
-              ")");
+  private NamespacedKey checkKey(final T element) {
+    if (element == null) {
+      throw new IllegalArgumentException("Cannot register null element!");
     }
-    return id;
+    final NamespacedKey key = element.getKey();
+    if (key == null) {
+      throw new IllegalArgumentException("Registry Key cannot be null!");
+    }
+    return key;
   }
 
-  @Override
-  public int compareTo(final Registry<T> o) {
-    return Integer.compare(this.registry.size(), o.registry.size());
+  private void checkKey(final NamespacedKey key) {
+    if (key == null) {
+      throw new IllegalArgumentException("Registry Key cannot be null!");
+    }
   }
 }

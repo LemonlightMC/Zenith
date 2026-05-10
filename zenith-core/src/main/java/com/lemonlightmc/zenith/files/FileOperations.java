@@ -1,304 +1,21 @@
-package com.lemonlightmc.zenith.utils;
+package com.lemonlightmc.zenith.files;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
 
-import com.lemonlightmc.zenith.exceptions.FileException;
 import com.lemonlightmc.zenith.messages.Logger;
+import com.lemonlightmc.zenith.utils.StringUtils;
 
-public class FileUtils {
-
-  public static record FileResult(boolean success, boolean invalid, boolean failed, String message, Object data) {
-    public static FileResult successful(final Object data) {
-      return new FileResult(true, false, false, null, data);
-    }
-
-    public static FileResult successful() {
-      return new FileResult(true, false, false, null, null);
-    }
-
-    public static FileResult invalid(final String message) {
-      return new FileResult(false, true, false, message, null);
-    }
-
-    public static FileResult failed(final String message) {
-      return new FileResult(false, false, true, message, null);
-    }
-
-    public static FileResult failed(final Exception ex) {
-      return new FileResult(false, false, true, ex.getMessage(), null);
-    }
-
-    public FileResult throwIfFailed() {
-      if (failed) {
-        throw new FileException(message);
-      }
-      return this;
-    }
-
-    public FileResult throwIfFailed(final String message) {
-      if (failed) {
-        throw new FileException(message);
-      }
-      return this;
-    }
-
-    public <E extends RuntimeException> FileResult throwIfFailed(final E exception) {
-      if (!failed) {
-        return this;
-      }
-      if (exception == null) {
-        throw new FileException();
-      }
-      throw exception;
-    }
-
-    public <E extends RuntimeException> FileResult throwIfFailed(final Class<E> exceptionType) {
-      if (!failed) {
-        return this;
-      }
-
-      if (exceptionType == null) {
-        throw new FileException(message);
-      }
-      final E ex;
-      try {
-        ex = exceptionType.getConstructor(String.class).newInstance(message);
-        if (ex == null) {
-          throw new FileException(message);
-        }
-      } catch (final FileException e) {
-        throw e;
-      } catch (final Exception e) {
-        throw new FileException(message);
-      }
-      throw ex;
-    }
-
-    public <E extends RuntimeException> FileResult throwIfFailedWith(final Class<E> exceptionType,
-        final String message2) {
-      if (!failed) {
-        return this;
-      }
-      if (exceptionType == null) {
-        throw new FileException(message);
-      }
-      final E ex;
-      try {
-        ex = exceptionType.getConstructor(String.class).newInstance(message2 + " " + message);
-        if (ex == null) {
-          throw new FileException(message);
-        }
-      } catch (final FileException e) {
-        throw e;
-      } catch (final Exception e) {
-        throw new FileException(message);
-      }
-      throw ex;
-    }
-  }
-
-  public static boolean exists(final Path path) {
-    try {
-      return Files.exists(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean exists(final File file) {
-    try {
-      return Files.exists(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean notExists(final Path path) {
-    try {
-      return Files.notExists(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean notExists(final File file) {
-    try {
-      return Files.notExists(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isFile(final Path path) {
-    try {
-      return Files.isRegularFile(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isFile(final File file) {
-    try {
-      return Files.isRegularFile(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isDirectory(final Path path) {
-    try {
-      return Files.isDirectory(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isDirectory(final File file) {
-    try {
-      return Files.isDirectory(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isSymbolicLink(final Path path) {
-    try {
-      return Files.isSymbolicLink(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isSymbolicLink(final File file) {
-    try {
-      return Files.isSymbolicLink(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isExecutable(final Path path) {
-    try {
-      return Files.isExecutable(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isExecutable(final File file) {
-    try {
-      return Files.isExecutable(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isHidden(final Path path) {
-    try {
-      return Files.isHidden(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isHidden(final File file) {
-    try {
-      return Files.isHidden(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isRegularFile(final Path path) {
-    try {
-      return Files.isRegularFile(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isRegularFile(final File file) {
-    try {
-      return Files.isRegularFile(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isReadable(final Path path) {
-    try {
-      return Files.isReadable(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isReadable(final File file) {
-    try {
-      return Files.isReadable(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isWriteable(final Path path) {
-    try {
-      return Files.isWritable(path);
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static boolean isWriteable(final File file) {
-    try {
-      return Files.isWritable(file.toPath());
-    } catch (final Exception e) {
-      return false;
-    }
-  }
-
-  public static Optional<BasicFileAttributes> stats(final Path path) {
-    try {
-      return Optional.of(Files.readAttributes(path, BasicFileAttributes.class, new LinkOption[] {}));
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-  }
-
-  public static Optional<BasicFileAttributes> stats(final Path path, LinkOption... options) {
-    try {
-      return Optional
-          .of(Files.readAttributes(path, BasicFileAttributes.class, options == null ? new LinkOption[] {} : options));
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-  }
-
-  public static Optional<BasicFileAttributes> stats(final File file) {
-    try {
-      return Optional.of(Files.readAttributes(file.toPath(), BasicFileAttributes.class, new LinkOption[] {}));
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-  }
-
-  public static Optional<BasicFileAttributes> stats(final File file, LinkOption... options) {
-    try {
-      return Optional.of(Files.readAttributes(file.toPath(), BasicFileAttributes.class,
-          options == null ? new LinkOption[] {} : options));
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-  }
+class FileOperations extends FileDatas {
 
   public static String readString(final Path path) {
     if (path == null) {
@@ -481,9 +198,9 @@ public class FileUtils {
       if (path == null || Files.notExists(path)) {
         return FileResult.successful();
       }
-      if (Files.isDirectory(path) && !isSymbolicLink(path)) {
-        for (final File f : listFiles(path.toFile())) {
-          if (!isSymbolicLink(f.toPath()) && !delete(f.toPath()).success) {
+      if (Files.isDirectory(path) && !FileUtils.isSymbolicLink(path)) {
+        for (final File f : FileUtils.listFiles(path.toFile())) {
+          if (!FileUtils.isSymbolicLink(f.toPath()) && !delete(f.toPath()).success()) {
             return FileResult.failed("Failed to delete file (in directory): " + f);
           }
         }
@@ -529,62 +246,6 @@ public class FileUtils {
     }
   }
 
-  public static List<File> listFiles(final Path directory) {
-    return directory == null ? List.of() : listFiles(directory.toFile());
-  }
-
-  public static List<File> listFiles(final Path directory, final Predicate<File> filter) {
-    return directory == null ? List.of() : listFiles(directory.toFile());
-  }
-
-  public static List<File> listFiles(final Path directory, final String[] extensions) {
-    return directory == null ? List.of() : listFiles(directory.toFile());
-  }
-
-  public static List<File> listFiles(final File directory) {
-    if (directory == null || !directory.isDirectory() || !directory.exists()) {
-      return List.of();
-    }
-    final File[] listFiles = directory.listFiles();
-    return listFiles == null ? List.of() : List.of(listFiles);
-  }
-
-  public static List<File> listFiles(final File directory, final boolean recursive, final FilenameFilter filter) {
-    if (filter == null) {
-      return listFiles(directory, (Predicate<File>) null, recursive);
-    }
-    return listFiles(directory, (f) -> filter.accept(f, f.getName()), recursive);
-  }
-
-  public static List<File> listFiles(final File directory, final String[] extensions, final boolean recursive) {
-    if (extensions == null || extensions.length == 0) {
-      return listFiles(directory, (Predicate<File>) null, recursive);
-    }
-    final List<String> ext = List.of(extensions);
-    return listFiles(directory, (f) -> ext.contains(FilenameUtils.getExtension(f.getName())), recursive);
-  }
-
-  public static List<File> listFiles(final File directory, final Predicate<File> filter, final boolean recursive) {
-    if (directory == null || !directory.isDirectory() || !directory.exists()) {
-      return List.of();
-    }
-    final File[] listFiles = directory.listFiles();
-    if (listFiles == null) {
-      return List.of();
-    }
-    final List<File> files = new ArrayList<>();
-    for (final File file : listFiles) {
-      if (filter != null && !filter.test(file)) {
-        continue;
-      }
-      files.add(file);
-      if (recursive && file.isDirectory()) {
-        files.addAll(listFiles(directory, filter, recursive));
-      }
-    }
-    return files;
-  }
-
   public static FileResult moveFile(final File srcFile, final File destFile) {
     return moveFile(srcFile, destFile, StandardCopyOption.COPY_ATTRIBUTES);
   }
@@ -601,7 +262,7 @@ public class FileUtils {
     }
     final boolean rename = srcFile.renameTo(destFile);
     if (!rename) {
-      if (!copy(srcFile, destFile, copyOptions).success && !srcFile.delete()) {
+      if (!copy(srcFile, destFile, copyOptions).success() && !srcFile.delete()) {
         delete(destFile.toPath());
         return FileResult.failed("Failed to delete original file '" + srcFile + "' after copy to '" + destFile + "'");
       }
@@ -633,7 +294,7 @@ public class FileUtils {
       return FileResult.invalid("Source '" + src + "' and destination '" + dest + "' are the same");
     }
     final FileResult result = mkdirs(dest);
-    if (!result.success)
+    if (!result.success())
       return result;
 
     if (src.isFile()) {
@@ -673,7 +334,7 @@ public class FileUtils {
       return FileResult.invalid("Destination File must not be null");
     }
     final FileResult result = mkdirs(dest);
-    if (!result.success)
+    if (!result.success())
       return result;
 
     try {
@@ -689,7 +350,7 @@ public class FileUtils {
   }
 
   public static BufferedReader createReader(final Path path, final Charset charset) throws FileNotFoundException {
-    if (path == null || notExists(path)) {
+    if (path == null || FileUtils.notExists(path)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedReader(
@@ -701,7 +362,7 @@ public class FileUtils {
   }
 
   public static BufferedReader createReader(final File file, final Charset charset) throws FileNotFoundException {
-    if (file == null || notExists(file)) {
+    if (file == null || FileUtils.notExists(file)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedReader(
@@ -725,7 +386,7 @@ public class FileUtils {
   }
 
   public static BufferedWriter createWriter(final Path path, final Charset charset) throws FileNotFoundException {
-    if (path == null || notExists(path)) {
+    if (path == null || FileUtils.notExists(path)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedWriter(
@@ -737,7 +398,7 @@ public class FileUtils {
   }
 
   public static BufferedWriter createWriter(final File file, final Charset charset) throws FileNotFoundException {
-    if (file == null || notExists(file)) {
+    if (file == null || FileUtils.notExists(file)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedWriter(
@@ -758,7 +419,7 @@ public class FileUtils {
 
   public static BufferedInputStream createInputStream(final Path path)
       throws FileNotFoundException {
-    if (path == null || notExists(path)) {
+    if (path == null || FileUtils.notExists(path)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedInputStream(new FileInputStream(path.toFile()));
@@ -766,7 +427,7 @@ public class FileUtils {
 
   public static BufferedInputStream createInputStream(final File file)
       throws FileNotFoundException {
-    if (file == null || notExists(file)) {
+    if (file == null || FileUtils.notExists(file)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedInputStream(new FileInputStream(file));
@@ -782,7 +443,7 @@ public class FileUtils {
 
   public static BufferedOutputStream createOutputStream(final Path path)
       throws FileNotFoundException {
-    if (path == null || notExists(path)) {
+    if (path == null || FileUtils.notExists(path)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedOutputStream(new FileOutputStream(path.toFile()));
@@ -790,7 +451,7 @@ public class FileUtils {
 
   public static BufferedOutputStream createOutputStream(final File file)
       throws FileNotFoundException {
-    if (file == null || notExists(file)) {
+    if (file == null || FileUtils.notExists(file)) {
       throw new IllegalArgumentException("Path must not be null and exist");
     }
     return new BufferedOutputStream(new FileOutputStream(file));
@@ -805,7 +466,7 @@ public class FileUtils {
   }
 
   private static List<String> createCopyExclusionList(final File srcDir, final File destDir) {
-    final List<File> srcFiles = listFiles(srcDir);
+    final List<File> srcFiles = FileUtils.listFiles(srcDir);
     if (srcFiles.size() == 0) {
       return null;
     }
@@ -818,7 +479,7 @@ public class FileUtils {
 
   private static void doCopyDirectory(final File srcDir, final File destDir,
       final List<String> exclusionList, final CopyOption... copyOptions) throws IOException {
-    for (final File srcFile : listFiles(srcDir)) {
+    for (final File srcFile : FileUtils.listFiles(srcDir)) {
       final File destFile = new File(destDir, srcFile.getName());
       if (exclusionList != null && exclusionList.contains(getCanonical(srcDir))) {
         continue;
@@ -848,4 +509,5 @@ public class FileUtils {
     }
     return StringUtils.bytesToHex(digest);
   }
+
 }

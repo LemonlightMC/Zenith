@@ -11,6 +11,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import com.google.common.collect.ImmutableList;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
 
+// TODO: Rework FireworkEffect for 1.1
 public class FireworkEffect
     implements ConfigurationSerializable, Cloneable<FireworkEffect> {
   public enum FireworkEffectType {
@@ -242,14 +243,13 @@ public class FireworkEffect
     return new FireworkEffect(this);
   }
 
-  @SuppressWarnings("null")
   public org.bukkit.FireworkEffect toBukkit() {
     if (colors == null || colors.isEmpty()) {
       throw new IllegalStateException("Cannot make FireworkEffect without any color");
     }
     try {
       return org.bukkit.FireworkEffect.class.getConstructor().newInstance(flicker, trail,
-          ImmutableList.copyOf(colors == null ? List.of() : colors),
+          ImmutableList.copyOf(colors),
           ImmutableList.copyOf(fadeColors == null ? List.of() : fadeColors),
           type.toBukkit());
     } catch (final Exception e) {

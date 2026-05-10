@@ -12,8 +12,8 @@ import com.lemonlightmc.zenith.config.handlers.ConfigOptions;
 import com.lemonlightmc.zenith.config.handlers.YamlHandler;
 import com.lemonlightmc.zenith.config.schema.BuildSchema;
 import com.lemonlightmc.zenith.exceptions.ConfigHandlingException;
+import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.Logger;
-import com.lemonlightmc.zenith.utils.ResourceUtils;
 
 public class Configurate {
 

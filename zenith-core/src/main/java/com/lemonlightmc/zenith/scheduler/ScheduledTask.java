@@ -69,7 +69,7 @@ public class ScheduledTask implements IScheduled {
 
   @Override
   public int getTimesRan() {
-    return counter == null ? 0 : this.counter.get();
+    return this.counter.get();
   }
 
   @Override
@@ -110,9 +110,6 @@ public class ScheduledTask implements IScheduled {
       return false;
     }
     final ScheduledTask other = (ScheduledTask) obj;
-    if (backing == null && other.backing != null) {
-      return false;
-    }
     return ctx == other.ctx && delay == other.delay && backing.equals(other.backing);
   }
 
@@ -135,10 +132,6 @@ public class ScheduledTask implements IScheduled {
       return false;
     }
     final ScheduledTask other = (ScheduledTask) obj;
-    if (backing == null && other.backing != null || counter == null && other.counter != null
-        || cancelled == null && other.cancelled != null) {
-      return false;
-    }
     return taskId == other.taskId && ctx == other.ctx && delay == other.delay && backing.equals(other.backing)
         && counter.equals(other.counter) && cancelled.equals(other.cancelled);
   }

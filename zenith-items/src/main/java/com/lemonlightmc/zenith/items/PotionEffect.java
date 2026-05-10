@@ -1,6 +1,7 @@
 package com.lemonlightmc.zenith.items;
 
 import java.util.Map;
+
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -8,8 +9,8 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-import com.lemonlightmc.zenith.time.PolyTimeUnit;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.time.PolyTimeUnit;
 
 @SerializableAs("PotionEffect")
 public class PotionEffect implements ConfigurationSerializable, Cloneable<PotionEffect> {
@@ -37,7 +38,7 @@ public class PotionEffect implements ConfigurationSerializable, Cloneable<Potion
     if (duration < -1) {
       throw new IllegalArgumentException("Potion Duration must be positive or infinite");
     }
-    if (amplifier < 0 && amplifier > 255) {
+    if (amplifier < 0 || amplifier > 255) {
       throw new IllegalArgumentException("Potion Amplifier must be between 0 and 255");
     }
     this.type = type;
@@ -89,7 +90,7 @@ public class PotionEffect implements ConfigurationSerializable, Cloneable<Potion
   }
 
   public PotionEffect setAmplifier(final int amplifier) {
-    if (amplifier < 0 && amplifier > 255) {
+    if (amplifier < 0 || amplifier > 255) {
       throw new IllegalArgumentException("Potion Amplifier must be between 0 and 255");
     }
     this.amplifier = amplifier;
@@ -185,7 +186,8 @@ public class PotionEffect implements ConfigurationSerializable, Cloneable<Potion
   private static PotionEffectType getEffectType(final Map<?, ?> map) {
     final Object obj = map.get(TYPE);
     if (obj instanceof final String value) {
-      return Registry.EFFECT.get(NamespacedKey.fromString(value));
+      final NamespacedKey key = NamespacedKey.fromString(value);
+      return key == null ? null : Registry.EFFECT.get(key);
     } else if (obj instanceof final Integer integer) {
       return integer != null && integer > 0 ? PotionEffectType.getById(integer) : null;
     }

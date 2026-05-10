@@ -19,8 +19,8 @@ import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandResult;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
-import com.lemonlightmc.zenith.commands.exceptions.InvalidArgumentBranchException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.commands.exceptions.InvalidArgumentBranchException;
 
 public class SpecialArguments {
 
@@ -37,7 +37,7 @@ public class SpecialArguments {
 
   }
 
-  public class BranchArgument extends Argument<Boolean, BranchArgument, CommandSender> {
+  public static class BranchArgument extends Argument<Boolean, BranchArgument, CommandSender> {
 
     private final List<ArgumentBranch> branches;
 

@@ -18,9 +18,9 @@ import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.lemonlightmc.zenith.files.FileUtils;
+import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
-import com.lemonlightmc.zenith.utils.FileUtils;
-import com.lemonlightmc.zenith.utils.ResourceUtils;
 import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.version.Version;
 

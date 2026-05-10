@@ -22,7 +22,11 @@ public class SchemaSection extends SchemaNode {
   }
 
   public SchemaSection(final String path, final String commet) {
-    super(path);
+    super(path, commet);
+  }
+
+  public SchemaSection(final String path) {
+    super(path, null);
   }
 
   public static SchemaSection create(final String name, final String comment, final SchemaNode... nodes) {
@@ -58,7 +62,7 @@ public class SchemaSection extends SchemaNode {
       return this;
     }
     nodes.removeIf(n -> n == null);
-    nodes.addAll(nodes);
+    this.nodes.addAll(nodes);
     return this;
   }
 

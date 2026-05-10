@@ -11,7 +11,10 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
-import com.lemonlightmc.zenith.base.events.*;
+import com.lemonlightmc.zenith.base.events.PluginDisableEvent;
+import com.lemonlightmc.zenith.base.events.PluginEnableEvent;
+import com.lemonlightmc.zenith.base.events.PluginLoadEvent;
+import com.lemonlightmc.zenith.base.events.PluginReloadEvent;
 import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.messages.MessageStore;
@@ -21,36 +24,32 @@ import com.lemonlightmc.zenith.version.Version;
 
 public abstract class PluginBase implements IPlugin {
 
-  private PluginLoader loader = null;
+  private final PluginLoader loader;
   private Server server = null;
   private Scheduler scheduler = null;
   private ClassLoader classLoader = null;
   private MessageStore messageStore = null;
 
-  private File file = null;
-  private final File dataFolder = null;
-  private PluginInfo info = null;
+  private final File file;
+  private final File dataFolder;
+  private final PluginInfo info;
   private boolean naggable = true;
   private boolean isEnabled = false;
 
   private static PluginBase instance = null;
-
-  public PluginBase() {
-    super();
-    classLoader = this.getClass().getClassLoader();
-    this.server = Bukkit.getServer();
-    PluginBase.instance = this;
-  }
 
   protected PluginBase(
       final JavaPluginLoader loader,
       final PluginDescriptionFile info,
       final File dataFolder,
       final File file) {
-    this();
+    classLoader = this.getClass().getClassLoader();
+    this.server = Bukkit.getServer();
+    this.dataFolder = dataFolder;
     this.loader = loader;
     this.file = file;
     this.info = new PluginInfo(info);
+    PluginBase.instance = this;
   }
 
   public static boolean hasInstance() {

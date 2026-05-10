@@ -12,6 +12,7 @@ import com.lemonlightmc.zenith.time.Ticks;
 import com.lemonlightmc.zenith.utils.MathUtils;
 import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
 
+// TODO: Rework Title API for V1.1
 public class TitleAPI implements ITitleAPI {
 
   public static final int DEFAULT_FADEIN = 10;
@@ -352,7 +353,7 @@ public class TitleAPI implements ITitleAPI {
     }
 
     @Override
-    public String subTitle() {
+    public String subtitle() {
       return subtitle;
     }
 
@@ -402,19 +403,19 @@ public class TitleAPI implements ITitleAPI {
 
     @Override
     public TitleBuilder fadeIn(final Duration duration) {
-      this.fadeIn = duration == null ? null : Ticks.fromDuration(duration);
+      this.fadeIn = Ticks.fromDuration(duration);
       return this;
     }
 
     @Override
     public TitleBuilder stay(final Duration duration) {
-      this.stay = duration == null ? null : Ticks.fromDuration(duration);
+      this.stay = Ticks.fromDuration(duration);
       return this;
     }
 
     @Override
     public TitleBuilder fadeOut(final Duration duration) {
-      this.fadeOut = duration == null ? null : Ticks.fromDuration(duration);
+      this.fadeOut = Ticks.fromDuration(duration);
       return this;
     }
 

@@ -6,8 +6,8 @@ import java.util.Map;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 
-import com.lemonlightmc.zenith.recipes.RecipeType;
 import com.lemonlightmc.zenith.recipes.Ingredients.Ingredient;
+import com.lemonlightmc.zenith.recipes.RecipeType;
 
 public class ShapedCraftingRecipe extends CraftingRecipe {
   private String[] rows;
@@ -79,7 +79,7 @@ public class ShapedCraftingRecipe extends CraftingRecipe {
     if (shape == null) {
       throw new IllegalArgumentException("Shape cannot be null");
     }
-    if (shape.length < 0 || shape.length > size) {
+    if (shape.length == 0 || shape.length > size) {
       throw new IllegalArgumentException("Shape Colonm Size must be between 0 and " + size);
     }
 
@@ -88,7 +88,7 @@ public class ShapedCraftingRecipe extends CraftingRecipe {
       if (row == null) {
         throw new IllegalArgumentException("Shape rows cannot be null");
       }
-      if (row.length() < 0 || row.length() > size) {
+      if (row.length() == 0 || row.length() > size) {
         throw new IllegalArgumentException("Shape Row Size must be between 0 and " + size);
       }
       if (lastLen != -1 && lastLen != row.length()) {

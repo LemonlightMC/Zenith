@@ -20,6 +20,7 @@ include(":zenith-custom")
 include(":zenith-integrations")
 include(":zenith-items")
 include(":zenith-database")
+print("Finished Building: ")
 println(rootProject)
 
 dependencyResolutionManagement {

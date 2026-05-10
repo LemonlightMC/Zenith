@@ -80,7 +80,7 @@ class FileOperations extends FileDatas {
     if (path == null) {
       return null;
     }
-    try (BufferedReader input = createReader(path)) {
+    try (BufferedReader input = createReader(path, charset)) {
       final StringBuilder builder = new StringBuilder();
       String line;
       while ((line = input.readLine()) != null) {

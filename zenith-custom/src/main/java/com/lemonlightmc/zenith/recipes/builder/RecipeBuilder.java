@@ -1,16 +1,20 @@
 package com.lemonlightmc.zenith.recipes.builder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.inventory.ItemStack;
 
 import com.lemonlightmc.zenith.messages.Logger;
+import com.lemonlightmc.zenith.recipes.Ingredients.Ingredient;
+import com.lemonlightmc.zenith.recipes.Ingredients.ItemIngredient;
+import com.lemonlightmc.zenith.recipes.Ingredients.MaterialIngredient;
+import com.lemonlightmc.zenith.recipes.Ingredients.StrictItemIngredient;
+import com.lemonlightmc.zenith.recipes.Ingredients.TagIngredient;
 import com.lemonlightmc.zenith.recipes.RecipeType;
-import com.lemonlightmc.zenith.recipes.Ingredients.*;
-import com.lemonlightmc.zenith.recipes.types.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.lemonlightmc.zenith.recipes.types.Recipe;
 
 public class RecipeBuilder implements IRecipeBuilder {
 
@@ -221,7 +225,7 @@ public class RecipeBuilder implements IRecipeBuilder {
 
   @Override
   public int hashCode() {
-    int value = 31 + ((ingredientList == null) ? 0 : ingredientList.hashCode());
+    int value = 31 + ingredientList.hashCode();
     value = 31 * value + ((name == null) ? 0 : name.hashCode());
     value = 31 * value + ((result == null) ? 0 : result.hashCode());
     value = 31 * value + ((type == null) ? 0 : type.hashCode());
@@ -237,8 +241,7 @@ public class RecipeBuilder implements IRecipeBuilder {
       return false;
     }
     final RecipeBuilder other = (RecipeBuilder) obj;
-    if (name == null && other.name != null || result == null && other.result != null
-        || ingredientList == null && other.ingredientList != null) {
+    if (name == null && other.name != null || result == null && other.result != null) {
       return false;
     }
     return name.equals(other.name) && result.equals(other.result) && amount == other.amount && type == other.type

@@ -7,8 +7,9 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.lemonlightmc.zenith.files.FileUtils;
 
 public class UUIDUtils {
 
@@ -115,9 +116,6 @@ public class UUIDUtils {
     final UUID uuid = parseUUID(name);
     if (uuid != null) {
       return fetchName(uuid);
-    }
-    if (name == null || name.length() == 0) {
-      return null;
     }
     return name;
   }

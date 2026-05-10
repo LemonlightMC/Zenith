@@ -30,5 +30,5 @@ public interface IModule extends Reloadable {
 
   public String toString();
 
-  public boolean equals(IModule module);
+  public boolean equals(Object module);
 }

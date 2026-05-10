@@ -57,6 +57,10 @@ public record StringTooltip(String message, String tooltip) {
     return tooltip == null ? new StringTooltip(suggestion, null) : new StringTooltip(suggestion, tooltip.toString());
   }
 
+  public static StringTooltip of(final String suggestion, final BaseComponent... components) {
+    return of(suggestion, new TextComponent(components));
+  }
+
   public static Collection<StringTooltip> of(final Function<String, String> tooltipGenerator,
       final String... suggestions) {
     final Collection<StringTooltip> list = new ArrayList<>();
@@ -73,14 +77,6 @@ public record StringTooltip(String message, String tooltip) {
       list.add(StringTooltip.of(str, tooltipGenerator.apply(str)));
     }
     return list;
-  }
-
-  public static StringTooltip of(final String suggestion, final BaseComponent... components) {
-    return of(suggestion, new TextComponent(components));
-  }
-
-  public static StringTooltip of(final String suggestion, final TextComponent component) {
-    return of(suggestion, component);
   }
 
 }

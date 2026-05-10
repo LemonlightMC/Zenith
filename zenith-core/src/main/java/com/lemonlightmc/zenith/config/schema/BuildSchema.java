@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
-import com.lemonlightmc.zenith.utils.FileUtils;
+import com.lemonlightmc.zenith.files.FileUtils;
 import com.lemonlightmc.zenith.utils.Ref;
 import com.lemonlightmc.zenith.utils.StringUtils;
 

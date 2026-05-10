@@ -242,8 +242,12 @@ public abstract class AbstractConfigData {
     if (map.isEmpty()) {
       return null;
     }
+    final java.util.Map<?, ?> mapContent = map.get();
+    if (mapContent == null) {
+      return Map.of();
+    }
     final Map<String, Object> result = new HashMap<>();
-    for (final Map.Entry<?, ?> entry : map.get().entrySet()) {
+    for (final Map.Entry<?, ?> entry : mapContent.entrySet()) {
       if (entry != null) {
         result.put((String) entry.getKey(), (Object) entry.getValue());
       }

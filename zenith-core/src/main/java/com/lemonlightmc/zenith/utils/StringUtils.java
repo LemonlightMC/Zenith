@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 public class StringUtils {
   private static final byte[] HEX_ARRAY = "0123456789abcdef".getBytes(StandardCharsets.US_ASCII);
@@ -28,7 +27,8 @@ public class StringUtils {
     if (message == null || message.length() == 0)
       return null;
     message = message.replaceAll("\\n", "\n");
-    for (int i = 0; i < replacements.length; i += 2) {
+    final int len = replacements.length - (replacements.length % 2 == 1 ? 1 : 0);
+    for (int i = 0; i < len; i += 2) {
       message = message.replaceAll(replacements[i], replacements[i + 1]);
     }
     return message;
@@ -90,7 +90,7 @@ public class StringUtils {
     return sb.substring(1);
   }
 
-  public static String join(final String delimiter, final List<String> strings) {
+  public static String join(final String delimiter, final Collection<String> strings) {
     final StringBuilder sb = new StringBuilder();
     for (final String string : strings) {
       sb.append(delimiter).append(string);
@@ -106,22 +106,6 @@ public class StringUtils {
     final StringBuilder sb = new StringBuilder();
     for (int i = begin; i < end; i++) {
       sb.append(delimiter).append(strings.get(i));
-    }
-    return sb.substring(1);
-  }
-
-  public static String join(final String delimiter, final Collection<String> strings) {
-    final StringBuilder sb = new StringBuilder();
-    for (final String string : strings) {
-      sb.append(delimiter).append(string);
-    }
-    return sb.substring(1);
-  }
-
-  public static String join(final String delimiter, final Set<String> strings) {
-    final StringBuilder sb = new StringBuilder();
-    for (final String string : strings) {
-      sb.append(delimiter).append(string);
     }
     return sb.substring(1);
   }

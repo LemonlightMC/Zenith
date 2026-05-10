@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.entity.Player;
 
+// TODO: Implement properly
 public class ToastAPI {
 
   public static enum ToastType {

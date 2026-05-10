@@ -63,8 +63,13 @@ public class LuckPerms {
     if (permission == null || permission.isEmpty()) {
       return true;
     }
-    return LuckPermsProvider.get().getPlayerAdapter(Player.class).getPermissionData(player).checkPermission(permission)
-        .asBoolean();
+    try {
+      final CachedPermissionData permData = LuckPermsProvider.get().getPlayerAdapter(Player.class)
+          .getPermissionData(player);
+      return permData != null && permData.checkPermission(permission).asBoolean();
+    } catch (final Exception e) {
+      return false;
+    }
   }
 
   public static boolean hasPermission(final UUID uniqueId, final String permission) {
@@ -335,7 +340,11 @@ public class LuckPerms {
   }
 
   public static Collection<Node> getGroupNodes(final String str) {
-    return str == null || str.isEmpty() ? null : LuckPermsProvider.get().getGroupManager().getGroup(str).getNodes();
+    if (str == null || str.isEmpty()) {
+      return null;
+    }
+    final Group group = LuckPermsProvider.get().getGroupManager().getGroup(str);
+    return group == null ? null : group.getNodes();
   }
 
   // Group Nodes Value

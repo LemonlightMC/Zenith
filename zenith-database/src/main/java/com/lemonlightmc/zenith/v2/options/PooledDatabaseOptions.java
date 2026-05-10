@@ -23,6 +23,7 @@ public class PooledDatabaseOptions {
     this.maxConnections = maxConnections;
     this.leakDetectionThreshold = leakDetectionThreshold;
     this.maxConnections = maxConnections;
+    this.connectionTimeout = connectionTimeout;
     this.dataSourceProperties = dataSourceProperties;
     this.options = options;
   }

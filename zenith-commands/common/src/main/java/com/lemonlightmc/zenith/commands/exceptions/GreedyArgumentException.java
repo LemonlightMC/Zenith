@@ -9,7 +9,7 @@ public class GreedyArgumentException extends CommandException {
   public GreedyArgumentException(final String argName, final String str) {
     super("Argument " + argName
         + " does not satisfies GreedyStringArgument requirements! Only one GreedyStringArgument can be declared, at the end of a List"
-        + "Found arguments: " + str);
+        + " Found arguments: " + str);
   }
 
   public static <T> String buildArgsStr(final List<Argument<?, ?, T>> arguments) {

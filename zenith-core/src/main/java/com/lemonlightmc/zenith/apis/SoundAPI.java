@@ -190,15 +190,19 @@ public class SoundAPI {
   }
 
   public static org.bukkit.Sound getFromRegistry(final String name) {
-    return Registry.SOUNDS.get(NamespacedKey.minecraft(name));
+    if (name == null) {
+      return null;
+    }
+    final NamespacedKey key = NamespacedKey.minecraft(name);
+    return key == null ? null : Registry.SOUNDS.get(key);
   }
 
   public static org.bukkit.Sound getFromRegistry(final NamespacedKey key) {
-    return Registry.SOUNDS.get(key);
+    return key == null ? null : Registry.SOUNDS.get(key);
   }
 
   public static org.bukkit.Sound getFromRegistry(final Sound sound) {
-    return Registry.SOUNDS.get(sound.getKey());
+    return sound == null || sound.getKey() == null ? null : Registry.SOUNDS.get(sound.getKey());
   }
 
   public static org.bukkit.Sound getFromRegistry(final String name, final Sound def) {

@@ -9,18 +9,18 @@ public class CommandRequirement<C extends CommandSource> implements Cloneable<Co
 
   private final Predicate<C> predicate;
   private String message;
-  private boolean hide;
+  private boolean visible;
 
   public static final String defaultMessage = "&cYou do not meet the requirements to use this command!";
   public static final String defaultPermissionMessage = "&cYou do not have the permission to use this command!";
 
-  public CommandRequirement(final Predicate<C> predicate, final String message, final boolean hide) {
+  public CommandRequirement(final Predicate<C> predicate, final String message, final boolean visible) {
     if (predicate == null) {
-      throw new IllegalArgumentException("Predicate cannot be null");
+      throw new IllegalArgumentException("CommandRequirement Predicate cannot be null");
     }
     this.predicate = predicate;
-    this.message = message;
-    this.hide = hide;
+    this.message = message == null ? defaultMessage : message;
+    this.visible = visible;
   }
 
   public CommandRequirement(final Predicate<C> predicate, final String message) {
@@ -28,7 +28,7 @@ public class CommandRequirement<C extends CommandSource> implements Cloneable<Co
   }
 
   public CommandRequirement(final Predicate<C> predicate) {
-    this(predicate, defaultMessage, false);
+    this(predicate, null, false);
   }
 
   public static <T extends CommandSource> CommandRequirement<T> from(final Predicate<T> predicate,
@@ -112,28 +112,36 @@ public class CommandRequirement<C extends CommandSource> implements Cloneable<Co
     this.message = message;
   }
 
-  public boolean shouldHide(final C source) {
-    return hide && test(source);
+  public boolean shouldShow(final C source) {
+    return visible && test(source);
   }
 
-  public boolean isHide() {
-    return hide;
+  public boolean isVisible() {
+    return visible;
   }
 
-  public void setHide(final boolean hide) {
-    this.hide = true;
+  public void setVisible(final boolean visible) {
+    this.visible = visible;
+  }
+
+  public void show() {
+    this.visible = false;
+  }
+
+  public void hide() {
+    this.visible = true;
   }
 
   @Override
   public CommandRequirement<C> clone() {
-    return new CommandRequirement<C>(predicate, message, hide);
+    return new CommandRequirement<C>(predicate, message, visible);
   }
 
   @Override
   public int hashCode() {
     int result = 31 + predicate.hashCode();
-    result = 31 * result + ((message == null) ? 0 : message.hashCode());
-    return 31 * result + (hide ? 1231 : 1237);
+    result = 31 * result + message.hashCode();
+    return 31 * result + (visible ? 1231 : 1237);
   }
 
   @Override
@@ -145,17 +153,12 @@ public class CommandRequirement<C extends CommandSource> implements Cloneable<Co
       return false;
     }
     final CommandRequirement<?> other = (CommandRequirement<?>) obj;
-    if (message == null) {
-      if (other.message != null) {
-        return false;
-      }
-    }
-    return predicate.equals(other.predicate) && message.equals(other.message) && hide == other.hide;
+    return predicate.equals(other.predicate) && message.equals(other.message) && visible == other.visible;
   }
 
   @Override
   public String toString() {
-    return "CommandRequirement [predicate=" + predicate + ", message=" + message + ", hide=" + hide + "]";
+    return "CommandRequirement [predicate=" + predicate + ", message=" + message + ", hide=" + visible + "]";
   }
 
 }

@@ -1,18 +1,18 @@
 package com.lemonlightmc.zenith.scheduler;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scheduler.BukkitWorker;
-
-import com.lemonlightmc.zenith.base.ZenithPlugin;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scheduler.BukkitWorker;
+
+import com.lemonlightmc.zenith.base.ZenithPlugin;
 
 public class Scheduler implements IScheduler {
 
@@ -343,7 +343,7 @@ public class Scheduler implements IScheduler {
 
   @Override
   public Set<ScheduledTask> runEveryAsync(final Set<Runnable> runnables, final long interval, final long delay) {
-    return runAsync(runnables, interval, interval);
+    return runAsync(runnables, delay, interval);
   }
 
   // repeat

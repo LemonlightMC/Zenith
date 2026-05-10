@@ -57,7 +57,7 @@ public interface ITitleAPI {
 
     public ITitleBuilder title(String title, final Replaceable[] replaceable);
 
-    public String subTitle();
+    public String subtitle();
 
     public ITitleBuilder subtitle(String subtitle);
 

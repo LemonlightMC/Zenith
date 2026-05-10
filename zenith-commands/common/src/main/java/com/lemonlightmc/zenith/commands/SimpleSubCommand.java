@@ -9,7 +9,7 @@ public class SimpleSubCommand<S> extends AbstractCommand<SimpleSubCommand<S>, S>
     withAliases(aliases);
   }
 
-  public static <T> SimpleSubCommand<T> create(final Class<T> sender, final String... aliases) {
+  public static <T> SimpleSubCommand<T> create(final String... aliases) {
     return new SimpleSubCommand<T>(aliases);
   }
 

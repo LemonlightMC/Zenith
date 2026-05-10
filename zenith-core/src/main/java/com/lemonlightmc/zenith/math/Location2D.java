@@ -38,10 +38,6 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     this.world = (world == null) ? null : new WeakReference<>(world);
   }
 
-  protected static int locToBlock(double loc) {
-    return NumberConversions.floor(loc);
-  }
-
   public World getWorld() {
     if (this.world == null) {
       return null;
@@ -84,7 +80,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
   }
 
   public int getBlockX() {
-    return locToBlock(x);
+    return NumberConversions.floor(x);
   }
 
   public double getZ() {
@@ -96,7 +92,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
   }
 
   public int getBlockZ() {
-    return locToBlock(z);
+    return NumberConversions.floor(z);
   }
 
   public float getPitch() {
@@ -160,7 +156,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return this;
   }
 
-  public Location2D add(double x, double y, double z) {
+  public Location2D add(double x, double z) {
     this.x += x;
     this.z += z;
     return this;
@@ -176,7 +172,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return this;
   }
 
-  public Location2D subtract(double x, double y, double z) {
+  public Location2D subtract(double x, double z) {
     this.x -= x;
     this.z -= z;
     return this;

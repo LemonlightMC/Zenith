@@ -101,7 +101,8 @@ public class BossbarAPI {
         bar.addPlayer(p);
       }
       this.listeners = base.getListeners();
-      this.location = base.getLocation().clone();
+      final Location location = base.getLocation();
+      this.location = location == null ? null : location.clone();
     }
 
     public static BossBar from(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,

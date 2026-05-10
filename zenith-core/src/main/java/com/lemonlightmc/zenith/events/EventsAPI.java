@@ -14,8 +14,7 @@ public class EventsAPI {
     return new EventBuilder<>(eventClass, EventPriority.NORMAL);
   }
 
-  public static <T extends Event> EventBuilder<T> listen(final Class<T> eventClass,
-      final EventPriority priority) {
+  public static <T extends Event> EventBuilder<T> listen(final Class<T> eventClass, final EventPriority priority) {
     return new EventBuilder<>(eventClass, priority);
   }
 
@@ -23,8 +22,7 @@ public class EventsAPI {
     return new EventBuilder<>(eventClass, EventPriority.NORMAL);
   }
 
-  public static <T extends Event> EventBuilder<T> builder(final Class<T> eventClass,
-      final EventPriority priority) {
+  public static <T extends Event> EventBuilder<T> builder(final Class<T> eventClass, final EventPriority priority) {
     return new EventBuilder<>(eventClass, priority);
   }
 
@@ -50,9 +48,13 @@ public class EventsAPI {
   }
 
   public static void unregister(final Listener listener) {
-    if (listener != null) {
-      HandlerList.unregisterAll(listener);
+    if (listener == null) {
+      return;
     }
+    if (listener instanceof BaseListener baseListener) {
+      unregister(baseListener);
+    }
+    HandlerList.unregisterAll(listener);
   }
 
   public static void unregister(final BaseListener listener) {
@@ -65,9 +67,13 @@ public class EventsAPI {
   }
 
   public static void register(final Listener listener) {
-    if (listener != null) {
-      ZenithPlugin.getInstance().getPluginManager().registerEvents(listener, ZenithPlugin.getInstance());
+    if (listener == null) {
+      return;
     }
+    if (listener instanceof BaseListener baseListener) {
+      register(baseListener);
+    }
+    ZenithPlugin.getInstance().getPluginManager().registerEvents(listener, ZenithPlugin.getInstance());
   }
 
   public static void register(final BaseListener listener) {

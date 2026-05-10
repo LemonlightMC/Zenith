@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.lemonlightmc.zenith.base.ZenithPlugin;
@@ -54,10 +53,6 @@ public class SimpleVault {
 
   // get
 
-  public BigDecimal getMoney(Player player) {
-    return getMoney(player.getUniqueId());
-  }
-
   public BigDecimal getMoney(OfflinePlayer player) {
     return getMoney(player.getUniqueId());
   }
@@ -76,14 +71,6 @@ public class SimpleVault {
     return getMoney(player.getUniqueId()).compareTo(new BigDecimal(amount)) >= 0;
   }
 
-  public boolean checkMoney(Player player, double amount) {
-    return getMoney(player.getUniqueId()).compareTo(new BigDecimal(amount)) >= 0;
-  }
-
-  public boolean checkMoney(Player player, BigDecimal amount) {
-    return getMoney(player.getUniqueId()).compareTo(amount) >= 0;
-  }
-
   public boolean checkMoney(OfflinePlayer player, BigDecimal amount) {
     return getMoney(player.getUniqueId()).compareTo(amount) >= 0;
   }
@@ -98,16 +85,8 @@ public class SimpleVault {
 
   // remove
 
-  public EconomyResponse removeMoney(Player player, double amount) {
-    return economy.withdraw(name, player.getUniqueId(), new BigDecimal(amount));
-  }
-
   public EconomyResponse removeMoney(OfflinePlayer player, double amount) {
     return economy.withdraw(name, player.getUniqueId(), new BigDecimal(amount));
-  }
-
-  public EconomyResponse removeMoney(Player player, BigDecimal amount) {
-    return economy.withdraw(name, player.getUniqueId(), amount);
   }
 
   public EconomyResponse removeMoney(OfflinePlayer player, BigDecimal amount) {
@@ -124,16 +103,8 @@ public class SimpleVault {
 
   // add
 
-  public EconomyResponse addMoney(Player player, double amount) {
-    return economy.deposit(name, player.getUniqueId(), new BigDecimal(amount));
-  }
-
   public EconomyResponse addMoney(OfflinePlayer player, double amount) {
     return economy.deposit(name, player.getUniqueId(), new BigDecimal(amount));
-  }
-
-  public EconomyResponse addMoney(Player player, BigDecimal amount) {
-    return economy.deposit(name, player.getUniqueId(), amount);
   }
 
   public EconomyResponse addMoney(OfflinePlayer player, BigDecimal amount) {

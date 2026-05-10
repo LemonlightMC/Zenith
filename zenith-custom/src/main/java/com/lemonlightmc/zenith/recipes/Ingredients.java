@@ -378,7 +378,7 @@ public class Ingredients {
     }
   }
 
-  public class OraxenIngredient extends Ingredient {
+  public static class OraxenIngredient extends Ingredient {
 
     private final ItemStack item;
     private final String id;
@@ -440,7 +440,7 @@ public class Ingredients {
     }
   }
 
-  public class ItemsAdderIngredient extends Ingredient {
+  public static class ItemsAdderIngredient extends Ingredient {
 
     private final String data;
 

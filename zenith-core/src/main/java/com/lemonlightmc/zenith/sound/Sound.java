@@ -61,7 +61,7 @@ public class Sound extends Playable {
 
   public static Sound from(final NamespacedKey key, final SoundCategory source, final float volume,
       final float pitch) {
-    return new Sound(key, source, volume);
+    return new Sound(key, source, volume, pitch);
   }
 
   public static Sound from(final NamespacedKey key, final SoundCategory source, final float volume, final float pitch,
@@ -91,7 +91,7 @@ public class Sound extends Playable {
   }
 
   public static Sound from(final String name, final SoundCategory source, final float volume, final float pitch) {
-    return new Sound(NamespacedKey.fromString(name), source, volume);
+    return new Sound(NamespacedKey.fromString(name), source, volume, pitch);
   }
 
   public static Sound from(final String name, final SoundCategory source, final float volume, final float pitch,

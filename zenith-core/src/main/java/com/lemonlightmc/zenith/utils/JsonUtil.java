@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.lemonlightmc.zenith.files.FileUtils;
 import com.lemonlightmc.zenith.messages.Logger;
 
 public class JsonUtil {

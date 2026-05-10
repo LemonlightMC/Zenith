@@ -1,17 +1,17 @@
 package com.lemonlightmc.zenith.updater.platform;
 
-import com.lemonlightmc.zenith.updater.HttpUtil;
-import com.lemonlightmc.zenith.updater.PluginData;
-import com.lemonlightmc.zenith.updater.VersionChecker;
-import com.lemonlightmc.zenith.updater.PlatformData.AbstractPlatformData;
-import com.lemonlightmc.zenith.updater.PlatformData.ModrinthData;
-import com.lemonlightmc.zenith.version.Version;
+import java.io.IOException;
+import java.net.http.HttpResponse;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import java.io.IOException;
-import java.net.http.HttpResponse;
+import com.lemonlightmc.zenith.updater.HttpUtil;
+import com.lemonlightmc.zenith.updater.PlatformData.AbstractPlatformData;
+import com.lemonlightmc.zenith.updater.PlatformData.ModrinthData;
+import com.lemonlightmc.zenith.updater.PluginData;
+import com.lemonlightmc.zenith.updater.VersionChecker;
+import com.lemonlightmc.zenith.version.Version;
 
 public class ModrinthVersionChecker extends VersionChecker {
     public static final String ENDPOINT = "https://api.modrinth.com/v2";
@@ -23,7 +23,7 @@ public class ModrinthVersionChecker extends VersionChecker {
             return null;
         }
 
-        JsonObject currVersionJson = getLatestVersion(pluginData, modrinthData);
+        JsonObject currVersionJson = getLatestVersionInternal(pluginData, modrinthData);
         return new Version(currVersionJson.get("version_number").getAsString());
     }
 
@@ -34,7 +34,7 @@ public class ModrinthVersionChecker extends VersionChecker {
             return null;
         }
 
-        JsonObject currVersionJson = getLatestVersion(pluginData, modrinthData);
+        JsonObject currVersionJson = getLatestVersionInternal(pluginData, modrinthData);
         return currVersionJson.get("files").getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString();
     }
 
@@ -62,7 +62,7 @@ public class ModrinthVersionChecker extends VersionChecker {
         return JsonParser.parseString(response.body()).getAsJsonArray();
     }
 
-    private JsonObject getLatestVersion(PluginData pluginData, ModrinthData modrinthData)
+    private JsonObject getLatestVersionInternal(PluginData pluginData, ModrinthData modrinthData)
             throws IOException, InterruptedException {
         JsonArray versions = getVersions(pluginData, modrinthData);
         if (versions.isEmpty()) {

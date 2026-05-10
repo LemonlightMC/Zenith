@@ -31,12 +31,9 @@ public class ActionbarAPI {
       final Player p,
       final String msg,
       final Replaceable... replaceables) {
-
-    p
-        .spigot()
-        .sendMessage(
-            ChatMessageType.ACTION_BAR,
-            TextComponent.fromLegacy(msg));
+    p.spigot().sendMessage(
+        ChatMessageType.ACTION_BAR,
+        TextComponent.fromLegacy(MessageFormatter.format(msg, false, true, replaceables)));
   }
 
   private final static Map<UUID, BukkitTask> PENDING_MESSAGES = new HashMap<>();
@@ -47,12 +44,12 @@ public class ActionbarAPI {
       final int duration,
       final Replaceable... replaceables) {
     if (PENDING_MESSAGES.containsKey(p.getUniqueId())) {
-      PENDING_MESSAGES
-          .get(p.getUniqueId())
-          .cancel();
+      final BukkitTask task = PENDING_MESSAGES.get(p.getUniqueId());
+      if (task != null) {
+        task.cancel();
+      }
     }
-    msg = MessageFormatter.parsePlaceholder(p, msg);
-    msg = MessageFormatter.format(msg, true, true, replaceables);
+    msg = MessageFormatter.format(msg, false, true, replaceables);
     if (msg == null || msg.length() == 0) {
       return;
     }

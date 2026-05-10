@@ -1,5 +1,15 @@
 package com.lemonlightmc.zenith.sound.player;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.bukkit.Bukkit;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -11,19 +21,13 @@ import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.sound.Playlist;
 import com.lemonlightmc.zenith.sound.RepeatMode;
 import com.lemonlightmc.zenith.sound.Song;
-import com.lemonlightmc.zenith.sound.events.*;
-import com.lemonlightmc.zenith.sound.fade.*;
+import com.lemonlightmc.zenith.sound.events.PlayableEndEvent;
+import com.lemonlightmc.zenith.sound.events.PlayableLoopEvent;
+import com.lemonlightmc.zenith.sound.events.PlayableNextEvent;
+import com.lemonlightmc.zenith.sound.events.PlayableStoppedEvent;
+import com.lemonlightmc.zenith.sound.fade.SoundFader;
+import com.lemonlightmc.zenith.sound.fade.SoundFading;
 import com.lemonlightmc.zenith.sound.fade.SoundFading.SoundFadingType;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SoundPlayer {
   protected Song song;
@@ -170,15 +174,15 @@ public abstract class SoundPlayer {
   }
 
   public void setFading(final boolean isFading) {
-    fading = true;
+    this.fading = isFading;
   }
 
   public boolean isFading() {
-    return fading;
+    return this.fading;
   }
 
   public short getTick() {
-    return tick;
+    return this.tick;
   }
 
   public void setTick(short tick) {

@@ -13,7 +13,7 @@ public class Song extends Playable {
   public Song() {
     super();
     this.length = 0;
-    this.lengthInSeconds = length == 0 ? 0 : getTimeInSecondsAtTick(length);
+    this.lengthInSeconds = 0;
   }
 
   public Song(final List<Note> notes) {

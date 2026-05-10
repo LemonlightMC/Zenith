@@ -235,7 +235,7 @@ public class Potion implements Cloneable<Potion> {
     return this;
   }
 
-  public Potion addEffects(final List<PotionEffect> effect) {
+  public Potion addEffects(final List<PotionEffect> effects) {
     if (effects == null || effects.isEmpty()) {
       return this;
     }

@@ -9,8 +9,8 @@ import com.lemonlightmc.zenith.config.handlers.ConfigHandlerType;
 import com.lemonlightmc.zenith.config.handlers.ConfigOptions;
 import com.lemonlightmc.zenith.config.schema.SchemaPair;
 import com.lemonlightmc.zenith.exceptions.ConfigHandlingException;
-import com.lemonlightmc.zenith.utils.FileUtils;
-import com.lemonlightmc.zenith.utils.ResourceUtils;
+import com.lemonlightmc.zenith.files.FileUtils;
+import com.lemonlightmc.zenith.files.ResourceUtils;
 
 public abstract class FileHandler {
   private ConfigOptions options;

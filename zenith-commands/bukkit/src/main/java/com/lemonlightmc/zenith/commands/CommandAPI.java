@@ -10,16 +10,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.command.TabExecutor;
+import org.bukkit.command.*;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.SimplePluginManager;
@@ -156,7 +147,7 @@ public class CommandAPI {
       namespace = namespace == null || namespace.isEmpty() ? getNamespace() : namespace;
       return getCommandMap().register(command.getLabel(), namespace, command);
     } catch (final Exception e) {
-      Logger.warn("Failed to register a command: " + (command == null ? "null" : command.getName().toString()));
+      Logger.warn("Failed to register a command: " + (command == null ? "null" : command.getName()));
       e.printStackTrace();
       return false;
     }

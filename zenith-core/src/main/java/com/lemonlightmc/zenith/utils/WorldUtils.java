@@ -147,15 +147,15 @@ public class WorldUtils {
     return null;
   }
 
-  public static List<Location> getSphere(final Location center, final Integer radius) {
+  public static List<Location> getSphere(final Location center, final int radius) {
     final List<Location> sphereLocations = new ArrayList<Location>();
     for (double i = 0; i <= Math.PI; i += Math.PI / 10) {
       final double circleRadius = Math.sin(i);
-      final double y = Math.cos(i);
+      final double y = center.getY() + Math.cos(i) * radius;
       for (double a = 0; a < Math.PI * 2; a += Math.PI / 10) {
-        final double x = Math.cos(a) * circleRadius;
-        final double z = Math.sin(a) * circleRadius;
-        sphereLocations.add(new Location(center.getWorld(), x, y, z));
+        final double x = center.getX() + Math.cos(a) * circleRadius * radius;
+        final double z = center.getZ() + Math.sin(a) * circleRadius * radius;
+        sphereLocations.add(new Location(center.getWorld(), center.getX() + x, center.getY() + y, center.getZ() + z));
       }
     }
     return sphereLocations;

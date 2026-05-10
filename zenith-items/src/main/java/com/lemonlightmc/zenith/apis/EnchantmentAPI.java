@@ -10,6 +10,7 @@ import java.util.Map;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.lemonlightmc.zenith.items.Enchantment;
 import com.lemonlightmc.zenith.messages.Logger;
@@ -59,6 +60,9 @@ public class EnchantmentAPI {
   }
 
   public static void register(final Enchantment enchantment) {
+    if (enchantment == null) {
+      return;
+    }
     if (isRegistered(enchantment.getKey())) {
       Logger.warn("Enchantment " + enchantment.getName() + " has already been registered");
       return;
@@ -78,23 +82,22 @@ public class EnchantmentAPI {
   }
 
   public static boolean hasEnchantment(final ItemStack item, final org.bukkit.enchantments.Enchantment enchantment) {
-    return hasEnchantment(item, enchantment.getKeyOrNull());
+    return enchantment == null ? false : hasEnchantment(item, enchantment.getKeyOrNull());
   }
 
   public static boolean hasEnchantment(final ItemStack item, final Enchantment enchantment) {
-    return hasEnchantment(item, enchantment.getKey());
+    return enchantment == null ? false : hasEnchantment(item, enchantment.getKey());
   }
 
   public static boolean hasEnchantment(final ItemStack item, final NamespacedKey key) {
-    if (key == null) {
-      return true;
-    }
-    if (item.getItemMeta() == null || item.getItemMeta().getEnchants() == null
-        || item.getItemMeta().getEnchants().isEmpty()) {
+    if (key == null || item == null) {
       return false;
     }
-    for (final Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : item.getItemMeta().getEnchants()
-        .entrySet()) {
+    final ItemMeta meta = item.getItemMeta();
+    if (meta == null || meta.getEnchants() == null || meta.getEnchants().isEmpty()) {
+      return false;
+    }
+    for (final Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : meta.getEnchants().entrySet()) {
       if (key.equals(entry.getKey() == null ? null : entry.getKey().getKeyOrNull())) {
         return true;
       }
@@ -103,20 +106,22 @@ public class EnchantmentAPI {
   }
 
   public static int getLevel(final ItemStack item, final org.bukkit.enchantments.Enchantment enchantment) {
-    return getLevel(item, enchantment.getKeyOrNull());
+    return enchantment == null ? 0 : getLevel(item, enchantment.getKeyOrNull());
   }
 
   public static int getLevel(final ItemStack item, final Enchantment enchantment) {
-    return getLevel(item, enchantment.getKey());
+    return enchantment == null ? 0 : getLevel(item, enchantment.getKey());
   }
 
   public static int getLevel(final ItemStack item, final NamespacedKey key) {
-    if (key == null || item.getItemMeta() == null || item.getItemMeta().getEnchants() == null
-        || item.getItemMeta().getEnchants().isEmpty()) {
+    if (key == null || item == null) {
       return 0;
     }
-    for (final Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : item.getItemMeta().getEnchants()
-        .entrySet()) {
+    final ItemMeta meta = item.getItemMeta();
+    if (meta == null || meta.getEnchants() == null || meta.getEnchants().isEmpty()) {
+      return 0;
+    }
+    for (final Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : meta.getEnchants().entrySet()) {
       if (key.equals(entry.getKey() == null ? null : entry.getKey().getKeyOrNull())) {
         return entry.getValue();
       }

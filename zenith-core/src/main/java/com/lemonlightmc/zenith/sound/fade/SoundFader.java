@@ -88,7 +88,7 @@ public class SoundFader {
   }
 
   public void setType(final SoundFadingType type) {
-    fade = getType().create(fade.getDurationInSeconds());
+    fade = type.create(fade.getDurationInSeconds());
   }
 
   public double getDuration() {

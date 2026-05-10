@@ -14,10 +14,16 @@ public final class Ticks {
   }
 
   public static Duration toDuration(final long ticks, final TimeUnit unit) {
+    if (unit == null) {
+      return toDuration(ticks);
+    }
     return Duration.ofMillis(unit.toMillis(ticks) * MILLISECONDS_PER_TICK);
   }
 
   public static int fromDuration(final Duration duration) {
+    if (duration == null) {
+      return 0;
+    }
     return (int) Math.ceil(duration.toMillis() / MILLISECONDS_PER_TICK);
   }
 
@@ -30,10 +36,16 @@ public final class Ticks {
   }
 
   public static int from(final Duration duration) {
+    if (duration == null) {
+      return 0;
+    }
     return (int) Math.ceil(duration.toMillis() / MILLISECONDS_PER_TICK);
   }
 
   public static long to(final long ticks, final TimeUnit unit) {
+    if (unit == null) {
+      return ticks * MILLISECONDS_PER_TICK;
+    }
     return unit.convert(ticks * MILLISECONDS_PER_TICK, TimeUnit.MILLISECONDS);
   }
 

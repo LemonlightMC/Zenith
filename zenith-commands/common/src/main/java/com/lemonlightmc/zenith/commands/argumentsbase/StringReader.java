@@ -1,9 +1,9 @@
 package com.lemonlightmc.zenith.commands.argumentsbase;
 
-import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
-import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.*;
-
 import java.util.ArrayDeque;
+
+import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.CommandSyntaxExceptionContainer;
 
 public class StringReader {
   private static final char SYNTAX_ESCAPE = '\\';
@@ -391,8 +391,7 @@ public class StringReader {
 
   @Override
   public int hashCode() {
-    int result = 31 + string.hashCode();
-    result = 31 * result + points.hashCode();
+    int result = 31 * (31 + string.hashCode()) + points.hashCode();
     return 31 * result + cursor;
   }
 
@@ -406,9 +405,6 @@ public class StringReader {
     }
     final StringReader other = (StringReader) obj;
     if (string == null && other.string != null) {
-      return false;
-    }
-    if (points == null && other.points != null) {
       return false;
     }
     return cursor == other.cursor && string.equals(other.string) && points.equals(other.points);

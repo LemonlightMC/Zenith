@@ -1,12 +1,11 @@
 package com.lemonlightmc.zenith.recipes.types;
 
-import com.lemonlightmc.zenith.recipes.RecipeType;
-
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import com.lemonlightmc.zenith.recipes.Ingredients.Ingredient;
+import com.lemonlightmc.zenith.recipes.RecipeType;
 
 public class SmithingRecipe extends Recipe {
   private Ingredient base;
@@ -23,7 +22,9 @@ public class SmithingRecipe extends Recipe {
       final TrimPattern trimPattern) {
     super(recipeName, RecipeType.SMITHING_TRANSFORM);
     setResult(new ItemStack(Material.AIR));
+    this.base = base;
     this.template = template;
+    this.addition = addition;
     this.trimPattern = trimPattern;
   }
 
@@ -32,10 +33,9 @@ public class SmithingRecipe extends Recipe {
       final Ingredient addition) {
     super(recipeName, RecipeType.SMITHING_TRIM);
     setResult(result);
+    this.template = template;
     this.base = base;
     this.addition = addition;
-    this.template = template;
-    this.template = template;
   }
 
   @Override

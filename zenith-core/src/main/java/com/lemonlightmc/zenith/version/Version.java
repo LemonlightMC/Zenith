@@ -190,15 +190,6 @@ public class Version implements IVersion {
         build == version.getBuild());
   }
 
-  public boolean isSame(final Version version) {
-    checkNotNull(version);
-    return (major == version.getMajor() &&
-        minor == version.getMajor() &&
-        patch == version.getPatch() &&
-        build == version.getBuild() &&
-        modifier == version.getModifier());
-  }
-
   @Override
   public boolean isNewerThan(final IVersion version) {
     checkNotNull(version);

@@ -48,6 +48,7 @@ public class UpdaterBuilder implements Builder<Updater> {
     return this;
   }
 
+  @Override
   public Updater build() {
     if (pluginData.getPlatformData().isEmpty()) {
       throw new IllegalStateException("At least 1 platform must be registered before building the Updater.");

@@ -184,6 +184,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return this;
   }
 
+  @Override
   public Location2D clone() {
     try {
       return (Location2D) super.clone();
@@ -192,6 +193,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     }
   }
 
+  @Override
   public Map<String, Object> serialize() {
     HashMap<String, Object> data = new HashMap<String, Object>();
 

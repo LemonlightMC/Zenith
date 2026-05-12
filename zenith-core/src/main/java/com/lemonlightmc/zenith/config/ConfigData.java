@@ -34,30 +34,37 @@ public class ConfigData extends AbstractConfigData implements IConfigData {
     return data;
   }
 
+  @Override
   public ConfigSection getSection(final String path) {
     return new ConfigSection(path, this);
   }
 
+  @Override
   public boolean isEmpty() {
     return data.isEmpty();
   }
 
+  @Override
   public int size() {
     return data.size();
   }
 
+  @Override
   public SchemaPair<?> get(final String path) {
     return data.get(path);
   }
 
+  @Override
   public boolean containsKey(final String path) {
     return path == null || path.isEmpty() ? false : data.containsKey(path);
   }
 
+  @Override
   public boolean containsValue(final SchemaPair<?> value) {
     return value == null ? false : data.containsValue(value);
   }
 
+  @Override
   public void set(final String path, final SchemaPair<?> value) {
     if (path == null || path.isEmpty()) {
       return;
@@ -69,18 +76,22 @@ public class ConfigData extends AbstractConfigData implements IConfigData {
     }
   }
 
+  @Override
   public void remove(final String path) {
     data.remove(path);
   }
 
+  @Override
   public void clear() {
     data.clear();
   }
 
+  @Override
   public Set<String> keySetDeep() {
     return data.keySet();
   }
 
+  @Override
   public Set<String> keySet() {
     final Set<String> newKeys = new HashSet<>();
     int idx;
@@ -91,10 +102,12 @@ public class ConfigData extends AbstractConfigData implements IConfigData {
     return newKeys;
   }
 
+  @Override
   public Set<Map.Entry<String, SchemaPair<?>>> entrySetDeep() {
     return data.entrySet();
   }
 
+  @Override
   public Set<Map.Entry<String, SchemaPair<?>>> entrySet() {
     final Map<String, SchemaPair<?>> values = new HashMap<>();
     for (final String key : keySet()) {

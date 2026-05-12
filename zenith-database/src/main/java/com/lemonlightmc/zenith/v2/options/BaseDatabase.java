@@ -46,6 +46,7 @@ public class BaseDatabase implements Database {
     this.sqlTiming = timingsProvider.of("Database");
   }
 
+  @Override
   public void close(final long timeout, final TimeUnit unit) {
     threadPool.shutdown();
     try {
@@ -91,6 +92,7 @@ public class BaseDatabase implements Database {
     return this.options;
   }
 
+  @Override
   public Connection getConnection() throws SQLException {
     return dataSource != null ? dataSource.getConnection() : null;
   }

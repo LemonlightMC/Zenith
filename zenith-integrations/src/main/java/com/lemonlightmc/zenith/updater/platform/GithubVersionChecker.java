@@ -39,7 +39,7 @@ public class GithubVersionChecker extends VersionChecker {
         return assetsJson.get(0).getAsJsonObject().get("browser_download_url").getAsString();
     }
 
-    private JsonObject getLatestRelease(PluginData pluginData, GithubData githubData)
+    private static JsonObject getLatestRelease(PluginData pluginData, GithubData githubData)
             throws IOException, InterruptedException {
         HttpResponse<String> response = HttpUtil.sendRequest(String.format("%s/repos/%s/releases/latest",
                 ENDPOINT, githubData.getGithubRepo()));

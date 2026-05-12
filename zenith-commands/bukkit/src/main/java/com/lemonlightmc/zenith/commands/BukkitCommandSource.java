@@ -46,10 +46,12 @@ public record BukkitCommandSource<S extends CommandSender>(S sender, Location lo
     ChatAPI.send(sender, str);
   }
 
+  @Override
   public World world() {
     return location != null ? location.getWorld() : null;
   }
 
+  @Override
   public ExecutorType executorType() {
     return getExecutorType(sender);
   }

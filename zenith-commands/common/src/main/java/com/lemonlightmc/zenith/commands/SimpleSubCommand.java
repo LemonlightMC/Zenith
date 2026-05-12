@@ -13,6 +13,7 @@ public class SimpleSubCommand<S> extends AbstractCommand<SimpleSubCommand<S>, S>
     return new SimpleSubCommand<T>(aliases);
   }
 
+  @Override
   public SimpleSubCommand<S> getInstance() {
     return this;
   }

@@ -116,6 +116,7 @@ public class PluginInfo {
     return descriptionFile.getPermissionDefault();
   }
 
+  @Override
   public String toString() {
     return "PluginDescription [getFullName()=" + getFullName() + ", getMain()=" + getMain() + ", getPrefix()="
         + getPrefix() + ", getDescription()=" + getDescription() + ", getApiVersion()=" + getApiVersion()
@@ -123,6 +124,7 @@ public class PluginInfo {
         + ", getProvides()=" + getProvides() + "]";
   }
 
+  @Override
   public int hashCode() {
     int result = 31 + getFullName().hashCode();
     result = 31 * result + getMain().hashCode();
@@ -130,6 +132,7 @@ public class PluginInfo {
     return 31 * result + ((apiVersion == null) ? 0 : apiVersion.hashCode());
   }
 
+  @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
       return true;

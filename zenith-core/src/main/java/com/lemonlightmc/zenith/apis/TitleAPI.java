@@ -13,7 +13,7 @@ import com.lemonlightmc.zenith.utils.MathUtils;
 import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
 
 // TODO: Rework Title API for V1.1
-public class TitleAPI implements ITitleAPI {
+public class TitleAPI {
 
   public static final int DEFAULT_FADEIN = 10;
   public static final int DEFAULT_STAY = 70;
@@ -32,7 +32,7 @@ public class TitleAPI implements ITitleAPI {
   }
 
   public static void broadcast(
-      final ITitleInfo info) {
+      final TitleInfo info) {
     if (info == null) {
       return;
     }
@@ -72,7 +72,7 @@ public class TitleAPI implements ITitleAPI {
 
   public static void send(
       final Player players,
-      final ITitleInfo info) {
+      final TitleInfo info) {
     if (info == null) {
       return;
     }
@@ -81,7 +81,7 @@ public class TitleAPI implements ITitleAPI {
 
   public static void send(
       final Player[] players,
-      final ITitleInfo info) {
+      final TitleInfo info) {
     if (info == null) {
       return;
     }
@@ -90,7 +90,7 @@ public class TitleAPI implements ITitleAPI {
 
   public static void send(
       final List<Player> players,
-      final ITitleInfo info) {
+      final TitleInfo info) {
     if (info == null) {
       return;
     }
@@ -131,18 +131,18 @@ public class TitleAPI implements ITitleAPI {
     TitleInfo.subtitle(msg, fadeIn, stay, fadeOut, replaceables).send(p);
   }
 
-  public static class TitleInfo implements ITitleInfo {
+  public static class TitleInfo {
     private int fadeIn;
     private int stay;
     private int fadeOut;
     private String title;
     private String subtitle;
 
-    public TitleInfo(final ITitleBuilder builder) {
+    public TitleInfo(final TitleBuilder builder) {
       this(builder.build());
     }
 
-    public TitleInfo(final ITitleInfo info) {
+    public TitleInfo(final TitleInfo info) {
       this(info.getTitle(), info.getSubtitle(), null, info.getFadeIn(),
           info.getStay(), info.getFadeOut());
     }
@@ -262,7 +262,6 @@ public class TitleAPI implements ITitleAPI {
       }
     }
 
-    @Override
     public int hashCode() {
       int result = 31 + fadeIn;
       result = 31 * result + stay;
@@ -272,7 +271,6 @@ public class TitleAPI implements ITitleAPI {
       return result;
     }
 
-    @Override
     public boolean equals(final Object obj) {
       if (this == obj)
         return true;
@@ -292,14 +290,13 @@ public class TitleAPI implements ITitleAPI {
       return fadeIn == other.fadeIn && stay == other.stay && fadeOut == other.fadeOut;
     }
 
-    @Override
     public String toString() {
       return "TitleInfo [fadeIn=" + fadeIn + ", stay=" + stay + ", fadeOut=" + fadeOut + ", title=" + title
           + ", subtitle=" + subtitle + "]";
     }
   }
 
-  public static class TitleBuilder implements ITitleBuilder {
+  public static class TitleBuilder {
     private int fadeIn;
     private int stay;
     private int fadeOut;
@@ -332,88 +329,73 @@ public class TitleAPI implements ITitleAPI {
       this.fadeOut = fadeOut;
     }
 
-    @Override
     public int fadeIn() {
       return fadeIn;
     }
 
-    @Override
     public int stay() {
       return stay;
     }
 
-    @Override
     public int fadeOut() {
       return fadeOut;
     }
 
-    @Override
     public String title() {
       return title;
     }
 
-    @Override
     public String subtitle() {
       return subtitle;
     }
 
-    @Override
     public TitleBuilder title(final String title) {
       this.title = title;
       return this;
     }
 
-    @Override
     public TitleBuilder subtitle(final String subtitle) {
       this.subtitle = subtitle;
       return this;
     }
 
-    @Override
     public TitleBuilder title(final String title, final Replaceable[] replaceables) {
       this.title = title;
       this.replaceables = replaceables;
       return this;
     }
 
-    @Override
     public TitleBuilder subtitle(final String subtitle, final Replaceable[] replaceables) {
       this.subtitle = subtitle;
       this.replaceables = replaceables;
       return this;
     }
 
-    @Override
     public TitleBuilder fadeIn(final int duration) {
       this.fadeIn = duration;
       return this;
     }
 
-    @Override
     public TitleBuilder stay(final int duration) {
       this.stay = duration;
       return this;
     }
 
-    @Override
     public TitleBuilder fadeOut(final int duration) {
       this.fadeOut = duration;
       return this;
     }
 
-    @Override
     public TitleBuilder fadeIn(final Duration duration) {
       this.fadeIn = Ticks.fromDuration(duration);
       return this;
     }
 
-    @Override
     public TitleBuilder stay(final Duration duration) {
       this.stay = Ticks.fromDuration(duration);
       return this;
     }
 
-    @Override
     public TitleBuilder fadeOut(final Duration duration) {
       this.fadeOut = Ticks.fromDuration(duration);
       return this;
@@ -423,7 +405,6 @@ public class TitleAPI implements ITitleAPI {
       return new TitleInfo(title, subtitle, replaceables, fadeIn, stay, fadeOut);
     }
 
-    @Override
     public int hashCode() {
       int result = 31 + fadeIn;
       result = 31 * result + stay;
@@ -434,7 +415,6 @@ public class TitleAPI implements ITitleAPI {
       return result;
     }
 
-    @Override
     public boolean equals(final Object obj) {
       if (this == obj)
         return true;
@@ -462,7 +442,6 @@ public class TitleAPI implements ITitleAPI {
       return true;
     }
 
-    @Override
     public String toString() {
       return "TitleBuilder [fadeIn=" + fadeIn + ", stay=" + stay + ", fadeOut=" + fadeOut + ", title=" + title
           + ", subtitle=" + subtitle

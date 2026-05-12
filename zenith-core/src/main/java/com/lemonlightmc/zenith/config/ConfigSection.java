@@ -68,6 +68,7 @@ public class ConfigSection implements IConfigData {
     return data.filePath;
   }
 
+  @Override
   public String getFileName() {
     return data.fileName;
   }

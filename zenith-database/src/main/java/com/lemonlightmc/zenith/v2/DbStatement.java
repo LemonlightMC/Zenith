@@ -285,6 +285,7 @@ public class DbStatement implements AutoCloseable {
     }
   }
 
+  @Override
   @SuppressWarnings("unused")
   public void close() {
     try (DatabaseTiming timing = db.timings("close")) {

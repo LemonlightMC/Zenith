@@ -48,38 +48,46 @@ public class ConfigOptions extends HandlerOptions {
     return new ConfigOptions(this);
   }
 
+  @Override
   public String header() {
     return header;
   }
 
+  @Override
   public ConfigOptions header(final List<String> header) {
     super.header(header);
     return this;
   }
 
+  @Override
   public ConfigOptions header(final String header) {
     super.header(header);
     return this;
   }
 
+  @Override
   public ConfigOptions footer(final List<String> footer) {
     super.footer(header);
     return this;
   }
 
+  @Override
   public ConfigOptions footer(final String footer) {
     super.footer(header);
     return this;
   }
 
+  @Override
   public String footer() {
     return footer;
   }
 
+  @Override
   public boolean parseComments() {
     return parseComments;
   }
 
+  @Override
   public ConfigOptions parseComments(final boolean parseComments) {
     this.parseComments = parseComments;
     return this;
@@ -103,37 +111,45 @@ public class ConfigOptions extends HandlerOptions {
     return this;
   }
 
+  @Override
   public boolean convertTabs() {
     return convertTabs;
   }
 
+  @Override
   public ConfigOptions convertTabs(final boolean value) {
     this.convertTabs = value;
     return this;
   }
 
+  @Override
   public int tabSpaces() {
     return tabSpaces;
   }
 
+  @Override
   public ConfigOptions tabSpaces(final int value) {
     super.tabSpaces(value);
     return this;
   }
 
+  @Override
   public boolean replaceQuotes() {
     return replaceQuotes;
   }
 
+  @Override
   public ConfigOptions replaceQuotes(final boolean value) {
     this.replaceQuotes = value;
     return this;
   }
 
+  @Override
   public boolean preferDoubleQuotes() {
     return preferDoubleQuotes;
   }
 
+  @Override
   public ConfigOptions preferDoubleQuotes(final boolean value) {
     this.preferDoubleQuotes = value;
     return this;

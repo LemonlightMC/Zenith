@@ -166,10 +166,12 @@ public class CooldownStore<T> implements Cloneable<CooldownStore<T>>, Iterable<T
     return false;
   }
 
+  @Override
   public CooldownStore<T> clone() {
     return new CooldownStore<T>(this);
   }
 
+  @Override
   public Iterator<T> iterator() {
     return this.cooldowns.keySet().iterator();
   }
@@ -179,6 +181,7 @@ public class CooldownStore<T> implements Cloneable<CooldownStore<T>>, Iterable<T
     return 31 * cooldowns.hashCode() + (int) (defaultDuration ^ (defaultDuration >>> 32)) + 961;
   }
 
+  @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
       return true;

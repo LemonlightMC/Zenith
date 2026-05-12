@@ -32,6 +32,7 @@ public class BukkitExecutors {
   public interface PlayerExecutionInfo
       extends NormalExecutorInfo<Player> {
 
+    @Override
     void run(ExecutionInfo<Player> info) throws CommandException;
 
     @Override
@@ -44,6 +45,7 @@ public class BukkitExecutors {
   public interface EntityCommandExecutor
       extends NormalExecutor<Entity> {
 
+    @Override
     void run(CommandSource<Entity> source, CommandArguments args) throws CommandException;
 
     @Override
@@ -56,6 +58,7 @@ public class BukkitExecutors {
   public interface EntityExecutionInfo
       extends NormalExecutorInfo<Entity> {
 
+    @Override
     void run(ExecutionInfo<Entity> info) throws CommandException;
 
     @Override
@@ -67,6 +70,7 @@ public class BukkitExecutors {
   @FunctionalInterface
   public interface CommandBlockExecutor
       extends NormalExecutor<BlockCommandSender> {
+    @Override
     void run(CommandSource<BlockCommandSender> source, CommandArguments args)
         throws CommandException;
 
@@ -80,6 +84,7 @@ public class BukkitExecutors {
   public interface CommandBlockExecutionInfo
       extends NormalExecutorInfo<BlockCommandSender> {
 
+    @Override
     void run(ExecutionInfo<BlockCommandSender> info)
         throws CommandException;
 
@@ -93,6 +98,7 @@ public class BukkitExecutors {
   public interface ConsoleCommandExecutor
       extends NormalExecutor<ConsoleCommandSender> {
 
+    @Override
     abstract void run(CommandSource<ConsoleCommandSender> source, CommandArguments args)
         throws CommandException;
 
@@ -106,6 +112,7 @@ public class BukkitExecutors {
   public interface ConsoleExecutionInfo
       extends NormalExecutorInfo<ConsoleCommandSender> {
 
+    @Override
     void run(ExecutionInfo<ConsoleCommandSender> info) throws CommandException;
 
     @Override
@@ -119,6 +126,7 @@ public class BukkitExecutors {
       extends
       NormalExecutor<RemoteConsoleCommandSender> {
 
+    @Override
     void run(CommandSource<RemoteConsoleCommandSender> source, CommandArguments args)
         throws CommandException;
 
@@ -133,6 +141,7 @@ public class BukkitExecutors {
       extends
       NormalExecutorInfo<RemoteConsoleCommandSender> {
 
+    @Override
     void run(ExecutionInfo<RemoteConsoleCommandSender> info) throws CommandException;
 
     @Override
@@ -146,6 +155,7 @@ public class BukkitExecutors {
       extends
       NormalExecutorInfo<CommandSender> {
 
+    @Override
     void run(final ExecutionInfo<CommandSender> info) throws CommandException;
 
     @Override
@@ -159,6 +169,7 @@ public class BukkitExecutors {
       extends
       NormalExecutor<CommandSender> {
 
+    @Override
     void run(CommandSource<CommandSender> source, CommandArguments args);
 
     @Override
@@ -171,6 +182,7 @@ public class BukkitExecutors {
   public interface ProxyCommandExecutor
       extends NormalExecutor<ProxiedCommandSender> {
 
+    @Override
     void run(CommandSource<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
 
     @Override
@@ -182,6 +194,7 @@ public class BukkitExecutors {
   @FunctionalInterface
   public interface ProxyExecutionInfo extends NormalExecutorInfo<ProxiedCommandSender> {
 
+    @Override
     void run(ExecutionInfo<ProxiedCommandSender> info) throws CommandException;
 
     @Override
@@ -194,6 +207,7 @@ public class BukkitExecutors {
   public interface NativeCommandExecutor
       extends NormalExecutor<ProxiedCommandSender> {
 
+    @Override
     void run(CommandSource<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
 
     @Override
@@ -206,6 +220,7 @@ public class BukkitExecutors {
   public interface NativeExecutionInfo
       extends NormalExecutorInfo<ProxiedCommandSender> {
 
+    @Override
     void run(ExecutionInfo<ProxiedCommandSender> info) throws CommandException;
 
     @Override

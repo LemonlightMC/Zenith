@@ -62,7 +62,8 @@ public class AdvancementAPI {
   }
 
   @SuppressWarnings("deprecation")
-  private NamespacedKey legacyType(String icon, String message, ToastType style, Object modelData, boolean glowing,
+  private static NamespacedKey legacyType(String icon, String message, ToastType style, Object modelData,
+      boolean glowing,
       NamespacedKey advancementKey) {
 
     int modelDataInt = 0;
@@ -107,7 +108,8 @@ public class AdvancementAPI {
   }
 
   @SuppressWarnings("deprecation")
-  private NamespacedKey middleType(String icon, String message, ToastType style, Object modelData, boolean glowing,
+  private static NamespacedKey middleType(String icon, String message, ToastType style, Object modelData,
+      boolean glowing,
       NamespacedKey advancementKey) {
     int modelDataInt = 0;
     if (modelData instanceof Integer) {
@@ -159,7 +161,8 @@ public class AdvancementAPI {
   }
 
   @SuppressWarnings("deprecation")
-  private NamespacedKey modernType(String icon, String message, ToastType style, Object modelData, String modelDataType,
+  private static NamespacedKey modernType(String icon, String message, ToastType style, Object modelData,
+      String modelDataType,
       boolean glowing, NamespacedKey advancementKey) {
     String customModelData;
     if (modelDataType == null) {
@@ -213,7 +216,7 @@ public class AdvancementAPI {
     return advancementKey;
   }
 
-  private NamespacedKey createAdvancement(String icon, String message, ToastType style, Object modelData,
+  private static NamespacedKey createAdvancement(String icon, String message, ToastType style, Object modelData,
       String modelDataType, boolean glowing) {
 
     message = MessageFormatter.format(message, true, false);
@@ -246,12 +249,12 @@ public class AdvancementAPI {
 
   }
 
-  private void grantAdvancement(Player p, NamespacedKey advancementKey) {
+  private static void grantAdvancement(Player p, NamespacedKey advancementKey) {
     p.getAdvancementProgress(Objects.requireNonNull(Bukkit.getAdvancement(advancementKey)))
         .awardCriteria("trigger");
   }
 
-  private void revokeAdvancement(Player p, NamespacedKey advancementKey) {
+  private static void revokeAdvancement(Player p, NamespacedKey advancementKey) {
     p.getAdvancementProgress(Objects.requireNonNull(Bukkit.getAdvancement(advancementKey)))
         .revokeCriteria("trigger");
   }

@@ -183,6 +183,7 @@ public class Note extends Playable {
       return this;
     }
 
+    @Override
     public Note build() {
       return new Note(this);
     }

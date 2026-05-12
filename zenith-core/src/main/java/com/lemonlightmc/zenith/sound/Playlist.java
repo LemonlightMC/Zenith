@@ -80,7 +80,7 @@ public class Playlist {
     return new ArrayList<>(songs);
   }
 
-  private boolean check(final List<Song> songs) {
+  private static boolean check(final List<Song> songs) {
     if (songs == null) {
       throw new IllegalArgumentException("Song List cant be null");
     }

@@ -28,6 +28,7 @@ public class Version implements IVersion {
       this.name = name;
     }
 
+    @Override
     public String toString() {
       return name;
     }
@@ -148,6 +149,7 @@ public class Version implements IVersion {
     return build;
   }
 
+  @Override
   public VersionModifier getModifier() {
     return modifier;
   }
@@ -277,7 +279,7 @@ public class Version implements IVersion {
     return 0;
   }
 
-  private void checkNotNull(final IVersion version) {
+  private static void checkNotNull(final IVersion version) {
     if (version == null) {
       throw new IllegalArgumentException("Version cannot be null");
     }

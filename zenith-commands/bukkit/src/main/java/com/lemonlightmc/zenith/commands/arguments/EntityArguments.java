@@ -41,6 +41,7 @@ public class EntityArguments {
       withSuggestions((info) -> Bukkit.getOnlinePlayers().stream().map(p -> p.getName()).toList());
     }
 
+    @Override
     public PlayerProfileArgument getInstance() {
       return this;
     }

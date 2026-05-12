@@ -51,6 +51,7 @@ public class ShapedCraftingRecipe extends CraftingRecipe {
     return this;
   }
 
+  @Override
   public org.bukkit.inventory.ShapedRecipe toBukkit() {
     final org.bukkit.inventory.ShapedRecipe recipe = new org.bukkit.inventory.ShapedRecipe(getKey(),
         this.output.item());

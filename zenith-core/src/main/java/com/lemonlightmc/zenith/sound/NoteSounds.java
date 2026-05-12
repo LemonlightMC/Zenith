@@ -138,6 +138,7 @@ public class NoteSounds extends Sound {
     return sound == null ? def.getBukkitSound() : sound.getBukkitSound();
   }
 
+  @Override
   public NamespacedKey getKey() {
     return key;
   }

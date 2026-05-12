@@ -143,6 +143,7 @@ public class Registry<T extends Registrable>
     return !registry.isEmpty();
   }
 
+  @Override
   public Registry<T> clone() {
     return new Registry<>(this.registry);
   }
@@ -200,7 +201,7 @@ public class Registry<T extends Registrable>
     return key;
   }
 
-  private void checkKey(final NamespacedKey key) {
+  private static void checkKey(final NamespacedKey key) {
     if (key == null) {
       throw new IllegalArgumentException("Registry Key cannot be null!");
     }

@@ -6,6 +6,7 @@ public interface DatabaseTiming extends AutoCloseable {
 
   void stopTiming();
 
+  @Override
   default void close() {
     this.stopTiming();
   }

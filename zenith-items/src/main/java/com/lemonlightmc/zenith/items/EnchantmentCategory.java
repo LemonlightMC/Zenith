@@ -12,6 +12,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   ANY() {
 
+    @Override
     public List<Enchantment> get() {
       return anyEnchantments;
     }
@@ -29,6 +30,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   UNKOWN() {
 
+    @Override
     public List<Enchantment> get() {
       return List.<Enchantment>of();
     }
@@ -46,6 +48,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   DEFAULT() {
 
+    @Override
     public List<Enchantment> get() {
       return defaultEnchantments;
     }
@@ -63,6 +66,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   ANY_TOOL() {
 
+    @Override
     public List<Enchantment> get() {
       return toolsEnchantments;
     }
@@ -81,6 +85,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   AXE() {
 
+    @Override
     public List<Enchantment> get() {
       return axeEnchantments;
     }
@@ -101,6 +106,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   PICKAXE() {
 
+    @Override
     public List<Enchantment> get() {
       return toolsEnchantments;
     }
@@ -121,6 +127,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   SHOVEL() {
 
+    @Override
     public List<Enchantment> get() {
       return toolsEnchantments;
     }
@@ -141,6 +148,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   HOE() {
 
+    @Override
     public List<Enchantment> get() {
       return toolsEnchantments;
     }
@@ -161,6 +169,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   SHIELD() {
 
+    @Override
     public List<Enchantment> get() {
       return defaultEnchantments;
     }
@@ -177,6 +186,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
   },
 
   ELYTRA() {
+    @Override
     public List<Enchantment> get() {
       return defaultEnchantments;
     }
@@ -194,6 +204,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   SHEARS() {
 
+    @Override
     public List<Enchantment> get() {
       return shearsEnchantments;
     }
@@ -211,6 +222,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   BRUSH() {
 
+    @Override
     public List<Enchantment> get() {
       return defaultEnchantments;
     }
@@ -227,6 +239,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
   },
 
   FLINT_STEEL() {
+    @Override
     public List<Enchantment> get() {
       return defaultEnchantments;
     }
@@ -243,6 +256,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
   },
 
   WARPED_FUNGUS_ON_A_STICK() {
+    @Override
     public List<Enchantment> get() {
       return defaultEnchantments;
     }
@@ -259,6 +273,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
   },
 
   CARROT_ON_A_STICK() {
+    @Override
     public List<Enchantment> get() {
       return defaultEnchantments;
     }
@@ -275,6 +290,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
   },
 
   MACE() {
+    @Override
     public List<Enchantment> get() {
       return maceEnchantments;
     }
@@ -292,6 +308,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   SWORD() {
 
+    @Override
     public List<Enchantment> get() {
       return swordEnchantments;
     }
@@ -312,6 +329,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   ANY_ARMOR() {
 
+    @Override
     public List<Enchantment> get() {
       return armorEnchantments;
     }
@@ -330,6 +348,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   HELMET() {
 
+    @Override
     public List<Enchantment> get() {
       return helmetEnchantments;
     }
@@ -350,6 +369,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   CHESTPLATE() {
 
+    @Override
     public List<Enchantment> get() {
       return armorEnchantments;
     }
@@ -369,6 +389,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   LEGGINGS() {
 
+    @Override
     public List<Enchantment> get() {
       return leggingsEnchantments;
     }
@@ -388,6 +409,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   BOOTS() {
 
+    @Override
     public List<Enchantment> get() {
       return bootsEnchantments;
     }
@@ -407,6 +429,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   BOW() {
 
+    @Override
     public List<Enchantment> get() {
       return bowEnchantments;
     }
@@ -424,6 +447,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   CROSSBOW() {
 
+    @Override
     public List<Enchantment> get() {
       return crossbowEnchantments;
     }
@@ -441,6 +465,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   FISHING_ROD() {
 
+    @Override
     public List<Enchantment> get() {
       return fishingRodEnchantments;
     }
@@ -458,6 +483,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   TRIDENT() {
 
+    @Override
     public List<Enchantment> get() {
       return tridentEnchantments;
     }
@@ -475,6 +501,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   CURSES() {
 
+    @Override
     public List<Enchantment> get() {
       return cursesEnchantments;
     }
@@ -538,6 +565,7 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   public abstract List<Enchantment> get();
 
+  @Override
   public abstract Iterator<Enchantment> iterator();
 
   public abstract boolean applicable(Material material);

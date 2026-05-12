@@ -27,7 +27,7 @@ public class MojangProfile implements Cloneable<MojangProfile> {
   }
 
   public MojangProfile(final String uuidStr, final String username, final String value, final String signature) {
-    this.uuid = this.formatUUID(uuidStr);
+    this.uuid = MojangProfile.formatUUID(uuidStr);
     if (uuid == null || username == null || username.isBlank()) {
       throw new IllegalArgumentException("UUID and username cannot be empty");
     }
@@ -97,7 +97,7 @@ public class MojangProfile implements Cloneable<MojangProfile> {
     return new MojangProfile(uuid.toString(), username, value, signature);
   }
 
-  private UUID formatUUID(final String rawUUID) {
+  private static UUID formatUUID(final String rawUUID) {
     if (rawUUID == null || rawUUID.isEmpty()) {
       return null;
     }

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-import org.bukkit.Server;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -24,14 +24,12 @@ import com.lemonlightmc.zenith.version.Version;
 
 public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
 
-  private final Server server = null;
-  private Scheduler scheduler = null;
+  private final Scheduler scheduler;
 
-  private final File file = null;
-  private PluginInfo info = null;
-  private MessageStore messageStore = null;
+  private final PluginInfo info;
+  private final MessageStore messageStore;
 
-  protected static ZenithPlugin instance = null;
+  protected static ZenithPlugin instance;
 
   public ZenithPlugin() {
     super();
@@ -74,8 +72,9 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
     return info.getVersion();
   }
 
-  protected File getFile() {
-    return file;
+  @Override
+  public File getFile() {
+    return super.getFile();
   }
 
   public File getDataFile(final String... path) {
@@ -86,11 +85,11 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
   }
 
   public PluginManager getPluginManager() {
-    return server.getPluginManager();
+    return Bukkit.getServer().getPluginManager();
   }
 
   public ServicesManager getServicesManager() {
-    return server.getServicesManager();
+    return Bukkit.getServer().getServicesManager();
   }
 
   public Scheduler getScheduler() {
@@ -99,7 +98,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
 
   @Override
   public java.util.logging.Logger getLogger() {
-    return server.getLogger();
+    return Bukkit.getServer().getLogger();
   }
 
   public MessageStore getMessageStore() {
@@ -157,6 +156,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
     ResourceUtils.saveResource(file, new File(getDataFolder(), path));
   }
 
+  @Override
   @Deprecated
   public PluginCommand getCommand(final String name) {
     final String alias = name.toLowerCase(java.util.Locale.ENGLISH);
@@ -179,7 +179,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
 
   @Override
   public void onLoad() {
-    MessageFormatter.setPlaceholdersSupport(server.getPluginManager().isPluginEnabled("PlaceholderAPI"));
+    MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
     messageStore.loadAll();
     if (Configurate.options().createDefaults()) {
       Configurate.createDefaults();
@@ -194,7 +194,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
   }
 
   public void onReload() {
-    MessageFormatter.setPlaceholdersSupport(server.getPluginManager().isPluginEnabled("PlaceholderAPI"));
+    MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
     messageStore.reloadAll();
     if (Configurate.options().autoReload()) {
       Configurate.reloadAll();

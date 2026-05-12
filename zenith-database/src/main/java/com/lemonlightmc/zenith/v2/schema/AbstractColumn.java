@@ -34,6 +34,7 @@ public abstract class AbstractColumn<T> implements Column<T> {
     return definitionBuilder.toString();
   }
 
+  @Override
   public abstract T get(Object object);
 
   @Override

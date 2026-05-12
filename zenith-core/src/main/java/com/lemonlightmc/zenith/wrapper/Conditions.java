@@ -117,10 +117,12 @@ public class Conditions {
       conditions.clear();
     }
 
+    @Override
     public boolean isEmpty() {
       return conditions == null || conditions.isEmpty();
     }
 
+    @Override
     public boolean test(final T player) {
       if (conditions.size() == 0) {
         return true;
@@ -182,10 +184,12 @@ public class Conditions {
       return new WorldConditions(denied_worlds, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return worlds == null || worlds.isEmpty();
     }
 
+    @Override
     public boolean test(final Player player) {
       final String w = player.getWorld().getName().toLowerCase();
       return type.apply(worlds.contains(w));
@@ -214,10 +218,12 @@ public class Conditions {
       return new BiomConditions(denied_bioms, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return bioms == null || bioms.isEmpty();
     }
 
+    @Override
     public boolean test(final Player player) {
       final String b = player.getWorld().getBiome(player.getLocation()).toString().toLowerCase();
       return type.apply(bioms.contains(b));
@@ -246,10 +252,12 @@ public class Conditions {
       return new BiomConditions(denied_worlds, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return weathers == null || weathers.isEmpty();
     }
 
+    @Override
     public boolean test(final Player player) {
       final String now = player.getWorld().isThundering() ? "thunder"
           : (player.getWorld().hasStorm() ? "rain" : "clear");
@@ -279,10 +287,12 @@ public class Conditions {
       return new MoonConditions(moonPhases, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return moonPhases == null || moonPhases.isEmpty();
     }
 
+    @Override
     public boolean test(final Player player) {
       final int value = Integer.valueOf(getMoonPhase(player));
       return type.apply(moonPhases.contains(value));
@@ -316,10 +326,12 @@ public class Conditions {
       return new TimeRangeConditions(timeRanges, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return timeRanges == null;
     }
 
+    @Override
     public boolean test(final Player player) {
       boolean value = true;
       final int t = (int) (player.getWorld().getFullTime() % 24000);
@@ -355,10 +367,12 @@ public class Conditions {
       return new AdvancementConditions(advancements, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return advancements == null || advancements.isEmpty();
     }
 
+    @Override
     public boolean test(final Player player) {
       boolean value = true;
       for (final String adv : advancements) {
@@ -400,10 +414,12 @@ public class Conditions {
       return new RecipeConditions(recipes, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return recipes == null || recipes.isEmpty();
     }
 
+    @Override
     public boolean test(final Player player) {
       boolean value = true;
       for (final String recipe : recipes) {
@@ -441,10 +457,12 @@ public class Conditions {
       return new PluginConditions(plugins, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return plugins == null || plugins.isEmpty();
     }
 
+    @Override
     public boolean test(final CommandSender sender) {
       boolean value = true;
       for (final String plugin : plugins) {
@@ -479,10 +497,12 @@ public class Conditions {
       return new PermissionConditions(permissions, type);
     }
 
+    @Override
     public boolean isEmpty() {
       return permissions == null || permissions.isEmpty();
     }
 
+    @Override
     public boolean test(final CommandSender sender) {
       boolean value = true;
       for (final String permission : permissions) {

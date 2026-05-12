@@ -73,6 +73,7 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     }
   }
 
+  @Override
   public void run() {
     runLater(1);
   }

@@ -317,6 +317,7 @@ public class Instrument {
       return this;
     }
 
+    @Override
     public CustomInstrument build() {
       return new CustomInstrument(this);
     }

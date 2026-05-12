@@ -87,14 +87,18 @@ public interface IRecipeBuilder extends Builder<IRecipe> {
 
   IRecipeBuilder ingredients(Material material, Character sign);
 
+  @Override
   IRecipe build();
 
   IRecipe build(Object... args);
 
+  @Override
   int hashCode();
 
+  @Override
   boolean equals(Object obj);
 
+  @Override
   String toString();
 
 }

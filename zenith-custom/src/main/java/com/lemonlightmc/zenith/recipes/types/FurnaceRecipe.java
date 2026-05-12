@@ -13,6 +13,7 @@ public class FurnaceRecipe extends SmeltingRecipe {
     super(RecipeType.SMELTING, recipeName, experience, burningTime);
   }
 
+  @Override
   public org.bukkit.inventory.FurnaceRecipe toBukkit() {
     final org.bukkit.inventory.FurnaceRecipe recipe = new org.bukkit.inventory.FurnaceRecipe(getKey(),
         this.output.item(),

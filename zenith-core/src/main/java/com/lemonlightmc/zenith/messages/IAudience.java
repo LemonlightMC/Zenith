@@ -59,11 +59,15 @@ public interface IAudience<V> extends Iterable<V>, Comparable<IAudience<V>>, Clo
 
   public V[] toArray();
 
+  @Override
   public IAudience<V> clone();
 
+  @Override
   public String toString();
 
+  @Override
   public int hashCode();
 
+  @Override
   public boolean equals(Object audience);
 }

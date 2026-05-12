@@ -100,6 +100,7 @@ public class SchemaSection extends SchemaNode {
     return this;
   }
 
+  @Override
   public SchemaSection setComment(final String comment) {
     super.setComment(comment);
     return this;

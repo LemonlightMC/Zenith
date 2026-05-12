@@ -70,6 +70,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
     return key;
   }
 
+  @Override
   public NamespacedKey getKeyOrThrow() {
     if (key == null) {
       throw new IllegalArgumentException("Enchantment key is null");
@@ -77,14 +78,17 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
     return key;
   }
 
+  @Override
   public NamespacedKey getKeyOrNull() {
     return key;
   }
 
+  @Override
   public int getMaxLevel() {
     return maxLevel;
   }
 
+  @Override
   public int getStartLevel() {
     return 1;
   }
@@ -110,6 +114,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
     return conflicts.contains(other);
   }
 
+  @Override
   public boolean canEnchantItem(final ItemStack item) {
     return target.applicable(item);
   }

@@ -13,6 +13,7 @@ public class BlastingRecipe extends SmeltingRecipe {
     super(RecipeType.BLASTING, recipeName, experience, burningTime);
   }
 
+  @Override
   public org.bukkit.inventory.BlastingRecipe toBukkit() {
     final org.bukkit.inventory.BlastingRecipe recipe = new org.bukkit.inventory.BlastingRecipe(getKey(),
         this.output.item(),

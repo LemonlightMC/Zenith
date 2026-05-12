@@ -58,6 +58,7 @@ public class RegistryArguments {
       withSuggestions(NAMES);
     }
 
+    @Override
     public SoundArgument getInstance() {
       return this;
     }
@@ -79,6 +80,7 @@ public class RegistryArguments {
       withSuggestions(NAMES);
     }
 
+    @Override
     public ParticleArgument getInstance() {
       return this;
     }
@@ -100,6 +102,7 @@ public class RegistryArguments {
       withSuggestions(NAMES);
     }
 
+    @Override
     public PotionEffectArgument getInstance() {
       return this;
     }
@@ -121,6 +124,7 @@ public class RegistryArguments {
       withSuggestions(NAMES);
     }
 
+    @Override
     public EnchantmentArgument getInstance() {
       return this;
     }
@@ -143,6 +147,7 @@ public class RegistryArguments {
       withSuggestions(NAMES);
     }
 
+    @Override
     public AdvancementArgument getInstance() {
       return this;
     }
@@ -165,6 +170,7 @@ public class RegistryArguments {
       withSuggestions(NAMES);
     }
 
+    @Override
     public ItemStackArgument getInstance() {
       return this;
     }
@@ -195,6 +201,7 @@ public class RegistryArguments {
       withSuggestions(NAMES);
     }
 
+    @Override
     public MaterialArgument getInstance() {
       return this;
     }

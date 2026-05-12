@@ -106,6 +106,7 @@ public class DbRow extends HashMap<String, Object> {
     return res == null ? def : res;
   }
 
+  @Override
   public DbRow clone() {
     final DbRow row = new DbRow();
     row.putAll(this);

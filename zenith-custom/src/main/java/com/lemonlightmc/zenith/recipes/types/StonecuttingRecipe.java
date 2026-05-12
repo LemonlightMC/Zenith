@@ -30,6 +30,7 @@ public class StonecuttingRecipe extends Recipe {
     return this;
   }
 
+  @Override
   public org.bukkit.inventory.StonecuttingRecipe toBukkit() {
     final org.bukkit.inventory.StonecuttingRecipe recipe = new org.bukkit.inventory.StonecuttingRecipe(getKey(),
         this.output.item(), Ingredients.toExactChoice(this.ingredients));

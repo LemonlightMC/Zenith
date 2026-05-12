@@ -14,6 +14,7 @@ public class ShapelessCraftingRecipe extends CraftingRecipe {
     super(recipeName, RecipeType.CRAFTING_SHAPELESS);
   }
 
+  @Override
   public org.bukkit.inventory.ShapelessRecipe toBukkit() {
     final org.bukkit.inventory.ShapelessRecipe recipe = new org.bukkit.inventory.ShapelessRecipe(getKey(),
         this.output.item());

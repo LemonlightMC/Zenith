@@ -40,10 +40,13 @@ public interface IVersion extends Comparable<IVersion>, Cloneable<IVersion> {
 
   public String formatted(boolean includeEmpty);
 
+  @Override
   public String toString();
 
+  @Override
   public boolean equals(Object o);
 
+  @Override
   public int hashCode();
 
 }

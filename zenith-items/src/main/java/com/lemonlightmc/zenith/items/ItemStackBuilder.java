@@ -70,6 +70,7 @@ public class ItemStackBuilder implements Builder<ItemStack> {
     return new ItemStackBuilder(item);
   }
 
+  @Override
   public ItemStack build() {
     item.setItemMeta(meta);
     return item;

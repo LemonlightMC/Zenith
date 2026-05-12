@@ -44,9 +44,12 @@ public interface IRecipe extends Keyed {
 
   public IRecipe setIngredients(ItemStack ingredient, boolean strict);
 
+  @Override
   public int hashCode();
 
+  @Override
   public boolean equals(final Object obj);
 
+  @Override
   public String toString();
 }

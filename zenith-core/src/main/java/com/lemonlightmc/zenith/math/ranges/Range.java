@@ -75,16 +75,21 @@ public interface Range<T extends Range<T, V>, V extends Number> extends Cloneabl
 
   boolean isMinValue();
 
+  @Override
   int compareTo(T o);
 
   Comparator<T> getComparator();
 
+  @Override
   T clone();
 
+  @Override
   String toString();
 
+  @Override
   int hashCode();
 
+  @Override
   boolean equals(Object obj);
 
 }

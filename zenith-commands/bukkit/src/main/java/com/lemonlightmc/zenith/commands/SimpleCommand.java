@@ -43,6 +43,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     setName(key);
   }
 
+  @Override
   public SimpleCommand getInstance() {
     return this;
   }
@@ -55,33 +56,40 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return new SimpleSubCommand<CommandSender>(aliases);
   }
 
+  @Override
   public SimpleCommand register() {
     build();
     CommandAPI.register(this);
     return this;
   }
 
+  @Override
   public SimpleCommand unregister() {
     CommandAPI.unregister(this);
     return this;
   }
 
+  @Override
   public boolean isRegistered() {
     return CommandAPI.isRegistered(key.toString());
   }
 
+  @Override
   public String getNamespace() {
     return key.getNamespace();
   }
 
+  @Override
   public String getKey() {
     return key.getKey();
   }
 
+  @Override
   public NamespacedKey getName() {
     return key;
   }
 
+  @Override
   public SimpleCommand setName(final NamespacedKey key) {
     if (this.key != null && this.key.equals(key)) {
       return this;
@@ -101,35 +109,42 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return this;
   }
 
+  @Override
   public SimpleCommand setKey(final String key) {
     setName(new NamespacedKey(getNamespace(), key));
     return this;
   }
 
+  @Override
   public SimpleCommand setNamespacey(final String namespace) {
     setName(new NamespacedKey(namespace, getKey()));
     return this;
   }
 
+  @Override
   public SimpleCommand withUsage(final String usage) {
     this.usageDescription = usage.split("\n");
     return this;
   }
 
+  @Override
   public SimpleCommand withUsage(final String... usage) {
     this.usageDescription = usage;
     return this;
   }
 
+  @Override
   public SimpleCommand withUsage(final List<String> usage) {
     this.usageDescription = usage.toArray(String[]::new);
     return this;
   }
 
+  @Override
   public String[] getUsage() {
     return usageDescription;
   }
 
+  @Override
   public SimpleCommand withHelp(
       final String shortDesc,
       final String fullDesc) {
@@ -138,16 +153,19 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return this;
   }
 
+  @Override
   public SimpleCommand withHelp(final List<String> help) {
     this.helpMessage = String.join("\n", help);
     return this;
   }
 
+  @Override
   public SimpleCommand withHelp(final String help) {
     this.helpMessage = help;
     return this;
   }
 
+  @Override
   public List<String> getHelp() {
     return helpMessage == null ? null : List.of(helpMessage.split("\n"));
   }

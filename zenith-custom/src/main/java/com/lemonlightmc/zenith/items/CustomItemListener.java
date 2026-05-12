@@ -156,7 +156,7 @@ public class CustomItemListener implements Listener {
   }
 
   @EventHandler
-  private void onDropItem(PlayerDropItemEvent event) {
+  private static void onDropItem(PlayerDropItemEvent event) {
     PersistentDataContainer pdc = getPDC(event.getItemDrop().getItemStack());
     BaseCustomItem citem = getCustomItem(pdc);
     if (citem == null) {

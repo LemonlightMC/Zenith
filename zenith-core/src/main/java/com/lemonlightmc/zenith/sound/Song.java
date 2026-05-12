@@ -78,6 +78,7 @@ public class Song extends Playable {
     return tick * (1 / getTempo(0));
   }
 
+  @Override
   public Song clone() {
     return new Song(this);
   }

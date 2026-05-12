@@ -74,26 +74,31 @@ public class Schema extends SchemaSection {
     return SchemaPair.create(name, type, null, null, null);
   }
 
+  @Override
   public Schema addNodes(final SchemaNode... nodes) {
     super.addNodes(nodes);
     return this;
   }
 
+  @Override
   public Schema removeNodes(final Collection<String> paths) {
     super.removeNodes(paths);
     return this;
   }
 
+  @Override
   public Schema removeNodes(final SchemaNode... nodes) {
     super.removeNodes(nodes);
     return this;
   }
 
+  @Override
   public Schema setNodes(final Collection<SchemaNode> nodes) {
     super.setNodes(nodes);
     return this;
   }
 
+  @Override
   public Schema clearNodes() {
     super.clearNodes();
     return this;
@@ -110,7 +115,8 @@ public class Schema extends SchemaSection {
     return BuildSchema.from(buildNodes, comment, null);
   }
 
-  private void buildSection(final List<SchemaNode> buildNodes, final SchemaSection section, final String currentPath) {
+  private static void buildSection(final List<SchemaNode> buildNodes, final SchemaSection section,
+      final String currentPath) {
     final int marker = buildNodes.size();
     buildNodes.add(null);
     for (final SchemaNode schemaNode : section.nodes) {

@@ -13,6 +13,7 @@ public class CampfireRecipe extends SmeltingRecipe {
     super(RecipeType.CAMPFIRE_COOKING, recipeName, experience, burningTime);
   }
 
+  @Override
   public org.bukkit.inventory.CampfireRecipe toBukkit() {
     final org.bukkit.inventory.CampfireRecipe recipe = new org.bukkit.inventory.CampfireRecipe(getKey(),
         this.output.item(),

@@ -31,6 +31,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   protected String fullDescription;
   private boolean hasOptional = false;
 
+  @Override
   public abstract T getInstance();
 
   // Aliases

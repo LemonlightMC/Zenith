@@ -77,6 +77,7 @@ public class CooldownHolder implements Cloneable<CooldownHolder> {
     return System.currentTimeMillis() < startTime + duration;
   }
 
+  @Override
   public CooldownHolder clone() {
     return new CooldownHolder(startTime, duration);
   }

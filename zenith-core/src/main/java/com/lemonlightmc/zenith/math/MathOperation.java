@@ -23,6 +23,7 @@ public enum MathOperation {
     this.func = func;
   }
 
+  @Override
   public String toString() {
     return symbol;
   }

@@ -486,6 +486,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return path == null ? null : StringUtils.parseLocale(path.getFileName().toString().replace("lang_", ""));
     }
 
+    @Override
     public boolean hasChanged() {
       final BasicFileAttributes attr = FileUtils.stats(path).get();
       return attr == null || attr.lastModifiedTime().toMillis() != last_updated;
@@ -509,6 +510,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return path.equals(other.path) && file.equals(other.file);
     }
 
+    @Override
     public FileMessageRepository load() {
       if (FileUtils.notExists(path)) {
         hasDefault = ResourceUtils.hasResource(path.toString());
@@ -532,6 +534,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return this;
     }
 
+    @Override
     public FileMessageRepository save() {
       FileUtils.mkdirs(file).throwIfFailed();
       try (BufferedWriter writer = FileUtils.createWriter(file)) {
@@ -602,6 +605,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return supplier;
     }
 
+    @Override
     public boolean hasChanged() {
       return isDynamic;
     }
@@ -622,6 +626,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return supplier.equals(((SupplierMessageRepository) obj).supplier);
     }
 
+    @Override
     public SupplierMessageRepository load() {
       this.messages = supplier.get();
       loadMeta(messages.get("meta.name"), messages.get("meta.locale"),
@@ -645,6 +650,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       this.function = repo.function;
     }
 
+    @Override
     public String getMessage(final String key) {
       if (key == null || key.isEmpty()) {
         return null;
@@ -652,6 +658,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return function.apply(key);
     }
 
+    @Override
     public FunctionMessageRepository load() {
       loadMeta(function.apply("meta.name"), locale.toString(),
           function.apply("meta.version"),
@@ -699,6 +706,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       this.translator = repo.translator;
     }
 
+    @Override
     public String getMessage(final String key) {
       if (key == null || key.isEmpty()) {
         return null;
@@ -793,6 +801,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return url.equals(((URLMessageRepository) obj).url);
     }
 
+    @Override
     public URLMessageRepository load() {
       HttpURLConnection conn = null;
       try {

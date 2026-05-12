@@ -34,10 +34,12 @@ public class InternalExecutor extends Command {
     return cmd.getNamespace();
   }
 
+  @Override
   public String getLabel() {
     return super.getName();
   }
 
+  @Override
   public boolean setLabel(final String label) {
     if (super.setLabel(label)) {
       cmd.setKey(label);

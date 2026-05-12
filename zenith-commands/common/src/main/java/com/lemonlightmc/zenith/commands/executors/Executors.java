@@ -59,14 +59,17 @@ public class Executors {
   }
 
   public interface NormalExecutorInfo<S> extends NormalExecutor<S> {
+    @Override
     void run(ExecutionInfo<S> info) throws CommandException;
 
+    @Override
     default void run(
         final CommandSource<S> source, final CommandArguments args)
         throws CommandException {
       this.run(new ExecutionInfo<>(source, args));
     }
 
+    @Override
     default ExecutorType getType() {
       return ExecutorType.ALL;
     }
@@ -77,6 +80,7 @@ public class Executors {
       extends
       NormalExecutor<S> {
 
+    @Override
     void run(CommandSource<S> source, CommandArguments args) throws CommandException;
 
     @Override
@@ -90,6 +94,7 @@ public class Executors {
       extends
       NormalExecutorInfo<S> {
 
+    @Override
     void run(ExecutionInfo<S> info) throws CommandException;
 
     @Override

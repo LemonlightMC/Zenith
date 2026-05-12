@@ -678,6 +678,7 @@ public class BossbarAPI {
       return this;
     }
 
+    @Override
     public BossBar build() {
       BossBar bar = new BossBar(key, title, color, style, flags);
       bar.setProgress(this.progress);
@@ -779,10 +780,13 @@ public class BossbarAPI {
 
     public IBossBar clone();
 
+    @Override
     public String toString();
 
+    @Override
     public boolean equals(final Object obj);
 
+    @Override
     public int hashCode();
   }
 

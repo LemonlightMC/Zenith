@@ -86,6 +86,7 @@ public class Audience implements IAudience<CommandSender> {
     return this;
   }
 
+  @Override
   public void forEach(Consumer<? super CommandSender> action) {
     if (!isFiltered) {
       applyGlobalFilter();
@@ -178,6 +179,7 @@ public class Audience implements IAudience<CommandSender> {
     return viewers.size() - o.toSet().size();
   }
 
+  @Override
   public Audience clone() {
     return new Audience(viewers);
   }

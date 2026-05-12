@@ -51,6 +51,7 @@ public class Hooks<H extends IModule> implements Reloadable {
     manager.enableAll();
   }
 
+  @Override
   public void reload() {
     manager.reload();
   }

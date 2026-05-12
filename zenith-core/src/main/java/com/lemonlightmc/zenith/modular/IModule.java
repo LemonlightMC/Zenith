@@ -16,6 +16,7 @@ public interface IModule extends Reloadable {
 
   public void enable();
 
+  @Override
   public void reload();
 
   public void disable();
@@ -26,9 +27,12 @@ public interface IModule extends Reloadable {
 
   public void onDisable();
 
+  @Override
   public int hashCode();
 
+  @Override
   public String toString();
 
+  @Override
   public boolean equals(Object module);
 }

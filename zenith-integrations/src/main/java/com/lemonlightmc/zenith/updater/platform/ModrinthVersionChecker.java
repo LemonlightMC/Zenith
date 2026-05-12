@@ -38,7 +38,7 @@ public class ModrinthVersionChecker extends VersionChecker {
         return currVersionJson.get("files").getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString();
     }
 
-    private JsonArray getVersions(PluginData pluginData, ModrinthData modrinthData)
+    private static JsonArray getVersions(PluginData pluginData, ModrinthData modrinthData)
             throws IOException, InterruptedException {
         StringBuilder uriBuilder = new StringBuilder(String.format("%s/project/%s/version",
                 ENDPOINT, modrinthData.getModrinthProjectId()))
@@ -62,7 +62,7 @@ public class ModrinthVersionChecker extends VersionChecker {
         return JsonParser.parseString(response.body()).getAsJsonArray();
     }
 
-    private JsonObject getLatestVersionInternal(PluginData pluginData, ModrinthData modrinthData)
+    private static JsonObject getLatestVersionInternal(PluginData pluginData, ModrinthData modrinthData)
             throws IOException, InterruptedException {
         JsonArray versions = getVersions(pluginData, modrinthData);
         if (versions.isEmpty()) {

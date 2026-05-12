@@ -13,6 +13,7 @@ public class SmokingRecipe extends SmeltingRecipe {
     super(RecipeType.SMOKING, recipeName, experience, burningTime);
   }
 
+  @Override
   public org.bukkit.inventory.SmokingRecipe toBukkit() {
     final org.bukkit.inventory.SmokingRecipe recipe = new org.bukkit.inventory.SmokingRecipe(getKey(),
         this.output.item(),

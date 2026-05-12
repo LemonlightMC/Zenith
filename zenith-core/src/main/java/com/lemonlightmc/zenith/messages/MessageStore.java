@@ -76,6 +76,7 @@ public class MessageStore implements Iterable<MessageRepository<?>> {
     return repos.containsKey(locale);
   }
 
+  @Override
   public Iterator<MessageRepository<?>> iterator() {
     return repos.values().iterator();
   }

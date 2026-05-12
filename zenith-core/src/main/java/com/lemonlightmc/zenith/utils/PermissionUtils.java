@@ -176,7 +176,7 @@ public class PermissionUtils {
       return permCheckWildcard(sender, new StringBuilder(perm.length()), perm.split("\\."), 0);
     }
 
-    private boolean permCheckWildcard(final CommandSender sender, final StringBuilder root, final String[] args,
+    private static boolean permCheckWildcard(final CommandSender sender, final StringBuilder root, final String[] args,
         final int argIndex) {
       // Check the permission
       final String rootText = root.toString();
@@ -231,6 +231,7 @@ public class PermissionUtils {
       return ZenithPlugin.getInstance().getPluginManager().isPluginEnabled("Vault");
     }
 
+    @Override
     public boolean hasPermission(final CommandSender sender, final String permission) {
       return _hasPermission(sender, permission) || (!hasWildcardSupport && permCheckWildcard(sender, permission));
     }

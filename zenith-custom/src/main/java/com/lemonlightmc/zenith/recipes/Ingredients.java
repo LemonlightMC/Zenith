@@ -169,6 +169,7 @@ public class Ingredients {
 
     public abstract ItemStack item();
 
+    @Override
     public abstract Ingredient clone();
   }
 
@@ -302,7 +303,7 @@ public class Ingredients {
           && (!item.hasItemMeta() || similarMeta(item.getItemMeta(), this.item.getItemMeta()));
     }
 
-    private boolean similarMeta(final ItemMeta sourceMeta, final ItemMeta ingredientMeta) {
+    private static boolean similarMeta(final ItemMeta sourceMeta, final ItemMeta ingredientMeta) {
       for (final NamespacedKey key : sourceMeta.getPersistentDataContainer().getKeys()) {
         if (!ingredientMeta.getPersistentDataContainer().has(key)) {
           System.out.println("Key " + key + " not found in ingredient meta");

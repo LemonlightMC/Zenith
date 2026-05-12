@@ -123,6 +123,7 @@ public class LiteLocation implements Cloneable<LiteLocation> {
     return (x - o.x) * (x - o.x) + (y - o.y) * (y - o.y) + (z - o.z) * (z - o.z);
   }
 
+  @Override
   public LiteLocation clone() {
     try {
       return (LiteLocation) super.clone();

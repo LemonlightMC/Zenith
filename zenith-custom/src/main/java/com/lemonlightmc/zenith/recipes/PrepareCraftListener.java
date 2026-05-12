@@ -23,7 +23,7 @@ public class PrepareCraftListener implements Listener {
   public PrepareCraftListener() {
   }
 
-  private boolean isSimilar(final ItemStack item, final Ingredient itemIngredient) {
+  private static boolean isSimilar(final ItemStack item, final Ingredient itemIngredient) {
     return itemIngredient.isSimilar(item);
   }
 
@@ -98,17 +98,17 @@ public class PrepareCraftListener implements Listener {
     if (recipe instanceof final org.bukkit.inventory.ShapedRecipe shapedRecipe) {
       final ShapedCraftingRecipe itemRecipe = RecipesManager.getInstance().getRecipe(shapedRecipe.getKey(),
           RecipeType.CRAFTING_SHAPED);
-      this.checkGoodShapedRecipe(itemRecipe, event);
+      PrepareCraftListener.checkGoodShapedRecipe(itemRecipe, event);
     }
 
     if (recipe instanceof final ShapelessRecipe shapelessRecipe) {
       final ShapelessCraftingRecipe itemRecipe = RecipesManager.getInstance().getRecipe(shapelessRecipe.getKey(),
           RecipeType.CRAFTING_SHAPELESS);
-      this.checkGoodShapelessRecipe(itemRecipe, event);
+      PrepareCraftListener.checkGoodShapelessRecipe(itemRecipe, event);
     }
   }
 
-  private void checkGoodShapedRecipe(final ShapedCraftingRecipe itemRecipe, final PrepareItemCraftEvent event) {
+  private static void checkGoodShapedRecipe(final ShapedCraftingRecipe itemRecipe, final PrepareItemCraftEvent event) {
     ItemStack[] matrix = event.getInventory().getMatrix();
     matrix = Arrays.stream(matrix).filter(stack -> stack != null && stack.getType() != Material.AIR)
         .toArray(ItemStack[]::new);
@@ -129,7 +129,8 @@ public class PrepareCraftListener implements Listener {
     }
   }
 
-  private void checkGoodShapelessRecipe(final ShapelessCraftingRecipe itemRecipe, final PrepareItemCraftEvent event) {
+  private static void checkGoodShapelessRecipe(final ShapelessCraftingRecipe itemRecipe,
+      final PrepareItemCraftEvent event) {
     final List<ItemStack> matrix = Arrays.stream(event.getInventory().getMatrix()).filter(s -> s != null)
         .filter(it -> it.getType() != Material.AIR).toList();
     final List<Ingredient> itemIngredients = itemRecipe.getIngredients();

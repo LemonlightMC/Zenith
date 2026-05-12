@@ -5,7 +5,7 @@ import java.util.Comparator;
 import com.lemonlightmc.zenith.exceptions.RangeException;
 
 public class FloatRange implements Range<FloatRange, Float> {
-  public static FloatRange ALL = new FloatRange();
+  public static final FloatRange ALL = new FloatRange();
 
   private final Float min;
   private final Float max;

@@ -65,6 +65,7 @@ public class ModuleManager<T extends IModule> implements Reloadable {
     return !module.isEnabled();
   }
 
+  @Override
   public void reload() {
     for (final T module : modules.values()) {
       module.reload();

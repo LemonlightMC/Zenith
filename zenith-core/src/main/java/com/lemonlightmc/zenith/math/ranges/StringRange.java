@@ -3,25 +3,17 @@ package com.lemonlightmc.zenith.math.ranges;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class StringRange implements Range<StringRange, Integer> {
   public static final StringRange ALL = new StringRange();
+  public static final int MIN_VALUE = Integer.MIN_VALUE;
+  public static final int MAX_VALUE = Integer.MAX_VALUE;
 
   private final Integer min;
   private final Integer max;
 
-  private static final Comparator<StringRange> comparator = new Comparator<StringRange>() {
-    @Override
-    public int compare(final StringRange o1, final StringRange o2) {
-      if (o1 == null) {
-        return -1;
-      }
-      if (o2 == null) {
-        return 1;
-      }
-      return Integer.compare(o1.max - o1.min, o2.max - o2.min);
-    }
-  };
+  private static Comparator<StringRange> comparator = null;
 
   public StringRange() {
     this(Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -43,24 +35,24 @@ public class StringRange implements Range<StringRange, Integer> {
     return new StringRange(pos, pos);
   }
 
-  public static StringRange of(final Integer min, final Integer max) {
+  public static StringRange from(final Integer min, final Integer max) {
     return new StringRange(min, max);
   }
 
-  public static StringRange of(final StringRange range) {
+  public static StringRange from(final StringRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new StringRange(range.min, range.max);
   }
 
-  public static StringRange of(final String str) {
+  public static StringRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new StringRange(arr[0].length() == 0 ? Integer.MIN_VALUE : Integer.decode(arr[0]),
-        arr[1].length() == 0 ? Integer.MAX_VALUE : Integer.decode(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new StringRange(arr[0].length() == 0 ? Integer.MIN_VALUE : NumberConversions.decodeInt(arr[0]),
+        arr[1].length() == 0 ? Integer.MAX_VALUE : NumberConversions.decodeInt(arr[1]));
   }
 
   public static StringRange encompassing(final StringRange a, final StringRange b) {
@@ -156,7 +148,7 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public boolean isEmpty() {
-    return min == max;
+    return min.intValue() == max.intValue();
   }
 
   @Override
@@ -220,7 +212,10 @@ public class StringRange implements Range<StringRange, Integer> {
 
   @Override
   public Comparator<StringRange> getComparator() {
-    return StringRange.comparator;
+    if (comparator == null) {
+      comparator = Range.createComparator();
+    }
+    return comparator;
   }
 
   @Override

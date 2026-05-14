@@ -3,26 +3,17 @@ package com.lemonlightmc.zenith.math.ranges;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class IntegerRange implements Range<IntegerRange, Integer> {
-
   public static IntegerRange ALL = new IntegerRange();
+  public static final int MIN_VALUE = Integer.MIN_VALUE;
+  public static final int MAX_VALUE = Integer.MAX_VALUE;
 
   private final Integer min;
   private final Integer max;
 
-  private static final Comparator<IntegerRange> comparator = new Comparator<IntegerRange>() {
-    @Override
-    public int compare(final IntegerRange o1, final IntegerRange o2) {
-      if (o1 == null) {
-        return -1;
-      }
-      if (o2 == null) {
-        return 1;
-      }
-      return Integer.compare(o1.max - o1.min, o2.max - o2.min);
-    }
-  };
+  private static Comparator<IntegerRange> comparator = null;
 
   public IntegerRange() {
     this(Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -35,8 +26,8 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
   public IntegerRange(final Integer min, final Integer max) {
     this.min = min == null ? Integer.MIN_VALUE : min;
     this.max = max == null ? Integer.MAX_VALUE : max;
-    if (Math.signum(this.max - this.min) == -1.0d) {
-      throw new RangeException("Integer Argument Maximum is smaller Minimum: " + this.min + " - " + this.max);
+    if (this.max < this.min) {
+      throw new RangeException("Range Maximum is smaller then Minimum: " + this.min + " - " + this.max);
     }
   }
 
@@ -44,24 +35,24 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
     return new IntegerRange(pos, pos);
   }
 
-  public static IntegerRange of(final Integer min, final Integer max) {
+  public static IntegerRange from(final Integer min, final Integer max) {
     return new IntegerRange(min, max);
   }
 
-  public static IntegerRange of(final IntegerRange range) {
+  public static IntegerRange from(final IntegerRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new IntegerRange(range.min, range.max);
   }
 
-  public static IntegerRange of(final String str) {
+  public static IntegerRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new IntegerRange(arr[0].length() == 0 ? Integer.MIN_VALUE : Integer.decode(arr[0]),
-        arr[1].length() == 0 ? Integer.MAX_VALUE : Integer.decode(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new IntegerRange(arr[0].length() == 0 ? Integer.MIN_VALUE : NumberConversions.decodeInt(arr[0]),
+        arr[1].length() == 0 ? Integer.MAX_VALUE : NumberConversions.decodeInt(arr[1]));
   }
 
   public static IntegerRange encompassing(final IntegerRange a, final IntegerRange b) {
@@ -157,7 +148,7 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
 
   @Override
   public boolean isEmpty() {
-    return min == max;
+    return min.intValue() == max.intValue();
   }
 
   @Override
@@ -221,7 +212,10 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
 
   @Override
   public Comparator<IntegerRange> getComparator() {
-    return IntegerRange.comparator;
+    if (comparator == null) {
+      comparator = Range.createComparator();
+    }
+    return comparator;
   }
 
   @Override

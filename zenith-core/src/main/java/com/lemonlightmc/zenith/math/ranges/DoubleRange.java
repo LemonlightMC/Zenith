@@ -3,25 +3,17 @@ package com.lemonlightmc.zenith.math.ranges;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class DoubleRange implements Range<DoubleRange, Double> {
   public static DoubleRange ALL = new DoubleRange();
+  public static final double MIN_VALUE = Double.MIN_VALUE;
+  public static final double MAX_VALUE = Double.MAX_VALUE;
 
   private final Double min;
   private final Double max;
 
-  private static final Comparator<DoubleRange> comparator = new Comparator<DoubleRange>() {
-    @Override
-    public int compare(final DoubleRange o1, final DoubleRange o2) {
-      if (o1 == null) {
-        return -1;
-      }
-      if (o2 == null) {
-        return 1;
-      }
-      return Double.compare(o1.max - o1.min, o2.max - o2.min);
-    }
-  };
+  private static Comparator<DoubleRange> comparator = null;
 
   public DoubleRange() {
     this(Double.MIN_VALUE, Double.MAX_VALUE);
@@ -34,8 +26,8 @@ public class DoubleRange implements Range<DoubleRange, Double> {
   public DoubleRange(final Double min, final Double max) {
     this.min = min == null ? Double.MIN_VALUE : min;
     this.max = max == null ? Double.MAX_VALUE : max;
-    if (Math.signum(this.max - this.min) == -1.0d) {
-      throw new RangeException("Double Argument Maximum is smaller Minimum: " + this.min + " - " + this.max);
+    if (this.max < this.min) {
+      throw new RangeException("Range Maximum is smaller then Minimum: " + this.min + " - " + this.max);
     }
   }
 
@@ -43,24 +35,24 @@ public class DoubleRange implements Range<DoubleRange, Double> {
     return new DoubleRange(pos, pos);
   }
 
-  public static DoubleRange of(final Double min, final Double max) {
+  public static DoubleRange from(final Double min, final Double max) {
     return new DoubleRange(min, max);
   }
 
-  public static DoubleRange of(final DoubleRange range) {
+  public static DoubleRange from(final DoubleRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new DoubleRange(range.min, range.max);
   }
 
-  public static DoubleRange of(final String str) {
+  public static DoubleRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new DoubleRange(arr[0].length() == 0 ? Double.MIN_VALUE : Double.parseDouble(arr[0]),
-        arr[1].length() == 0 ? Double.MAX_VALUE : Double.parseDouble(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new DoubleRange(arr[0].length() == 0 ? Double.MIN_VALUE : NumberConversions.parseDouble(arr[0]),
+        arr[1].length() == 0 ? Double.MAX_VALUE : NumberConversions.parseDouble(arr[1]));
   }
 
   public static DoubleRange encompassing(final DoubleRange a, final DoubleRange b) {
@@ -156,7 +148,7 @@ public class DoubleRange implements Range<DoubleRange, Double> {
 
   @Override
   public boolean isEmpty() {
-    return min == max;
+    return min.doubleValue() == max.doubleValue();
   }
 
   @Override
@@ -220,7 +212,10 @@ public class DoubleRange implements Range<DoubleRange, Double> {
 
   @Override
   public Comparator<DoubleRange> getComparator() {
-    return DoubleRange.comparator;
+    if (comparator == null) {
+      comparator = Range.createComparator();
+    }
+    return comparator;
   }
 
   @Override

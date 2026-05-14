@@ -3,25 +3,17 @@ package com.lemonlightmc.zenith.math.ranges;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class LongRange implements Range<LongRange, Long> {
   public static LongRange ALL = new LongRange();
+  public static final long MIN_VALUE = Long.MIN_VALUE;
+  public static final long MAX_VALUE = Long.MAX_VALUE;
 
   private final Long min;
   private final Long max;
 
-  private static final Comparator<LongRange> comparator = new Comparator<LongRange>() {
-    @Override
-    public int compare(final LongRange o1, final LongRange o2) {
-      if (o1 == null) {
-        return -1;
-      }
-      if (o2 == null) {
-        return 1;
-      }
-      return Long.compare(o1.max - o1.min, o2.max - o2.min);
-    }
-  };
+  private static Comparator<LongRange> comparator = null;
 
   public LongRange() {
     this(Long.MIN_VALUE, Long.MAX_VALUE);
@@ -34,8 +26,8 @@ public class LongRange implements Range<LongRange, Long> {
   public LongRange(final Long min, final Long max) {
     this.min = min == null ? Long.MIN_VALUE : min;
     this.max = max == null ? Long.MAX_VALUE : max;
-    if (Math.signum(this.max - this.min) == -1.0d) {
-      throw new RangeException("Long Argument Maximum is smaller Minimum: " + this.min + " - " + this.max);
+    if (this.max < this.min) {
+      throw new RangeException("Range Maximum is smaller then Minimum: " + this.min + " - " + this.max);
     }
   }
 
@@ -43,24 +35,24 @@ public class LongRange implements Range<LongRange, Long> {
     return new LongRange(pos, pos);
   }
 
-  public static LongRange of(final Long min, final Long max) {
+  public static LongRange from(final Long min, final Long max) {
     return new LongRange(min, max);
   }
 
-  public static LongRange of(final LongRange range) {
+  public static LongRange from(final LongRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new LongRange(range.min, range.max);
   }
 
-  public static LongRange of(final String str) {
+  public static LongRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new LongRange(arr[0].length() == 0 ? Long.MIN_VALUE : Long.decode(arr[0]),
-        arr[1].length() == 0 ? Long.MAX_VALUE : Long.decode(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new LongRange(arr[0].length() == 0 ? Long.MIN_VALUE : NumberConversions.decodeLong(arr[0]),
+        arr[1].length() == 0 ? Long.MAX_VALUE : NumberConversions.decodeLong(arr[1]));
   }
 
   public static LongRange encompassing(final LongRange a, final LongRange b) {
@@ -220,7 +212,10 @@ public class LongRange implements Range<LongRange, Long> {
 
   @Override
   public Comparator<LongRange> getComparator() {
-    return LongRange.comparator;
+    if (comparator == null) {
+      comparator = Range.createComparator();
+    }
+    return comparator;
   }
 
   @Override

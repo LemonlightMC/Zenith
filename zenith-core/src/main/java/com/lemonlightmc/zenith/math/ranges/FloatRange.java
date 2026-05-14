@@ -3,25 +3,17 @@ package com.lemonlightmc.zenith.math.ranges;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class FloatRange implements Range<FloatRange, Float> {
   public static final FloatRange ALL = new FloatRange();
+  public static final float MIN_VALUE = Float.MIN_VALUE;
+  public static final float MAX_VALUE = Float.MAX_VALUE;
 
   private final Float min;
   private final Float max;
 
-  private static final Comparator<FloatRange> comparator = new Comparator<FloatRange>() {
-    @Override
-    public int compare(final FloatRange o1, final FloatRange o2) {
-      if (o1 == null) {
-        return -1;
-      }
-      if (o2 == null) {
-        return 1;
-      }
-      return Float.compare(o1.max - o1.min, o2.max - o2.min);
-    }
-  };
+  private static Comparator<FloatRange> comparator = null;
 
   public FloatRange() {
     this(Float.MIN_VALUE, Float.MAX_VALUE);
@@ -34,8 +26,8 @@ public class FloatRange implements Range<FloatRange, Float> {
   public FloatRange(final Float min, final Float max) {
     this.min = min == null ? Float.MIN_VALUE : min;
     this.max = max == null ? Float.MAX_VALUE : max;
-    if (Math.signum(this.max - this.min) == -1.0d) {
-      throw new RangeException("Float Argument Maximum is smaller Minimum: " + this.min + " - " + this.max);
+    if (this.max < this.min) {
+      throw new RangeException("Range Maximum is smaller then Minimum: " + this.min + " - " + this.max);
     }
   }
 
@@ -43,24 +35,24 @@ public class FloatRange implements Range<FloatRange, Float> {
     return new FloatRange(pos, pos);
   }
 
-  public static FloatRange of(final Float min, final Float max) {
+  public static FloatRange from(final Float min, final Float max) {
     return new FloatRange(min, max);
   }
 
-  public static FloatRange of(final FloatRange range) {
+  public static FloatRange from(final FloatRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new FloatRange(range.min, range.max);
   }
 
-  public static FloatRange of(final String str) {
+  public static FloatRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new FloatRange(arr[0].length() == 0 ? Float.MIN_VALUE : Float.parseFloat(arr[0]),
-        arr[1].length() == 0 ? Float.MAX_VALUE : Float.parseFloat(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new FloatRange(arr[0].length() == 0 ? Float.MIN_VALUE : NumberConversions.parseFloat(arr[0]),
+        arr[1].length() == 0 ? Float.MAX_VALUE : NumberConversions.parseFloat(arr[1]));
   }
 
   public static FloatRange encompassing(final FloatRange a, final FloatRange b) {
@@ -156,7 +148,7 @@ public class FloatRange implements Range<FloatRange, Float> {
 
   @Override
   public boolean isEmpty() {
-    return min == max;
+    return min.floatValue() == max.floatValue();
   }
 
   @Override
@@ -220,7 +212,10 @@ public class FloatRange implements Range<FloatRange, Float> {
 
   @Override
   public Comparator<FloatRange> getComparator() {
-    return FloatRange.comparator;
+    if (comparator == null) {
+      comparator = Range.createComparator();
+    }
+    return comparator;
   }
 
   @Override

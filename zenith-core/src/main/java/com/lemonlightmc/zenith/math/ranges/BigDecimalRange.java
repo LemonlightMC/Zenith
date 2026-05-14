@@ -4,14 +4,15 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
   public static BigDecimalRange ALL = new BigDecimalRange();
+  public static final BigDecimal MIN_VALUE = BigDecimal.valueOf(Long.MIN_VALUE);
+  public static final BigDecimal MAX_VALUE = BigDecimal.valueOf(Long.MAX_VALUE);
 
   private final BigDecimal min;
   private final BigDecimal max;
-  public static final BigDecimal MIN_VALUE = BigDecimal.valueOf(Long.MIN_VALUE);
-  public static final BigDecimal MAX_VALUE = BigDecimal.valueOf(Long.MAX_VALUE);
 
   private static final Comparator<BigDecimalRange> comparator = new Comparator<BigDecimalRange>() {
     @Override
@@ -46,24 +47,24 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
     return new BigDecimalRange(pos, pos);
   }
 
-  public static BigDecimalRange of(final BigDecimal min, final BigDecimal max) {
+  public static BigDecimalRange from(final BigDecimal min, final BigDecimal max) {
     return new BigDecimalRange(min, max);
   }
 
-  public static BigDecimalRange of(final BigDecimalRange range) {
+  public static BigDecimalRange from(final BigDecimalRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new BigDecimalRange(range.min, range.max);
   }
 
-  public static BigDecimalRange of(final String str) {
+  public static BigDecimalRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new BigDecimalRange(arr[0].length() == 0 ? MIN_VALUE : new BigDecimal(arr[0]),
-        arr[1].length() == 0 ? MAX_VALUE : new BigDecimal(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new BigDecimalRange(arr[0].length() == 0 ? MIN_VALUE : NumberConversions.parseBigDecimal(arr[0]),
+        arr[1].length() == 0 ? MAX_VALUE : NumberConversions.parseBigDecimal(arr[1]));
   }
 
   public static BigDecimalRange encompassing(final BigDecimalRange a, final BigDecimalRange b) {
@@ -225,7 +226,7 @@ public class BigDecimalRange implements Range<BigDecimalRange, BigDecimal> {
 
   @Override
   public Comparator<BigDecimalRange> getComparator() {
-    return BigDecimalRange.comparator;
+    return comparator;
   }
 
   @Override

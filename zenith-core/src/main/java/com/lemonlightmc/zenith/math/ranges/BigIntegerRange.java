@@ -4,14 +4,15 @@ import java.math.BigInteger;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
   public static BigIntegerRange ALL = new BigIntegerRange();
+  public static final BigInteger MIN_VALUE = BigInteger.valueOf(Long.MIN_VALUE);
+  public static final BigInteger MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
 
   private final BigInteger min;
   private final BigInteger max;
-  public static final BigInteger MIN_VALUE = BigInteger.valueOf(Long.MIN_VALUE);
-  public static final BigInteger MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
 
   private static final Comparator<BigIntegerRange> comparator = new Comparator<BigIntegerRange>() {
     @Override
@@ -46,24 +47,24 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
     return new BigIntegerRange(pos, pos);
   }
 
-  public static BigIntegerRange of(final BigInteger min, final BigInteger max) {
+  public static BigIntegerRange from(final BigInteger min, final BigInteger max) {
     return new BigIntegerRange(min, max);
   }
 
-  public static BigIntegerRange of(final BigIntegerRange range) {
+  public static BigIntegerRange from(final BigIntegerRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new BigIntegerRange(range.min, range.max);
   }
 
-  public static BigIntegerRange of(final String str) {
+  public static BigIntegerRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new BigIntegerRange(arr[0].length() == 0 ? MIN_VALUE : new BigInteger(arr[0]),
-        arr[1].length() == 0 ? MAX_VALUE : new BigInteger(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new BigIntegerRange(arr[0].length() == 0 ? MIN_VALUE : NumberConversions.parseBigInteger(arr[0]),
+        arr[1].length() == 0 ? MAX_VALUE : NumberConversions.parseBigInteger(arr[1]));
   }
 
   public static BigIntegerRange encompassing(final BigIntegerRange a, final BigIntegerRange b) {
@@ -223,7 +224,7 @@ public class BigIntegerRange implements Range<BigIntegerRange, BigInteger> {
 
   @Override
   public Comparator<BigIntegerRange> getComparator() {
-    return BigIntegerRange.comparator;
+    return comparator;
   }
 
   @Override

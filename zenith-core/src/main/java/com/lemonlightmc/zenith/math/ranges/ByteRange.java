@@ -3,25 +3,17 @@ package com.lemonlightmc.zenith.math.ranges;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class ByteRange implements Range<ByteRange, Byte> {
   public static ByteRange ALL = new ByteRange();
+  public static final byte MIN_VALUE = Byte.MIN_VALUE;
+  public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
   private final Byte min;
   private final Byte max;
 
-  private static final Comparator<ByteRange> comparator = new Comparator<ByteRange>() {
-    @Override
-    public int compare(final ByteRange o1, final ByteRange o2) {
-      if (o1 == null) {
-        return -1;
-      }
-      if (o2 == null) {
-        return 1;
-      }
-      return Integer.compare(o1.max.intValue() - o1.min.intValue(), o2.max.intValue() - o2.min.intValue());
-    }
-  };
+  private static Comparator<ByteRange> comparator = null;
 
   public ByteRange() {
     this(Byte.MIN_VALUE, Byte.MAX_VALUE);
@@ -34,8 +26,8 @@ public class ByteRange implements Range<ByteRange, Byte> {
   public ByteRange(final Byte min, final Byte max) {
     this.min = min == null ? Byte.MIN_VALUE : min;
     this.max = max == null ? Byte.MAX_VALUE : max;
-    if (Math.signum(this.max - this.min) == -1.0d) {
-      throw new RangeException("Byte Argument Maximum is smaller Minimum: " + this.min + " - " + this.max);
+    if (this.max < this.min) {
+      throw new RangeException("Range Maximum is smaller then Minimum: " + this.min + " - " + this.max);
     }
   }
 
@@ -43,24 +35,24 @@ public class ByteRange implements Range<ByteRange, Byte> {
     return new ByteRange(pos, pos);
   }
 
-  public static ByteRange of(final Byte min, final Byte max) {
+  public static ByteRange from(final Byte min, final Byte max) {
     return new ByteRange(min, max);
   }
 
-  public static ByteRange of(final ByteRange range) {
+  public static ByteRange from(final ByteRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new ByteRange(range.min, range.max);
   }
 
-  public static ByteRange of(final String str) {
+  public static ByteRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new ByteRange(arr[0].length() == 0 ? Byte.MIN_VALUE : Byte.parseByte(arr[0]),
-        arr[1].length() == 0 ? Byte.MAX_VALUE : Byte.parseByte(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new ByteRange(arr[0].length() == 0 ? Byte.MIN_VALUE : NumberConversions.parseByte(arr[0]),
+        arr[1].length() == 0 ? Byte.MAX_VALUE : NumberConversions.parseByte(arr[1]));
   }
 
   public static ByteRange encompassing(final ByteRange a, final ByteRange b) {
@@ -156,7 +148,7 @@ public class ByteRange implements Range<ByteRange, Byte> {
 
   @Override
   public boolean isEmpty() {
-    return min == max;
+    return min.byteValue() == max.byteValue();
   }
 
   @Override
@@ -220,7 +212,10 @@ public class ByteRange implements Range<ByteRange, Byte> {
 
   @Override
   public Comparator<ByteRange> getComparator() {
-    return ByteRange.comparator;
+    if (comparator == null) {
+      comparator = Range.createComparator();
+    }
+    return comparator;
   }
 
   @Override

@@ -3,25 +3,16 @@ package com.lemonlightmc.zenith.math.ranges;
 import java.util.Comparator;
 
 import com.lemonlightmc.zenith.exceptions.RangeException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class ShortRange implements Range<ShortRange, Short> {
-  public static ShortRange ALL = new ShortRange();
+  public static final ShortRange ALL = new ShortRange();
+  public static final short MIN_VALUE = Short.MIN_VALUE;
+  public static final short MAX_VALUE = Short.MAX_VALUE;
 
   private final Short min;
   private final Short max;
-
-  private static final Comparator<ShortRange> comparator = new Comparator<ShortRange>() {
-    @Override
-    public int compare(final ShortRange o1, final ShortRange o2) {
-      if (o1 == null) {
-        return -1;
-      }
-      if (o2 == null) {
-        return 1;
-      }
-      return Integer.compare(o1.max - o1.min, o2.max - o2.min);
-    }
-  };
+  private static Comparator<ShortRange> comparator = null;
 
   public ShortRange() {
     this(Short.MIN_VALUE, Short.MAX_VALUE);
@@ -34,8 +25,8 @@ public class ShortRange implements Range<ShortRange, Short> {
   public ShortRange(final Short min, final Short max) {
     this.min = min == null ? Short.MIN_VALUE : min;
     this.max = max == null ? Short.MAX_VALUE : max;
-    if (Math.signum(this.max - this.min) == -1.0d) {
-      throw new RangeException("Short Argument Maximum is smaller Minimum: " + this.min + " - " + this.max);
+    if (this.max < this.min) {
+      throw new RangeException("Range Maximum is smaller then Minimum: " + this.min + " - " + this.max);
     }
   }
 
@@ -43,24 +34,24 @@ public class ShortRange implements Range<ShortRange, Short> {
     return new ShortRange(pos, pos);
   }
 
-  public static ShortRange of(final Short min, final Short max) {
+  public static ShortRange from(final Short min, final Short max) {
     return new ShortRange(min, max);
   }
 
-  public static ShortRange of(final ShortRange range) {
+  public static ShortRange from(final ShortRange range) {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
     return new ShortRange(range.min, range.max);
   }
 
-  public static ShortRange of(final String str) {
+  public static ShortRange from(final String str) {
     if (str == null || str.length() == 0) {
       return ALL;
     }
-    final String[] arr = Range.parse(str);
-    return new ShortRange(arr[0].length() == 0 ? Short.MIN_VALUE : Short.parseShort(arr[0]),
-        arr[1].length() == 0 ? Short.MAX_VALUE : Short.parseShort(arr[1]));
+    final String[] arr = Range.parseStr(str);
+    return new ShortRange(arr[0].length() == 0 ? Short.MIN_VALUE : NumberConversions.parseShort(arr[0]),
+        arr[1].length() == 0 ? Short.MAX_VALUE : NumberConversions.parseShort(arr[1]));
   }
 
   public static ShortRange encompassing(final ShortRange a, final ShortRange b) {
@@ -156,7 +147,7 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public boolean isEmpty() {
-    return min == max;
+    return min.shortValue() == max.shortValue();
   }
 
   @Override
@@ -220,7 +211,10 @@ public class ShortRange implements Range<ShortRange, Short> {
 
   @Override
   public Comparator<ShortRange> getComparator() {
-    return ShortRange.comparator;
+    if (comparator == null) {
+      comparator = Range.createComparator();
+    }
+    return comparator;
   }
 
   @Override

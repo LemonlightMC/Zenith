@@ -2,8 +2,6 @@ package com.lemonlightmc.zenith.modular;
 
 import java.util.List;
 
-import org.bukkit.NamespacedKey;
-
 import com.lemonlightmc.zenith.events.EventsAPI;
 import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleDisableEvent;
 import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleEnableEvent;
@@ -12,16 +10,16 @@ import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleUnregisterEvent;
 import com.lemonlightmc.zenith.version.Version;
 
 public abstract class Module {
-  protected final NamespacedKey key;
+  protected final String key;
   protected boolean isEnabled = false;
   protected boolean isRegistered = false;
 
   protected Version version;
-  protected List<NamespacedKey> depends;
-  protected List<NamespacedKey> softDepends;
+  protected List<String> depends;
+  protected List<String> softDepends;
 
-  public Module(final NamespacedKey key, final Version version, final List<NamespacedKey> depends,
-      final List<NamespacedKey> softDepends) {
+  public Module(final String key, final Version version, final List<String> depends,
+      final List<String> softDepends) {
     if (key == null) {
       throw new IllegalArgumentException("Module Key cant be null!");
     }
@@ -31,19 +29,19 @@ public abstract class Module {
     this.softDepends = softDepends == null ? List.of() : softDepends;
   }
 
-  public Module(final NamespacedKey key, final Version version, final List<NamespacedKey> depends) {
+  public Module(final String key, final Version version, final List<String> depends) {
     this(key, version, depends, null);
   }
 
-  public Module(final NamespacedKey key, final Version version) {
+  public Module(final String key, final Version version) {
     this(key, version, null, null);
   }
 
-  public Module(final NamespacedKey key) {
+  public Module(final String key) {
     this(key, null, null, null);
   }
 
-  public NamespacedKey getKey() {
+  public String getKey() {
     return key;
   }
 
@@ -51,11 +49,11 @@ public abstract class Module {
     return version;
   }
 
-  public List<NamespacedKey> getDepends() {
+  public List<String> getDepends() {
     return depends;
   }
 
-  public List<NamespacedKey> getSoftDepends() {
+  public List<String> getSoftDepends() {
     return softDepends;
   }
 

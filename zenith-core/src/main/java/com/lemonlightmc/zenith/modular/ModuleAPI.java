@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.bukkit.NamespacedKey;
+import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 
 import com.lemonlightmc.zenith.events.BaseEvent;
@@ -16,13 +16,13 @@ import com.lemonlightmc.zenith.events.EventsAPI;
 import com.lemonlightmc.zenith.messages.Logger;
 
 public class ModuleAPI {
-  private static final Map<NamespacedKey, Module> modules = new HashMap<>(6);
+  private static final Map<String, Module> modules = new HashMap<>(6);
 
-  public static Module getModule(final NamespacedKey key) {
+  public static Module getModule(final String key) {
     return key == null ? null : modules.get(key);
   }
 
-  public static <S extends Module> Optional<S> getModule(final NamespacedKey name, final Class<S> cls) {
+  public static <S extends Module> Optional<S> getModule(final String name, final Class<S> cls) {
     final Module module = modules.get(name);
     if (module == null || !cls.isInstance(module)) {
       return Optional.empty();
@@ -30,11 +30,11 @@ public class ModuleAPI {
     return Optional.of(cls.cast(module));
   }
 
-  public static Map<NamespacedKey, Module> getModules() {
+  public static Map<String, Module> getModules() {
     return modules;
   }
 
-  public static boolean isEnabled(final NamespacedKey key) {
+  public static boolean isEnabled(final String key) {
     if (key == null) {
       return false;
     }
@@ -54,7 +54,7 @@ public class ModuleAPI {
     module.register();
   }
 
-  public static void unregister(final NamespacedKey key) {
+  public static void unregister(final String key) {
     if (key == null) {
       return;
     }
@@ -72,7 +72,7 @@ public class ModuleAPI {
     module.unregister();
   }
 
-  public static boolean enable(final NamespacedKey key) {
+  public static boolean enable(final String key) {
     if (key == null) {
       return false;
     }
@@ -91,7 +91,7 @@ public class ModuleAPI {
     return module.isEnabled();
   }
 
-  public static boolean disable(final NamespacedKey key) {
+  public static boolean disable(final String key) {
     if (key == null) {
       return false;
     }
@@ -147,7 +147,7 @@ public class ModuleAPI {
     }
   }
 
-  public static void computeModule(final NamespacedKey key, final Consumer<Module> consumer) {
+  public static void computeModule(final String key, final Consumer<Module> consumer) {
     final Module module = modules.get(key);
     if (module == null || !module.isEnabled()) {
       return;
@@ -155,7 +155,7 @@ public class ModuleAPI {
     consumer.accept(module);
   }
 
-  public static boolean computeModule(final NamespacedKey key, final Predicate<Module> consumer) {
+  public static boolean computeModule(final String key, final Predicate<Module> consumer) {
     final Module module = modules.get(key);
     if (module == null || !module.isEnabled()) {
       return false;
@@ -163,7 +163,7 @@ public class ModuleAPI {
     return consumer.test(module);
   }
 
-  public static <T> T computeModule(final NamespacedKey key, final Function<Module, T> consumer) {
+  public static <T> T computeModule(final String key, final Function<Module, T> consumer) {
     final Module module = modules.get(key);
     if (module == null || !module.isEnabled()) {
       return null;
@@ -171,16 +171,33 @@ public class ModuleAPI {
     return consumer.apply(module);
   }
 
-  private static boolean _loadDeps(final List<NamespacedKey> deps, final boolean soft) {
+  @SuppressWarnings("unchecked")
+  public static <M extends Module, T> T computeModule(final String key, Class<M> cls, final Function<M, T> consumer) {
+    final Module module = modules.get(key);
+    if (module == null || !module.isEnabled()) {
+      return null;
+    }
+    if (module.getClass() != cls) {
+      throw new IllegalStateException("Module '" + key + "' is not of type " + cls.getName() + "!");
+    }
+    // Safely cast module
+    return consumer.apply((M) module);
+  }
+
+  private static boolean _loadDeps(final List<String> deps, final boolean soft) {
     if (deps == null || deps.size() == 0) {
       return true;
     }
     boolean isEnabled = true;
     boolean success = true;
-    for (final NamespacedKey key : deps) {
-      isEnabled = enable(key);
-      if (!soft && !isEnabled) {
-        Logger.warn("Failed to load Dependencie '" + key + "'for Module");
+    for (final String key : deps) {
+      if (key.startsWith("$")) {
+        isEnabled = Bukkit.getPluginManager().isPluginEnabled(key.substring(1));
+      } else {
+        isEnabled = enable(key);
+      }
+      if (!isEnabled && !soft) {
+        Logger.warn("Failed to load Dependency '" + key + "' for Module");
         success = false;
       }
     }
@@ -199,7 +216,7 @@ public class ModuleAPI {
       return module;
     }
 
-    public NamespacedKey getKey() {
+    public String getKey() {
       return module.getKey();
     }
 
@@ -225,7 +242,7 @@ public class ModuleAPI {
       return module;
     }
 
-    public NamespacedKey getKey() {
+    public String getKey() {
       return module.getKey();
     }
 
@@ -251,7 +268,7 @@ public class ModuleAPI {
       return module;
     }
 
-    public NamespacedKey getKey() {
+    public String getKey() {
       return module.getKey();
     }
 
@@ -277,7 +294,7 @@ public class ModuleAPI {
       return module;
     }
 
-    public NamespacedKey getKey() {
+    public String getKey() {
       return module.getKey();
     }
 

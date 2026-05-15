@@ -44,6 +44,7 @@ public class EventsAPI {
   }
 
   public static void unregisterGlobalAll() {
+    call(new ListenerAllUnregisterEvent());
     HandlerList.unregisterAll();
   }
 
@@ -51,47 +52,43 @@ public class EventsAPI {
     if (listener == null) {
       return;
     }
-    if (listener instanceof BaseListener baseListener) {
-      unregister(baseListener);
+    if (listener instanceof final BaseListener baseListener) {
+      if (!baseListener.isRegistered) {
+        return;
+      }
+      baseListener.isRegistered = false;
+      baseListener.onUnregister();
     }
+    call(new ListenerUnregisterEvent(listener));
     HandlerList.unregisterAll(listener);
   }
 
   public static void unregister(final BaseListener listener) {
-    if (listener == null || listener.isRegistered) {
-      return;
-    }
-    listener.onUnregister();
-    listener.isRegistered = false;
-    HandlerList.unregisterAll(listener);
+    unregister(listener);
   }
 
   public static void register(final Listener listener) {
     if (listener == null) {
       return;
     }
-    if (listener instanceof BaseListener baseListener) {
-      register(baseListener);
+    if (listener instanceof final BaseListener baseListener) {
+      if (baseListener.isRegistered) {
+        return;
+      }
+      baseListener.isRegistered = true;
+      baseListener.onRegister();
     }
+    call(new ListenerRegisterEvent(listener));
     ZenithPlugin.getInstance().getPluginManager().registerEvents(listener, ZenithPlugin.getInstance());
   }
 
   public static void register(final BaseListener listener) {
-    if (listener == null || listener.isRegistered) {
-      return;
-    }
-    ZenithPlugin.getInstance().getPluginManager().registerEvents(listener, ZenithPlugin.getInstance());
-    listener.isRegistered = true;
-    listener.onRegister();
+    register(listener);
   }
 
   public static void register(final Class<? extends Event> event, final Listener listener, final EventPriority priority,
       final EventExecutor executor) {
-    if (listener == null || event == null || executor == null) {
-      return;
-    }
-    ZenithPlugin.getInstance().getPluginManager().registerEvent(event, listener,
-        priority == null ? EventPriority.NORMAL : priority, executor, ZenithPlugin.getInstance());
+    register(event, listener, priority, executor, false);
   }
 
   public static void register(final Class<? extends Event> event, final Listener listener, final EventPriority priority,
@@ -99,8 +96,113 @@ public class EventsAPI {
     if (listener == null || event == null || executor == null) {
       return;
     }
+    call(new ListenerRegisterEvent(listener));
     ZenithPlugin.getInstance().getPluginManager().registerEvent(event, listener,
         priority == null ? EventPriority.NORMAL : priority, executor, ZenithPlugin.getInstance(),
         ignoreCancelled);
+  }
+
+  public static class ListenerEnableEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+    private final Listener listener;
+
+    public ListenerEnableEvent(final Listener listener) {
+      this.listener = listener;
+    }
+
+    public Listener getListener() {
+      return listener;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class ListenerDisableEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+    private final Listener listener;
+
+    public ListenerDisableEvent(final Listener listener) {
+      this.listener = listener;
+    }
+
+    public Listener getListener() {
+      return listener;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class ListenerRegisterEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+    private final Listener listener;
+
+    public ListenerRegisterEvent(final Listener listener) {
+      this.listener = listener;
+    }
+
+    public Listener getListener() {
+      return listener;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class ListenerUnregisterEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+    private final Listener listener;
+
+    public ListenerUnregisterEvent(final Listener listener) {
+      this.listener = listener;
+    }
+
+    public Listener getListener() {
+      return listener;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class ListenerAllUnregisterEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+
+    public ListenerAllUnregisterEvent() {
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
   }
 }

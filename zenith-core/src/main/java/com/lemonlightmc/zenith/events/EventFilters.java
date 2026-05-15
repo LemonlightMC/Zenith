@@ -1,13 +1,13 @@
 
 package com.lemonlightmc.zenith.events;
 
+import java.util.function.Predicate;
+
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-
-import java.util.function.Predicate;
 
 @SuppressWarnings("unchecked")
 public final class EventFilters {
@@ -61,7 +61,7 @@ public final class EventFilters {
     return (Predicate<T>) IGNORE_SAME_CHUNK;
   }
 
-  public static <T extends PlayerEvent> Predicate<T> playerHasPermission(String permission) {
+  public static <T extends PlayerEvent> Predicate<T> playerHasPermission(final String permission) {
     return e -> e.getPlayer().hasPermission(permission);
   }
 }

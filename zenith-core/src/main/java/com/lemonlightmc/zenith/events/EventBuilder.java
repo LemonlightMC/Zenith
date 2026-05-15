@@ -144,12 +144,12 @@ public class EventBuilder<T extends Event> {
       implements BiConsumer<T, U> {
     final Consumer<U> delegate;
 
-    ConsumerToBiConsumerSecond(Consumer<U> delegate) {
+    ConsumerToBiConsumerSecond(final Consumer<U> delegate) {
       this.delegate = delegate;
     }
 
     @Override
-    public void accept(T t, U u) {
+    public void accept(final T t, final U u) {
       this.delegate.accept(u);
     }
   }

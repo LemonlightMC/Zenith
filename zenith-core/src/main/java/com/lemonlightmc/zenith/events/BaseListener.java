@@ -1,26 +1,20 @@
 
 package com.lemonlightmc.zenith.events;
 
-import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 public abstract class BaseListener implements Listener {
 
-  protected NamespacedKey key;
   protected EventPriority priority;
   protected boolean enabled = true;
   protected boolean isRegistered = false;
 
-  public BaseListener(final NamespacedKey key) {
-    this(key, EventPriority.NORMAL);
+  public BaseListener() {
+    this(EventPriority.NORMAL);
   }
 
-  public BaseListener(final NamespacedKey key, final EventPriority priority) {
-    if (key == null) {
-      throw new IllegalArgumentException("Invalid Listener Key: " + key);
-    }
-    this.key = key;
+  public BaseListener(final EventPriority priority) {
     this.priority = priority == null ? EventPriority.NORMAL : priority;
   }
 
@@ -28,10 +22,6 @@ public abstract class BaseListener implements Listener {
   }
 
   public void onUnregister() {
-  }
-
-  public NamespacedKey getName() {
-    return this.key;
   }
 
   public boolean isEnabled() {
@@ -70,13 +60,12 @@ public abstract class BaseListener implements Listener {
 
   @Override
   public String toString() {
-    return "BaseListener [key=" + key + ", priority=" + priority + ", enabled=" + enabled + "]";
+    return "BaseListener [priority=" + priority + ", enabled=" + enabled + "]";
   }
 
   @Override
   public int hashCode() {
-    final int result = 31 * (31 + key.hashCode()) + priority.hashCode();
-    return 31 * result + (enabled ? 1231 : 1237);
+    return 31 * (31 + priority.hashCode()) + (enabled ? 1231 : 1237);
   }
 
   @Override
@@ -88,6 +77,6 @@ public abstract class BaseListener implements Listener {
       return false;
     }
     final BaseListener other = (BaseListener) obj;
-    return key.equals(other.key) && priority == other.priority && enabled == other.enabled;
+    return priority == other.priority && enabled == other.enabled;
   }
 }

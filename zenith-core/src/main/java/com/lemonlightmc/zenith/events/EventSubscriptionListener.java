@@ -32,8 +32,8 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
   private final AtomicBoolean active = new AtomicBoolean(true);
 
   @SuppressWarnings("unchecked")
-  EventSubscriptionListener(EventBuilder<T> builder,
-      List<BiConsumer<EventSubscriptionListener<T>, ? super T>> handlers) {
+  EventSubscriptionListener(final EventBuilder<T> builder,
+      final List<BiConsumer<EventSubscriptionListener<T>, ? super T>> handlers) {
     this.eventClass = builder.eventClass;
     this.priority = builder.priority;
     this.exceptionConsumer = builder.exceptionConsumer;
@@ -51,7 +51,7 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
   }
 
   @Override
-  public void execute(Listener listener, Event event) {
+  public void execute(final Listener listener, final Event event) {
     // check we actually want this event
     if (this.handleSubclasses) {
       if (!this.eventClass.isInstance(event)) {
@@ -70,10 +70,10 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
     }
 
     // obtain the event instance
-    T eventInstance = this.eventClass.cast(event);
+    final T eventInstance = this.eventClass.cast(event);
 
     // check pre-expiry tests
-    for (BiPredicate<EventSubscriptionListener<T>, T> test : this.preExpiryTests) {
+    for (final BiPredicate<EventSubscriptionListener<T>, T> test : this.preExpiryTests) {
       if (test.test(this, eventInstance)) {
         event.getHandlers().unregister(listener);
         this.active.set(false);
@@ -84,14 +84,14 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
     // begin "handling" of the event
     try {
       // check the filters
-      for (Predicate<T> filter : this.filters) {
+      for (final Predicate<T> filter : this.filters) {
         if (!filter.test(eventInstance)) {
           return;
         }
       }
 
       // check mid-expiry tests
-      for (BiPredicate<EventSubscriptionListener<T>, T> test : this.midExpiryTests) {
+      for (final BiPredicate<EventSubscriptionListener<T>, T> test : this.midExpiryTests) {
         if (test.test(this, eventInstance)) {
           event.getHandlers().unregister(listener);
           this.active.set(false);
@@ -100,18 +100,18 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
       }
 
       // call the handler
-      for (BiConsumer<EventSubscriptionListener<T>, ? super T> handler : this.handlers) {
+      for (final BiConsumer<EventSubscriptionListener<T>, ? super T> handler : this.handlers) {
         handler.accept(this, eventInstance);
       }
 
       // increment call counter
       this.callCount.incrementAndGet();
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       this.exceptionConsumer.accept(eventInstance, t);
     }
 
     // check post-expiry tests
-    for (BiPredicate<EventSubscriptionListener<T>, T> test : this.postExpiryTests) {
+    for (final BiPredicate<EventSubscriptionListener<T>, T> test : this.postExpiryTests) {
       if (test.test(this, eventInstance)) {
         event.getHandlers().unregister(listener);
         this.active.set(false);
@@ -145,13 +145,13 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
   }
 
   @SuppressWarnings("JavaReflectionMemberAccess")
-  private static void unregisterListener(Class<? extends Event> eventClass, Listener listener) {
+  private static void unregisterListener(final Class<? extends Event> eventClass, final Listener listener) {
     try {
       // unfortunately we can't cache this reflect call, as the method is static
-      Method getHandlerListMethod = eventClass.getMethod("getHandlerList");
-      HandlerList handlerList = (HandlerList) getHandlerListMethod.invoke(null);
+      final Method getHandlerListMethod = eventClass.getMethod("getHandlerList");
+      final HandlerList handlerList = (HandlerList) getHandlerListMethod.invoke(null);
       handlerList.unregister(listener);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       // ignored
     }
   }

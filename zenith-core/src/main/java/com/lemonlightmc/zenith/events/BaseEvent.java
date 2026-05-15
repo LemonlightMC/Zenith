@@ -1,34 +1,36 @@
 package com.lemonlightmc.zenith.events;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
+
+import com.lemonlightmc.zenith.base.ZenithPlugin;
 
 public abstract class BaseEvent extends Event {
 
   protected boolean isCancelled = false;
-  protected String name = null;
+  protected NamespacedKey key = null;
 
   public BaseEvent() {
-    super(false);
+    this(null, false);
   }
 
   public BaseEvent(final boolean isAsync) {
-    super(isAsync);
+    this(null, isAsync);
   }
 
-  public BaseEvent(final String name) {
-    super(false);
-    this.name = name == null || name.isBlank() ? getClass().getSimpleName() : name;
+  public BaseEvent(final NamespacedKey key) {
+    this(key, false);
   }
 
-  public BaseEvent(final String name, final boolean isAsync) {
+  public BaseEvent(final NamespacedKey key, final boolean isAsync) {
     super(isAsync);
-    this.name = name == null || name.isBlank() ? getClass().getSimpleName() : name;
+    this.key = key == null ? new NamespacedKey(ZenithPlugin.getInstance().getKey(), getClass().getSimpleName()) : key;
   }
 
   @Override
   public String getEventName() {
-    return name;
+    return key.getKey();
   }
 
   public boolean call() {
@@ -38,7 +40,7 @@ public abstract class BaseEvent extends Event {
 
   @Override
   public int hashCode() {
-    int result = 31 + name.hashCode();
+    int result = 31 + key.hashCode();
     result = 31 * result + (isAsynchronous() ? 1231 : 1237);
     return 31 * result + (isCancelled ? 1231 : 1237);
   }
@@ -52,12 +54,12 @@ public abstract class BaseEvent extends Event {
       return false;
     }
     final BaseEvent other = (BaseEvent) obj;
-    return name.equals(other.name) && isCancelled == other.isCancelled && isAsynchronous() == other.isAsynchronous();
+    return key.equals(other.key) && isCancelled == other.isCancelled && isAsynchronous() == other.isAsynchronous();
   }
 
   @Override
   public String toString() {
-    return "BaseEvent [name=" + name + ", isAsync()=" + isAsynchronous() + "]";
+    return "BaseEvent [key=" + key + ", isAsync()=" + isAsynchronous() + "]";
   }
 
 }

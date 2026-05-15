@@ -2,86 +2,137 @@ package com.lemonlightmc.zenith.modular;
 
 import java.util.List;
 
-public abstract class Module implements IModule {
-  protected final String key;
-  protected boolean isEnabled = false;
-  protected boolean canEnable = true;
-  protected List<String> depends;
-  protected List<String> softDepends;
+import org.bukkit.NamespacedKey;
 
-  public Module(final String key, final List<String> depends, final List<String> softDepends) {
-    if (key == null || key.length() == 0) {
-      throw new IllegalArgumentException("Key cant be empty!");
-    }
-    if (depends == null) {
-      throw new IllegalArgumentException("Depends List cant be null!");
-    }
-    if (softDepends == null) {
-      throw new IllegalArgumentException("SoftDepends list cant be null!");
+import com.lemonlightmc.zenith.events.EventsAPI;
+import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleDisableEvent;
+import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleEnableEvent;
+import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleRegisterEvent;
+import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleUnregisterEvent;
+import com.lemonlightmc.zenith.version.Version;
+
+public abstract class Module {
+  protected final NamespacedKey key;
+  protected boolean isEnabled = false;
+  protected boolean isRegistered = false;
+
+  protected Version version;
+  protected List<NamespacedKey> depends;
+  protected List<NamespacedKey> softDepends;
+
+  public Module(final NamespacedKey key, final Version version, final List<NamespacedKey> depends,
+      final List<NamespacedKey> softDepends) {
+    if (key == null) {
+      throw new IllegalArgumentException("Module Key cant be null!");
     }
     this.key = key;
-    this.depends = depends;
-    this.softDepends = softDepends;
+    this.version = version == null ? Version.FIRST_VERSION : version;
+    this.depends = depends == null ? List.of() : depends;
+    this.softDepends = softDepends == null ? List.of() : softDepends;
   }
 
-  public Module(final String key, final List<String> depends) {
-    this(key, depends, List.of());
+  public Module(final NamespacedKey key, final Version version, final List<NamespacedKey> depends) {
+    this(key, version, depends, null);
   }
 
-  public Module(final String key) {
-    this(key, List.of(), List.of());
+  public Module(final NamespacedKey key, final Version version) {
+    this(key, version, null, null);
   }
 
-  @Override
-  public String getKey() {
+  public Module(final NamespacedKey key) {
+    this(key, null, null, null);
+  }
+
+  public NamespacedKey getKey() {
     return key;
   }
 
-  @Override
-  public List<String> getDepends() {
+  public Version getVersion() {
+    return version;
+  }
+
+  public List<NamespacedKey> getDepends() {
     return depends;
   }
 
-  @Override
-  public List<String> getSoftDepends() {
+  public List<NamespacedKey> getSoftDepends() {
     return softDepends;
   }
 
-  @Override
+  public boolean isRegistered() {
+    return isRegistered;
+  }
+
   public boolean isEnabled() {
     return isEnabled;
   }
 
-  @Override
+  public Module register() {
+    if (isRegistered) {
+      return this;
+    }
+    ModuleAPI.register(this);
+    isRegistered = true;
+    onRegister();
+    EventsAPI.call(new ModuleRegisterEvent(this));
+    return this;
+  }
+
+  public Module unregister() {
+    if (!isRegistered) {
+      return this;
+    }
+    ModuleAPI.unregister(this);
+    onUnregister();
+    isRegistered = false;
+    EventsAPI.call(new ModuleUnregisterEvent(this));
+    return this;
+  }
+
   public void enable() {
-    if (!canEnable || isEnabled) {
+    if (!isRegistered) {
+      throw new IllegalStateException("Module '" + key + "' is not registered!");
+    }
+    if (isEnabled) {
       return;
     }
     this.isEnabled = true;
     onEnable();
+
+    EventsAPI.call(new ModuleEnableEvent(this));
   }
 
-  @Override
   public void disable() {
+    if (!isRegistered) {
+      throw new IllegalStateException("Module '" + key + "' is not registered!");
+    }
     if (!isEnabled) {
       return;
     }
+    EventsAPI.call(new ModuleDisableEvent(this));
     this.isEnabled = false;
     disable();
   }
 
-  @Override
   public void reload() {
   }
 
-  @Override
-  abstract public void onReload();
+  public void onRegister() {
+  }
 
-  @Override
-  abstract public void onEnable();
+  public void onUnregister() {
+  }
 
-  @Override
-  abstract public void onDisable();
+  public void onReload() {
+
+  }
+
+  public void onEnable() {
+
+  }
+
+  public void onDisable() {
+  }
 
   @Override
   public int hashCode() {
@@ -100,10 +151,6 @@ public abstract class Module implements IModule {
       return false;
     }
     final Module other = (Module) obj;
-    if (key == null && other.key != null || depends == null && other.depends != null
-        || softDepends == null && other.softDepends != null) {
-      return false;
-    }
     return key.equals(other.key) && depends.equals(other.depends) && softDepends.equals(other.softDepends);
   }
 

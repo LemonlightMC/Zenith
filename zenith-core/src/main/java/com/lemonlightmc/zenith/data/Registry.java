@@ -7,7 +7,10 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.bukkit.NamespacedKey;
+import org.bukkit.event.HandlerList;
 
+import com.lemonlightmc.zenith.events.BaseEvent;
+import com.lemonlightmc.zenith.events.EventsAPI;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
 
 public class Registry<T extends Registrable>
@@ -46,7 +49,7 @@ public class Registry<T extends Registrable>
 
     registry.put(key, element);
     element.onRegister();
-    onRegister(element);
+    EventsAPI.call(new AddRegistryEvent<T>(element));
     return element;
   }
 
@@ -58,7 +61,7 @@ public class Registry<T extends Registrable>
     }
 
     element.onRemove();
-    onRemove(element);
+    EventsAPI.call(new RemoveRegistryEvent<T>(element));
     registry.remove(key);
     return element;
   }
@@ -87,9 +90,9 @@ public class Registry<T extends Registrable>
       throw new IllegalStateException(
           "Cannot clear a locked registry!");
     }
+    EventsAPI.call(new ClearRegistryEvent());
     for (final Map.Entry<NamespacedKey, T> entry : registry.entrySet()) {
       entry.getValue().onRemove();
-      onRemove(entry.getValue());
       registry.remove(entry.getKey());
     }
   }
@@ -113,6 +116,7 @@ public class Registry<T extends Registrable>
 
     this.locker = locker;
     isLocked = true;
+    EventsAPI.call(new LockRegistryEvent());
   }
 
   public void unlock(final Object locker) {
@@ -125,14 +129,7 @@ public class Registry<T extends Registrable>
 
     this.locker = null;
     isLocked = false;
-  }
-
-  protected void onRegister(final T element) {
-    // Override this method to do something when an element is registered.
-  }
-
-  protected void onRemove(final T element) {
-    // Override this method to do something when an element is removed.
+    EventsAPI.call(new UnlockRegistryEvent());
   }
 
   public boolean isEmpty() {
@@ -204,6 +201,106 @@ public class Registry<T extends Registrable>
   private static void checkKey(final NamespacedKey key) {
     if (key == null) {
       throw new IllegalArgumentException("Registry Key cannot be null!");
+    }
+  }
+
+  public static class AddRegistryEvent<T extends Registrable> extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+    private final T element;
+
+    public AddRegistryEvent(final T element) {
+      this.element = element;
+    }
+
+    public T getElement() {
+      return element;
+    }
+
+    public NamespacedKey getKey() {
+      return element.getKey();
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class RemoveRegistryEvent<T extends Registrable> extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+    private final T element;
+
+    public RemoveRegistryEvent(final T element) {
+      this.element = element;
+    }
+
+    public T getElement() {
+      return element;
+    }
+
+    public NamespacedKey getKey() {
+      return element.getKey();
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class ClearRegistryEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+
+    public ClearRegistryEvent() {
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class LockRegistryEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+
+    public LockRegistryEvent() {
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
+    }
+  }
+
+  public static class UnlockRegistryEvent extends BaseEvent {
+    private static final HandlerList handlers = new HandlerList();
+
+    public UnlockRegistryEvent() {
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+      return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+      return handlers;
     }
   }
 }

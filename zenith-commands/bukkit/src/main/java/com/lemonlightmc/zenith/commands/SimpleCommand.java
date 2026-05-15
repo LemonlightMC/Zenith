@@ -11,25 +11,11 @@ import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.exceptions.InvalidCommandNameException;
 import com.lemonlightmc.zenith.commands.exceptions.MissingCommandExecutorException;
 import com.lemonlightmc.zenith.commands.executors.AbstractCommand;
-import com.lemonlightmc.zenith.commands.executors.RootCommand;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.CommandBlockExecutionInfo;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.CommandBlockExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.ConsoleCommandExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.ConsoleExecutionInfo;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.EntityCommandExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.EntityExecutionInfo;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.FeedbackForwardingExecutionInfo;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.FeedbackForwardingExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.NativeCommandExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.NativeExecutionInfo;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.PlayerCommandExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.PlayerExecutionInfo;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.ProxyCommandExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.ProxyExecutionInfo;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.RemoteConsoleCommandExecutor;
-import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.RemoteConsoleExecutionInfo;
+import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.*;
 import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
+import com.lemonlightmc.zenith.commands.executors.RootCommand;
 import com.lemonlightmc.zenith.exceptions.PlatformException;
+import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.version.ServerEnvironment;
 
 public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
@@ -337,8 +323,11 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 
   @Override
   public String toString() {
+
     return "SimpleCommand [key=" + key + ", shortDescription=" + shortDescription + ", usageDescription="
-        + usageDescription + ", arguments=" + arguments + ", subcommands=" + subcommands + ", aliases=" + aliases
+        + StringUtils.join("\n", usageDescription) + ", arguments=" + arguments + ", subcommands=" + subcommands
+        + ", aliases="
+        + aliases
         + "]";
   }
 

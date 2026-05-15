@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.cacheddata.CachedMetaData;
@@ -137,7 +138,7 @@ public class LuckPerms {
       }
       final String suffix = key.substring(key.lastIndexOf(".") + 1);
       try {
-        return Integer.parseInt(suffix);
+        return NumberConversions.parseInt(suffix);
       } catch (final NumberFormatException e) {
         return Integer.MIN_VALUE;
       }

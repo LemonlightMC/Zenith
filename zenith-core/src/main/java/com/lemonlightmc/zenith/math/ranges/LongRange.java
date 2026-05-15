@@ -51,8 +51,8 @@ public class LongRange implements Range<LongRange, Long> {
       return ALL;
     }
     final String[] arr = Range.parseStr(str);
-    return new LongRange(arr[0].length() == 0 ? Long.MIN_VALUE : NumberConversions.decodeLong(arr[0]),
-        arr[1].length() == 0 ? Long.MAX_VALUE : NumberConversions.decodeLong(arr[1]));
+    return new LongRange(arr[0].length() == 0 ? Long.MIN_VALUE : NumberConversions.parseInt(arr[0]),
+        arr[1].length() == 0 ? Long.MAX_VALUE : NumberConversions.parseInt(arr[1]));
   }
 
   public static LongRange encompassing(final LongRange a, final LongRange b) {

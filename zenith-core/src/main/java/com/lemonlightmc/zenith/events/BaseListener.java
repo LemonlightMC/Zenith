@@ -21,7 +21,7 @@ public abstract class BaseListener implements Listener {
       throw new IllegalArgumentException("Invalid Listener Key: " + key);
     }
     this.key = key;
-    this.priority = priority;
+    this.priority = priority == null ? EventPriority.NORMAL : priority;
   }
 
   public void onRegister() {
@@ -31,19 +31,19 @@ public abstract class BaseListener implements Listener {
   }
 
   public NamespacedKey getName() {
-    return key;
+    return this.key;
   }
 
   public boolean isEnabled() {
-    return enabled;
+    return this.enabled;
   }
 
   public void setEnabled(final boolean value) {
-    enabled = value;
+    this.enabled = value;
   }
 
   protected boolean shouldHandle() {
-    return enabled && isRegistered;
+    return this.enabled && this.isRegistered;
   }
 
   public void setRegistered(final boolean value) {
@@ -65,7 +65,7 @@ public abstract class BaseListener implements Listener {
   }
 
   public void unregister() {
-    EventsAPI.register(this);
+    EventsAPI.unregister(this);
   }
 
   @Override
@@ -88,9 +88,6 @@ public abstract class BaseListener implements Listener {
       return false;
     }
     final BaseListener other = (BaseListener) obj;
-    if (key == null && other.key != null) {
-      return false;
-    }
     return key.equals(other.key) && priority == other.priority && enabled == other.enabled;
   }
 }

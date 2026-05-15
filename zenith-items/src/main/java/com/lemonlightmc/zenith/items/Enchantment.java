@@ -1,12 +1,12 @@
 package com.lemonlightmc.zenith.items;
 
+import java.util.List;
+
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import com.lemonlightmc.zenith.math.Numerals;
-
-import java.util.List;
 
 public class Enchantment extends org.bukkit.enchantments.Enchantment {
 
@@ -55,6 +55,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
     isRegistered = true;
   }
 
+  @Override
   public String getName() {
     return displayName;
   }
@@ -66,6 +67,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
     return displayName + " " + Numerals.toRoman(enchLevel);
   }
 
+  @Override
   public NamespacedKey getKey() {
     return key;
   }
@@ -93,14 +95,17 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
     return 1;
   }
 
+  @Override
   public org.bukkit.enchantments.EnchantmentTarget getItemTarget() {
     return null;
   }
 
+  @Override
   public boolean isTreasure() {
     return treasure;
   }
 
+  @Override
   public boolean isCursed() {
     return cursed;
   }

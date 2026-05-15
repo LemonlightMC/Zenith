@@ -25,6 +25,8 @@ import org.bukkit.generator.WorldInfo;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
+import com.lemonlightmc.zenith.math.NumberConversions;
+
 public class WorldUtils {
   public static World[] getWorlds() {
     return Bukkit.getWorlds().toArray(World[]::new);
@@ -45,14 +47,16 @@ public class WorldUtils {
   }
 
   public static String[] getWorldNames() {
-    final ArrayList<String> names = new ArrayList<>(Bukkit.getWorlds().size());
-    for (final World w : Bukkit.getWorlds()) {
-      if (w == null) {
-        continue;
-      }
-      names.add(w.getName());
+    final List<World> worlds = Bukkit.getWorlds();
+    final int len = worlds.size();
+    final String[] names = new String[len];
+    if (len == 0) {
+      return names;
     }
-    return names.toArray(String[]::new);
+    for (int i = 0; i < len; i++) {
+      names[i] = worlds.get(i).getName();
+    }
+    return names;
   }
 
   public static World getMainWorld() {
@@ -131,20 +135,33 @@ public class WorldUtils {
         + location.getBlockZ();
   }
 
-  public static Location getLocationFromString(final String locationString) {
-    if (locationString == null || locationString.trim() == "") {
+  public static Location getLocation(final String str) {
+    if (str == null || str.isEmpty()) {
       return null;
     }
-    final String[] parts = locationString.split(":");
-    if (parts.length == 4) {
-      final World w = Bukkit.getServer().getWorld(parts[0]);
-      final int x = Integer.parseInt(parts[1]);
-      final int y = Integer.parseInt(parts[2]);
-      final int z = Integer.parseInt(parts[3]);
-      final Location location = new Location(w, x, y, z);
-      return location;
+    final String[] parts = str.split(":");
+    if (parts.length == 3) {
+      try {
+        final int x = NumberConversions.parseInt(parts[0]);
+        final int y = NumberConversions.parseInt(parts[1]);
+        final int z = NumberConversions.parseInt(parts[2]);
+        return new Location(getMainWorld(), x, y, z);
+      } catch (Exception e) {
+        return null;
+      }
     }
-    return null;
+    if (parts.length < 4) {
+      return null;
+    }
+    try {
+      final World w = Bukkit.getServer().getWorld(parts[0]);
+      final int x = NumberConversions.parseInt(parts[1]);
+      final int y = NumberConversions.parseInt(parts[2]);
+      final int z = NumberConversions.parseInt(parts[3]);
+      return new Location(w, x, y, z);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   public static List<Location> getSphere(final Location center, final int radius) {
@@ -248,6 +265,7 @@ public class WorldUtils {
     private VoidGenerator() {
     }
 
+    @Override
     public boolean isParallelCapable() {
       return true;
     }

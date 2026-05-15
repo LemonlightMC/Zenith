@@ -11,6 +11,7 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.math.NumberConversions;
 import com.lemonlightmc.zenith.messages.Logger;
 
 import net.luckperms.api.LuckPerms;
@@ -41,7 +42,7 @@ public class PermissionUtils {
           .filter(perm -> perm.getValue() && perm.getPermission().startsWith(permission))
           .map(perm -> {
             final String perm2 = perm.getPermission().replace(permission, "");
-            return perm2 == null ? 0 : perm2 == "*" ? Integer.MAX_VALUE : Integer.parseInt(perm2);
+            return perm2 == null ? 0 : perm2 == "*" ? Integer.MAX_VALUE : NumberConversions.parseInt(perm2);
           })
           .max(Integer::compareTo)
           .orElse(-1);

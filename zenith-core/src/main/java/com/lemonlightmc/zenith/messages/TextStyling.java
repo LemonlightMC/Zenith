@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.lemonlightmc.zenith.math.NumberConversions;
+
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -64,36 +66,60 @@ public class TextStyling {
     return hasHexSupport;
   }
 
-  public TextComponent string2component(String text) {
+  public TextComponent string2component(final String text) {
     return new TextComponent(text);
   }
 
-  public String component2String(TextComponent component) {
+  public String component2String(final TextComponent component) {
     return component.toLegacyText();
   }
 
-  public static TextComponent onHover(HoverEvent.Action action, TextComponent component, String data) {
+  public static TextComponent onHover(final HoverEvent.Action action, final TextComponent component,
+      final String data) {
     component
         .setHoverEvent(new HoverEvent(action, new net.md_5.bungee.api.chat.hover.content.Text(data)));
     return component;
   }
 
-  public static TextComponent onHover(HoverEvent.Action action, String text, String data) {
-    TextComponent component = new TextComponent(text);
+  public static TextComponent onHover(final HoverEvent.Action action, final String text, final String data) {
+    final TextComponent component = new TextComponent(text);
     component
         .setHoverEvent(new HoverEvent(action, new net.md_5.bungee.api.chat.hover.content.Text(data)));
     return component;
   }
 
-  public static TextComponent onClick(ClickEvent.Action action, String text, String data) {
-    TextComponent component = new TextComponent(text);
+  public static TextComponent onClick(final ClickEvent.Action action, final String text, final String data) {
+    final TextComponent component = new TextComponent(text);
     component.setClickEvent(new ClickEvent(action, data));
     return component;
   }
 
-  public static TextComponent onClick(ClickEvent.Action action, TextComponent component, String data) {
+  public static TextComponent onClick(final ClickEvent.Action action, final TextComponent component,
+      final String data) {
     component.setClickEvent(new ClickEvent(action, data));
     return component;
+  }
+
+  public static String color(final String string, final Color color) {
+    return mapColor(color) + string;
+  }
+
+  public static String color(final String string, final ChatColor color) {
+    return mapColor(color) + string;
+  }
+
+  public static String color(final String string, final org.bukkit.ChatColor color) {
+    return mapColor(color.asBungee()) + string;
+  }
+
+  public static String gradient(final String string, final Color start, final Color end) {
+    final ChatColor[] colors = createGradient(start, end, stripSpecial(string).length());
+    return apply(string, colors);
+  }
+
+  public static String rainbow(final String string, final float saturation) {
+    final ChatColor[] colors = createRainbow(stripSpecial(string).length(), saturation);
+    return apply(string, colors);
   }
 
   public static String strip(final String input) {
@@ -131,31 +157,17 @@ public class TextStyling {
     return new String(b);
   }
 
-  public static ChatColor color(final String string) {
-    return hasHexSupport ? ChatColor.of(new Color(Integer.parseInt(string, 16)))
-        : getClosestColor(new Color(Integer.parseInt(string, 16)));
+  public static ChatColor mapColor(final String string) {
+    return hasHexSupport ? ChatColor.of(new Color(NumberConversions.parseInt(string, 16)))
+        : getClosestColor(new Color(NumberConversions.parseInt(string, 16)));
   }
 
-  public static String color(final String string, final Color color) {
-    return (hasHexSupport ? ChatColor.of(color).toString() : getClosestColor(color).toString()) + string;
-  }
-
-  public static ChatColor color(final Color color) {
+  public static ChatColor mapColor(final Color color) {
     return (hasHexSupport ? ChatColor.of(color) : getClosestColor(color));
   }
 
-  public static ChatColor color(final ChatColor color) {
+  public static ChatColor mapColor(final ChatColor color) {
     return (hasHexSupport ? color : getClosestColor(color.getColor()));
-  }
-
-  public static String gradient(final String string, final Color start, final Color end) {
-    final ChatColor[] colors = createGradient(start, end, stripSpecial(string).length());
-    return apply(string, colors);
-  }
-
-  public static String rainbow(final String string, final float saturation) {
-    final ChatColor[] colors = createRainbow(stripSpecial(string).length(), saturation);
-    return apply(string, colors);
   }
 
   public static ChatColor getClosestColor(final Color color) {
@@ -180,7 +192,7 @@ public class TextStyling {
       String color = matcher.group(1);
       if (color == null)
         color = matcher.group(2);
-      string = string.replace(matcher.group(), color(color) + "");
+      string = string.replace(matcher.group(), mapColor(color) + "");
     }
     return string;
   }
@@ -192,7 +204,8 @@ public class TextStyling {
       final String end = matcher.group(3);
       final String content = matcher.group(2);
       string = string.replace(matcher.group(),
-          gradient(content, new Color(Integer.parseInt(start, 16)), new Color(Integer.parseInt(end, 16))));
+          gradient(content, new Color(NumberConversions.parseInt(start, 16)),
+              new Color(NumberConversions.parseInt(end, 16))));
     }
     return string;
   }
@@ -202,7 +215,7 @@ public class TextStyling {
     while (matcher.find()) {
       final String saturation = matcher.group(1);
       final String content = matcher.group(2);
-      string = string.replace(matcher.group(), rainbow(content, Float.parseFloat(saturation)));
+      string = string.replace(matcher.group(), rainbow(content, NumberConversions.parseFloat(saturation)));
     }
     return string;
   }
@@ -220,7 +233,7 @@ public class TextStyling {
     for (int i = 0; i < step; i++) {
       final Color color = new Color(start.getRed() + stepR * i, start.getGreen() + stepG * i,
           start.getBlue() + stepB * i);
-      colors[i] = color(color);
+      colors[i] = mapColor(color);
     }
     return colors;
   }
@@ -229,7 +242,7 @@ public class TextStyling {
     final ChatColor[] colors = new ChatColor[step];
     for (int i = 0; i < step; i++) {
       final Color color = Color.getHSBColor((float) (1.0D / step * i), saturation, saturation);
-      colors[i] = color(color);
+      colors[i] = mapColor(color);
     }
     return colors;
   }

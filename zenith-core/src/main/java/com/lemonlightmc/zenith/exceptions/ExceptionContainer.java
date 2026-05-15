@@ -27,6 +27,11 @@ public class ExceptionContainer<T> {
   }
 
   private T _create(Object... args) {
+    Object value;
+    for (int i = 0; i < args.length; i++) {
+      value = args[i];
+      args[i] = value == null ? value : value.toString();
+    }
     try {
       return (T) cls.getDeclaredConstructor().newInstance(args);
     } catch (Exception e) {
@@ -35,7 +40,7 @@ public class ExceptionContainer<T> {
   }
 
   public T create() {
-    return _create(function.apply(null));
+    return _create(function.apply());
   }
 
   public T create(final Object... args) {
@@ -48,6 +53,6 @@ public class ExceptionContainer<T> {
 
   @FunctionalInterface
   public static interface ExceptionContainerFunction {
-    public String apply(Object[] args);
+    public String apply(Object... args);
   }
 }

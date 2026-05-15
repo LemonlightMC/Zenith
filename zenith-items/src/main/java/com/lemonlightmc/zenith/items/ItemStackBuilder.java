@@ -509,7 +509,7 @@ public class ItemStackBuilder implements Builder<ItemStack> {
 
   public ItemStackBuilder spawnable(final EntitySnapshot trim) {
     if (isSpawnable()) {
-      ((SpawnEggMeta) meta).setSpawnedEntity(null);
+      ((SpawnEggMeta) meta).setSpawnedEntity(trim);
     }
     return this;
   }
@@ -544,7 +544,7 @@ public class ItemStackBuilder implements Builder<ItemStack> {
 
   public ItemStackBuilder fireworkPower(final int power) {
     if (isFirework()) {
-      ((FireworkMeta) meta).setPower(0);
+      ((FireworkMeta) meta).setPower(power);
     }
     return this;
   }

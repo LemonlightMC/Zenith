@@ -2,12 +2,14 @@ package com.lemonlightmc.zenith.config.schema;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
 import com.lemonlightmc.zenith.files.FileUtils;
+import com.lemonlightmc.zenith.math.NumberConversions;
 import com.lemonlightmc.zenith.utils.Ref;
 import com.lemonlightmc.zenith.utils.StringUtils;
 
@@ -58,7 +60,7 @@ public record BuildSchema(SchemaNode[] nodes, int len, String header, String foo
 
   @Override
   public String toString() {
-    return "BuildSchema [len=" + len + ",nodes=" + nodes + "]";
+    return "BuildSchema [len=" + len + ",nodes=" + Arrays.toString(nodes) + "]";
   }
 
   public Map<String, SchemaPair<?>> parse(final Map<String, Object> data) {
@@ -192,7 +194,7 @@ public record BuildSchema(SchemaNode[] nodes, int len, String header, String foo
         continue;
       }
       if (prefix == "S" && parts.length > 4) {
-        final int sectionSize = Integer.parseInt(parts[2]);
+        final int sectionSize = NumberConversions.parseInt(parts[2]);
         final String comment = StringUtils.unescape(parts[3]);
         nodes.add(new BuildSchemaSection(path, comment, sectionSize));
       } else if (prefix == "P" && parts.length > 5) {

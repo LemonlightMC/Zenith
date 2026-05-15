@@ -51,8 +51,8 @@ public class StringRange implements Range<StringRange, Integer> {
       return ALL;
     }
     final String[] arr = Range.parseStr(str);
-    return new StringRange(arr[0].length() == 0 ? Integer.MIN_VALUE : NumberConversions.decodeInt(arr[0]),
-        arr[1].length() == 0 ? Integer.MAX_VALUE : NumberConversions.decodeInt(arr[1]));
+    return new StringRange(arr[0].length() == 0 ? Integer.MIN_VALUE : NumberConversions.parseInt(arr[0]),
+        arr[1].length() == 0 ? Integer.MAX_VALUE : NumberConversions.parseInt(arr[1]));
   }
 
   public static StringRange encompassing(final StringRange a, final StringRange b) {

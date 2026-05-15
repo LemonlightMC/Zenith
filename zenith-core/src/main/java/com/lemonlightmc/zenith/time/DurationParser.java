@@ -2,6 +2,8 @@ package com.lemonlightmc.zenith.time;
 
 import java.util.regex.Pattern;
 
+import com.lemonlightmc.zenith.math.NumberConversions;
+
 public class DurationParser {
   private static final Pattern pattern1 = Pattern
       .compile(
@@ -31,7 +33,7 @@ public class DurationParser {
       return 0l;
     }
     try {
-      long time = Long.parseLong(parts2[0]);
+      long time = NumberConversions.parseLong(parts2[0]);
       return PolyTimeUnit.from(parts2[1]).toMillis(time);
     } catch (Exception e) {
       return 0l;

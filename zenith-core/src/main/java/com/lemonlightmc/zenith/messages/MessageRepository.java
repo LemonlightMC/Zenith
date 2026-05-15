@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import com.lemonlightmc.zenith.files.FileUtils;
 import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.math.NumberConversions;
 import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.version.Version;
 
@@ -362,7 +363,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       this.description = description;
     }
     if (progress != null) {
-      this.progress = Float.parseFloat(progress);
+      this.progress = NumberConversions.parseFloat(progress);
     }
     if (contributors != null) {
       this.contributors = List.of(contributors.split(","));

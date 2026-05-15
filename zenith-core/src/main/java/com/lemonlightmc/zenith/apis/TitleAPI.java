@@ -262,6 +262,7 @@ public class TitleAPI {
       }
     }
 
+    @Override
     public int hashCode() {
       int result = 31 + fadeIn;
       result = 31 * result + stay;
@@ -271,6 +272,7 @@ public class TitleAPI {
       return result;
     }
 
+    @Override
     public boolean equals(final Object obj) {
       if (this == obj)
         return true;
@@ -290,6 +292,7 @@ public class TitleAPI {
       return fadeIn == other.fadeIn && stay == other.stay && fadeOut == other.fadeOut;
     }
 
+    @Override
     public String toString() {
       return "TitleInfo [fadeIn=" + fadeIn + ", stay=" + stay + ", fadeOut=" + fadeOut + ", title=" + title
           + ", subtitle=" + subtitle + "]";
@@ -405,6 +408,7 @@ public class TitleAPI {
       return new TitleInfo(title, subtitle, replaceables, fadeIn, stay, fadeOut);
     }
 
+    @Override
     public int hashCode() {
       int result = 31 + fadeIn;
       result = 31 * result + stay;
@@ -415,6 +419,7 @@ public class TitleAPI {
       return result;
     }
 
+    @Override
     public boolean equals(final Object obj) {
       if (this == obj)
         return true;
@@ -442,6 +447,7 @@ public class TitleAPI {
       return true;
     }
 
+    @Override
     public String toString() {
       return "TitleBuilder [fadeIn=" + fadeIn + ", stay=" + stay + ", fadeOut=" + fadeOut + ", title=" + title
           + ", subtitle=" + subtitle

@@ -3,6 +3,8 @@ package com.lemonlightmc.zenith.version;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lemonlightmc.zenith.math.NumberConversions;
+
 public class Version implements IVersion {
 
   public static final Version FIRST_VERSION = new Version(1, 0, 0, 0, null);
@@ -123,7 +125,7 @@ public class Version implements IVersion {
 
   private static int parseIntSafe(final String str) {
     try {
-      return Integer.parseInt(str, 10);
+      return NumberConversions.parseInt(str, 10);
     } catch (final Exception ignored) {
       return 0;
     }

@@ -9,7 +9,7 @@ public abstract class BaseEventCancellable extends BaseEvent implements Cancella
     this.isCancelled = false;
   }
 
-  public BaseEventCancellable(boolean isAsync) {
+  public BaseEventCancellable(final boolean isAsync) {
     super(isAsync);
     this.isCancelled = false;
   }
@@ -20,11 +20,17 @@ public abstract class BaseEventCancellable extends BaseEvent implements Cancella
   }
 
   @Override
-  public void setCancelled(boolean isCancelled) {
+  public void setCancelled(final boolean isCancelled) {
     this.isCancelled = isCancelled;
   }
 
   public void cancel() {
     this.isCancelled = true;
   }
+
+  @Override
+  public String toString() {
+    return "BaseEvent [name=" + name + ", isAsync()=" + isAsynchronous() + ", cancelled=" + isCancelled + "]";
+  }
+
 }

@@ -26,6 +26,7 @@ import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.ParticleData;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class RegistryArguments {
   public static class BiomeArgument extends Argument<Biome, BiomeArgument, CommandSender> {
@@ -185,7 +186,7 @@ public class RegistryArguments {
       }
       final Material mat = Objects.requireNonNull(Material.getMaterial(value[0]));
       if (value.length > 1) {
-        final int amount = Integer.parseInt(value[1]);
+        final int amount = NumberConversions.parseInt(value[1]);
         return new ItemStack(mat, amount);
       }
       return new ItemStack(mat, 1);

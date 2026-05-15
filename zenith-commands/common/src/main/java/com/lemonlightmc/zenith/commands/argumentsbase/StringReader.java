@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.CommandSyntaxExceptionContainer;
+import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class StringReader {
   private static final char SYNTAX_ESCAPE = '\\';
@@ -224,7 +225,7 @@ public class StringReader {
       throw READER_EXPECTED_INT.createWithContext(this);
     }
     try {
-      return Integer.parseInt(number);
+      return NumberConversions.parseInt(number);
     } catch (final NumberFormatException ex) {
       cursor = start;
       throw READER_INVALID_INT.createWithContext(this, number);
@@ -241,7 +242,7 @@ public class StringReader {
       throw READER_EXPECTED_LONG.createWithContext(this);
     }
     try {
-      return Long.parseLong(number);
+      return NumberConversions.parseLong(number);
     } catch (final NumberFormatException ex) {
       resetCursor();
       throw READER_INVALID_LONG.createWithContext(this, number);
@@ -258,7 +259,7 @@ public class StringReader {
       throw READER_EXPECTED_DOUBLE.createWithContext(this);
     }
     try {
-      return Double.parseDouble(number);
+      return NumberConversions.parseDouble(number);
     } catch (final NumberFormatException ex) {
       resetCursor();
       throw READER_INVALID_DOUBLE.createWithContext(this, number);
@@ -275,7 +276,7 @@ public class StringReader {
       throw READER_EXPECTED_FLOAT.createWithContext(this);
     }
     try {
-      return Float.parseFloat(number);
+      return NumberConversions.parseFloat(number);
     } catch (final NumberFormatException ex) {
       resetCursor();
       throw READER_INVALID_FLOAT.createWithContext(this, number);

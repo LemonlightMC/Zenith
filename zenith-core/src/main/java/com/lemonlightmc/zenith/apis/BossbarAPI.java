@@ -18,6 +18,7 @@ import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.interfaces.Builder;
+import com.lemonlightmc.zenith.interfaces.Cloneable;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 
 public class BossbarAPI {
@@ -101,8 +102,8 @@ public class BossbarAPI {
         bar.addPlayer(p);
       }
       this.listeners = base.getListeners();
-      final Location location = base.getLocation();
-      this.location = location == null ? null : location.clone();
+      final Location otherLocation = base.getLocation();
+      this.location = otherLocation == null ? null : otherLocation.clone();
     }
 
     public static BossBar from(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
@@ -688,7 +689,7 @@ public class BossbarAPI {
     }
   }
 
-  public static interface IBossBar extends IBossBarListener, Cloneable {
+  public static interface IBossBar extends IBossBarListener, Cloneable<IBossBar> {
 
     public NamespacedKey getKey();
 
@@ -778,6 +779,7 @@ public class BossbarAPI {
 
     public IBossBar clearPlayers();
 
+    @Override
     public IBossBar clone();
 
     @Override

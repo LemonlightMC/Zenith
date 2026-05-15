@@ -51,8 +51,8 @@ public class IntegerRange implements Range<IntegerRange, Integer> {
       return ALL;
     }
     final String[] arr = Range.parseStr(str);
-    return new IntegerRange(arr[0].length() == 0 ? Integer.MIN_VALUE : NumberConversions.decodeInt(arr[0]),
-        arr[1].length() == 0 ? Integer.MAX_VALUE : NumberConversions.decodeInt(arr[1]));
+    return new IntegerRange(arr[0].length() == 0 ? Integer.MIN_VALUE : NumberConversions.parseInt(arr[0]),
+        arr[1].length() == 0 ? Integer.MAX_VALUE : NumberConversions.parseInt(arr[1]));
   }
 
   public static IntegerRange encompassing(final IntegerRange a, final IntegerRange b) {

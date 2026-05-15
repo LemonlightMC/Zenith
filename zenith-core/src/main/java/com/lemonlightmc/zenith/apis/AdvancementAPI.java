@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.apis.ToastAPI.ToastType;
 import com.lemonlightmc.zenith.base.ZenithPlugin;
 import com.lemonlightmc.zenith.exceptions.OutdatedVersionError;
+import com.lemonlightmc.zenith.math.NumberConversions;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.version.MCVersion;
 
@@ -73,7 +74,7 @@ public class AdvancementAPI {
       modelDataInt = ((Float) modelData).intValue();
     } else if (modelData instanceof String) {
       try {
-        modelDataInt = Integer.parseInt(modelData.toString());
+        modelDataInt = NumberConversions.parseInt(modelData.toString());
       } catch (NumberFormatException ignored) {
         // TODO: If parsing fails, modelDataInt remains 0
       }
@@ -118,7 +119,7 @@ public class AdvancementAPI {
       modelDataInt = ((Float) modelData).intValue();
     } else if (modelData instanceof String) {
       try {
-        modelDataInt = Integer.parseInt(modelData.toString());
+        modelDataInt = NumberConversions.parseInt(modelData.toString());
       } catch (NumberFormatException ignored) {
         // TODO: If parsing fails, modelDataInt remains 0
       }

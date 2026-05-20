@@ -4,12 +4,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.bukkit.configuration.file.YamlConstructor;
-import org.bukkit.configuration.file.YamlRepresenter;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.yaml.snakeyaml.DumperOptions;
 //import org.bukkit.configuration.file.YamlConfiguration;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import com.lemonlightmc.zenith.config.FileHandler;
 import com.lemonlightmc.zenith.config.schema.SchemaPair;
@@ -31,11 +37,8 @@ public class YamlHandler extends FileHandler {
     final DumperOptions dumperOptions = new DumperOptions();
     dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
-    final YamlConstructor constructor = new YamlConstructor(loaderOptions);
-    final YamlRepresenter representer = new YamlRepresenter(dumperOptions);
-    representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-
-    yaml = new Yaml(constructor, representer, dumperOptions, loaderOptions);
+    yaml = new Yaml(new YamlConstructor(loaderOptions), new YamlRepresenter(dumperOptions), dumperOptions,
+        loaderOptions);
   }
 
   public static YamlHandler from(final ConfigOptions options) {
@@ -101,4 +104,68 @@ public class YamlHandler extends FileHandler {
     }
     return root;
   }
+
+  private static class YamlConstructor extends SafeConstructor {
+
+    public YamlConstructor(LoaderOptions loaderOptions) {
+      super(loaderOptions);
+      this.yamlConstructors.put(Tag.MAP, new ConstructCustomObject());
+    }
+
+    private class ConstructCustomObject extends ConstructYamlMap {
+      @Override
+      public Object construct(Node node) {
+        if (node.isTwoStepsConstruction()) {
+          throw new YAMLException("Unexpected referential mapping structure. Node: " + node);
+        }
+
+        Map<?, ?> raw = (Map<?, ?>) super.construct(node);
+
+        if (raw.containsKey(ConfigurationSerialization.SERIALIZED_TYPE_KEY)) {
+          Map<String, Object> typed = new LinkedHashMap<String, Object>(raw.size());
+          for (Map.Entry<?, ?> entry : raw.entrySet()) {
+            typed.put(entry.getKey().toString(), entry.getValue());
+          }
+
+          try {
+            return ConfigurationSerialization.deserializeObject(typed);
+          } catch (IllegalArgumentException ex) {
+            throw new YAMLException("Could not deserialize object", ex);
+          }
+        }
+
+        return raw;
+      }
+    }
+  }
+
+  public class YamlRepresenter extends Representer {
+
+    public YamlRepresenter(DumperOptions dumperOptions) {
+      super(dumperOptions);
+      this.multiRepresenters.put(ConfigurationSection.class, new RepresentConfigurationSection());
+      this.multiRepresenters.put(ConfigurationSerializable.class, new RepresentConfigurationSerializable());
+    }
+
+    private class RepresentConfigurationSection extends RepresentMap {
+      @Override
+      public Node representData(Object data) {
+        return super.representData(((ConfigurationSection) data).getValues(false));
+      }
+    }
+
+    private class RepresentConfigurationSerializable extends RepresentMap {
+      @Override
+      public Node representData(Object data) {
+        ConfigurationSerializable serializable = (ConfigurationSerializable) data;
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
+        values.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY,
+            ConfigurationSerialization.getAlias(serializable.getClass()));
+        values.putAll(serializable.serialize());
+
+        return super.representData(values);
+      }
+    }
+  }
+
 }

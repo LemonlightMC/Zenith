@@ -20,8 +20,8 @@ public class PluginInfo {
 
   PluginInfo(final PluginDescriptionFile descriptionFile) {
     this.descriptionFile = descriptionFile;
-    this.version = new Version(descriptionFile.getVersion());
-    this.apiVersion = new Version(descriptionFile.getAPIVersion());
+    this.version = Version.semver(descriptionFile.getVersion());
+    this.apiVersion = Version.semver(descriptionFile.getAPIVersion());
   }
 
   public PluginDescriptionFile getDescriptionFile() {

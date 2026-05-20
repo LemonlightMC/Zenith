@@ -293,7 +293,7 @@ public class NumberArguments {
     public IntegerRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return IntegerRange.of(reader.readRange());
+      return IntegerRange.from(reader.readRange());
     }
   }
 
@@ -317,7 +317,7 @@ public class NumberArguments {
     public LongRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return LongRange.of(reader.readRange());
+      return LongRange.from(reader.readRange());
     }
   }
 
@@ -341,7 +341,7 @@ public class NumberArguments {
     public FloatRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return FloatRange.of(reader.readRange());
+      return FloatRange.from(reader.readRange());
     }
   }
 
@@ -365,7 +365,7 @@ public class NumberArguments {
     public DoubleRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return DoubleRange.of(reader.readRange());
+      return DoubleRange.from(reader.readRange());
     }
   }
 

@@ -3,7 +3,7 @@ package com.lemonlightmc.zenith.utils;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.lemonlightmc.zenith.time.PolyTimeUnit;
 

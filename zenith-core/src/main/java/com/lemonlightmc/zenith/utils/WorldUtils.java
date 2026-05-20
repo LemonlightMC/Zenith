@@ -79,19 +79,16 @@ public class WorldUtils {
     return createWorldCreator(worldName, env, type, true);
   }
 
-  @SuppressWarnings("deprecation")
   public static World createWorld(final String worldName) {
     return createWorldCreator(worldName, Environment.NORMAL, WorldType.NORMAL, false).keepSpawnInMemory(false)
         .createWorld();
   }
 
-  @SuppressWarnings("deprecation")
   public static World createFlatWorld(final String worldName) {
     return createWorldCreator(worldName, Environment.NORMAL, WorldType.FLAT, false).keepSpawnInMemory(false)
         .createWorld();
   }
 
-  @SuppressWarnings("deprecation")
   public static World createVoidWorld(final String worldName) {
     final World world = createWorldCreator(worldName, Environment.NORMAL, WorldType.FLAT, false)
         .keepSpawnInMemory(false)
@@ -101,8 +98,8 @@ public class WorldUtils {
       throw new IllegalStateException("Failed to create world: " + worldName);
     }
     world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-    world.setGameRule(GameRule.ADVANCE_TIME, true);
-    world.setGameRule(GameRule.ADVANCE_WEATHER, true);
+    world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+    world.setGameRule(GameRule.DO_WEATHER_CYCLE, true);
     world.setTime(0L);
     world.setSpawnLocation(0, 121, 0);
     return world;

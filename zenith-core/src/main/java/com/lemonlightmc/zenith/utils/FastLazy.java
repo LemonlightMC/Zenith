@@ -3,7 +3,7 @@ package com.lemonlightmc.zenith.utils;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class FastLazy<@Nullable T> implements Supplier<T> {
 

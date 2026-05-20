@@ -199,7 +199,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
   }
 
   public T setVersion(final String version) {
-    this.version = new Version(version);
+    this.version = Version.semver(version);
     return getInstance();
   }
 
@@ -357,7 +357,7 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       this.name = name;
     }
     if (version != null) {
-      this.version = new Version(version);
+      this.version = Version.semver(version);
     }
     if (description != null) {
       this.description = description;

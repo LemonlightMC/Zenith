@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.apis.SoundAPI;
 import com.lemonlightmc.zenith.sound.Note;
 import com.lemonlightmc.zenith.sound.Sound;
 
@@ -36,14 +35,14 @@ public abstract class ChannelMode {
             final SoundCategory category, final double volume,
             final double pitch, final double distance) {
         location = stereoPan(location, distance);
-        player.playSound(location, sound, category, (float) volume, (float) pitch, SoundAPI.DEFAULT_SEED);
+        player.playSound(location, sound, category, (float) volume, (float) pitch);
     }
 
     public static void playSound(final Player player, Location location, final org.bukkit.Sound sound,
             final SoundCategory category, final double volume,
             final double pitch, final double distance) {
         location = stereoPan(location, distance);
-        player.playSound(location, sound, category, (float) volume, (float) pitch, SoundAPI.DEFAULT_SEED);
+        player.playSound(location, sound, category, (float) volume, (float) pitch);
     }
 
     public static Location stereoPan(final Location location, final double distance) {

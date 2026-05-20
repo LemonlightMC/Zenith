@@ -211,13 +211,14 @@ public class PermissionUtils {
     private static final String PERMISSION_TEST_NODE_ROOT = "moreutils.permission.testnode";
     private static final String PERMISSION_TEST_NODE = PERMISSION_TEST_NODE_ROOT + ".test";
     private static final String PERMISSION_TEST_NODE_ALL = PERMISSION_TEST_NODE_ROOT + ".*";
-    private final net.milkbowl.vault2.permission.Permission vault;
+    private final net.milkbowl.vault.permission.Permission vault;
     private boolean hasWildcardSupport = false;
 
     public PermissionHandlerVault() {
-      final RegisteredServiceProvider<net.milkbowl.vault2.permission.Permission> rsp = ZenithPlugin.getInstance()
+      final RegisteredServiceProvider<net.milkbowl.vault.permission.Permission> rsp = ZenithPlugin
+          .getInstance()
           .getServicesManager()
-          .getRegistration(net.milkbowl.vault2.permission.Permission.class);
+          .getRegistration(net.milkbowl.vault.permission.Permission.class);
       if (rsp != null) {
         this.vault = rsp.getProvider();
       } else {
@@ -255,7 +256,7 @@ public class PermissionUtils {
       // Handle the remainder using Vault
       if (sender instanceof Player) {
         final Player p = (Player) sender;
-        return vault.playerHas(p.getWorld(), p.getName(), permission);
+        return vault.has(p.getWorld(), p.getName(), permission);
       } else {
         return vault.has(sender, permission);
       }

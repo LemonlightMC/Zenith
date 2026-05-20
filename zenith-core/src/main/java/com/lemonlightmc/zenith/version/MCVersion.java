@@ -2,7 +2,7 @@ package com.lemonlightmc.zenith.version;
 
 import org.bukkit.Bukkit;
 
-public class MCVersion extends Version {
+public class MCVersion extends SemverVersion {
 
   public static final MCVersion v1_8_0 = new MCVersion(8, 0);
   public static final MCVersion v1_8_1 = new MCVersion(8, 1);
@@ -105,37 +105,31 @@ public class MCVersion extends Version {
   }
 
   public static boolean isNew() {
-    return currentVersion.getMajor() != 1;
+    return currentVersion.major() == 26;
   }
 
   public static boolean isOld() {
-    return currentVersion.getMinor() >= 13;
+    return currentVersion.major() == 1;
   }
 
   public static boolean isLegacy() {
-    return currentVersion.getMinor() < 13;
+    return currentVersion.major() == 1 && currentVersion.minor() < 13;
   }
 
   public static boolean isNewerThan(final MCVersion version) {
-    return ((currentVersion.getMinor() > version.getMinor()) ||
-        (currentVersion.getMinor() == version.getMinor() &&
-            currentVersion.getPatch() > version.getPatch()));
+    return currentVersion.isNewerThan((Version) version);
   }
 
   public static boolean isOlderThan(final MCVersion version) {
-    return ((currentVersion.getMinor() < version.getMinor()) ||
-        (currentVersion.getMinor() == version.getMinor() &&
-            currentVersion.getPatch() < version.getPatch()));
+    return currentVersion.isOlderThan((Version) version);
   }
 
   public static boolean isAtLeast(final MCVersion version) {
-    return ((currentVersion.getMinor() >= version.getMinor()) ||
-        (currentVersion.getMinor() == version.getMinor() &&
-            currentVersion.getPatch() >= version.getPatch()));
+    return currentVersion.isAtLeast((Version) version);
   }
 
   public static boolean isBetween(final MCVersion version1, final MCVersion version2) {
-    return isNewerThan(version1) && isOlderThan(version2);
+    return currentVersion.isNewerThan((Version) version1) && currentVersion.isOlderThan((Version) version2);
   }
 
   @Deprecated

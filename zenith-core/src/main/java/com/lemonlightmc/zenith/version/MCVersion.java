@@ -112,7 +112,7 @@ public class MCVersion extends SemverVersion {
     super(str);
   }
 
-  public static MCVersion getCurrent() {
+  public static MCVersion current() {
     return currentVersion;
   }
 

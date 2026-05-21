@@ -28,11 +28,11 @@ public class ReflectionHelper {
   }
 
   public static Class<?> getNMSClass(final String clazz) {
-    return getClass("net.minecraft.server." + MCVersion.getCurrent() + clazz);
+    return getClass("net.minecraft.server." + MCVersion.current() + clazz);
   }
 
   public static Class<?> getBukkitClass(final String className) {
-    return getClass("org.bukkit.craftbukkit." + MCVersion.getCurrent() + className);
+    return getClass("org.bukkit.craftbukkit." + MCVersion.current() + className);
   }
 
   public static Object getConnection(final Player player) {

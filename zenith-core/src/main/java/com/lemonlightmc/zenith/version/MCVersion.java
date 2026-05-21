@@ -2,6 +2,8 @@ package com.lemonlightmc.zenith.version;
 
 import org.bukkit.Bukkit;
 
+import com.lemonlightmc.zenith.exceptions.PlatformException;
+
 public class MCVersion extends SemverVersion {
 
   public static final MCVersion v1_8_0 = new MCVersion(8, 0);
@@ -77,8 +79,7 @@ public class MCVersion extends SemverVersion {
   private static final MCVersion currentVersion;
 
   static {
-    String versionStr = Bukkit.getVersion();
-
+    String versionStr = null;
     if (ServerEnvironment.isPaper()) {
       try {
         versionStr = (String) Bukkit
@@ -88,6 +89,17 @@ public class MCVersion extends SemverVersion {
             .invoke(Bukkit.getServer());
       } catch (final Exception ignored) {
       }
+    } else {
+      versionStr = Bukkit.getVersion();
+    }
+    if (versionStr == null || versionStr.isEmpty()) {
+      throw new PlatformException("Failed to detect Minecraft Version!");
+    }
+
+    versionStr = versionStr.substring(0, versionStr.indexOf('-')); // Legacy-wise this is enough
+    if (versionStr.contains("build")) {
+      // Paper new 26.1+ versioning system; Ex. 26.1.2.build.51-beta
+      versionStr = versionStr.substring(0, versionStr.indexOf(".build"));
     }
     currentVersion = new MCVersion(versionStr);
   }

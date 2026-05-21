@@ -13,8 +13,8 @@ public class SemverVersion extends Version {
   private final int patch;
   private final int build;
 
-  private String qualifier;
-  private String prefix;
+  private final String qualifier;
+  private final String prefix;
 
   public static final SemverVersion FIRST_VERSION = new SemverVersion(1, 0, 0, 0, null, null);
 

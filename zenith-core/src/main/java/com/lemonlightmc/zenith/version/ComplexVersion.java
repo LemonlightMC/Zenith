@@ -47,16 +47,16 @@ public class ComplexVersion extends Version {
   private final @Nullable Integer buildNumber;
   private final @Nullable String buildMetadata;
 
-  private ComplexVersion(String raw, @Nullable String prefix, int[] components,
-      @Nullable String qualifier, @Nullable Integer buildNumber,
-      @Nullable String buildMetadata) {
+  private ComplexVersion(final String raw, @Nullable final String prefix, final int[] components,
+      @Nullable final String qualifier, @Nullable final Integer buildNumber,
+      @Nullable final String buildMetadata) {
     if (raw == null || raw.isEmpty()) {
       throw new IllegalArgumentException("Version string cannot be empty");
     }
     if (components == null) {
       throw new IllegalArgumentException("Version components cannot be null");
     }
-    for (int i : components) {
+    for (final int i : components) {
       if (i < 0) {
         throw new IllegalArgumentException("Version numbers cannot be negative");
       }
@@ -75,15 +75,15 @@ public class ComplexVersion extends Version {
     }, null, null, null);
   }
 
-  public ComplexVersion(String raw, int[] components) {
+  public ComplexVersion(final String raw, final int[] components) {
     this(raw, null, components, null, null, null);
   }
 
-  public ComplexVersion(String raw) {
+  public ComplexVersion(final String raw) {
     this(parse(raw));
   }
 
-  public ComplexVersion(ComplexVersion version) {
+  public ComplexVersion(final ComplexVersion version) {
     if (version == null) {
       throw new IllegalArgumentException("Version cannot be null");
     }
@@ -105,19 +105,19 @@ public class ComplexVersion extends Version {
     }
 
     // Check for build-number-only format
-    Matcher buildMatcher = BUILD_NUMBER_PATTERN.matcher(raw);
+    final Matcher buildMatcher = BUILD_NUMBER_PATTERN.matcher(raw);
     if (buildMatcher.matches()) {
-      int buildNum = Integer.parseInt(buildMatcher.group(1));
+      final int buildNum = Integer.parseInt(buildMatcher.group(1));
       return new ComplexVersion(raw, "build-", new int[0], null, buildNum, null);
     }
 
-    Matcher matcher = VERSION_PATTERN.matcher(raw);
+    final Matcher matcher = VERSION_PATTERN.matcher(raw);
     if (!matcher.matches()) {
       // Fallback: treat the whole string as a single component if it contains digits
       if (raw.matches(".*\\d+.*")) {
-        List<Integer> nums = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        for (char c : raw.toCharArray()) {
+        final List<Integer> nums = new ArrayList<>();
+        final StringBuilder current = new StringBuilder();
+        for (final char c : raw.toCharArray()) {
           if (Character.isDigit(c)) {
             current.append(c);
           } else if (current.length() > 0) {
@@ -140,20 +140,20 @@ public class ComplexVersion extends Version {
       prefix = null;
     }
 
-    String numericPart = matcher.group(2);
-    String[] parts = numericPart.split("[._]");
-    int[] components = new int[parts.length];
+    final String numericPart = matcher.group(2);
+    final String[] parts = numericPart.split("[._]");
+    final int[] components = new int[parts.length];
     for (int i = 0; i < parts.length; i++) {
       components[i] = NumberConversions.parseInt(parts[i]);
     }
 
-    String qualifier = matcher.group(3);
-    String buildMetadata = matcher.group(4);
+    final String qualifier = matcher.group(3);
+    final String buildMetadata = matcher.group(4);
 
     // Extract build number from qualifier if present (e.g., "beta.2" or "RC1")
     Integer buildNumber = null;
     if (qualifier != null) {
-      Matcher qualBuildMatcher = Pattern.compile("(\\d+)$").matcher(qualifier);
+      final Matcher qualBuildMatcher = Pattern.compile("(\\d+)$").matcher(qualifier);
       if (qualBuildMatcher.find()) {
         buildNumber = NumberConversions.parseInt(qualBuildMatcher.group(1));
       }
@@ -165,10 +165,10 @@ public class ComplexVersion extends Version {
   /**
    * Try to parse a version string, returning null if parsing fails.
    */
-  public static @Nullable ComplexVersion tryParse(String raw) {
+  public static @Nullable ComplexVersion tryParse(final String raw) {
     try {
       return parse(raw);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       return null;
     }
   }
@@ -238,7 +238,7 @@ public class ComplexVersion extends Version {
     if (qualifier == null) {
       return false;
     }
-    String lower = qualifier.toLowerCase();
+    final String lower = qualifier.toLowerCase();
     return lower.contains("snapshot") || lower.contains("alpha") ||
         lower.contains("beta") || lower.contains("dev") ||
         lower.contains("rc") || lower.contains("cr") || lower.contains("prerelease") || lower.contains("build");
@@ -259,7 +259,7 @@ public class ComplexVersion extends Version {
    * @param policy   the update policy
    * @return true if this version is allowed by the policy
    */
-  public boolean isAllowedBy(ComplexVersion baseline, UpdatePolicy policy) {
+  public boolean isAllowedBy(final ComplexVersion baseline, final UpdatePolicy policy) {
     if (policy == UpdatePolicy.NONE) {
       return this.equals(baseline);
     }
@@ -282,20 +282,20 @@ public class ComplexVersion extends Version {
   }
 
   @Override
-  public int compareTo(Version v) {
+  public int compareTo(final Version v) {
     if (v == null) {
       return 1;
     }
     if (!(v instanceof ComplexVersion)) {
       throw new IllegalArgumentException("Can only compare with another Version Implementation");
     }
-    ComplexVersion other = (ComplexVersion) v;
+    final ComplexVersion other = (ComplexVersion) v;
 
     // Compare numeric components
-    int maxLen = Math.max(this.components.length, other.components.length);
+    final int maxLen = Math.max(this.components.length, other.components.length);
     for (int i = 0; i < maxLen; i++) {
-      int thisComp = i < this.components.length ? this.components[i] : 0;
-      int otherComp = i < other.components.length ? other.components[i] : 0;
+      final int thisComp = i < this.components.length ? this.components[i] : 0;
+      final int otherComp = i < other.components.length ? other.components[i] : 0;
       if (thisComp != otherComp) {
         return Integer.compare(thisComp, otherComp);
       }
@@ -318,11 +318,11 @@ public class ComplexVersion extends Version {
     }
 
     // Compare qualifier ordering
-    String thisQualLower = this.qualifier.toLowerCase().replaceAll("[^a-z]", "");
-    String otherQualLower = other.qualifier.toLowerCase().replaceAll("[^a-z]", "");
+    final String thisQualLower = this.qualifier.toLowerCase().replaceAll("[^a-z]", "");
+    final String otherQualLower = other.qualifier.toLowerCase().replaceAll("[^a-z]", "");
 
-    int thisQualIdx = findQualifierIndex(thisQualLower);
-    int otherQualIdx = findQualifierIndex(otherQualLower);
+    final int thisQualIdx = findQualifierIndex(thisQualLower);
+    final int otherQualIdx = findQualifierIndex(otherQualLower);
 
     if (thisQualIdx != otherQualIdx) {
       return Integer.compare(thisQualIdx, otherQualIdx);
@@ -337,7 +337,7 @@ public class ComplexVersion extends Version {
     return this.qualifier.compareToIgnoreCase(other.qualifier);
   }
 
-  private static int findQualifierIndex(String qual) {
+  private static int findQualifierIndex(final String qual) {
     for (int i = 0; i < QUALIFIER_ORDER.size(); i++) {
       if (qual.contains(QUALIFIER_ORDER.get(i))) {
         return i;
@@ -363,14 +363,14 @@ public class ComplexVersion extends Version {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    ComplexVersion other = (ComplexVersion) obj;
+    final ComplexVersion other = (ComplexVersion) obj;
     if (prefix == null) {
       if (other.prefix != null) {
         return false;

@@ -5,8 +5,11 @@ import com.lemonlightmc.zenith.interfaces.Cloneable;
 public abstract class Version implements Cloneable<Version>, Comparable<Version> {
 
   public static final SemverVersion FIRST_VERSION = new SemverVersion(1, 0, 0, 0, null, null);
+  public static final SemverVersion MIN_VALUE = new SemverVersion(0, 0, 0, 0, null, null);
+  public static final SemverVersion MAX_VALUE = new SemverVersion(Integer.MAX_VALUE, Integer.MAX_VALUE,
+      Integer.MAX_VALUE, Integer.MAX_VALUE, null, null);
 
-  public static SemverVersion semver(String raw) {
+  public static SemverVersion semver(final String raw) {
     return new SemverVersion(raw);
   }
 
@@ -41,7 +44,7 @@ public abstract class Version implements Cloneable<Version>, Comparable<Version>
     return new SemverVersion(major, minor, 0, 0, null, null);
   }
 
-  public static ComplexVersion complex(String raw) {
+  public static ComplexVersion complex(final String raw) {
     return new ComplexVersion(raw);
   }
 
@@ -49,7 +52,7 @@ public abstract class Version implements Cloneable<Version>, Comparable<Version>
     return new ComplexVersion(version);
   }
 
-  public static ComplexVersion complex(String raw, int[] components) {
+  public static ComplexVersion complex(final String raw, final int[] components) {
     return new ComplexVersion(raw, components);
   }
 
@@ -61,6 +64,17 @@ public abstract class Version implements Cloneable<Version>, Comparable<Version>
 
   public static ComplexVersion complex(final int major, final int minor) {
     return new ComplexVersion(major, minor, 0);
+  }
+
+  public static int compare(final Version v1, final Version v2) {
+    if (v1 == null && v2 == null) {
+      return 0;
+    } else if (v1 == null) {
+      return -1;
+    } else if (v2 == null) {
+      return 1;
+    }
+    return v1.compareTo(v2);
   }
 
   private String str;
@@ -75,49 +89,49 @@ public abstract class Version implements Cloneable<Version>, Comparable<Version>
 
   public abstract int[] components();
 
-  boolean isSame(Version version) {
+  boolean isSame(final Version version) {
     return compareTo(version) == 0;
   }
 
-  public boolean isNewerThan(Version other) {
+  public boolean isNewerThan(final Version other) {
     return compareTo(other) == 1;
   }
 
-  public boolean isOlderThan(Version other) {
+  public boolean isOlderThan(final Version other) {
     return compareTo(other) == -1;
   }
 
-  public boolean isAtLeast(Version other) {
+  public boolean isAtLeast(final Version other) {
     return compareTo(other) == 1 || compareTo(other) == 0;
   }
 
-  public boolean isBetween(Version minVersion, Version maxVersion) {
+  public boolean isBetween(final Version minVersion, final Version maxVersion) {
     return (minVersion == null || isNewerThan(minVersion)) && (maxVersion == null || isOlderThan(maxVersion));
   }
 
-  public boolean isOutside(Version minVersion, Version maxVersion) {
+  public boolean isOutside(final Version minVersion, final Version maxVersion) {
     return minVersion == null || isOlderThan(minVersion) || maxVersion == null || isNewerThan(maxVersion);
   }
 
-  public boolean isSameMajor(Version version) {
+  public boolean isSameMajor(final Version version) {
     return major() == version.major();
   }
 
-  public boolean isSameMinor(Version version) {
+  public boolean isSameMinor(final Version version) {
     return minor() == version.minor();
 
   }
 
-  public boolean isSamePatch(Version version) {
+  public boolean isSamePatch(final Version version) {
     return patch() == version.patch();
   }
 
-  public boolean isSameBuild(Version version) {
+  public boolean isSameBuild(final Version version) {
     return build() == version.build();
 
   }
 
-  public boolean isDifferent(Version version) {
+  public boolean isDifferent(final Version version) {
     return compareTo(version) != 0;
   }
 
@@ -133,18 +147,18 @@ public abstract class Version implements Cloneable<Version>, Comparable<Version>
     return formatted(null, true);
   }
 
-  public String formatted(String prefix) {
+  public String formatted(final String prefix) {
     return formatted(prefix, true);
   }
 
-  public String formatted(boolean includeEmpty) {
+  public String formatted(final boolean includeEmpty) {
     return formatted(null, includeEmpty);
   }
 
-  public String formatted(String prefix, boolean includeEmpty) {
+  public String formatted(final String prefix, final boolean includeEmpty) {
     final StringBuilder builder = new StringBuilder(prefix == null ? "" : prefix);
     builder.append(major());
-    int[] components = components();
+    final int[] components = components();
     for (int i = 1; i < components.length; i++) {
       if (components[i] == 0 && !includeEmpty) {
         break;
@@ -159,7 +173,7 @@ public abstract class Version implements Cloneable<Version>, Comparable<Version>
     if (str == null) {
       final StringBuilder builder = new StringBuilder("v");
       builder.append(major());
-      int[] components = components();
+      final int[] components = components();
       for (int i = 1; i < components.length; i++) {
         builder.append(".");
         builder.append(components[i]);

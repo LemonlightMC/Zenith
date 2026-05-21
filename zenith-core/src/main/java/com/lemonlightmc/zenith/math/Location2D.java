@@ -19,7 +19,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
   private float pitch;
   private float yaw;
 
-  public Location2D(World world, double x, double z, float yaw, float pitch) {
+  public Location2D(final World world, final double x, final double z, final float yaw, final float pitch) {
     if (world != null) {
       this.world = new WeakReference<>(world);
     }
@@ -30,11 +30,11 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     this.yaw = yaw;
   }
 
-  public Location2D(World world, double x, double z) {
+  public Location2D(final World world, final double x, final double z) {
     this(world, x, z, 0, 0);
   }
 
-  public Location2D(World world) {
+  public Location2D(final World world) {
     this.world = (world == null) ? null : new WeakReference<>(world);
   }
 
@@ -43,14 +43,14 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
       return null;
     }
 
-    World world = this.world.get();
+    final World world = this.world.get();
     if (world == null) {
       throw new IllegalArgumentException("World is unloaded");
     }
     return world;
   }
 
-  public void setWorld(Reference<World> world) {
+  public void setWorld(final Reference<World> world) {
     this.world = world;
   }
 
@@ -59,7 +59,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
       return false;
     }
 
-    World world = this.world.get();
+    final World world = this.world.get();
     return world != null && world.equals(Bukkit.getWorld(world.getUID()));
   }
 
@@ -75,7 +75,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return x;
   }
 
-  public void setX(double x) {
+  public void setX(final double x) {
     this.x = x;
   }
 
@@ -87,7 +87,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return z;
   }
 
-  public void setZ(double z) {
+  public void setZ(final double z) {
     this.z = z;
   }
 
@@ -99,7 +99,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return pitch;
   }
 
-  public void setPitch(float pitch) {
+  public void setPitch(final float pitch) {
     this.pitch = pitch;
   }
 
@@ -107,7 +107,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return yaw;
   }
 
-  public void setYaw(float yaw) {
+  public void setYaw(final float yaw) {
     this.yaw = yaw;
   }
 
@@ -123,11 +123,11 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return NumberConversions.square(x) + NumberConversions.square(z);
   }
 
-  public double distance(Location2D o) {
+  public double distance(final Location2D o) {
     return Math.sqrt(distanceSquared(o));
   }
 
-  public double distanceSquared(Location2D o) {
+  public double distanceSquared(final Location2D o) {
     if (o == null) {
       throw new IllegalArgumentException("Cannot measure distance to a null location");
     } else if (o.getWorld() == null || getWorld() == null) {
@@ -146,7 +146,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return this;
   }
 
-  public Location2D add(Location2D vec) {
+  public Location2D add(final Location2D vec) {
     if (vec == null || vec.getWorld() != getWorld()) {
       throw new IllegalArgumentException("Cannot add Locations of differing worlds");
     }
@@ -156,13 +156,13 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return this;
   }
 
-  public Location2D add(double x, double z) {
+  public Location2D add(final double x, final double z) {
     this.x += x;
     this.z += z;
     return this;
   }
 
-  public Location2D subtract(Location2D vec) {
+  public Location2D subtract(final Location2D vec) {
     if (vec == null || vec.getWorld() != getWorld()) {
       throw new IllegalArgumentException("Cannot add Locations of differing worlds");
     }
@@ -172,13 +172,13 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return this;
   }
 
-  public Location2D subtract(double x, double z) {
+  public Location2D subtract(final double x, final double z) {
     this.x -= x;
     this.z -= z;
     return this;
   }
 
-  public Location2D multiply(double m) {
+  public Location2D multiply(final double m) {
     x *= m;
     z *= m;
     return this;
@@ -188,14 +188,14 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
   public Location2D clone() {
     try {
       return (Location2D) super.clone();
-    } catch (CloneNotSupportedException e) {
+    } catch (final CloneNotSupportedException e) {
       throw new Error(e);
     }
   }
 
   @Override
   public Map<String, Object> serialize() {
-    HashMap<String, Object> data = new HashMap<String, Object>();
+    final HashMap<String, Object> data = new HashMap<String, Object>();
 
     if (this.world != null) {
       data.put("world", getWorld().getName());
@@ -209,7 +209,7 @@ public class Location2D implements Cloneable<Location2D>, ConfigurationSerializa
     return data;
   }
 
-  public static Location2D deserialize(Map<String, Object> args) {
+  public static Location2D deserialize(final Map<String, Object> args) {
     World world = null;
     if (args.containsKey("world")) {
       world = Bukkit.getWorld((String) args.get("world"));

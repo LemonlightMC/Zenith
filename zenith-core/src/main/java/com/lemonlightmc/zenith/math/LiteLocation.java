@@ -54,7 +54,7 @@ public class LiteLocation implements Cloneable<LiteLocation> {
       return false;
     }
 
-    World world = this.world.get();
+    final World world = this.world.get();
     return world != null && world.equals(Bukkit.getWorld(world.getUID()));
   }
 

@@ -80,7 +80,7 @@ public class MCVersion extends SemverVersion {
 
   static {
     String versionStr = null;
-    if (ServerEnvironment.isPaper()) {
+    if (ServerPlatform.isPaper()) {
       try {
         versionStr = (String) Bukkit
             .getServer()

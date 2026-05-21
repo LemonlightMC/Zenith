@@ -5,19 +5,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class ReflectionHelper {
-  private static String versionString;
+import com.lemonlightmc.zenith.version.MCVersion;
 
-  private static String getBukkitVersion() {
-    if (versionString == null) {
-      final String name = Bukkit.getServer().getClass().getPackage().getName();
-      versionString = name.substring(name.lastIndexOf('.') + 1) + ".";
-    }
-    return versionString;
-  }
+public class ReflectionHelper {
 
   public static boolean hasClass(final String className) {
     if (className == null || className.isEmpty()) {
@@ -36,11 +28,11 @@ public class ReflectionHelper {
   }
 
   public static Class<?> getNMSClass(final String clazz) {
-    return getClass("net.minecraft.server." + getBukkitVersion() + clazz);
+    return getClass("net.minecraft.server." + MCVersion.getCurrent() + clazz);
   }
 
   public static Class<?> getBukkitClass(final String className) {
-    return getClass("org.bukkit.craftbukkit." + getBukkitVersion() + className);
+    return getClass("org.bukkit.craftbukkit." + MCVersion.getCurrent() + className);
   }
 
   public static Object getConnection(final Player player) {

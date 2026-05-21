@@ -76,7 +76,7 @@ public class ByteRange extends Range<ByteRange, Byte> {
   @Override
   public ByteRange clamp(final ByteRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new ByteRange((byte) Math.max(getMin(), range.getMin()), (byte) Math.min(getMax(), range.getMax()));
   }

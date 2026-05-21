@@ -80,7 +80,7 @@ public class BigDecimalRange extends Range<BigDecimalRange, BigDecimal> {
   @Override
   public BigDecimalRange clamp(final BigDecimalRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new BigDecimalRange(clamp(range.getMin()), clamp(range.getMax()));
   }

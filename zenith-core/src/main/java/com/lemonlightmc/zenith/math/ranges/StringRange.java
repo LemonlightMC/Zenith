@@ -75,7 +75,7 @@ public class StringRange extends Range<StringRange, Integer> {
   @Override
   public StringRange clamp(final StringRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new StringRange(Math.max(getMin(), range.getMin()), Math.min(getMax(), range.getMax()));
   }

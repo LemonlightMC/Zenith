@@ -75,7 +75,7 @@ public class LongRange extends Range<LongRange, Long> {
   @Override
   public LongRange clamp(final LongRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new LongRange(Math.max(getMin(), range.getMin()), Math.min(getMax(), range.getMax()));
   }

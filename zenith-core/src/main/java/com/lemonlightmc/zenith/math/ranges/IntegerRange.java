@@ -75,7 +75,7 @@ public class IntegerRange extends Range<IntegerRange, Integer> {
   @Override
   public IntegerRange clamp(final IntegerRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new IntegerRange(Math.max(getMin(), range.getMin()), Math.min(getMax(), range.getMax()));
   }

@@ -75,7 +75,7 @@ public class DoubleRange extends Range<DoubleRange, Double> {
   @Override
   public DoubleRange clamp(final DoubleRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new DoubleRange(Math.max(getMin(), range.getMin()), Math.min(getMax(), range.getMax()));
   }

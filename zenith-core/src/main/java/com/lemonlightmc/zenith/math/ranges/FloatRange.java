@@ -75,7 +75,7 @@ public class FloatRange extends Range<FloatRange, Float> {
   @Override
   public FloatRange clamp(final FloatRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new FloatRange(Math.max(getMin(), range.getMin()), Math.min(getMax(), range.getMax()));
   }

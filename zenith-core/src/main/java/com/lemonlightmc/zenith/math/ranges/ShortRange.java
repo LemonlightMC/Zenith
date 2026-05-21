@@ -76,7 +76,7 @@ public class ShortRange extends Range<ShortRange, Short> {
   @Override
   public ShortRange clamp(final ShortRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new ShortRange((short) Math.max(getMin(), range.getMin()), (short) Math.min(getMax(), range.getMax()));
   }

@@ -78,7 +78,7 @@ public class BigIntegerRange extends Range<BigIntegerRange, BigInteger> {
   @Override
   public BigIntegerRange clamp(final BigIntegerRange range) {
     if (range == null) {
-      throw new IllegalArgumentException("Range cant be null");
+      return this;
     }
     return new BigIntegerRange(clamp(range.getMin()), clamp(range.getMax()));
   }

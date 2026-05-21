@@ -1,34 +1,27 @@
 package com.lemonlightmc.zenith.math.ranges;
 
-import java.util.Comparator;
-
-import com.lemonlightmc.zenith.exceptions.RangeException;
 import com.lemonlightmc.zenith.math.NumberConversions;
+import com.lemonlightmc.zenith.math.Range;
 
-public class FloatRange implements Range<FloatRange, Float> {
+public class FloatRange extends Range<FloatRange, Float> {
   public static final FloatRange ALL = new FloatRange();
   public static final float MIN_VALUE = Float.MIN_VALUE;
   public static final float MAX_VALUE = Float.MAX_VALUE;
 
-  private final Float min;
-  private final Float max;
-
-  private static Comparator<FloatRange> comparator = null;
-
   public FloatRange() {
-    this(Float.MIN_VALUE, Float.MAX_VALUE);
+    super(Float.MIN_VALUE, Float.MAX_VALUE);
   }
 
   public FloatRange(final Float min) {
-    this(min, Float.MAX_VALUE);
+    super(min == null ? Float.MIN_VALUE : min, Float.MAX_VALUE);
   }
 
   public FloatRange(final Float min, final Float max) {
-    this.min = min == null ? Float.MIN_VALUE : min;
-    this.max = max == null ? Float.MAX_VALUE : max;
-    if (this.max < this.min) {
-      throw new RangeException("Range Maximum is smaller then Minimum: " + this.min + " - " + this.max);
-    }
+    super(min == null ? Float.MIN_VALUE : min, max == null ? Float.MAX_VALUE : max);
+  }
+
+  public FloatRange(final Float min, final boolean minInclusive, final Float max, final boolean maxInclusive) {
+    super(min == null ? Float.MIN_VALUE : min, minInclusive, max == null ? Float.MAX_VALUE : max, maxInclusive);
   }
 
   public static FloatRange at(final Float pos) {
@@ -43,7 +36,7 @@ public class FloatRange implements Range<FloatRange, Float> {
     if (range == null) {
       throw new IllegalArgumentException("Range cant be null");
     }
-    return new FloatRange(range.min, range.max);
+    return new FloatRange(range.getMin(), range.isMinInclusive(), range.getMax(), range.isMaxInclusive());
   }
 
   public static FloatRange from(final String str) {
@@ -72,184 +65,38 @@ public class FloatRange implements Range<FloatRange, Float> {
   }
 
   @Override
-  public Float getMin() {
-    return this.min;
-  }
-
-  @Override
-  public Float getMiddle() {
-    return min + (max - min) / 2;
-  }
-
-  @Override
-  public Float getMax() {
-    return this.max;
-  }
-
-  @Override
-  public boolean isLower(final Float num) {
-    return num == null ? true : num < min;
-  }
-
-  @Override
-  public boolean isHigher(final Float num) {
-    return num == null ? false : num > max;
-  }
-
-  @Override
-  public boolean isInRange(final Float num) {
-    return num == null ? false : num >= min && num <= max;
-  }
-
-  @Override
-  public boolean isOutsideRange(final Float num) {
-    return num == null ? true : num < min || num > max;
-  }
-
-  @Override
-  public boolean isAfter(final Float num) {
-    return min > num;
-  }
-
-  @Override
-  public boolean isAfter(final FloatRange range) {
-    return range == null ? true : min > range.max;
-  }
-
-  @Override
-  public boolean isBefore(final Float num) {
-    return max < num;
-  }
-
-  @Override
-  public boolean isBefore(final FloatRange range) {
-    return max < range.min;
-  }
-
-  @Override
-  public boolean startsWith(final Float num) {
-    return num == null ? false : min.floatValue() == num.floatValue();
-  }
-
-  @Override
-  public boolean startsWith(final FloatRange range) {
-    return range == null ? false : min.floatValue() == range.min.floatValue();
-  }
-
-  @Override
-  public boolean endsWith(final Float num) {
-    return num == null ? false : max.floatValue() == num.floatValue();
-  }
-
-  @Override
-  public boolean endsWith(final FloatRange range) {
-    return range == null ? false : max.floatValue() == range.max.floatValue();
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return min.floatValue() == max.floatValue();
-  }
-
-  @Override
-  public boolean contains(final Float num) {
-    return num == null ? false : isInRange(num);
-  }
-
-  @Override
-  public boolean contains(final FloatRange range) {
-    return range == null ? false : isInRange(range.min) && isInRange(range.max);
-  }
-
-  @Override
-  public boolean overlaps(final FloatRange range) {
-    return range == null ? false : !(max < range.min || min > range.max);
-  }
-
-  @Override
   public FloatRange intersection(final FloatRange range) {
     if (range == null || !overlaps(range)) {
       return null;
     }
-    return new FloatRange(Math.max(min, range.min), Math.min(max, range.max));
-  }
-
-  @Override
-  public Float clamp(final Float num) {
-    return num == null ? min : num < min ? min : num > max ? max : num;
+    return new FloatRange(Math.max(getMin(), range.getMin()), Math.min(getMax(), range.getMax()));
   }
 
   @Override
   public FloatRange clamp(final FloatRange range) {
     if (range == null) {
-      return new FloatRange(min, max);
+      throw new IllegalArgumentException("Range cant be null");
     }
-    return new FloatRange(clamp(range.min), clamp(range.max));
+    return new FloatRange(Math.max(getMin(), range.getMin()), Math.min(getMax(), range.getMax()));
   }
 
   @Override
   public Float getLength() {
-    return max - min;
+    return getMax() - getMin();
   }
 
   @Override
-  public boolean isMaxValue() {
-    return max == Float.MAX_VALUE;
+  public boolean hasMaxValue() {
+    return getMax() == Float.MAX_VALUE;
   }
 
   @Override
-  public boolean isMinValue() {
-    return max == Float.MIN_VALUE;
-  }
-
-  @Override
-  public int compareTo(final FloatRange o) {
-    if (o == null) {
-      return 1;
-    }
-    return Float.compare(this.max - this.min, o.max - o.min);
-  }
-
-  @Override
-  public Comparator<FloatRange> getComparator() {
-    if (comparator == null) {
-      comparator = Range.createComparator();
-    }
-    return comparator;
+  public boolean hasMinValue() {
+    return getMin() == Float.MIN_VALUE;
   }
 
   @Override
   public FloatRange clone() {
-    return new FloatRange(min, max);
-  }
-
-  @Override
-  public String toString() {
-    if (this.min == Float.MIN_VALUE && this.max == Float.MAX_VALUE) {
-      return "";
-    } else if (this.max == Float.MAX_VALUE) {
-      return this.min + "..";
-    } else if (this.min == Float.MIN_VALUE) {
-      return ".." + this.max;
-    } else {
-      return this.min + ".." + this.max;
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    return 31 * (31 * Float.hashCode(min)) + Float.hashCode(max);
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    final FloatRange other = (FloatRange) obj;
-    return min.equals(other.min) && max.equals(other.max);
+    return new FloatRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
 }

@@ -6,7 +6,7 @@ dependencies {
     compileOnly("dev.lone:api-itemsadder:4.0.10")
     compileOnly("net.luckperms:api:5.5")
     //compileOnly("dev.jorel:commandapi-bukkit-shade:10.1.2")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     //compileOnly("net.milkbowl.vault:VaultUnblockedAPI:2.19")
 }
 

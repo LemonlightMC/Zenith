@@ -1,12 +1,8 @@
 package com.lemonlightmc.zenith.data;
 
-import org.bukkit.NamespacedKey;
+public interface Registrable<K> {
 
-public interface Registrable {
-
-  public NamespacedKey getKey();
-
-  public boolean isRegistered();
+  public K getKey();
 
   public default void onRegister() {
   }

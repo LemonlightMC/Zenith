@@ -1,22 +1,26 @@
 package com.lemonlightmc.zenith.data;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.lemonlightmc.zenith.events.BaseEvent;
 import com.lemonlightmc.zenith.events.EventsAPI;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.utils.JsonUtil;
 
-public class Registry<T extends Registrable>
-    implements Iterable<Map.Entry<NamespacedKey, T>>, Cloneable<Registry<T>>, Comparable<Registry<T>> {
+public class Registry<K, T extends Registrable<K>>
+    implements Iterable<Map.Entry<K, T>>, Cloneable<Registry<K, T>>, Comparable<Registry<K, T>> {
 
-  private final Map<NamespacedKey, T> registry;
+  private final Map<K, T> registry;
   private boolean isLocked = false;
   private Object locker = null;
 
@@ -24,24 +28,47 @@ public class Registry<T extends Registrable>
     registry = new HashMap<>();
   }
 
-  public Registry(final Map<NamespacedKey, T> map) {
+  public Registry(final Map<K, T> map) {
     registry = new HashMap<>(map);
   }
 
-  public static <T extends Registrable> Registry<T> of() {
+  public static <K, T extends Registrable<K>> Registry<K, T> of() {
     return new Registry<>();
   }
 
-  public static <T extends Registrable> Registry<T> of(final Class<T> map) {
+  public static <K, T extends Registrable<K>> Registry<K, T> of(final Class<T> map) {
     return new Registry<>();
   }
 
-  public static <T extends Registrable> Registry<T> of(final Map<NamespacedKey, T> map) {
+  public static <K, T extends Registrable<K>> Registry<K, T> of(final Map<K, T> map) {
     return new Registry<>(map);
   }
 
+  public static <K, T extends SerializableRegistrable<K>> Registry<K, T> ofJson(String json,
+      Function<String, K> keyMapper,
+      Class<T> elementClass) {
+    return new Registry<>(fromJson(json, keyMapper, elementClass));
+  }
+
+  public boolean isEmpty() {
+    return registry.isEmpty();
+  }
+
+  public int size() {
+    return registry.size();
+  }
+
+  public boolean isRegistered(final K key) {
+    checkKey(key);
+    return registry.containsKey(key);
+  }
+
+  public boolean isRegistered(final T element) {
+    return registry.containsKey(checkKey(element));
+  }
+
   public T register(final T element) {
-    final NamespacedKey key = checkKey(element);
+    final K key = checkKey(element);
     if (this.isLocked) {
       throw new IllegalStateException(
           "Cannot add to locked registry! (ID: " + key + ")");
@@ -49,24 +76,24 @@ public class Registry<T extends Registrable>
 
     registry.put(key, element);
     element.onRegister();
-    EventsAPI.call(new AddRegistryEvent<T>(element));
+    EventsAPI.call(new AddRegistryEvent<K, T>(element));
     return element;
   }
 
   public T remove(final T element) {
-    final NamespacedKey key = checkKey(element);
+    final K key = checkKey(element);
     if (this.isLocked) {
       throw new IllegalStateException(
           "Cannot remove from locked registry! (ID: " + key + ")");
     }
 
     element.onRemove();
-    EventsAPI.call(new RemoveRegistryEvent<T>(element));
+    EventsAPI.call(new RemoveRegistryEvent<K, T>(element));
     registry.remove(key);
     return element;
   }
 
-  public T remove(final NamespacedKey key) {
+  public T remove(final K key) {
     checkKey(key);
     if (this.isLocked) {
       throw new IllegalStateException(
@@ -80,7 +107,7 @@ public class Registry<T extends Registrable>
     return element;
   }
 
-  public T get(final NamespacedKey key) {
+  public T get(final K key) {
     checkKey(key);
     return registry.get(key);
   }
@@ -91,7 +118,7 @@ public class Registry<T extends Registrable>
           "Cannot clear a locked registry!");
     }
     EventsAPI.call(new ClearRegistryEvent());
-    for (final Map.Entry<NamespacedKey, T> entry : registry.entrySet()) {
+    for (final Map.Entry<K, T> entry : registry.entrySet()) {
       entry.getValue().onRemove();
       registry.remove(entry.getKey());
     }
@@ -132,21 +159,40 @@ public class Registry<T extends Registrable>
     EventsAPI.call(new UnlockRegistryEvent());
   }
 
-  public boolean isEmpty() {
-    return registry.isEmpty();
-  }
+  public String toJson() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{\n");
+    sb.append("  \"version\": ").append(1).append(",\n");
+    sb.append("  \"generated\": \"").append(Instant.now()).append("\",\n");
+    sb.append("  \"registrations\": {\n");
 
-  public boolean isNotEmpty() {
-    return !registry.isEmpty();
+    if (!registry.isEmpty()) {
+      for (Map.Entry<K, T> entry : registry.entrySet()) {
+        if (entry.getValue() instanceof SerializableRegistrable serializable) {
+          sb.append("    \"");
+          sb.append(entry.getKey());
+          sb.append("\": ");
+          sb.append(serializable.toJson());
+          sb.append(",\n");
+          continue;
+        } else {
+          throw new IllegalStateException(
+              "Cannot serialize non-Serializable element! (ID: " + entry.getKey() + ")");
+        }
+      }
+    }
+    sb.append("  }\n");
+    sb.append("}\n");
+    return sb.toString();
   }
 
   @Override
-  public Registry<T> clone() {
+  public Registry<K, T> clone() {
     return new Registry<>(this.registry);
   }
 
   @Override
-  public int compareTo(final Registry<T> o) {
+  public int compareTo(final Registry<K, T> o) {
     if (this == o) {
       return 0;
     }
@@ -157,11 +203,11 @@ public class Registry<T extends Registrable>
   }
 
   @Override
-  public Iterator<Map.Entry<NamespacedKey, T>> iterator() {
+  public Iterator<Map.Entry<K, T>> iterator() {
     return Set.copyOf(registry.entrySet()).iterator();
   }
 
-  public Stream<Map.Entry<NamespacedKey, T>> stream() {
+  public Stream<Map.Entry<K, T>> stream() {
     return registry.entrySet().stream();
   }
 
@@ -178,7 +224,7 @@ public class Registry<T extends Registrable>
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    final Registry<?> other = (Registry<?>) obj;
+    final Registry<?, ?> other = (Registry<?, ?>) obj;
     return isLocked != other.isLocked && registry.equals(other.registry);
   }
 
@@ -187,24 +233,45 @@ public class Registry<T extends Registrable>
     return "Registry [registry=" + registry + ", isLocked=" + isLocked + ", locker=" + locker + "]";
   }
 
-  private NamespacedKey checkKey(final T element) {
+  private K checkKey(final T element) {
     if (element == null) {
       throw new IllegalArgumentException("Cannot register null element!");
     }
-    final NamespacedKey key = element.getKey();
+    final K key = element.getKey();
     if (key == null) {
       throw new IllegalArgumentException("Registry Key cannot be null!");
     }
     return key;
   }
 
-  private static void checkKey(final NamespacedKey key) {
+  private void checkKey(final K key) {
     if (key == null) {
       throw new IllegalArgumentException("Registry Key cannot be null!");
     }
   }
 
-  public static class AddRegistryEvent<T extends Registrable> extends BaseEvent {
+  private static <K, T extends SerializableRegistrable<K>> Map<K, T> fromJson(String json,
+      Function<String, K> keyMapper,
+      Class<T> elementClass) {
+    final JsonObject root = JsonUtil.toJsonObject(JsonUtil.parse(json));
+    if (root == null) {
+      return Map.of();
+    }
+    final JsonObject registrations = JsonUtil.getJsonObject(root, "registrations");
+    if (registrations == null) {
+      return Map.of();
+    }
+    final Map<K, T> map = new HashMap<>();
+    for (final Map.Entry<String, JsonElement> entry : registrations.entrySet()) {
+      final T element = JsonUtil.toClass(entry.getValue(), elementClass);
+      if (element != null) {
+        map.put(keyMapper.apply(entry.getKey()), element);
+      }
+    }
+    return map;
+  }
+
+  public static class AddRegistryEvent<K, T extends Registrable<K>> extends BaseEvent {
     private static final HandlerList handlers = new HandlerList();
     private final T element;
 
@@ -216,7 +283,7 @@ public class Registry<T extends Registrable>
       return element;
     }
 
-    public NamespacedKey getKey() {
+    public K getKey() {
       return element.getKey();
     }
 
@@ -230,7 +297,7 @@ public class Registry<T extends Registrable>
     }
   }
 
-  public static class RemoveRegistryEvent<T extends Registrable> extends BaseEvent {
+  public static class RemoveRegistryEvent<K, T extends Registrable<K>> extends BaseEvent {
     private static final HandlerList handlers = new HandlerList();
     private final T element;
 
@@ -242,7 +309,7 @@ public class Registry<T extends Registrable>
       return element;
     }
 
-    public NamespacedKey getKey() {
+    public K getKey() {
       return element.getKey();
     }
 

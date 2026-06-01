@@ -9,6 +9,14 @@ public abstract class Version implements Cloneable<Version>, Comparable<Version>
   public static final SemverVersion MAX_VALUE = new SemverVersion(Integer.MAX_VALUE, Integer.MAX_VALUE,
       Integer.MAX_VALUE, Integer.MAX_VALUE, null, null);
 
+  public static SemverVersion trySemver(final String raw) {
+    try {
+      return new SemverVersion(raw);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
   public static SemverVersion semver(final String raw) {
     return new SemverVersion(raw);
   }

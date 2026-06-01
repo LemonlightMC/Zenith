@@ -16,7 +16,7 @@ import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.executors.RootCommand;
 import com.lemonlightmc.zenith.exceptions.PlatformException;
 import com.lemonlightmc.zenith.utils.StringUtils;
-import com.lemonlightmc.zenith.version.ServerEnvironment;
+import com.lemonlightmc.zenith.version.ServerPlatform;
 
 public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 
@@ -235,20 +235,20 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 
   // Feedback-forwarding command executor
   public SimpleCommand executesFeedbackForwarding(final FeedbackForwardingExecutor executor) {
-    if (!ServerEnvironment.isPaper()) {
+    if (!ServerPlatform.isPaper()) {
       throw new PlatformException(
           "Attempted to use a FeedbackForwardingCommandExecutor on a non-paper platform ("
-              + ServerEnvironment.current().name() + ")!");
+              + ServerPlatform.detect().name() + ")!");
     }
     addExecutor(ExecutorType.FEEDBACK_FORWARDING, executor);
     return getInstance();
   }
 
   public SimpleCommand executesFeedbackForwarding(final FeedbackForwardingExecutionInfo info) {
-    if (!ServerEnvironment.isPaper()) {
+    if (!ServerPlatform.isPaper()) {
       throw new PlatformException(
           "Attempted to use a FeedbackForwardingExecutionInfo on a non-paper platform ("
-              + ServerEnvironment.current().name() + ")!");
+              + ServerPlatform.detect().name() + ")!");
     }
     addExecutor(ExecutorType.FEEDBACK_FORWARDING, info);
     return getInstance();

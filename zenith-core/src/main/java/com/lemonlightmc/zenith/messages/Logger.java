@@ -140,6 +140,16 @@ public class Logger {
     Bukkit.getLogger().severe(msg);
   }
 
+  public static void error(final String description) {
+    error(null, description, true);
+  }
+
+  public static void error(
+      final Throwable throwable,
+      final String description) {
+    error(throwable, description, true);
+  }
+
   public static void error(
       final Throwable throwable,
       final String description,
@@ -160,4 +170,5 @@ public class Logger {
       Bukkit.getPluginManager().disablePlugin(ZenithPlugin.getInstance());
     }
   }
+
 }

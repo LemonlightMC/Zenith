@@ -245,7 +245,7 @@ public class AdvancementAPI {
       }
       return modernType(icon, message, style, modelData, modelDataType, glowing, advancementKey);
     } else {
-      throw new OutdatedVersionError("Advancements are not supported on " + MCVersion.getCurrent());
+      throw new OutdatedVersionError("Advancements are not supported on " + MCVersion.current());
     }
 
   }

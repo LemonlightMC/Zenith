@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.lemonlightmc.zenith.math.NumberConversions;
 
 /**
@@ -41,15 +39,15 @@ public class ComplexVersion extends Version {
       "build", "snapshot", "dev", "patch", "alpha", "beta", "rc", "cr", "final", "prerelease", "ga", "release", "");
 
   private final String raw;
-  private final @Nullable String prefix;
+  private final String prefix;
   private final int[] components;
-  private final @Nullable String qualifier;
-  private final @Nullable Integer buildNumber;
-  private final @Nullable String buildMetadata;
+  private final String qualifier;
+  private final Integer buildNumber;
+  private final String buildMetadata;
 
-  private ComplexVersion(final String raw, @Nullable final String prefix, final int[] components,
-      @Nullable final String qualifier, @Nullable final Integer buildNumber,
-      @Nullable final String buildMetadata) {
+  private ComplexVersion(final String raw, final String prefix, final int[] components,
+      final String qualifier, final Integer buildNumber,
+      final String buildMetadata) {
     if (raw == null || raw.isEmpty()) {
       throw new IllegalArgumentException("Version string cannot be empty");
     }
@@ -165,7 +163,7 @@ public class ComplexVersion extends Version {
   /**
    * Try to parse a version string, returning null if parsing fails.
    */
-  public static @Nullable ComplexVersion tryParse(final String raw) {
+  public static ComplexVersion tryParse(final String raw) {
     try {
       return parse(raw);
     } catch (final IllegalArgumentException e) {
@@ -183,7 +181,7 @@ public class ComplexVersion extends Version {
   /**
    * @return the version prefix (e.g., "R", "v", "build-"), or null if none
    */
-  public @Nullable String prefix() {
+  public String prefix() {
     return prefix;
   }
 
@@ -226,7 +224,7 @@ public class ComplexVersion extends Version {
   /**
    * @return the version qualifier (e.g., "SNAPSHOT", "beta"), or null if release
    */
-  public @Nullable String qualifier() {
+  public String qualifier() {
     return qualifier;
   }
 
@@ -247,7 +245,7 @@ public class ComplexVersion extends Version {
   /**
    * @return the build number if present
    */
-  public @Nullable Integer buildNumber() {
+  public Integer buildNumber() {
     return buildNumber;
   }
 

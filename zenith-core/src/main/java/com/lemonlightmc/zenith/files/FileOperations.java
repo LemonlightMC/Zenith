@@ -246,6 +246,26 @@ class FileOperations extends FileDatas {
     }
   }
 
+  public static FileResult moveFile(final Path srcFile, final Path destFile) {
+    if (srcFile == null) {
+      return FileResult.invalid("Source Path must exist and not be null");
+    }
+    if (destFile == null) {
+      return FileResult.invalid("Destination Path must not be null");
+    }
+    return moveFile(srcFile.toFile(), destFile.toFile(), StandardCopyOption.COPY_ATTRIBUTES);
+  }
+
+  public static FileResult moveFile(final Path srcFile, final Path destFile, final CopyOption... copyOptions) {
+    if (srcFile == null) {
+      return FileResult.invalid("Source Path must exist and not be null");
+    }
+    if (destFile == null) {
+      return FileResult.invalid("Destination Path must not be null");
+    }
+    return moveFile(srcFile.toFile(), destFile.toFile(), copyOptions);
+  }
+
   public static FileResult moveFile(final File srcFile, final File destFile) {
     return moveFile(srcFile, destFile, StandardCopyOption.COPY_ATTRIBUTES);
   }
@@ -339,6 +359,25 @@ class FileOperations extends FileDatas {
 
     try {
       Files.copy(in, dest.toPath(), copyOptions);
+      return FileResult.successful();
+    } catch (final Exception e) {
+      return FileResult.failed("Failed to copy file: " + e.getMessage());
+    }
+  }
+
+  public static FileResult copy(final InputStream in, final Path dest, final CopyOption... copyOptions) {
+    if (in == null) {
+      return FileResult.invalid("InputStream must not be null");
+    }
+    if (dest == null) {
+      return FileResult.invalid("Destination File must not be null");
+    }
+    final FileResult result = mkdirs(dest.toFile());
+    if (!result.success())
+      return result;
+
+    try {
+      Files.copy(in, dest, copyOptions);
       return FileResult.successful();
     } catch (final Exception e) {
       return FileResult.failed("Failed to copy file: " + e.getMessage());

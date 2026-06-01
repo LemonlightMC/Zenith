@@ -162,14 +162,24 @@ public class StringUtils {
       return "";
     }
     final StringBuilder builder = new StringBuilder(input.length());
-    for (int i = 0; i < input.length(); i++) {
+    final int len = input.length();
+    for (int i = 0; i < len; i++) {
       final char c = input.charAt(i);
       switch (c) {
         case '\\' -> builder.append("\\\\");
         case '\n' -> builder.append("\\n");
         case '\r' -> builder.append("\\r");
         case '\t' -> builder.append("\\t");
-        default -> builder.append(c);
+        case '\f' -> builder.append("\\f");
+        case '\b' -> builder.append("\\b");
+        case '"' -> builder.append("\\\"");
+        default -> {
+          if (c < 0x20) {
+            builder.append(String.format("\\u%04x", (int) c));
+          } else {
+            builder.append(c);
+          }
+        }
       }
     }
     return builder.toString();
@@ -180,26 +190,58 @@ public class StringUtils {
       return input;
     }
     final StringBuilder builder = new StringBuilder(input.length());
-    boolean escaping = false;
-    for (int i = 0; i < input.length(); i++) {
+    final int len = input.length();
+    for (int i = 0; i < len; i++) {
       final char c = input.charAt(i);
-      if (escaping) {
-        escaping = false;
-        switch (c) {
-          case 'n' -> builder.append('\n');
-          case 'r' -> builder.append('\r');
-          case 't' -> builder.append('\t');
-          case '\\' -> builder.append('\\');
-          default -> builder.append(c);
-        }
-      } else if (c == '\\') {
-        escaping = true;
-      } else {
+      if (c != '\\') {
         builder.append(c);
+        continue;
       }
-    }
-    if (escaping) {
-      builder.append('\\');
+
+      // Escape sequence
+      if (i == len - 1) {
+        // Trailing backslash, append it
+        builder.append('\\');
+        break;
+      }
+
+      final char esc = input.charAt(++i);
+      switch (esc) {
+        case '\\' -> builder.append('\\');
+        case 'n' -> builder.append('\n');
+        case 'r' -> builder.append('\r');
+        case 't' -> builder.append('\t');
+        case 'f' -> builder.append('\f');
+        case 'b' -> builder.append('\b');
+        case '"' -> builder.append('"');
+        case 'u' -> {
+          // Unicode escape: expect 4 hex digits
+          if (i + 4 >= len) {
+            // Not enough chars for unicode escape, append literal
+            builder.append("\\u");
+            continue;
+          }
+          int code = 0;
+          boolean ok = true;
+          for (int j = 0; j < 4; j++) {
+            final char ch = input.charAt(i + 1 + j);
+            final int digit = Character.digit(ch, 16);
+            if (digit == -1) {
+              ok = false;
+              break;
+            }
+            code = (code << 4) + digit;
+          }
+          if (ok) {
+            builder.append((char) code);
+            i += 4; // consumed 4 hex chars
+          } else {
+            // Invalid \\u sequence, append literal
+            builder.append("\\u");
+          }
+        }
+        default -> builder.append(esc);
+      }
     }
     return builder.toString();
   }

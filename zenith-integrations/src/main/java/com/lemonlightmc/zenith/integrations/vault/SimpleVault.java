@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.vault;
+package com.lemonlightmc.zenith.integrations.vault;
 
 import java.math.BigDecimal;
 import java.util.UUID;

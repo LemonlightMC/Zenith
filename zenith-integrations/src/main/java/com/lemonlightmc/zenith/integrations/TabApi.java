@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith;
+package com.lemonlightmc.zenith.integrations;
 
 import java.util.UUID;
 import java.util.function.BiFunction;

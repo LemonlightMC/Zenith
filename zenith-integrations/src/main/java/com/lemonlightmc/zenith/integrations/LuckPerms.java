@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith;
+package com.lemonlightmc.zenith.integrations;
 
 import java.util.Collection;
 import java.util.Map;

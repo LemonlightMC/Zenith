@@ -1,8 +1,8 @@
-package com.lemonlightmc.zenith.tab;
+package com.lemonlightmc.zenith.integrations.tab;
 
 import java.util.UUID;
 
-import com.lemonlightmc.zenith.TabApi;
+import com.lemonlightmc.zenith.integrations.TabApi;
 
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;

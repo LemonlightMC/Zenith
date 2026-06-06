@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.data;
+package com.lemonlightmc.zenith.interfaces;
 
 public interface Serializable {
   public String toJson();

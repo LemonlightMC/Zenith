@@ -1,21 +1,16 @@
 package com.lemonlightmc.zenith.data;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.bukkit.event.HandlerList;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.lemonlightmc.zenith.events.BaseEvent;
 import com.lemonlightmc.zenith.events.EventsAPI;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
-import com.lemonlightmc.zenith.utils.JsonUtil;
 
 public class Registry<K, T extends Registrable<K>>
     implements Iterable<Map.Entry<K, T>>, Cloneable<Registry<K, T>>, Comparable<Registry<K, T>> {
@@ -42,12 +37,6 @@ public class Registry<K, T extends Registrable<K>>
 
   public static <K, T extends Registrable<K>> Registry<K, T> of(final Map<K, T> map) {
     return new Registry<>(map);
-  }
-
-  public static <K, T extends SerializableRegistrable<K>> Registry<K, T> ofJson(String json,
-      Function<String, K> keyMapper,
-      Class<T> elementClass) {
-    return new Registry<>(fromJson(json, keyMapper, elementClass));
   }
 
   public boolean isEmpty() {
@@ -159,33 +148,6 @@ public class Registry<K, T extends Registrable<K>>
     EventsAPI.call(new UnlockRegistryEvent());
   }
 
-  public String toJson() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("{\n");
-    sb.append("  \"version\": ").append(1).append(",\n");
-    sb.append("  \"generated\": \"").append(Instant.now()).append("\",\n");
-    sb.append("  \"registrations\": {\n");
-
-    if (!registry.isEmpty()) {
-      for (Map.Entry<K, T> entry : registry.entrySet()) {
-        if (entry.getValue() instanceof SerializableRegistrable serializable) {
-          sb.append("    \"");
-          sb.append(entry.getKey());
-          sb.append("\": ");
-          sb.append(serializable.toJson());
-          sb.append(",\n");
-          continue;
-        } else {
-          throw new IllegalStateException(
-              "Cannot serialize non-Serializable element! (ID: " + entry.getKey() + ")");
-        }
-      }
-    }
-    sb.append("  }\n");
-    sb.append("}\n");
-    return sb.toString();
-  }
-
   @Override
   public Registry<K, T> clone() {
     return new Registry<>(this.registry);
@@ -248,27 +210,6 @@ public class Registry<K, T extends Registrable<K>>
     if (key == null) {
       throw new IllegalArgumentException("Registry Key cannot be null!");
     }
-  }
-
-  private static <K, T extends SerializableRegistrable<K>> Map<K, T> fromJson(String json,
-      Function<String, K> keyMapper,
-      Class<T> elementClass) {
-    final JsonObject root = JsonUtil.toJsonObject(JsonUtil.parse(json));
-    if (root == null) {
-      return Map.of();
-    }
-    final JsonObject registrations = JsonUtil.getJsonObject(root, "registrations");
-    if (registrations == null) {
-      return Map.of();
-    }
-    final Map<K, T> map = new HashMap<>();
-    for (final Map.Entry<String, JsonElement> entry : registrations.entrySet()) {
-      final T element = JsonUtil.toClass(entry.getValue(), elementClass);
-      if (element != null) {
-        map.put(keyMapper.apply(entry.getKey()), element);
-      }
-    }
-    return map;
   }
 
   public static class AddRegistryEvent<K, T extends Registrable<K>> extends BaseEvent {

@@ -54,6 +54,9 @@ public class JsonUtil {
     if (obj == null) {
       return null;
     }
+    if (obj instanceof final JsonElement element) {
+      return toJson(element);
+    }
     try {
       return gson().toJson(obj);
     } catch (final Exception e) {

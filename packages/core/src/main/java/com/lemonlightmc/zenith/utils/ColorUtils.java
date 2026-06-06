@@ -4,6 +4,9 @@ import java.util.Arrays;
 
 import org.bukkit.Color;
 
+import com.lemonlightmc.zenith.math.NumberConversions;
+
+// TODO: improve ColorUtils
 public class ColorUtils {
   public static Color colorFromString(final String color) {
     if (color == null) {
@@ -24,15 +27,16 @@ public class ColorUtils {
 
   public static Color hex2Rgb(final String colorStr) {
     if (colorStr.startsWith("#"))
-      return Color.fromRGB(Integer.valueOf(colorStr.substring(1), 16));
+      return Color.fromRGB(NumberConversions.toInt(colorStr.substring(1), 16));
     if (colorStr.startsWith("0x"))
-      return Color.fromRGB(Integer.valueOf(colorStr.substring(2), 16));
+      return Color.fromRGB(NumberConversions.toInt(colorStr.substring(2), 16));
     if (colorStr.contains(",")) {
       final String[] colorString = colorStr.replace(" ", "").split(",");
       for (final String color : colorString)
-        if (Integer.valueOf(color) == null)
+        if (NumberConversions.toInt(color) == null)
           return Color.WHITE;
-      Color.fromRGB(Integer.valueOf(colorString[0]), Integer.valueOf(colorString[1]), Integer.valueOf(colorString[2]));
+      Color.fromRGB(NumberConversions.toInt(colorString[0]), NumberConversions.toInt(colorString[1]),
+          NumberConversions.toInt(colorString[2]));
     }
 
     return Color.WHITE;

@@ -1,6 +1,7 @@
 package com.lemonlightmc.zenith.utils;
 
 import java.io.BufferedReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -13,6 +14,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.lemonlightmc.zenith.files.FileUtils;
 import com.lemonlightmc.zenith.messages.Logger;
 
@@ -21,7 +23,7 @@ public class JsonUtil {
   private static final ReentrantLock LOCK = new ReentrantLock();
   private static GsonBuilder GSON_BUILDER = new GsonBuilder();
 
-  public static void customizeGsonBuilder(Consumer<GsonBuilder> consumer) {
+  public static void customizeGsonBuilder(final Consumer<GsonBuilder> consumer) {
     LOCK.lock();
     try {
       consumer.accept(GSON_BUILDER);
@@ -31,10 +33,11 @@ public class JsonUtil {
     }
   }
 
-  public static void finalizeGson() {
+  public static Gson finalizeGson() {
     LOCK.lock();
     try {
       gson = GSON_BUILDER.create();
+      return gson;
     } finally {
       LOCK.unlock();
     }
@@ -42,43 +45,101 @@ public class JsonUtil {
 
   public static Gson gson() {
     if (gson == null) {
-      gson = new Gson();
+      gson = finalizeGson();
     }
     return gson;
   }
 
-  public static JsonElement parse(final String jsonString) {
-    if (jsonString == null || jsonString.isEmpty()) {
+  public static String toJson(final Object obj) {
+    if (obj == null) {
       return null;
     }
     try {
-      return JsonParser.parseString(jsonString);
+      return gson().toJson(obj);
     } catch (final Exception e) {
-      Logger.warn("Invalid Json: " + jsonString);
+      Logger.warn("Failed to serialize object to JSON: " + obj);
+      e.printStackTrace();
       return null;
     }
   }
 
-  public static <T> T parse(final String jsonString, Class<T> elementClass) {
-    if (jsonString == null || jsonString.isEmpty() || elementClass == null) {
+  public static String toJson(final JsonElement obj) {
+    if (obj == null) {
       return null;
     }
     try {
-      return gson().fromJson(jsonString, elementClass);
+      return gson().toJson(obj);
     } catch (final Exception e) {
-      Logger.warn("Invalid Json: " + jsonString);
+      Logger.warn("Failed to serialize object to JSON: " + obj);
+      e.printStackTrace();
       return null;
     }
   }
 
-  public static JsonObject parseObject(final String jsonString) {
-    final JsonElement jsonElement = parse(jsonString);
-    return jsonElement != null && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : null;
+  public static JsonElement fromJson(final String str) {
+    if (str == null || str.isEmpty()) {
+      return null;
+    }
+    try {
+      return JsonParser.parseString(str);
+    } catch (final Exception e) {
+      Logger.warn("Failed to parse JSON: " + str);
+      e.printStackTrace();
+      return null;
+    }
   }
 
-  public static JsonArray parseArray(final String jsonString) {
-    final JsonElement jsonElement = parse(jsonString);
-    return jsonElement != null && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
+  public static <T> T fromJson(final String str, final Class<T> elementCls) {
+    if (str == null || str.isEmpty()) {
+      return null;
+    }
+    try {
+      return gson().fromJson(str, elementCls);
+    } catch (final Exception e) {
+      Logger.warn("Failed to parse JSON: " + str);
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public static <T> T fromJson(final Reader reader, final Class<T> elementCls) {
+    if (reader == null) {
+      return null;
+    }
+    try {
+      return gson().fromJson(reader, elementCls);
+    } catch (final Exception e) {
+      Logger.warn("Failed to parse JSON from Reader");
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public static <T> T fromJson(final String str, final TypeToken<T> typeToken) {
+    // implicit null check for str
+    if (typeToken == null) {
+      return null;
+    }
+    try {
+      return gson().fromJson(str, typeToken);
+    } catch (final Exception e) {
+      Logger.warn("Failed to parse JSON: " + str);
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public static <T> T fromJson(final Reader reader, final TypeToken<T> typeToken) {
+    if (reader == null || typeToken == null) {
+      return null;
+    }
+    try {
+      return gson().fromJson(reader, typeToken);
+    } catch (final Exception e) {
+      Logger.warn("Failed to parse JSON from reader");
+      e.printStackTrace();
+      return null;
+    }
   }
 
   public static JsonObject getJsonObject(final JsonObject json, final String memberName) {
@@ -173,8 +234,8 @@ public class JsonUtil {
     return element != null && element.isJsonObject() ? element.getAsJsonObject() : null;
   }
 
-  public static JsonObject toJsonArray(final JsonElement element) {
-    return element != null && element.isJsonObject() ? element.getAsJsonObject() : null;
+  public static JsonArray toJsonArray(final JsonElement element) {
+    return element != null && element.isJsonObject() ? element.getAsJsonArray() : null;
   }
 
   public static String toJsonString(final JsonElement element) {
@@ -209,12 +270,26 @@ public class JsonUtil {
     return element != null && element.isJsonPrimitive() ? element.getAsDouble() : null;
   }
 
-  public static <T> T toClass(final JsonElement element, Class<T> elementClass) {
-    if (element == null || elementClass == null) {
+  public static <T> T toClass(final JsonElement element, final Class<T> elementClass) {
+    // implicit null check for element
+    if (elementClass == null) {
       return null;
     }
     try {
       return gson().fromJson(element, elementClass);
+    } catch (final Exception e) {
+      Logger.warn("Invalid Json: " + element);
+      return null;
+    }
+  }
+
+  public static <T> T toClass(final JsonElement element, final TypeToken<T> typeToken) {
+    // implicit null check for element
+    if (typeToken == null) {
+      return null;
+    }
+    try {
+      return gson().fromJson(element, typeToken);
     } catch (final Exception e) {
       Logger.warn("Invalid Json: " + element);
       return null;
@@ -248,11 +323,12 @@ public class JsonUtil {
       }
 
       reader.close();
-      return JsonUtil.parseObject(response.toString());
+      return JsonUtil.toJsonObject(JsonUtil.fromJson(response.toString()));
     } catch (final Exception e) {
       Logger.warn("Failed to request JSON from URL: " + urlStr);
       e.printStackTrace();
       return null;
     }
   }
+
 }

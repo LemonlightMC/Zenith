@@ -1,11 +1,13 @@
 package com.lemonlightmc.zenith.base;
 
 import java.nio.file.Path;
+
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 
+import com.lemonlightmc.zenith.PluginInfo;
 import com.lemonlightmc.zenith.messages.MessageStore;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.version.Version;

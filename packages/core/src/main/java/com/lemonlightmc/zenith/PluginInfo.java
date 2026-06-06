@@ -18,7 +18,7 @@ public class PluginInfo {
   private final Version version;
   private final Version apiVersion;
 
-  PluginInfo(final PluginDescriptionFile descriptionFile) {
+  public PluginInfo(final PluginDescriptionFile descriptionFile) {
     this.descriptionFile = descriptionFile;
     this.version = Version.semver(descriptionFile.getVersion());
     this.apiVersion = Version.semver(descriptionFile.getAPIVersion());

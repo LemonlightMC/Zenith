@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.base;
+package com.lemonlightmc.zenith;
 
 import java.io.File;
 import java.io.InputStream;
@@ -18,12 +18,12 @@ import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.messages.MessageStore;
-import com.lemonlightmc.zenith.ZenithPlugin;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.version.Version;
 
-public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin implements ZenithPlugin {
+public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
+    implements com.lemonlightmc.zenith.IZenithPlugin {
 
   private final Scheduler scheduler;
 
@@ -35,19 +35,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin imp
     this.info = new PluginInfo(getDescription());
     this.scheduler = new Scheduler();
     messageStore = new MessageStore();
-  }
-
-  public static boolean hasInstance() {
-    return instance != null;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <I extends ZenithPlugin> I getInstance() {
-    if (instance == null) {
-      throw new RuntimeException(
-          "Plugin is not enabled - Plugin Instance can not be obtained!");
-    }
-    return (I) instance;
+    ZenithProvider.setInstance(this);
   }
 
   public PluginInfo getInfo() {

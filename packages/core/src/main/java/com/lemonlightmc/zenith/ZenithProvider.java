@@ -8,20 +8,20 @@ import org.bukkit.plugin.PluginManager;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 
 public class ZenithProvider {
-  private static ZenithPlugin instance;
+  private static IZenithPlugin instance;
 
   public static boolean hasInstance() {
     return instance != null;
   }
 
-  public static void setInstance(ZenithPlugin plugin) {
+  public static void setInstance(IZenithPlugin plugin) {
     if (instance != null) {
       throw new IllegalStateException("ZenithProvider instance has already been set.");
     }
     instance = plugin;
   }
 
-  public static ZenithPlugin getInstance() {
+  public static IZenithPlugin getInstance() {
     if (instance == null) {
       throw new RuntimeException(
           "Plugin is not enabled - Plugin Instance can not be obtained!");

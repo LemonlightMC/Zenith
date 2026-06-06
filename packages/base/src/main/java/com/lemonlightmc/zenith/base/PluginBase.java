@@ -11,6 +11,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
+import com.lemonlightmc.zenith.PluginInfo;
 import com.lemonlightmc.zenith.base.events.PluginDisableEvent;
 import com.lemonlightmc.zenith.base.events.PluginEnableEvent;
 import com.lemonlightmc.zenith.base.events.PluginLoadEvent;

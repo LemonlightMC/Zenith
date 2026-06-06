@@ -18,7 +18,7 @@ import com.lemonlightmc.zenith.messages.MessageStore;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.version.Version;
 
-public interface ZenithPlugin extends Plugin {
+public interface IZenithPlugin extends Plugin {
 
   public PluginInfo getInfo();
 

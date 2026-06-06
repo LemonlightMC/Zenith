@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.messages.Logger;
 
 public class ResourceUtils {
@@ -25,7 +25,7 @@ public class ResourceUtils {
       return null;
     }
     try {
-      return ZenithPlugin.getInstance().getClass().getClassLoader().getResource(path);
+      return ZenithProvider.getInstance().getClass().getClassLoader().getResource(path);
     } catch (final Exception e) {
       return null;
     }
@@ -101,7 +101,7 @@ public class ResourceUtils {
       return Collections.emptyListIterator();
     }
     try {
-      return ZenithPlugin.getInstance().getClass().getClassLoader().getResources(path).asIterator();
+      return ZenithProvider.getInstance().getClass().getClassLoader().getResources(path).asIterator();
     } catch (final Exception e) {
       return Collections.emptyListIterator();
     }

@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.base;
+package com.lemonlightmc.zenith;
 
 import java.util.List;
 import java.util.Locale;

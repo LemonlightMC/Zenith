@@ -10,7 +10,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.math.NumberConversions;
 import com.lemonlightmc.zenith.messages.Logger;
 
@@ -60,7 +60,7 @@ public class PermissionUtils {
     perm = perm.toLowerCase(Locale.ENGLISH);
     final PermissionDefault defaultPerm = getDefault(perm);
     final Permission permission = new Permission(perm, defaultPerm);
-    ZenithPlugin.getInstance().getPluginManager().addPermission(permission);
+    ZenithProvider.getInstance().getPluginManager().addPermission(permission);
     return permission;
   }
 
@@ -69,7 +69,7 @@ public class PermissionUtils {
       return null;
     }
     perm = perm.toLowerCase(Locale.ENGLISH);
-    return ZenithPlugin.getInstance().getPluginManager().getPermission(perm);
+    return ZenithProvider.getInstance().getPluginManager().getPermission(perm);
   }
 
   public static Permission getOrCreatePermission(String perm) {
@@ -77,7 +77,7 @@ public class PermissionUtils {
       return null;
     }
     perm = perm.toLowerCase(Locale.ENGLISH);
-    final Permission permission = ZenithPlugin.getInstance().getPluginManager().getPermission(perm);
+    final Permission permission = ZenithProvider.getInstance().getPluginManager().getPermission(perm);
     return permission == null ? createPermission(perm) : permission;
   }
 
@@ -215,7 +215,7 @@ public class PermissionUtils {
     private boolean hasWildcardSupport = false;
 
     public PermissionHandlerVault() {
-      final RegisteredServiceProvider<net.milkbowl.vault.permission.Permission> rsp = ZenithPlugin
+      final RegisteredServiceProvider<net.milkbowl.vault.permission.Permission> rsp = ZenithProvider
           .getInstance()
           .getServicesManager()
           .getRegistration(net.milkbowl.vault.permission.Permission.class);
@@ -230,7 +230,7 @@ public class PermissionUtils {
     }
 
     public static boolean canEnable() {
-      return ZenithPlugin.getInstance().getPluginManager().isPluginEnabled("Vault");
+      return ZenithProvider.getInstance().getPluginManager().isPluginEnabled("Vault");
     }
 
     @Override
@@ -322,7 +322,7 @@ public class PermissionUtils {
         }
       }
 
-      ZenithPlugin.getInstance().getPluginManager().removePermission(perm);
+      ZenithProvider.getInstance().getPluginManager().removePermission(perm);
       return hasSupport;
     }
   }
@@ -333,7 +333,7 @@ public class PermissionUtils {
 
     public PermissionHandlerLuckPerms() {
       try {
-        final RegisteredServiceProvider<LuckPerms> rsp = ZenithPlugin.getInstance()
+        final RegisteredServiceProvider<LuckPerms> rsp = ZenithProvider.getInstance()
             .getServicesManager()
             .getRegistration(LuckPerms.class);
         if (rsp != null && rsp.getProvider() != null) {
@@ -353,7 +353,7 @@ public class PermissionUtils {
     }
 
     public static boolean canEnable() {
-      return ZenithPlugin.getInstance().getPluginManager().isPluginEnabled("LuckPerms");
+      return ZenithProvider.getInstance().getPluginManager().isPluginEnabled("LuckPerms");
     }
 
     @Override
@@ -365,7 +365,7 @@ public class PermissionUtils {
           return result.result().asBoolean();
         }
       } else {
-        final Permission permission = ZenithPlugin.getInstance().getPluginManager().getPermission(permissionNode);
+        final Permission permission = ZenithProvider.getInstance().getPluginManager().getPermission(permissionNode);
         if (permission != null) {
           return sender.hasPermission(permission);
         }

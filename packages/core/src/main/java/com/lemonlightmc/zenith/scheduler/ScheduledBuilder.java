@@ -3,8 +3,7 @@ package com.lemonlightmc.zenith.scheduler;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import com.lemonlightmc.zenith.scheduler.ScheduledBuilder;
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.scheduler.Scheduler.ThreadContext;
 
 public class ScheduledBuilder {
@@ -61,17 +60,17 @@ public class ScheduledBuilder {
 
   public ScheduledTask run(final Runnable runnable) {
     if (this.context == ThreadContext.ASYNC) {
-      return ZenithPlugin.getInstance().getScheduler().runAsync(runnable, delay, interval);
+      return ZenithProvider.getInstance().getScheduler().runAsync(runnable, delay, interval);
     } else {
-      return ZenithPlugin.getInstance().getScheduler().run(runnable, delay, interval);
+      return ZenithProvider.getInstance().getScheduler().run(runnable, delay, interval);
     }
   }
 
   public void run(final Consumer<ScheduledTask> consumer) {
     if (this.context == ThreadContext.ASYNC) {
-      ZenithPlugin.getInstance().getScheduler().runAsync(consumer, delay, interval);
+      ZenithProvider.getInstance().getScheduler().runAsync(consumer, delay, interval);
     } else {
-      ZenithPlugin.getInstance().getScheduler().run(consumer, delay, interval);
+      ZenithProvider.getInstance().getScheduler().run(consumer, delay, interval);
     }
   }
 

@@ -18,25 +18,23 @@ import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.messages.MessageStore;
+import com.lemonlightmc.zenith.ZenithPlugin;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.version.Version;
 
-public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin {
+public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin implements ZenithPlugin {
 
   private final Scheduler scheduler;
 
   private final PluginInfo info;
   private final MessageStore messageStore;
 
-  protected static ZenithPlugin instance;
-
   public ZenithPlugin() {
     super();
     this.info = new PluginInfo(getDescription());
     this.scheduler = new Scheduler();
     messageStore = new MessageStore();
-    ZenithPlugin.instance = this;
   }
 
   public static boolean hasInstance() {

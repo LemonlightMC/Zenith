@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 
 public abstract class BaseEvent extends Event {
 
@@ -25,7 +25,7 @@ public abstract class BaseEvent extends Event {
 
   public BaseEvent(final NamespacedKey key, final boolean isAsync) {
     super(isAsync);
-    this.key = key == null ? new NamespacedKey(ZenithPlugin.getInstance().getKey(), getClass().getSimpleName()) : key;
+    this.key = key == null ? new NamespacedKey(ZenithProvider.getInstance().getKey(), getClass().getSimpleName()) : key;
   }
 
   @Override

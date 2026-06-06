@@ -1,17 +1,18 @@
 package com.lemonlightmc.zenith.recipes;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
-import com.lemonlightmc.zenith.recipes.types.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
+
+import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.recipes.types.Recipe;
 
 public final class RecipesManager {
 
@@ -52,8 +53,8 @@ public final class RecipesManager {
     }
     recipes.put(recipe.getKey(), recipe);
     addToItemCache(recipe);
-    if (ZenithPlugin.getInstance().getServer().getRecipe(recipe.getKey()) == null) {
-      ZenithPlugin.getInstance().getServer().addRecipe(recipe.toBukkit());
+    if (ZenithProvider.getInstance().getServer().getRecipe(recipe.getKey()) == null) {
+      ZenithProvider.getInstance().getServer().addRecipe(recipe.toBukkit());
     }
     if (listener == null) {
       init();
@@ -64,7 +65,7 @@ public final class RecipesManager {
     if (key == null) {
       return;
     }
-    ZenithPlugin.getInstance().getServer().removeRecipe(key);
+    ZenithProvider.getInstance().getServer().removeRecipe(key);
     recipes.remove(key);
     removeFromCache(key);
   }
@@ -78,7 +79,7 @@ public final class RecipesManager {
 
   public void unregisterAll() {
     for (final NamespacedKey key : recipes.keySet()) {
-      ZenithPlugin.getInstance().getServer().removeRecipe(key);
+      ZenithProvider.getInstance().getServer().removeRecipe(key);
     }
     recipes.clear();
     itemCache.clear();
@@ -134,14 +135,14 @@ public final class RecipesManager {
     if (key == null) {
       return null;
     }
-    return ZenithPlugin.getInstance().getServer().getRecipe(key);
+    return ZenithProvider.getInstance().getServer().getRecipe(key);
   }
 
   public List<org.bukkit.inventory.Recipe> getBukkitRecipe(final ItemStack item) {
     if (item == null) {
       return null;
     }
-    return ZenithPlugin.getInstance().getServer().getRecipesFor(item);
+    return ZenithProvider.getInstance().getServer().getRecipesFor(item);
   }
 
   public void grantRecipe(final Recipe recipe) {

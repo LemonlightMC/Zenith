@@ -10,12 +10,21 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.*;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.SimplePluginManager;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.exceptions.InvalidCommandNameException;
 import com.lemonlightmc.zenith.commands.exceptions.MissingCommandExecutorException;
@@ -87,7 +96,7 @@ public class CommandAPI {
   }
 
   public static String setNamespace() {
-    namespace = ZenithPlugin.getInstance().getKey();
+    namespace = ZenithProvider.getInstance().getKey();
     return namespace;
   }
 
@@ -104,7 +113,7 @@ public class CommandAPI {
     }
     key = key.startsWith("/") ? key.substring(1) : key;
     return new SimpleCommand(
-        new NamespacedKey(ZenithPlugin.getInstance().getKey(), key));
+        new NamespacedKey(ZenithProvider.getInstance().getKey(), key));
   }
 
   public static SimpleCommand command(final NamespacedKey key) {

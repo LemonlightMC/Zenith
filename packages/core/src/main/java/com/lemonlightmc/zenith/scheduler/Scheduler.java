@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 
 public class Scheduler implements IScheduler {
 
@@ -80,7 +80,7 @@ public class Scheduler implements IScheduler {
 
   @Override
   public void cancelTasks() {
-    Bukkit.getScheduler().cancelTasks(ZenithPlugin.getInstance());
+    Bukkit.getScheduler().cancelTasks(ZenithProvider.getInstance());
   }
 
   @Override
@@ -114,14 +114,14 @@ public class Scheduler implements IScheduler {
     interval = clamp(interval);
     if (interval > 0) {
       if (delay == 0) {
-        return wrap(Bukkit.getScheduler().runTask(ZenithPlugin.getInstance(), runnable),
+        return wrap(Bukkit.getScheduler().runTask(ZenithProvider.getInstance(), runnable),
             ThreadContext.SYNC, delay, interval);
       } else {
-        return wrap(Bukkit.getScheduler().runTaskLater(ZenithPlugin.getInstance(), runnable, delay),
+        return wrap(Bukkit.getScheduler().runTaskLater(ZenithProvider.getInstance(), runnable, delay),
             ThreadContext.SYNC, delay, interval);
       }
     } else {
-      return wrap(Bukkit.getScheduler().runTaskTimer(ZenithPlugin.getInstance(), runnable, delay, interval),
+      return wrap(Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), runnable, delay, interval),
           ThreadContext.SYNC, delay, interval);
     }
   }
@@ -191,15 +191,15 @@ public class Scheduler implements IScheduler {
     interval = clamp(interval);
     if (interval > 0) {
       if (delay == 0) {
-        return wrap(Bukkit.getScheduler().runTaskAsynchronously(ZenithPlugin.getInstance(), runnable),
+        return wrap(Bukkit.getScheduler().runTaskAsynchronously(ZenithProvider.getInstance(), runnable),
             ThreadContext.SYNC, delay, interval);
       } else {
-        return wrap(Bukkit.getScheduler().runTaskLaterAsynchronously(ZenithPlugin.getInstance(), runnable, delay),
+        return wrap(Bukkit.getScheduler().runTaskLaterAsynchronously(ZenithProvider.getInstance(), runnable, delay),
             ThreadContext.SYNC, delay, interval);
       }
     } else {
       return wrap(
-          Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithPlugin.getInstance(), runnable, delay, interval),
+          Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.getInstance(), runnable, delay, interval),
           ThreadContext.SYNC, delay, interval);
     }
   }

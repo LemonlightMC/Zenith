@@ -11,7 +11,7 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.time.TimeRange;
 
 public class Conditions {
@@ -468,7 +468,7 @@ public class Conditions {
       for (final String plugin : plugins) {
         if (plugin == null || plugin.isEmpty())
           continue;
-        final boolean isEnabled = ZenithPlugin.getInstance().getPluginManager().isPluginEnabled(plugin);
+        final boolean isEnabled = ZenithProvider.getInstance().getPluginManager().isPluginEnabled(plugin);
         value = value && type.apply(isEnabled);
       }
       return value;

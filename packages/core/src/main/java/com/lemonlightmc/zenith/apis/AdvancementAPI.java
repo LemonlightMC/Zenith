@@ -8,8 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.apis.ToastAPI.ToastType;
-import com.lemonlightmc.zenith.base.ZenithPlugin;
 import com.lemonlightmc.zenith.exceptions.OutdatedVersionError;
 import com.lemonlightmc.zenith.math.NumberConversions;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
@@ -22,13 +22,14 @@ public class AdvancementAPI {
     NamespacedKey advancementKey = createAdvancement(icon, message, style, modelData, modelDataType, glowing);
 
     for (Player p : players) {
-      ZenithPlugin.getInstance().getScheduler().runLater(() -> {
+      ZenithProvider.getInstance().getScheduler().runLater(() -> {
         grantAdvancement(p, advancementKey);
-        ZenithPlugin.getInstance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
+        ZenithProvider.getInstance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
       }, 1);
     }
 
-    ZenithPlugin.getInstance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey), 40);
+    ZenithProvider.getInstance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey),
+        40);
   }
 
   /**
@@ -53,13 +54,14 @@ public class AdvancementAPI {
     NamespacedKey advancementKey = createAdvancement(icon, message, style, modelData, modelDataType, glowing);
 
     for (Player p : allPlayers) {
-      ZenithPlugin.getInstance().getScheduler().runLater(() -> {
+      ZenithProvider.getInstance().getScheduler().runLater(() -> {
         grantAdvancement(p, advancementKey);
-        ZenithPlugin.getInstance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
+        ZenithProvider.getInstance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
       }, 1);
     }
 
-    ZenithPlugin.getInstance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey), 40);
+    ZenithProvider.getInstance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey),
+        40);
   }
 
   @SuppressWarnings("deprecation")
@@ -223,7 +225,7 @@ public class AdvancementAPI {
     message = MessageFormatter.format(message, true, false);
 
     UUID randomUUID = UUID.randomUUID();
-    NamespacedKey advancementKey = new NamespacedKey(ZenithPlugin.getInstance(), "anelib_" + randomUUID);
+    NamespacedKey advancementKey = new NamespacedKey(ZenithProvider.getInstance(), "anelib_" + randomUUID);
 
     if (MCVersion.isBetween(MCVersion.v1_16_0, MCVersion.v1_20_4)) {
       // 1.16 - 1.20.4: NBT format with integer CustomModelData

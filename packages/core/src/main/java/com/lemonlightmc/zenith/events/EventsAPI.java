@@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
+import com.lemonlightmc.zenith.ZenithProvider;
 
 public class EventsAPI {
 
@@ -27,19 +27,20 @@ public class EventsAPI {
   }
 
   public static <T extends Event> T call(final T event) {
-    ZenithPlugin.getInstance().getPluginManager().callEvent(event);
+    ZenithProvider.getInstance().getPluginManager().callEvent(event);
     return event;
   }
 
   public static <T extends Event> T callAsync(final T event) {
-    ZenithPlugin.getInstance().getScheduler()
-        .runAsync(() -> ZenithPlugin.getInstance().getPluginManager().callEvent(event));
+    ZenithProvider.getInstance().getScheduler()
+        .runAsync(() -> ZenithProvider.getInstance().getPluginManager().callEvent(event));
     return event;
 
   }
 
   public static <T extends Event> T callSync(final T event) {
-    ZenithPlugin.getInstance().getScheduler().run(() -> ZenithPlugin.getInstance().getPluginManager().callEvent(event));
+    ZenithProvider.getInstance().getScheduler()
+        .run(() -> ZenithProvider.getInstance().getPluginManager().callEvent(event));
     return event;
   }
 
@@ -79,7 +80,7 @@ public class EventsAPI {
       baseListener.onRegister();
     }
     call(new ListenerRegisterEvent(listener));
-    ZenithPlugin.getInstance().getPluginManager().registerEvents(listener, ZenithPlugin.getInstance());
+    ZenithProvider.getInstance().getPluginManager().registerEvents(listener, ZenithProvider.getInstance());
   }
 
   public static void register(final BaseListener listener) {
@@ -97,8 +98,8 @@ public class EventsAPI {
       return;
     }
     call(new ListenerRegisterEvent(listener));
-    ZenithPlugin.getInstance().getPluginManager().registerEvent(event, listener,
-        priority == null ? EventPriority.NORMAL : priority, executor, ZenithPlugin.getInstance(),
+    ZenithProvider.getInstance().getPluginManager().registerEvent(event, listener,
+        priority == null ? EventPriority.NORMAL : priority, executor, ZenithProvider.getInstance(),
         ignoreCancelled);
   }
 

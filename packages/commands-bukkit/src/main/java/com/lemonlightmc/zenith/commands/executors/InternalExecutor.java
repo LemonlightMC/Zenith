@@ -1,15 +1,15 @@
 package com.lemonlightmc.zenith.commands.executors;
 
-import com.lemonlightmc.zenith.base.ZenithPlugin;
-import com.lemonlightmc.zenith.commands.CommandAPI;
-import com.lemonlightmc.zenith.commands.SimpleCommand;
-import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-
 import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+
+import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.commands.CommandAPI;
+import com.lemonlightmc.zenith.commands.SimpleCommand;
+import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 
 public class InternalExecutor extends Command {
 
@@ -78,7 +78,7 @@ public class InternalExecutor extends Command {
 
   @Override
   public String toString() {
-    return cmd.getName().toString() + "(" + ZenithPlugin.getInstance().getDescription().getFullName() + ")";
+    return cmd.getName().toString() + "(" + ZenithProvider.getInstance().getDescription().getFullName() + ")";
   }
 
   @Override

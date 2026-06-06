@@ -163,24 +163,60 @@ public abstract class VersionConstraint {
     return this instanceof VersionConstraintExact;
   }
 
+  public VersionConstraintExact asExact() {
+    if (this instanceof final VersionConstraintExact exact) {
+      return exact;
+    } else {
+      throw new IllegalStateException("VersionConstraint is not an exact constraint");
+    }
+  }
+
   public boolean isLatest() {
     return this instanceof VersionConstraintLatest;
+  }
+
+  public VersionConstraintLatest asLatest() {
+    if (this instanceof final VersionConstraintLatest latest) {
+      return latest;
+    } else {
+      throw new IllegalStateException("VersionConstraint is not a latest constraint");
+    }
   }
 
   public boolean isRange() {
     return this instanceof VersionConstraintRange;
   }
 
+  public VersionConstraintRange asRange() {
+    if (this instanceof final VersionConstraintRange range) {
+      return range;
+    } else {
+      throw new IllegalStateException("VersionConstraint is not a range constraint");
+    }
+  }
+
   public boolean isMinimum() {
     return this instanceof VersionConstraintMinimum;
   }
 
-  private static class VersionConstraintExact extends VersionConstraint {
+  public VersionConstraintMinimum asMinimum() {
+    if (this instanceof final VersionConstraintMinimum minimum) {
+      return minimum;
+    } else {
+      throw new IllegalStateException("VersionConstraint is not a minimum constraint");
+    }
+  }
+
+  public static class VersionConstraintExact extends VersionConstraint {
 
     private final Version version;
 
     public VersionConstraintExact(final Version version) {
       this.version = version;
+    }
+
+    public Version version() {
+      return version;
     }
 
     @Override
@@ -213,7 +249,7 @@ public abstract class VersionConstraint {
     }
   }
 
-  private static class VersionConstraintMinimum extends VersionConstraint {
+  public static class VersionConstraintMinimum extends VersionConstraint {
 
     private final Version min;
     private final boolean minInclusive;
@@ -221,6 +257,14 @@ public abstract class VersionConstraint {
     public VersionConstraintMinimum(final Version min, final boolean minInclusive) {
       this.min = min;
       this.minInclusive = minInclusive;
+    }
+
+    public Version min() {
+      return min;
+    }
+
+    public boolean isMinInclusive() {
+      return minInclusive;
     }
 
     @Override
@@ -243,12 +287,16 @@ public abstract class VersionConstraint {
     }
   }
 
-  private static class VersionConstraintRange extends VersionConstraint {
+  public static class VersionConstraintRange extends VersionConstraint {
 
     private final VersionRange range;
 
     public VersionConstraintRange(final VersionRange range) {
       this.range = range;
+    }
+
+    public VersionRange range() {
+      return range;
     }
 
     @Override

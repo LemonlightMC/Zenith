@@ -23,6 +23,7 @@ plugins {
 
 rootProject.name = "Zenith"
 include(":zenith-core")
+include(":zenith-config")
 include(":zenith-commands:common")
 include(":zenith-commands:bukkit")
 include(":zenith-custom")
@@ -31,6 +32,7 @@ include(":zenith-items")
 include(":zenith-database")
 
 project(":zenith-core").projectDir = file("packages/core")
+project(":zenith-config").projectDir = file("packages/config")
 project(":zenith-commands").projectDir = file("packages")
 project(":zenith-commands:common").projectDir = file("packages/commands-common")
 project(":zenith-commands:bukkit").projectDir = file("packages/commands-bukkit")

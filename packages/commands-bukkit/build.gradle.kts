@@ -5,4 +5,4 @@ dependencies {
     implementation(project(":zenith-commands:common"))
 }
 
-extensions.extraProperties["moduleName"] = "zenith-commands-bukkit"
+extensions.extraProperties["moduleName"] = "zenith-commands:bukkit"

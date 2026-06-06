@@ -8,7 +8,6 @@ dependencies {
     //compileOnly("dev.jorel:commandapi-bukkit-shade:10.1.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     //compileOnly("net.milkbowl.vault:VaultUnblockedAPI:2.19")
-    implementation(project(":zenith-config"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-core"

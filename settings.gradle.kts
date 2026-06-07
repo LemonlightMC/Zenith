@@ -105,5 +105,8 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://maven.devs.beer/")
         }
+        maven {
+            url = uri("https://repo.viaversion.com")
+        }
     }
 }

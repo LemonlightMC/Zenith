@@ -6,6 +6,7 @@ dependencies {
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.19")
     compileOnly("net.luckperms:api:5.5")
     compileOnly("com.github.NEZNAMY:TAB-API:6.0.0")
+    compileOnly("com.viaversion:viaversion-api:5.2.2-SNAPSHOT")
     implementation(project(":zenith-core"))
 }
 

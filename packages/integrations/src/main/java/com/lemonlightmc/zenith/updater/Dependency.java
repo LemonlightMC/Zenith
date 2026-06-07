@@ -34,6 +34,7 @@ public final class Dependency {
   private final FailurePolicy failurePolicy;
   private final MCVersion minecraftVersion;
   private final String assetPattern;
+  private final String repository;
   private final ServerPlatform platform;
 
   private Dependency(final Builder<?> builder) {
@@ -47,7 +48,12 @@ public final class Dependency {
     this.failurePolicy = builder.failurePolicy;
     this.minecraftVersion = builder.minecraftVersion == null ? MCVersion.current() : builder.minecraftVersion;
     this.assetPattern = builder.assetPattern;
+    this.repository = builder.repository;
     this.platform = builder.platform == null ? ServerPlatform.detect() : builder.platform;
+  }
+
+  public String repository() {
+    return repository;
   }
 
   // ========== Factory Methods ==========
@@ -95,6 +101,43 @@ public final class Dependency {
    */
   public static UrlBuilder url(final String downloadUrl) {
     return new UrlBuilder(downloadUrl);
+  }
+
+  /**
+   * Create a dependency from Maven Central.
+   *
+   * @param groupAndArtifact the group:artifact coordinates (e.g.,
+   *                         "org.example:my-lib")
+   */
+  public static Builder<?> maven(final String groupAndArtifact) {
+    return new MavenBuilder(groupAndArtifact);
+  }
+
+  /**
+   * Create a dependency resolved via JitPack (GitHub owner/repo).
+   *
+   * @param repo the GitHub repo in "owner/repo" format
+   */
+  public static Builder<?> jitpack(final String repo) {
+    return new JitpackBuilder(repo);
+  }
+
+  /**
+   * Create a dependency from CodeMC (placeholder).
+   *
+   * @param identifier project identifier on CodeMC
+   */
+  public static Builder<?> codemc(final String identifier) {
+    return new CodemcBuilder(identifier);
+  }
+
+  /**
+   * Create a dependency from CurseForge by addon id.
+   *
+   * @param addonId numeric CurseForge addon id
+   */
+  public static Builder<?> curseforge(final int addonId) {
+    return new CurseForgeBuilder(addonId);
   }
 
   // ========== Getters ==========
@@ -210,6 +253,7 @@ public final class Dependency {
     MCVersion minecraftVersion;
 
     String assetPattern;
+    String repository;
     ServerPlatform platform = null;
 
     Builder(final SourceType sourceType, final String identifier) {
@@ -233,6 +277,14 @@ public final class Dependency {
      */
     public T name(final String name) {
       this.name = name;
+      return self();
+    }
+
+    /**
+     * Set a custom repository URL for sources that support it (e.g., Maven).
+     */
+    public T repository(final String repository) {
+      this.repository = repository;
       return self();
     }
 
@@ -382,6 +434,30 @@ public final class Dependency {
   public static final class UrlBuilder extends Builder<UrlBuilder> {
     UrlBuilder(final String url) {
       super(SourceType.URL, url);
+    }
+  }
+
+  public static final class MavenBuilder extends Builder<MavenBuilder> {
+    MavenBuilder(final String coords) {
+      super(SourceType.MAVEN, coords);
+    }
+  }
+
+  public static final class JitpackBuilder extends Builder<JitpackBuilder> {
+    JitpackBuilder(final String repo) {
+      super(SourceType.JITPACK, repo);
+    }
+  }
+
+  public static final class CodemcBuilder extends Builder<CodemcBuilder> {
+    CodemcBuilder(final String id) {
+      super(SourceType.CODEMC, id);
+    }
+  }
+
+  public static final class CurseForgeBuilder extends Builder<CurseForgeBuilder> {
+    CurseForgeBuilder(final int id) {
+      super(SourceType.CURSEFORGE, String.valueOf(id));
     }
   }
 }

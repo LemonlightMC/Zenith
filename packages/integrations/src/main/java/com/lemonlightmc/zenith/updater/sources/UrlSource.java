@@ -6,7 +6,7 @@ import java.util.List;
 import com.lemonlightmc.zenith.exceptions.DependencyException;
 import com.lemonlightmc.zenith.updater.Dependency;
 import com.lemonlightmc.zenith.updater.DependencySource;
-import com.lemonlightmc.zenith.updater.Checksum.ChecksumType;
+import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.version.Version;
 
 /**

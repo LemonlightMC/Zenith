@@ -4,9 +4,9 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.lemonlightmc.zenith.updater.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.updater.DependencySource;
 import com.lemonlightmc.zenith.utils.JsonUtil;
+import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 
 /**
  * Records exact resolved versions for reproducibility.

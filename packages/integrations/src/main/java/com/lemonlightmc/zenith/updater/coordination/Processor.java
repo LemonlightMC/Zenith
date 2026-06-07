@@ -10,13 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.lemonlightmc.zenith.exceptions.DependencyException;
 import com.lemonlightmc.zenith.messages.Logger;
-import com.lemonlightmc.zenith.updater.Checksum;
 import com.lemonlightmc.zenith.updater.Dependency;
 import com.lemonlightmc.zenith.updater.DependencySource;
 import com.lemonlightmc.zenith.updater.DownloadResult;
 import com.lemonlightmc.zenith.updater.FailurePolicy;
 import com.lemonlightmc.zenith.updater.PluginYamlReader;
 import com.lemonlightmc.zenith.updater.sources.SourceType;
+import com.lemonlightmc.zenith.utils.Checksum;
 import com.lemonlightmc.zenith.utils.HttpUtil;
 import com.lemonlightmc.zenith.version.Version;
 import com.lemonlightmc.zenith.version.VersionConstraint;

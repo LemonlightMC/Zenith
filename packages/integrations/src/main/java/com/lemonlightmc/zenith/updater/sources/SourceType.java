@@ -5,6 +5,10 @@ public enum SourceType {
   MODRINTH(ModrinthSource.class),
   SPIGET(SpigetSource.class),
   GITHUB(GitHubSource.class),
+  MAVEN(MavenSource.class),
+  JITPACK(JitpackSource.class),
+  CODEMC(CodeMCSource.class),
+  CURSEFORGE(CurseForgeSource.class),
   URL(UrlSource.class);
 
   private Class<?> cls;

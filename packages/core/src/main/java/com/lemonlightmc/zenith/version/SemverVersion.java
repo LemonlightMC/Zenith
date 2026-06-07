@@ -88,8 +88,8 @@ public class SemverVersion extends Version {
     }
 
     this.prefix = matcher.group(1);
-    final String qualifier = matcher.group(3);
-    this.qualifier = qualifier != null && qualifier.isEmpty() ? null : qualifier;
+    final String tempQualifier = matcher.group(3);
+    this.qualifier = tempQualifier != null && tempQualifier.isEmpty() ? null : tempQualifier;
 
     final String numericPart = matcher.group(2);
     if (numericPart == null || numericPart.isEmpty()) {

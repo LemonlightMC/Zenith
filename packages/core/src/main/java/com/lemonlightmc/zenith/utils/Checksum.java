@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.updater;
+package com.lemonlightmc.zenith.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

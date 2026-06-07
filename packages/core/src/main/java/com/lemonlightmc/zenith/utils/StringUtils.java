@@ -26,9 +26,11 @@ public class StringUtils {
   public static String applyReplacements(String message, final String... replacements) {
     if (message == null || message.length() == 0)
       return null;
-    message = message.replaceAll("\\n", "\n");
-    final int len = replacements.length - (replacements.length % 2 == 1 ? 1 : 0);
+    final int len = replacements.length;
     for (int i = 0; i < len; i += 2) {
+      if (i >= len) {
+        break;
+      }
       message = message.replaceAll(replacements[i], replacements[i + 1]);
     }
     return message;

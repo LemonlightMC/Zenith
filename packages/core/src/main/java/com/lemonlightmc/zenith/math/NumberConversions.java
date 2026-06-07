@@ -42,82 +42,76 @@ public class NumberConversions {
     }
   }
 
-  public static int toInt(final Object object) {
-    if (object instanceof Number) {
-      return ((Number) object).intValue();
-    }
+  public static Integer toInt(final String str) {
+    return toInt(str, 10);
+  }
 
+  public static Integer toInt(final String str, int radix) {
     try {
-      return parseInt(object.toString(), 10);
+      return parseInt(str.toString(), radix);
     } catch (final NumberFormatException e) {
     } catch (final NullPointerException e) {
     }
     return 0;
   }
 
-  public static float toFloat(final Object object) {
-    if (object instanceof Number) {
-      return ((Number) object).floatValue();
+  public static Long toLong(final String str, int radix) {
+    if (str == null) {
+      return 0l;
     }
-
     try {
-      return parseFloat(object.toString());
-    } catch (final NumberFormatException e) {
-    } catch (final NullPointerException e) {
+      return Long.valueOf(str.toString(), radix);
+    } catch (final Exception e) {
     }
-    return 0;
+    return 0l;
   }
 
-  public static double toDouble(final Object object) {
-    if (object instanceof Number) {
-      return ((Number) object).doubleValue();
+  public static Short toShort(final String str) {
+    if (str == null) {
+      return (short) 0;
     }
-
     try {
-      return parseDouble(object.toString());
-    } catch (final NumberFormatException e) {
-    } catch (final NullPointerException e) {
+      return Short.valueOf(str.toString());
+    } catch (final Exception e) {
     }
-    return 0;
+    return (short) 0;
   }
 
-  public static long toLong(final Object object) {
-    if (object instanceof Number) {
-      return ((Number) object).longValue();
+  public static Float toFloat(final String str) {
+    if (str == null) {
+      return 0f;
     }
-
     try {
-      return parseLong(object.toString(), 10);
-    } catch (final NumberFormatException e) {
-    } catch (final NullPointerException e) {
+      return Float.valueOf(str.toString());
+    } catch (final Exception e) {
     }
-    return 0;
+    return 0f;
   }
 
-  public static short toShort(final Object object) {
-    if (object instanceof Number) {
-      return ((Number) object).shortValue();
+  public static Double toDouble(final String str) {
+    if (str == null) {
+      return 0d;
     }
-
     try {
-      return parseShort(object.toString(), 10);
-    } catch (final NumberFormatException e) {
-    } catch (final NullPointerException e) {
+      return Double.valueOf(str.toString());
+    } catch (final Exception e) {
     }
-    return 0;
+    return 0d;
   }
 
-  public static byte toByte(final Object object) {
-    if (object instanceof Number) {
-      return ((Number) object).byteValue();
-    }
+  public static Long toLong(final String str) {
+    return toLong(str, 10);
+  }
 
-    try {
-      return parseByte(object.toString(), 10);
-    } catch (final NumberFormatException e) {
-    } catch (final NullPointerException e) {
+  public static Byte toByte(final String str) {
+    if (str == null) {
+      return (short) 0;
     }
-    return 0;
+    try {
+      return Byte.valueOf(str.toString());
+    } catch (final Exception e) {
+    }
+    return (short) 0;
   }
 
   public static int parseInt(final String str) {
@@ -212,14 +206,26 @@ public class NumberConversions {
     if (str == null || str.isEmpty()) {
       return 0;
     }
-    return Double.parseDouble(str);
+    try {
+      return Double.parseDouble(str);
+    } catch (final NumberFormatException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw new NumberFormatException("For input string: \"" + str + "\"");
+    }
   }
 
   public static float parseFloat(final String str) {
     if (str == null || str.isEmpty()) {
       return 0;
     }
-    return Float.parseFloat(str);
+    try {
+      return Float.parseFloat(str);
+    } catch (final NumberFormatException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw new NumberFormatException("For input string: \"" + str + "\"");
+    }
   }
 
   public static short parseShort(final String str) {

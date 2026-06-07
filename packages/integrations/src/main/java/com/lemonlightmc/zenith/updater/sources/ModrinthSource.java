@@ -9,11 +9,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.lemonlightmc.zenith.exceptions.DependencyException;
-import com.lemonlightmc.zenith.updater.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.updater.Dependency;
 import com.lemonlightmc.zenith.updater.DependencySource;
 import com.lemonlightmc.zenith.utils.HttpUtil;
 import com.lemonlightmc.zenith.utils.JsonUtil;
+import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.version.ServerPlatform;
 import com.lemonlightmc.zenith.version.Version;
 

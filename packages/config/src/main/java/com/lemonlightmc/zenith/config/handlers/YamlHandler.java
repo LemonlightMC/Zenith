@@ -139,7 +139,7 @@ public class YamlHandler extends FileHandler {
     }
   }
 
-  public class YamlRepresenter extends Representer {
+  public static class YamlRepresenter extends Representer {
 
     public YamlRepresenter(DumperOptions dumperOptions) {
       super(dumperOptions);

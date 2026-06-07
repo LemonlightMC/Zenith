@@ -3,9 +3,8 @@ package com.lemonlightmc.zenith.updater;
 import java.util.Objects;
 
 import com.lemonlightmc.zenith.updater.sources.SourceType;
+import com.lemonlightmc.zenith.utils.ServerPlatform;
 import com.lemonlightmc.zenith.version.MCVersion;
-import com.lemonlightmc.zenith.version.ServerPlatform;
-import com.lemonlightmc.zenith.version.UpdatePolicy;
 import com.lemonlightmc.zenith.version.Version;
 import com.lemonlightmc.zenith.version.VersionConstraint;
 import com.lemonlightmc.zenith.version.VersionRange;

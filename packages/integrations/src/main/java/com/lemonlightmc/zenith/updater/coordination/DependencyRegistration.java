@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.lemonlightmc.zenith.updater.Dependency;
-import com.lemonlightmc.zenith.version.UpdatePolicy;
+import com.lemonlightmc.zenith.updater.UpdatePolicy;
 import com.lemonlightmc.zenith.version.Version;
 import com.lemonlightmc.zenith.version.VersionConstraint;
 

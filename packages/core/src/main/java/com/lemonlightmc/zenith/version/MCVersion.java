@@ -3,6 +3,7 @@ package com.lemonlightmc.zenith.version;
 import org.bukkit.Bukkit;
 
 import com.lemonlightmc.zenith.exceptions.PlatformException;
+import com.lemonlightmc.zenith.utils.ServerPlatform;
 
 public class MCVersion extends SemverVersion {
 

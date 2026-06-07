@@ -249,36 +249,6 @@ public class ComplexVersion extends Version {
     return buildNumber;
   }
 
-  /**
-   * Check if this version is compatible with an update policy relative to a
-   * baseline.
-   *
-   * @param baseline the baseline version
-   * @param policy   the update policy
-   * @return true if this version is allowed by the policy
-   */
-  public boolean isAllowedBy(final ComplexVersion baseline, final UpdatePolicy policy) {
-    if (policy == UpdatePolicy.NONE) {
-      return this.equals(baseline);
-    }
-
-    // Must be >= baseline
-    if (this.compareTo(baseline) < 0) {
-      return false;
-    }
-
-    switch (policy) {
-      case PATCH:
-        return this.major() == baseline.major() && this.minor() == baseline.minor();
-      case MINOR:
-        return this.major() == baseline.major();
-      case MAJOR:
-        return true;
-      default:
-        return false;
-    }
-  }
-
   @Override
   public int compareTo(final Version v) {
     if (v == null) {

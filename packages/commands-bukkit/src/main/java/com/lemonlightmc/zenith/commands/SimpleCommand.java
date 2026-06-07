@@ -15,8 +15,8 @@ import com.lemonlightmc.zenith.commands.executors.BukkitExecutors.*;
 import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.executors.RootCommand;
 import com.lemonlightmc.zenith.exceptions.PlatformException;
+import com.lemonlightmc.zenith.utils.ServerPlatform;
 import com.lemonlightmc.zenith.utils.StringUtils;
-import com.lemonlightmc.zenith.version.ServerPlatform;
 
 public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 

@@ -120,24 +120,6 @@ public abstract class VersionConstraint {
     return range(min, minInclusive, max, maxInclusive);
   }
 
-  public static VersionConstraint fromPolicy(final Version baseline, final UpdatePolicy policy) {
-    switch (policy) {
-      case NONE:
-        return exact(baseline);
-      case PATCH:
-        // Allow X.Y.* where X.Y matches baseline
-        final Version patchMax = Version.semver(baseline.major() + "." + (baseline.minor() + 1) + ".0");
-        return range(baseline, true, patchMax, false);
-      case MINOR:
-        // Allow X.*.* where X matches baseline
-        final Version minorMax = Version.semver((baseline.major() + 1) + ".0.0");
-        return range(baseline, true, minorMax, false);
-      case MAJOR:
-      default:
-        return atleast(baseline);
-    }
-  }
-
   public abstract boolean isSatisfiedBy(Version version);
 
   public abstract VersionConstraint merge(VersionConstraint other);

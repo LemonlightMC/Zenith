@@ -11,10 +11,10 @@ import com.google.gson.JsonObject;
 import com.lemonlightmc.zenith.exceptions.DependencyException;
 import com.lemonlightmc.zenith.updater.Dependency;
 import com.lemonlightmc.zenith.updater.DependencySource;
+import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.utils.HttpUtil;
 import com.lemonlightmc.zenith.utils.JsonUtil;
 import com.lemonlightmc.zenith.utils.ServerPlatform;
-import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.version.Version;
 
 /**
@@ -209,7 +209,7 @@ public final class ModrinthSource implements DependencySource {
     return switch (platform) {
       case FOLIA -> new String[] { "folia", "paper" };
       case PURPUR -> new String[] { "purpur", "paper" };
-      case PAPER -> new String[] { "paper" };
+      case PAPER, SHREDDEDPAPER -> new String[] { "paper" };
       case SPIGOT -> new String[] { "spigot" };
       case BUKKIT -> new String[] { "bukkit", "spigot" };
       case VELOCITY -> new String[] { "velocity" };
@@ -220,8 +220,10 @@ public final class ModrinthSource implements DependencySource {
       case FABRIC -> new String[] { "fabric" };
       case NEOFORGE -> new String[] { "neoforge" };
       case FORGE -> new String[] { "forge" };
+      case QUILT -> new String[] { "quilt" };
       case MOCK_BUKKIT -> new String[] { "mockbukkit", "bukkit", "spigot" };
       case STANDALONE -> new String[] {};
+      case UNKNOWN -> new String[] {};
     };
   }
 
@@ -231,7 +233,7 @@ public final class ModrinthSource implements DependencySource {
   private static String[] getIncompatibleFilePatterns(ServerPlatform platform) {
     return switch (platform) {
       case SPIGOT, BUKKIT -> new String[] { "paper", "folia", "purpur", "velocity", "bungee" };
-      case PAPER -> new String[] { "folia", "velocity", "bungee" };
+      case PAPER, SHREDDEDPAPER -> new String[] { "folia", "velocity", "bungee" };
       case FOLIA -> new String[] { "velocity", "bungee" };
       case PURPUR -> new String[] { "folia", "velocity", "bungee" };
       case VELOCITY -> new String[] { "paper", "spigot", "bukkit", "folia", "bungee" };
@@ -241,7 +243,9 @@ public final class ModrinthSource implements DependencySource {
       case FABRIC -> new String[] { "paper", "spigot", "bukkit", "folia", "velocity", "bungee" };
       case NEOFORGE -> new String[] { "paper", "spigot", "bukkit", "folia", "velocity", "bungee" };
       case FORGE -> new String[] { "paper", "spigot", "bukkit", "folia", "velocity", "bungee" };
+      case QUILT -> new String[] { "paper", "spigot", "bukkit", "folia", "velocity", "bungee" };
       case STANDALONE -> new String[] {};
+      case UNKNOWN -> new String[] {};
       case MOCK_BUKKIT -> new String[] { "paper", "folia", "velocity", "bungee", "fabric", "neoforge", "forge" };
     };
   }

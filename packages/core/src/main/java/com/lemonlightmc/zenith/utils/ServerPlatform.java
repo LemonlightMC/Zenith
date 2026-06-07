@@ -48,12 +48,37 @@ public enum ServerPlatform {
   MOCK_BUKKIT("mockbukkit", new String[] { "be.seeseemelk.mockbukkit.ServerMock",
       "org.mockbukkit.mockbukkit.ServerMock" }),
 
+  /**
+   * Sponge - API for Sponge servers
+   */
   SPONGE("Sponge", new String[] { "org.spongepowered.api.Sponge", "org.spongepowered.api.Platform" }),
+  /**
+   * Nukkit - API for Nukkit servers
+   */
   NUKKIT("Nukkit", new String[] { "cn.nukkit.Server", "cn.nukkit.utils.Utils" }),
+  /**
+   * Fabric - Lightweight modding API for Minecraft
+   */
   FABRIC("Fabric", new String[] { "net.fabricmc.api.EnvType", "net.fabricmc.loader.api.FabricLoader" }),
+  /**
+   * NeoForge - modern Forge successor
+   */
   NEOFORGE("NeoForge", new String[] { "org.neoforge.NeoForge", "org.neoforge.api.NeoForgeAPI" }),
+  /**
+   * Forge - Heavy Legacy modding API for Minecraft
+   */
   FORGE("Forge", new String[] { "net.minecraftforge.fml.common.Mod", "net.minecraftforge.fml.common.Loader" }),
-  STANDALONE("Standalone", new String[] {});
+  SHREDDEDPAPER("ShreddedPaper", new String[] { "io.multipaper.shreddedpaper.threading.ShreddedPaperTickThread" }),
+  QUILT("Quilt", new String[] { "org.quiltmc.loader.api.QuiltLoader" }),
+  /**
+   * Standalone - Running without a known server platform (e.g., as a library in
+   * another application)
+   */
+  STANDALONE("Standalone", new String[] {}),
+  /**
+   * Unknown - No known platform detected
+   */
+  UNKNOWN("Unknown", new String[] {});
 
   private final String name;
   private final String[] checkClasses;
@@ -94,14 +119,16 @@ public enum ServerPlatform {
   public String hangarPlatform() {
     return switch (this) {
       case FOLIA, PAPER, PURPUR -> "PAPER";
-      case SPIGOT, BUKKIT, MOCK_BUKKIT -> "PAPER"; // Hangar doesn't have separate Spigot, Paper works
+      case SPIGOT, BUKKIT, MOCK_BUKKIT, SHREDDEDPAPER -> "PAPER"; // Hangar doesn't have separate Spigot, Paper works
       case VELOCITY -> "VELOCITY";
       case BUNGEECORD, WATERFALL -> "WATERFALL";
       case SPONGE -> "SPONGE";
       case NUKKIT -> "NUKKIT";
       case FABRIC -> "FABRIC";
       case NEOFORGE, FORGE -> "FORGE";
+      case QUILT -> "QUILT";
       case STANDALONE -> "STANDALONE";
+      case UNKNOWN -> "STANDALONE";
     };
   }
 
@@ -111,10 +138,9 @@ public enum ServerPlatform {
   public String[] modrinthLoaders() {
     return switch (this) {
       case FOLIA -> new String[] { "folia", "paper", "spigot", "bukkit" };
-      case PAPER -> new String[] { "paper", "spigot", "bukkit" };
+      case PAPER, SHREDDEDPAPER -> new String[] { "paper", "spigot", "bukkit" };
       case PURPUR -> new String[] { "purpur", "paper", "spigot", "bukkit" };
-      case SPIGOT -> new String[] { "spigot", "bukkit" };
-      case BUKKIT, MOCK_BUKKIT -> new String[] { "bukkit" };
+      case SPIGOT, BUKKIT, MOCK_BUKKIT -> new String[] { "spigot", "bukkit" };
       case VELOCITY -> new String[] { "velocity" };
       case BUNGEECORD -> new String[] { "bungeecord" };
       case WATERFALL -> new String[] { "waterfall", "bungeecord" };
@@ -123,7 +149,9 @@ public enum ServerPlatform {
       case FABRIC -> new String[] { "fabric" };
       case NEOFORGE -> new String[] { "neoforge" };
       case FORGE -> new String[] { "forge" };
+      case QUILT -> new String[] { "quilt" };
       case STANDALONE -> new String[] {};
+      case UNKNOWN -> new String[] {};
     };
   }
 

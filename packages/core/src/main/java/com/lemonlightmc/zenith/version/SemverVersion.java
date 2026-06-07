@@ -12,6 +12,7 @@ public class SemverVersion extends Version {
   private final int minor;
   private final int patch;
   private final int build;
+  private final String str;
 
   private final String qualifier;
   private final String prefix;
@@ -46,7 +47,7 @@ public class SemverVersion extends Version {
     this.build = build;
     this.prefix = prefix;
     this.qualifier = qualifier != null && qualifier.isEmpty() ? null : qualifier;
-    ;
+    this.str = toString();
   }
 
   public SemverVersion(
@@ -73,18 +74,18 @@ public class SemverVersion extends Version {
     this(v.major, v.minor, v.patch, v.build, v.prefix, v.qualifier);
   }
 
-  public SemverVersion(String raw) {
+  public SemverVersion(final String raw) {
     if (raw == null) {
       throw new IllegalArgumentException("Version string cannot be empty");
     }
-    raw = raw.trim();
-    if (raw.isEmpty()) {
+    this.str = raw.trim();
+    if (str.isEmpty()) {
       throw new IllegalArgumentException("Version string cannot be empty");
     }
 
-    final Matcher matcher = PATTERN.matcher(raw);
+    final Matcher matcher = PATTERN.matcher(str);
     if (!matcher.matches()) {
-      throw new IllegalArgumentException("Cannot parse version: " + raw);
+      throw new IllegalArgumentException("Cannot parse version: " + str);
     }
 
     this.prefix = matcher.group(1);
@@ -93,7 +94,7 @@ public class SemverVersion extends Version {
 
     final String numericPart = matcher.group(2);
     if (numericPart == null || numericPart.isEmpty()) {
-      throw new IllegalArgumentException("Version string must contain numeric parts: " + raw);
+      throw new IllegalArgumentException("Version string must contain numeric parts: " + str);
     }
     final String[] parts = numericPart.split("[._]");
 
@@ -103,7 +104,7 @@ public class SemverVersion extends Version {
       patch = (parts.length > 2) ? parseIntSafe(parts[2]) : 0;
       build = (parts.length > 3) ? parseIntSafe(parts[3]) : 0;
     } catch (final NumberFormatException e) {
-      throw new IllegalArgumentException("Invalid SemverVersion string: " + raw, e);
+      throw new IllegalArgumentException("Invalid SemverVersion string: " + str, e);
     }
   }
 
@@ -176,7 +177,7 @@ public class SemverVersion extends Version {
 
   @Override
   public String toString() {
-    return formatted();
+    return str;
   }
 
   @Override

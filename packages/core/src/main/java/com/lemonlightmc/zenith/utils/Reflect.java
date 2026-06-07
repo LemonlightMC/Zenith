@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.version.MCVersion;
 
-public class ReflectionHelper {
+public class Reflect {
 
   public static boolean hasClass(final String className) {
     if (className == null || className.isEmpty()) {

@@ -3,13 +3,13 @@ package com.lemonlightmc.zenith.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 
-import com.lemonlightmc.zenith.exceptions.DependencyException;
 import com.lemonlightmc.zenith.exceptions.HttpException;
 import com.lemonlightmc.zenith.files.FileUtils;
 
@@ -21,91 +21,68 @@ public final class HttpUtil {
   private static final String USER_AGENT = "Zenith/1.0 (https://github.com/Julizey/Zenith)";
   private static final long DEFAULT_TIMEOUT = 10;
 
-  private static final java.net.http.HttpClient CLIENT = java.net.http.HttpClient.newBuilder()
+  private static final HttpClient CLIENT = HttpClient.newBuilder()
       .connectTimeout(Duration.ofSeconds(DEFAULT_TIMEOUT))
-      .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
+      .followRedirects(HttpClient.Redirect.NORMAL)
       .build();
 
   private HttpUtil() {
   }
 
-  /**
-   * Perform a GET request and return the response body as a string.
-   *
-   * @param url the URL to request
-   * @return the response body
-   * @throws DependencyException if the request fails
-   */
-
-  public static String get(final String url) {
-    return get(url, DEFAULT_TIMEOUT, "Accept", "application/json");
+  public static HttpRequest.Builder requestBuilder(final String url) {
+    final HttpRequest.Builder builder = HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .header("User-Agent", USER_AGENT)
+        .timeout(Duration.ofSeconds(DEFAULT_TIMEOUT));
+    builder.header("Accept", "application/json");
+    return builder;
   }
 
-  public static String get(final String url, final String... headers) {
-    return get(url, DEFAULT_TIMEOUT, headers);
+  public static HttpRequest.Builder requestBuilder(final String url, final String method, final String... headers) {
+    final HttpRequest.Builder builder = HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .header("User-Agent", USER_AGENT)
+        .timeout(Duration.ofSeconds(DEFAULT_TIMEOUT));
+
+    switch (method.toUpperCase()) {
+      case "POST" -> builder.POST(HttpRequest.BodyPublishers.noBody());
+      case "PUT" -> builder.PUT(HttpRequest.BodyPublishers.noBody());
+      case "DELETE" -> builder.DELETE();
+      case "HEAD" -> builder.method("HEAD", HttpRequest.BodyPublishers.noBody());
+      case "PATCH" -> builder.method("PATCH", HttpRequest.BodyPublishers.noBody());
+      case "GET" -> builder.GET();
+      default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+    }
+    for (int i = 0; i < headers.length - 1; i += 2) {
+      builder.header(headers[i], headers[i + 1]);
+    }
+    return builder;
   }
 
-  /**
-   * Perform a GET request with custom headers.
-   *
-   * @param url     the URL to request
-   * @param headers headers in pairs (key, value, key, value, ...)
-   * @return the response body
-   */
-
-  public static String get(final String url, long timeout, final String... headers) {
-    if (url == null || url.isBlank()) {
+  public static String get(HttpRequest request) {
+    if (request == null) {
       return null;
     }
-    final long finalTimeout = Math.max(Math.min(timeout, 120), 1);
     try {
-      final HttpRequest.Builder builder = HttpRequest.newBuilder()
-          .uri(URI.create(url))
-          .header("User-Agent", USER_AGENT)
-          .timeout(Duration.ofSeconds(finalTimeout))
-          .GET();
-
-      for (int i = 0; i < headers.length - 1; i += 2) {
-        builder.header(headers[i], headers[i + 1]);
-      }
-
-      final HttpRequest request = builder.build();
       final HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-
       if (response.statusCode() >= 400) {
-        throw new IOException("HTTP " + response.statusCode() + ": " + url);
+        throw new IOException("HTTP " + response.statusCode() + ": " + request.uri().toString());
       }
 
       return response.body();
     } catch (IOException | InterruptedException e) {
-      throw new HttpException("HTTP request failed: " + url, e);
+      throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
 
-  public static void download(final String url, final Path target) {
-    download(url, target, 300);
-  }
-
-  /**
-   * Download a file from a URL.
-   *
-   * @param url    the URL to download
-   * @param target the target path
-   * @throws DependencyException if the download fails
-   */
-  public static void download(final String url, final Path target, long timeout) {
+  public static void download(final HttpRequest request, final Path target) {
+    if (request == null) {
+      return;
+    }
     try {
-      final HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(url))
-          .header("User-Agent", USER_AGENT)
-          .timeout(Duration.ofSeconds(timeout))
-          .GET()
-          .build();
-
       final HttpResponse<InputStream> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
-
       if (response.statusCode() >= 400) {
-        throw new IOException("HTTP " + response.statusCode() + ": " + url);
+        throw new IOException("HTTP " + response.statusCode() + ": " + request.uri().toString());
       }
 
       // Ensure parent directories exist
@@ -119,8 +96,8 @@ public final class HttpUtil {
 
       FileUtils.moveFile(tempFile, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 
-    } catch (IOException | InterruptedException e) {
-      throw new HttpException("Download failed: " + url, e);
+    } catch (Exception e) {
+      throw new HttpException("Download failed: " + request.uri().toString(), e);
     }
   }
 

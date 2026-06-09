@@ -1,14 +1,16 @@
 package com.lemonlightmc.zenith.utils;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpClient.Version;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
 import com.lemonlightmc.zenith.exceptions.HttpException;
 import com.lemonlightmc.zenith.files.FileUtils;
@@ -24,25 +26,24 @@ public final class HttpUtil {
   private static final HttpClient CLIENT = HttpClient.newBuilder()
       .connectTimeout(Duration.ofSeconds(DEFAULT_TIMEOUT))
       .followRedirects(HttpClient.Redirect.NORMAL)
+      .version(Version.HTTP_2)
       .build();
 
   private HttpUtil() {
   }
 
-  public static HttpRequest.Builder requestBuilder(final String url) {
+  public static HttpRequest.Builder requestBuilder(final String url, final String method) {
+    if (url == null || url.isEmpty()) {
+      throw new IllegalArgumentException("HTTP URL cannot be null or empty");
+    }
+    if (method == null || method.isEmpty()) {
+      throw new IllegalArgumentException("HTTP method cannot be null or empty");
+    }
     final HttpRequest.Builder builder = HttpRequest.newBuilder()
         .uri(URI.create(url))
         .header("User-Agent", USER_AGENT)
-        .timeout(Duration.ofSeconds(DEFAULT_TIMEOUT));
-    builder.header("Accept", "application/json");
-    return builder;
-  }
-
-  public static HttpRequest.Builder requestBuilder(final String url, final String method, final String... headers) {
-    final HttpRequest.Builder builder = HttpRequest.newBuilder()
-        .uri(URI.create(url))
-        .header("User-Agent", USER_AGENT)
-        .timeout(Duration.ofSeconds(DEFAULT_TIMEOUT));
+        .timeout(Duration.ofSeconds(DEFAULT_TIMEOUT))
+        .header("Accept", "application/json");
 
     switch (method.toUpperCase()) {
       case "POST" -> builder.POST(HttpRequest.BodyPublishers.noBody());
@@ -53,10 +54,60 @@ public final class HttpUtil {
       case "GET" -> builder.GET();
       default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
     }
-    for (int i = 0; i < headers.length - 1; i += 2) {
-      builder.header(headers[i], headers[i + 1]);
+    return builder;
+  }
+
+  public static HttpRequest.Builder requestBuilder(final String url, final String method, final List<String> headers) {
+    HttpRequest.Builder builder = requestBuilder(url, method);
+    if (headers == null || headers.isEmpty()) {
+      return builder;
+    }
+    if (headers.size() % 2 != 0) {
+      throw new IllegalArgumentException("Headers list must contain an even number of elements (key-value pairs)");
+    }
+    for (int i = 0; i < headers.size() - 1; i += 2) {
+      builder.header(headers.get(i), headers.get(i + 1));
     }
     return builder;
+  }
+
+  public static HttpRequest.Builder requestBuilder(final String url, final String method,
+      final Map<String, String> headers) {
+    HttpRequest.Builder builder = requestBuilder(url, method);
+    if (headers == null || headers.isEmpty()) {
+      return builder;
+    }
+    if (headers.size() % 2 != 0) {
+      throw new IllegalArgumentException("Headers list must contain an even number of elements (key-value pairs)");
+    }
+    for (Map.Entry<String, String> entry : headers.entrySet()) {
+      builder.header(entry.getKey(), entry.getValue());
+    }
+    return builder;
+  }
+
+  public static String get(final String url) {
+    return get(requestBuilder(url, "GET").build());
+  }
+
+  public static String put(final String url) {
+    return put(requestBuilder(url, "PUT").build());
+  }
+
+  public static String post(final String url) {
+    return post(requestBuilder(url, "POST").build());
+  }
+
+  public static String patch(final String url) {
+    return patch(requestBuilder(url, "PATCH").build());
+  }
+
+  public static String delete(final String url) {
+    return delete(requestBuilder(url, "DELETE").build());
+  }
+
+  public static String head(final String url) {
+    return head(requestBuilder(url, "HEAD").build());
   }
 
   public static String get(HttpRequest request) {
@@ -66,11 +117,91 @@ public final class HttpUtil {
     try {
       final HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
       if (response.statusCode() >= 400) {
-        throw new IOException("HTTP " + response.statusCode() + ": " + request.uri().toString());
+        throw new HttpException(response);
       }
 
       return response.body();
-    } catch (IOException | InterruptedException e) {
+    } catch (Exception e) {
+      throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
+    }
+  }
+
+  public static String put(HttpRequest request) {
+    if (request == null) {
+      return null;
+    }
+    try {
+      final HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() >= 400) {
+        throw new HttpException(response);
+      }
+
+      return response.body();
+    } catch (Exception e) {
+      throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
+    }
+  }
+
+  public static String post(HttpRequest request) {
+    if (request == null) {
+      return null;
+    }
+    try {
+      final HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() >= 400) {
+        throw new HttpException(response);
+      }
+
+      return response.body();
+    } catch (Exception e) {
+      throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
+    }
+  }
+
+  public static String patch(HttpRequest request) {
+    if (request == null) {
+      return null;
+    }
+    try {
+      final HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() >= 400) {
+        throw new HttpException(response);
+      }
+
+      return response.body();
+    } catch (Exception e) {
+      throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
+    }
+  }
+
+  public static String delete(HttpRequest request) {
+    if (request == null) {
+      return null;
+    }
+    try {
+      final HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() >= 400) {
+        throw new HttpException(response);
+      }
+
+      return response.body();
+    } catch (Exception e) {
+      throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
+    }
+  }
+
+  public static String head(HttpRequest request) {
+    if (request == null) {
+      return null;
+    }
+    try {
+      final HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() >= 400) {
+        throw new HttpException(response);
+      }
+
+      return response.body();
+    } catch (Exception e) {
       throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
@@ -82,7 +213,7 @@ public final class HttpUtil {
     try {
       final HttpResponse<InputStream> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
       if (response.statusCode() >= 400) {
-        throw new IOException("HTTP " + response.statusCode() + ": " + request.uri().toString());
+        throw new HttpException(response);
       }
 
       // Ensure parent directories exist

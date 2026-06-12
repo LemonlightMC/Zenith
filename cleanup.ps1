@@ -13,7 +13,7 @@ if (Test-Path $rootBuildPath) {
 }
 
 # Remove bin and build folders from zenith-* directories
-Get-ChildItem -Directory -Filter "zenith-*" | ForEach-Object {
+Get-ChildItem -Directory -Filter "packages/" | ForEach-Object {
     $binPath = Join-Path $_.FullName "bin"
     $buildPath = Join-Path $_.FullName "build"
     

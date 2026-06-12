@@ -22,6 +22,7 @@ plugins {
 }
 
 rootProject.name = "Zenith"
+
 include(":zenith-core")
 include(":zenith-config")
 include(":zenith-base")
@@ -47,6 +48,7 @@ project(":zenith-integrations").projectDir = file("packages/integrations")
 project(":zenith-items").projectDir = file("packages/items")
 //project(":zenith-custom").projectDir = file("packages/custom")
 //project(":zenith-database").projectDir = file("packages/database")
+
 
 print("Finished Building: ")
 println(rootProject)

@@ -50,22 +50,22 @@ public final class PluginYamlReader {
    * Read the plugin descriptor from a jar, or null if none is found.
    */
 
-  public static Descriptor read(Path jarPath) {
+  public static Descriptor read(final Path jarPath) {
     if (!Files.isRegularFile(jarPath)) {
       return null;
     }
     try (JarFile jar = new JarFile(jarPath.toFile())) {
-      for (String entryName : DESCRIPTOR_ENTRIES) {
-        JarEntry entry = jar.getJarEntry(entryName);
+      for (final String entryName : DESCRIPTOR_ENTRIES) {
+        final JarEntry entry = jar.getJarEntry(entryName);
         if (entry == null)
           continue;
         try (InputStream is = jar.getInputStream(entry)) {
-          Descriptor d = parse(is);
+          final Descriptor d = parse(is);
           if (d != null)
             return d;
         }
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       // Malformed/unreadable jar - treat as not a plugin.
     }
     return null;
@@ -77,25 +77,25 @@ public final class PluginYamlReader {
    * with its parsed descriptor so callers do not need to re-open the jar.
    */
 
-  public static List<Match> findAll(Path pluginsFolder, String pluginName) {
-    List<Match> matches = new ArrayList<>();
+  public static List<Match> findAll(final Path pluginsFolder, final String pluginName) {
+    final List<Match> matches = new ArrayList<>();
     if (!Files.isDirectory(pluginsFolder)) {
       return matches;
     }
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(pluginsFolder, "*.jar")) {
-      for (Path jar : stream) {
-        Descriptor d = read(jar);
+      for (final Path jar : stream) {
+        final Descriptor d = read(jar);
         if (d != null && d.name().equalsIgnoreCase(pluginName)) {
           matches.add(new Match(jar, d));
         }
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       // Ignore
     }
     return matches;
   }
 
-  private static Descriptor parse(InputStream is) throws IOException {
+  private static Descriptor parse(final InputStream is) throws IOException {
     String name = null;
     String version = null;
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
@@ -107,14 +107,14 @@ public final class PluginYamlReader {
           continue;
         }
         if (name == null) {
-          String v = match(NAME_PATTERN, line);
+          final String v = match(NAME_PATTERN, line);
           if (v != null) {
             name = v;
             continue;
           }
         }
         if (version == null) {
-          String v = match(VERSION_PATTERN, line);
+          final String v = match(VERSION_PATTERN, line);
           if (v != null) {
             version = v;
           }
@@ -128,12 +128,12 @@ public final class PluginYamlReader {
     return new Descriptor(name, version);
   }
 
-  private static String match(Pattern p, String line) {
-    Matcher m = p.matcher(line);
+  private static String match(final Pattern p, final String line) {
+    final Matcher m = p.matcher(line);
     if (!m.matches())
       return null;
     for (int i = 1; i <= m.groupCount(); i++) {
-      String g = m.group(i);
+      final String g = m.group(i);
       if (g != null)
         return g.trim();
     }

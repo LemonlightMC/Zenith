@@ -47,7 +47,7 @@ public enum UpdatePolicy {
    * @param policy   the update policy
    * @return true if this version is allowed by the policy
    */
-  public static boolean isAllowedBy(Version version, final Version baseline, final UpdatePolicy policy) {
+  public static boolean isAllowedBy(final Version version, final Version baseline, final UpdatePolicy policy) {
     if (policy == UpdatePolicy.NONE) {
       return version.equals(baseline);
     }

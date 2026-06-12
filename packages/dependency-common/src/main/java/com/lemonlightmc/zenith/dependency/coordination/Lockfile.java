@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.dependency.DependencySource;
+import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.utils.JsonUtil;
 
 /**
@@ -22,7 +22,7 @@ public final class Lockfile {
   public Lockfile() {
   }
 
-  public static Lockfile fromJson(String json) {
+  public static Lockfile fromJson(final String json) {
     return JsonUtil.fromJson(json, Lockfile.class);
   }
 
@@ -45,14 +45,14 @@ public final class Lockfile {
    * @param dependencyName the dependency name
    * @return the entry, or null if not found
    */
-  public Entry getEntry(String dependencyName) {
+  public Entry getEntry(final String dependencyName) {
     return entries.get(dependencyName);
   }
 
   /**
    * Update or create an entry for a resolved dependency.
    */
-  public void updateEntry(String dependencyName, DependencySource.ResolvedDependency resolved) {
+  public void updateEntry(final String dependencyName, final DependencySource.ResolvedDependency resolved) {
     entries.put(dependencyName, new Entry(
         resolved.name(),
         resolved.version().toString(),
@@ -65,7 +65,7 @@ public final class Lockfile {
   /**
    * Remove an entry.
    */
-  public void removeEntry(String dependencyName) {
+  public void removeEntry(final String dependencyName) {
     entries.remove(dependencyName);
   }
 

@@ -15,17 +15,17 @@ public class DependencyRegistration {
   final Set<String> requestedBy = new LinkedHashSet<>();
   final List<PluginConstraint> constraints = new ArrayList<>();
 
-  DependencyRegistration(String name) {
+  DependencyRegistration(final String name) {
     this.name = name;
   }
 
-  public void addConstraint(String pluginName, Dependency dep) {
+  public void addConstraint(final String pluginName, final Dependency dep) {
     requestedBy.add(pluginName);
 
     // Remove old constraint from this plugin if exists
     constraints.removeIf(c -> c.plugin().equals(pluginName));
 
-    PluginConstraint pc = new PluginConstraint(pluginName, dep.constraint(), dep.updatePolicy());
+    final PluginConstraint pc = new PluginConstraint(pluginName, dep.constraint(), dep.updatePolicy());
     constraints.add(pc);
   }
 
@@ -42,12 +42,12 @@ public class DependencyRegistration {
 
     // Merge with remaining constraints
     for (int i = 1; i < constraints.size(); i++) {
-      VersionConstraint other = constraints.get(i).constraint();
+      final VersionConstraint other = constraints.get(i).constraint();
       if (other == null) {
         continue;
       }
 
-      VersionConstraint newMerged = merged.merge(other);
+      final VersionConstraint newMerged = merged.merge(other);
       if (newMerged != null) {
         merged = newMerged;
         continue;
@@ -55,8 +55,8 @@ public class DependencyRegistration {
 
       // Incompatible constraints - use higher minimum
       // This is the "warn and use higher" strategy
-      Version thisMin = getMinimumVersion(merged);
-      Version otherMin = getMinimumVersion(other);
+      final Version thisMin = getMinimumVersion(merged);
+      final Version otherMin = getMinimumVersion(other);
 
       if (thisMin != null && otherMin != null) {
         merged = thisMin.compareTo(otherMin) > 0

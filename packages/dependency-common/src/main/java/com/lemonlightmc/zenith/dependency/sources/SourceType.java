@@ -1,5 +1,7 @@
 package com.lemonlightmc.zenith.dependency.sources;
 
+import com.lemonlightmc.zenith.dependency.DependencySource;
+
 public enum SourceType {
   HANGAR(HangarSource.class),
   MODRINTH(ModrinthSource.class),
@@ -11,16 +13,17 @@ public enum SourceType {
   CURSEFORGE(CurseForgeSource.class),
   URL(UrlSource.class);
 
-  private Class<?> cls;
+  private final Class<?> cls;
 
-  private SourceType(Class<?> cls) {
+  private SourceType(final Class<?> cls) {
     this.cls = cls;
   }
 
-  public Object create() {
+  @SuppressWarnings("unchecked")
+  public <T extends DependencySource> T create() {
     try {
-      return cls.getDeclaredConstructor().newInstance();
-    } catch (Exception e) {
+      return (T) cls.getDeclaredConstructor().newInstance();
+    } catch (final Exception e) {
       return null;
     }
   }

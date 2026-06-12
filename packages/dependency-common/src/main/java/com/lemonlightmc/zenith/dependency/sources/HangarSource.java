@@ -29,74 +29,74 @@ public final class HangarSource implements DependencySource {
     return "hangar";
   }
 
-  private static Iterable<String> platformDownloadKeySet(JsonObject downloads) {
-    List<String> keys = new ArrayList<>();
+  private static Iterable<String> platformDownloadKeySet(final JsonObject downloads) {
+    final List<String> keys = new ArrayList<>();
     if (downloads == null)
       return keys;
-    for (java.util.Map.Entry<String, JsonElement> e : downloads.entrySet()) {
+    for (final java.util.Map.Entry<String, JsonElement> e : downloads.entrySet()) {
       keys.add(e.getKey());
     }
     return keys;
   }
 
   @Override
-  public List<Version> fetchVersions(Dependency dependency) throws DependencyException {
-    String slug = dependency.identifier();
-    ServerPlatform platform = dependency.platform();
+  public List<Version> fetchVersions(final Dependency dependency) throws DependencyException {
+    final String slug = dependency.identifier();
+    final ServerPlatform platform = dependency.platform();
 
     try {
       // Build URL with query parameters
-      StringBuilder url = new StringBuilder(API_BASE)
+      final StringBuilder url = new StringBuilder(API_BASE)
           .append("/projects/").append(slug).append("/versions")
           .append("?limit=25&platform=").append(platform.hangarPlatform());
       url.append("&platformVersion=").append(dependency.effectiveMinecraftVersion().toString());
 
-      JsonObject json = JsonUtil.toJsonObject(JsonUtil.fromJson(HttpUtil.get(url.toString())));
+      final JsonObject json = JsonUtil.toJsonObject(JsonUtil.fromJson(HttpUtil.get(url.toString())));
       if (json == null) {
         throw new DependencyException(slug, "Failed to parse Hangar response");
       }
 
-      JsonArray result = JsonUtil.getJsonArray(json, "result");
+      final JsonArray result = JsonUtil.getJsonArray(json, "result");
       if (result == null || result.size() == 0) {
         throw new DependencyException(slug, "No versions found on Hangar");
       }
 
-      List<Version> versions = new ArrayList<>();
-      for (JsonElement item : result) {
-        String name = JsonUtil.getString(JsonUtil.toJsonObject(item), "name");
+      final List<Version> versions = new ArrayList<>();
+      for (final JsonElement item : result) {
+        final String name = JsonUtil.getString(JsonUtil.toJsonObject(item), "name");
         if (name == null) {
           continue;
         }
-        Version v = Version.semver(name);
+        final Version v = Version.semver(name);
         if (v != null) {
           versions.add(v);
         }
       }
       return versions;
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(slug, "Failed to fetch versions from Hangar: " + e.getMessage(), e);
     }
   }
 
   @Override
-  public ResolvedDependency resolve(Dependency dependency, Version version)
+  public ResolvedDependency resolve(final Dependency dependency, final Version version)
       throws DependencyException {
-    String slug = dependency.identifier();
-    ServerPlatform platform = dependency.platform();
-    String hangarPlatform = platform.hangarPlatform();
+    final String slug = dependency.identifier();
+    final ServerPlatform platform = dependency.platform();
+    final String hangarPlatform = platform.hangarPlatform();
 
     try {
       // Fetch version details
-      String url = API_BASE + slug + "/versions/" + version.toString();
-      JsonObject json = JsonUtil.toJsonObject(JsonUtil.fromJson(HttpUtil.get(url)));
+      final String url = API_BASE + slug + "/versions/" + version.toString();
+      final JsonObject json = JsonUtil.toJsonObject(JsonUtil.fromJson(HttpUtil.get(url)));
       if (json == null) {
         throw new DependencyException(slug, "Failed to parse Hangar version response");
       }
 
       // Get download info
-      JsonObject downloads = JsonUtil.getJsonObject(json, "downloads");
+      final JsonObject downloads = JsonUtil.getJsonObject(json, "downloads");
       if (downloads == null) {
         throw new DependencyException(slug, "No downloads found for version " + version);
       }
@@ -105,7 +105,7 @@ public final class HangarSource implements DependencySource {
       if (platformDownload == null) {
         // Fall back to first available
         // iterate members of downloads JsonObject
-        for (String key : platformDownloadKeySet(downloads)) {
+        for (final String key : platformDownloadKeySet(downloads)) {
           platformDownload = JsonUtil.getJsonObject(downloads, key);
           if (platformDownload != null)
             break;
@@ -116,9 +116,9 @@ public final class HangarSource implements DependencySource {
             "No downloads found for version " + version + " and Platform " + hangarPlatform);
       }
 
-      JsonObject fileInfo = JsonUtil.getJsonObject(platformDownload, "fileInfo");
+      final JsonObject fileInfo = JsonUtil.getJsonObject(platformDownload, "fileInfo");
       String fileName = fileInfo != null ? JsonUtil.getString(fileInfo, "name") : null;
-      String sha256 = fileInfo != null ? JsonUtil.getString(fileInfo, "sha256Hash") : null;
+      final String sha256 = fileInfo != null ? JsonUtil.getString(fileInfo, "sha256Hash") : null;
 
       // Build download URL
       String downloadUrl = JsonUtil.getString(platformDownload, "downloadUrl");
@@ -140,9 +140,9 @@ public final class HangarSource implements DependencySource {
           sha256,
           sha256 != null ? ChecksumType.SHA256 : null,
           dependency.fileName() != null ? dependency.fileName() : fileName);
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(slug, "Failed to resolve Hangar version: " + e.getMessage(), e);
     }
   }

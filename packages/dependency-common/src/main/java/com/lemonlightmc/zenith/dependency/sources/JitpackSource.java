@@ -22,16 +22,16 @@ public final class JitpackSource implements DependencySource {
   }
 
   @Override
-  public List<Version> fetchVersions(Dependency dependency) throws DependencyException {
-    String id = dependency.identifier();
+  public List<Version> fetchVersions(final Dependency dependency) throws DependencyException {
+    final String id = dependency.identifier();
     // Delegate to GitHub when identifier is owner/repo
     if (id.contains("/")) {
       try {
-        GitHubSource gh = new GitHubSource();
+        final GitHubSource gh = new GitHubSource();
         return gh.fetchVersions(dependency);
-      } catch (DependencyException e) {
+      } catch (final DependencyException e) {
         throw e;
-      } catch (Exception e) {
+      } catch (final Exception e) {
         throw new DependencyException(id, "Failed to fetch versions from JitPack/GitHub: " + e.getMessage(), e);
       }
     }
@@ -39,23 +39,23 @@ public final class JitpackSource implements DependencySource {
   }
 
   @Override
-  public ResolvedDependency resolve(Dependency dependency, Version version) throws DependencyException {
-    String id = dependency.identifier();
+  public ResolvedDependency resolve(final Dependency dependency, final Version version) throws DependencyException {
+    final String id = dependency.identifier();
     if (!id.contains("/")) {
       throw new DependencyException(id, "JitPack identifier must be in 'owner/repo' format");
     }
-    String[] parts = id.split("/", 2);
-    String owner = parts[0];
-    String repo = parts[1];
+    final String[] parts = id.split("/", 2);
+    final String owner = parts[0];
+    final String repo = parts[1];
 
     try {
-      String fileName = dependency.fileName() != null ? dependency.fileName()
+      final String fileName = dependency.fileName() != null ? dependency.fileName()
           : repo + "-" + version.toString() + ".jar";
-      String downloadUrl = "https://jitpack.io/com/github/" + owner + "/" + repo + "/" + version.toString() + "/"
+      final String downloadUrl = "https://jitpack.io/com/github/" + owner + "/" + repo + "/" + version.toString() + "/"
           + fileName;
 
       return new ResolvedDependency(dependency.name(), version, downloadUrl, fileName);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(id, "Failed to resolve JitPack artifact: " + e.getMessage(), e);
     }
   }

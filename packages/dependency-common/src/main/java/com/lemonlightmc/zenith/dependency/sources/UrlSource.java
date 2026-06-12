@@ -23,7 +23,7 @@ public final class UrlSource implements DependencySource {
   }
 
   @Override
-  public List<Version> fetchVersions(Dependency dependency) throws DependencyException {
+  public List<Version> fetchVersions(final Dependency dependency) throws DependencyException {
     // URL source doesn't support version listing
     // Return the constraint version if specified, or a dummy version
     if (dependency.constraint() != null && dependency.constraint().isExact()) {
@@ -35,22 +35,22 @@ public final class UrlSource implements DependencySource {
   }
 
   @Override
-  public ResolvedDependency resolve(Dependency dependency, Version version)
+  public ResolvedDependency resolve(final Dependency dependency, final Version version)
       throws DependencyException {
-    String url = dependency.identifier();
+    final String url = dependency.identifier();
     String fileName = dependency.fileName();
 
     try {
       // Extract filename from URL
       if (fileName == null) {
-        URI uri = URI.create(url);
-        String path = uri.getPath();
+        final URI uri = URI.create(url);
+        final String path = uri.getPath();
         if (path != null && !path.isEmpty()) {
-          int lastSlash = path.lastIndexOf('/');
+          final int lastSlash = path.lastIndexOf('/');
           fileName = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
 
           // Clean up query strings
-          int queryStart = fileName.indexOf('?');
+          final int queryStart = fileName.indexOf('?');
           if (queryStart >= 0) {
             fileName = fileName.substring(0, queryStart);
           }
@@ -61,7 +61,7 @@ public final class UrlSource implements DependencySource {
         }
       }
 
-      String sha256 = dependency.sha256();
+      final String sha256 = dependency.sha256();
       return new ResolvedDependency(
           dependency.name(),
           version,
@@ -69,7 +69,7 @@ public final class UrlSource implements DependencySource {
           sha256,
           sha256 != null ? ChecksumType.SHA256 : null,
           fileName);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(url, "Failed to resolve URL: " + e.getMessage(), e);
     }
   }

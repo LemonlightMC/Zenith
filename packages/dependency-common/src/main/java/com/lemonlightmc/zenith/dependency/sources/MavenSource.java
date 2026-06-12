@@ -28,70 +28,70 @@ public final class MavenSource implements DependencySource {
   }
 
   @Override
-  public List<Version> fetchVersions(Dependency dependency) throws DependencyException {
-    String id = dependency.identifier();
+  public List<Version> fetchVersions(final Dependency dependency) throws DependencyException {
+    final String id = dependency.identifier();
     // Expect group:artifact
-    String[] parts = id.split(":", 2);
+    final String[] parts = id.split(":", 2);
     if (parts.length < 2) {
       throw new DependencyException(id, "Maven identifier must be in 'group:artifact' format");
     }
-    String group = parts[0];
-    String artifact = parts[1];
+    final String group = parts[0];
+    final String artifact = parts[1];
 
     try {
-      String q = "g:\"" + group + "\" AND a:\"" + artifact + "\"";
-      String url = SEARCH_API + "?q=" + URLEncoder.encode(q, StandardCharsets.UTF_8) + "&rows=200&core=gav&wt=json";
-      String resp = HttpUtil.get(url);
-      JsonObject root = JsonUtil.toJsonObject(JsonUtil.fromJson(resp));
+      final String q = "g:\"" + group + "\" AND a:\"" + artifact + "\"";
+      final String url = SEARCH_API + "?q=" + URLEncoder.encode(q, StandardCharsets.UTF_8) + "&rows=200&core=gav&wt=json";
+      final String resp = HttpUtil.get(url);
+      final JsonObject root = JsonUtil.toJsonObject(JsonUtil.fromJson(resp));
       if (root == null) {
         throw new DependencyException(id, "Failed to parse Maven search response");
       }
-      JsonObject response = JsonUtil.getJsonObject(root, "response");
-      JsonArray docs = JsonUtil.getJsonArray(response, "docs");
+      final JsonObject response = JsonUtil.getJsonObject(root, "response");
+      final JsonArray docs = JsonUtil.getJsonArray(response, "docs");
       if (docs == null || docs.size() == 0) {
         throw new DependencyException(id, "No versions found on Maven Central");
       }
 
-      List<Version> versions = new ArrayList<>();
-      for (JsonElement el : docs) {
-        JsonObject doc = JsonUtil.toJsonObject(el);
-        String v = JsonUtil.getString(doc, "v");
+      final List<Version> versions = new ArrayList<>();
+      for (final JsonElement el : docs) {
+        final JsonObject doc = JsonUtil.toJsonObject(el);
+        final String v = JsonUtil.getString(doc, "v");
         if (v == null)
           continue;
-        Version ver = Version.trySemver(v);
+        final Version ver = Version.trySemver(v);
         if (ver != null) {
           versions.add(ver);
         }
       }
       return versions;
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(id, "Failed to fetch versions from Maven Central: " + e.getMessage(), e);
     }
   }
 
   @Override
-  public ResolvedDependency resolve(Dependency dependency, Version version) throws DependencyException {
-    String id = dependency.identifier();
-    String[] parts = id.split(":", 2);
+  public ResolvedDependency resolve(final Dependency dependency, final Version version) throws DependencyException {
+    final String id = dependency.identifier();
+    final String[] parts = id.split(":", 2);
     if (parts.length < 2) {
       throw new DependencyException(id, "Maven identifier must be in 'group:artifact' format");
     }
-    String group = parts[0];
-    String artifact = parts[1];
+    final String group = parts[0];
+    final String artifact = parts[1];
 
     try {
-      String groupPath = group.replace('.', '/');
-      String fileName = dependency.fileName() != null ? dependency.fileName()
+      final String groupPath = group.replace('.', '/');
+      final String fileName = dependency.fileName() != null ? dependency.fileName()
           : artifact + "-" + version.toString() + ".jar";
-      String downloadUrl = "https://repo1.maven.org/maven2/" + groupPath + "/" + artifact + "/"
+      final String downloadUrl = "https://repo1.maven.org/maven2/" + groupPath + "/" + artifact + "/"
           + version.toString() + "/" + fileName;
 
       return new ResolvedDependency(dependency.name(), version, downloadUrl, fileName);
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(id, "Failed to resolve Maven artifact: " + e.getMessage(), e);
     }
   }

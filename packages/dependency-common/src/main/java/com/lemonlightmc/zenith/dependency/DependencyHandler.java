@@ -15,12 +15,7 @@ public abstract class DependencyHandler {
   private static final Map<String, PluginRegistration> registrations = new ConcurrentHashMap<>();
 
   private static Lazy<Processor> processor = Lazy.from(() -> {
-    Path pluginsFolder = null;
-    // Auto-detect plugins folder if not provided
-    if (pluginsFolder == null) {
-      pluginsFolder = Path.of("plugins");
-    }
-    return new Processor(pluginsFolder);
+    return new Processor();
   });
 
   private record PluginRegistration(String name, List<Dependency> dependencies) {
@@ -36,7 +31,7 @@ public abstract class DependencyHandler {
    * @param key       the consumer name
    * @param collector consumer that registers dependencies
    */
-  public static void register(String key, Consumer<DependencyCollector> collector) {
+  public static void register(final String key, final Consumer<DependencyCollector> collector) {
     if (key == null || key.isEmpty()) {
       throw new IllegalArgumentException("Plugin name cannot be null or empty");
     }
@@ -44,7 +39,7 @@ public abstract class DependencyHandler {
       throw new IllegalArgumentException("Collector cannot be null");
     }
 
-    DependencyCollector deps = new DependencyCollector();
+    final DependencyCollector deps = new DependencyCollector();
     collector.accept(deps);
 
     registrations.put(key, new PluginRegistration(key, deps.getDependencies()));
@@ -57,7 +52,7 @@ public abstract class DependencyHandler {
    * @param key the consumer name
    * @return download result
    */
-  public static DownloadResult download(String key) {
+  public static DownloadResult download(final String key) {
     return download(key, null);
   }
 
@@ -69,8 +64,8 @@ public abstract class DependencyHandler {
    * @param pluginsFolder the plugins folder (null to auto-detect)
    * @return download result
    */
-  public static DownloadResult download(String key, Path pluginsFolder) {
-    PluginRegistration registration = registrations.get(key);
+  public static DownloadResult download(final String key, final Path pluginsFolder) {
+    final PluginRegistration registration = registrations.get(key);
     if (registration == null) {
       // No dependencies registered - this can happen if:
       // 1. register() was never called
@@ -84,7 +79,6 @@ public abstract class DependencyHandler {
     }
 
     Logger.info("Processing " + registration.dependencies().size() + " dependency(ies) for " + key);
-
     return processor.get().downloadDependencies(key, registration.dependencies());
   }
 
@@ -94,7 +88,7 @@ public abstract class DependencyHandler {
    * @param key the consumer name
    * @return true if all dependencies are ready
    */
-  public static boolean isReady(String key) {
+  public boolean isReady(final String key) {
     return processor.isPresent() ? processor.get().isReady(key) : false;
   }
 }

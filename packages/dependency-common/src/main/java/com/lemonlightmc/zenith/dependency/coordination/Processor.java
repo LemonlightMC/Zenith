@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.dependency.Dependency;
 import com.lemonlightmc.zenith.dependency.DependencySource;
 import com.lemonlightmc.zenith.dependency.DownloadResult;
@@ -22,47 +23,48 @@ import com.lemonlightmc.zenith.version.Version;
 import com.lemonlightmc.zenith.version.VersionConstraint;
 
 public class Processor {
-  private final Path pluginsFolder;
   private final Path coordinationDir;
   private final Map<SourceType, DependencySource> sources;
-  private final Map<String, Boolean> downloadedPlugins;
+  // Tracks which plugins have had their dependencies processed successfully.
+  private static final Map<String, Boolean> readyPlugins = new ConcurrentHashMap<>();
 
-  public Processor(Path pluginsFolder) {
-    this.pluginsFolder = pluginsFolder.resolve(".hopper");
-    this.coordinationDir = pluginsFolder.resolve("/zenith");
+  public Processor() {
+    this.coordinationDir = ZenithProvider.getZenithFolder().resolve(".deps");
     sources = new EnumMap<>(SourceType.class);
-    downloadedPlugins = new ConcurrentHashMap<>();
   }
 
-  public boolean isReady(String pluginName) {
-    return downloadedPlugins.containsKey(pluginName);
+  /**
+   * Check if all dependencies for a plugin are ready (downloaded and loaded).
+   */
+  public boolean isReady(final String key) {
+    return readyPlugins.containsKey(key);
   }
 
   /**
    * Download dependencies with coordination.
    */
-  public DownloadResult downloadDependencies(String pluginName, List<Dependency> dependencies) {
-    DownloadResult.Builder result = DownloadResult.builder();
+  public DownloadResult downloadDependencies(final String pluginName, final List<Dependency> dependencies) {
+    final DownloadResult.Builder result = DownloadResult.builder();
 
     try {
       // Use file-based coordination
       try (HopperCoordinator coordinator = HopperCoordinator.acquire(coordinationDir)) {
         // Load or create registry
-        LibraryRegistry registry = coordinator.loadRegistry();
+        final LibraryRegistry registry = coordinator.loadRegistry();
 
         // Register this plugin's dependencies
         registry.registerPlugin(pluginName, dependencies);
 
         // Load lockfile
-        Lockfile lockfile = coordinator.loadLockfile();
+        final Lockfile lockfile = coordinator.loadLockfile();
 
         // Process each dependency
-        for (Dependency dep : dependencies) {
+        for (final Dependency dep : dependencies) {
           try {
             processDependency(dep, registry, lockfile, result);
-          } catch (DependencyException e) {
+          } catch (final DependencyException e) {
             handleFailure(dep, e.getMessage(), result);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             handleFailure(dep, e.getMessage(), result);
           }
         }
@@ -72,19 +74,19 @@ public class Processor {
         coordinator.saveLockfile(lockfile);
       }
 
-      // Mark plugin as ready if successful
+      // Mark plugin as ready if successful (centralized in DependencyHandler)
       if (result.isCurrentlySuccessful()) {
-        downloadedPlugins.put(pluginName, true);
+        setReady(pluginName, true);
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       Logger.warn("Failed to process dependencies: " + e.getMessage());
     }
     return result.build();
   }
 
-  private void processDependency(Dependency dep, LibraryRegistry registry, Lockfile lockfile,
-      DownloadResult.Builder result) {
-    String depName = dep.name();
+  private void processDependency(final Dependency dep, final LibraryRegistry registry, final Lockfile lockfile,
+      final DownloadResult.Builder result) {
+    final String depName = dep.name();
     Logger.info("Processing dependency: " + depName);
 
     // Get merged constraint from registry (combines all plugins' constraints)
@@ -94,13 +96,13 @@ public class Processor {
     }
 
     // Check lockfile first
-    Lockfile.Entry lockedEntry = lockfile.getEntry(depName);
+    final Lockfile.Entry lockedEntry = lockfile.getEntry(depName);
     if (lockedEntry != null) {
       // Check if locked version still satisfies constraint
-      Version lockedVersion = Version.trySemver(lockedEntry.resolvedVersion());
+      final Version lockedVersion = Version.trySemver(lockedEntry.resolvedVersion());
       if (lockedVersion != null && mergedConstraint.isSatisfiedBy(lockedVersion)) {
         // Check if file exists
-        Path lockedPath = pluginsFolder.resolve(lockedEntry.fileName());
+        final Path lockedPath = ZenithProvider.getPluginsFolder().resolve(lockedEntry.fileName());
         if (Files.exists(lockedPath)) {
           Logger.info("  Using locked version: " + lockedVersion);
           result.addExisting(depName, lockedVersion, lockedPath);
@@ -112,14 +114,14 @@ public class Processor {
     // Respect any jar the user (or another plugin) has already installed under
     // a different filename. Exclude the lockfile-tracked jar so Hopper's own
     // stale download doesn't block a legitimate upgrade to a new constraint.
-    List<PluginYamlReader.Match> installed = PluginYamlReader.findAll(pluginsFolder, depName);
+    final List<PluginYamlReader.Match> installed = PluginYamlReader.findAll(ZenithProvider.getPluginsFolder(), depName);
     if (lockedEntry != null) {
-      String lockedFile = lockedEntry.fileName();
+      final String lockedFile = lockedEntry.fileName();
       installed.removeIf(m -> m.path().getFileName().toString().equals(lockedFile));
     }
     if (!installed.isEmpty()) {
-      PluginYamlReader.Match chosen = selectHighestVersion(installed);
-      String detectedVersion = chosen.descriptor().version();
+      final PluginYamlReader.Match chosen = selectHighestVersion(installed);
+      final String detectedVersion = chosen.descriptor().version();
       Version installedVersion = detectedVersion != null ? Version.trySemver(detectedVersion) : null;
       if (installedVersion == null) {
         installedVersion = Version.trySemver("0.0.0");
@@ -133,11 +135,11 @@ public class Processor {
     }
 
     // Need to resolve version
-    DependencySource source = retrieveSource(dep.sourceType(), depName);
+    final DependencySource source = retrieveSource(dep.sourceType(), depName);
 
     // Fetch available versions
     Logger.info("  Fetching versions from " + dep.sourceType() + "...");
-    List<Version> versions = source.fetchVersions(dep);
+    final List<Version> versions = source.fetchVersions(dep);
     if (versions.isEmpty()) {
       throw new DependencyException(depName, "No versions found");
     }
@@ -158,8 +160,8 @@ public class Processor {
     Logger.info("  Selected version: " + selected);
 
     // Check if already downloaded
-    DependencySource.ResolvedDependency resolved = source.resolve(dep, selected);
-    Path targetPath = pluginsFolder.resolve(resolved.fileName());
+    final DependencySource.ResolvedDependency resolved = source.resolve(dep, selected);
+    final Path targetPath = ZenithProvider.getPluginsFolder().resolve(resolved.fileName());
 
     if (Files.exists(targetPath)) {
       // Verify checksum if provided
@@ -173,7 +175,7 @@ public class Processor {
           Logger.info("  Checksum mismatch, re-downloading");
           try {
             Files.deleteIfExists(targetPath);
-          } catch (IOException e) {
+          } catch (final IOException e) {
             throw new DependencyException(depName, "Failed to delete file: " + e.getMessage(), e);
           }
         }
@@ -195,7 +197,7 @@ public class Processor {
       if (!Checksum.verify(targetPath, resolved.checksum(), resolved.checksumType())) {
         try {
           Files.deleteIfExists(targetPath);
-        } catch (IOException ignored) {
+        } catch (final IOException ignored) {
           // Best effort cleanup
         }
         throw new DependencyException(depName, "Checksum verification failed (" +
@@ -215,19 +217,19 @@ public class Processor {
    * leave multiple jars with the same plugin name in place.
    */
   private static PluginYamlReader.Match selectHighestVersion(
-      List<PluginYamlReader.Match> matches) {
+      final List<PluginYamlReader.Match> matches) {
     PluginYamlReader.Match bestWithVersion = null;
     Version bestVersion = null;
     PluginYamlReader.Match fallback = null;
-    for (PluginYamlReader.Match m : matches) {
+    for (final PluginYamlReader.Match m : matches) {
       if (fallback == null || m.path().getFileName().toString()
           .compareTo(fallback.path().getFileName().toString()) < 0) {
         fallback = m;
       }
-      String raw = m.descriptor().version();
+      final String raw = m.descriptor().version();
       if (raw == null)
         continue;
-      Version v = Version.trySemver(raw);
+      final Version v = Version.trySemver(raw);
       if (v == null)
         continue;
       if (bestVersion == null || v.compareTo(bestVersion) > 0) {
@@ -238,9 +240,9 @@ public class Processor {
     return bestWithVersion != null ? bestWithVersion : fallback;
   }
 
-  private void handleFailure(Dependency dep, String error, DownloadResult.Builder result) {
-    String depName = dep.name();
-    FailurePolicy policy = dep.failurePolicy();
+  private void handleFailure(final Dependency dep, final String error, final DownloadResult.Builder result) {
+    final String depName = dep.name();
+    final FailurePolicy policy = dep.failurePolicy();
 
     switch (policy) {
       case FAIL:
@@ -259,14 +261,27 @@ public class Processor {
     }
   }
 
-  private DependencySource retrieveSource(SourceType type, String depName) {
+  private DependencySource retrieveSource(final SourceType type, final String depName) {
     DependencySource source = sources.get(type);
-    if (source == null) {
-      source = (DependencySource) type.create();
+    if (source != null) {
+      return source;
     }
+    source = (DependencySource) type.create();
     if (source == null) {
       throw new DependencyException(depName, "Unknown source type: " + type);
     }
+    sources.put(type, source);
     return source;
+  }
+
+  /**
+   * Mark a plugin as ready (or not).
+   */
+  public static void setReady(final String key, final boolean ready) {
+    if (ready) {
+      readyPlugins.put(key, true);
+    } else {
+      readyPlugins.remove(key);
+    }
   }
 }

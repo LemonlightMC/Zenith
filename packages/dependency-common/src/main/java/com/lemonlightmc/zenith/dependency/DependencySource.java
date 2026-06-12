@@ -52,10 +52,10 @@ public interface DependencySource {
      * Convenience constructor for no checksum.
      */
     public ResolvedDependency(
-        String name,
-        Version version,
-        String downloadUrl,
-        String fileName) {
+        final String name,
+        final Version version,
+        final String downloadUrl,
+        final String fileName) {
       this(name, version, downloadUrl, null, null, fileName);
     }
   }

@@ -32,21 +32,21 @@ public final class CodeMCSource implements DependencySource {
   }
 
   @Override
-  public List<Version> fetchVersions(Dependency dependency) throws DependencyException {
-    String id = dependency.identifier();
+  public List<Version> fetchVersions(final Dependency dependency) throws DependencyException {
+    final String id = dependency.identifier();
     try {
       // Try v2 endpoint which often returns a JSON array of versions or objects
       String url = API_V2 + URLEncoder.encode(id, StandardCharsets.UTF_8);
       String resp = HttpUtil.get(url);
-      JsonElement root = JsonUtil.fromJson(resp);
-      List<Version> versions = new ArrayList<>();
+      final JsonElement root = JsonUtil.fromJson(resp);
+      final List<Version> versions = new ArrayList<>();
       if (root != null && root.isJsonArray()) {
-        JsonArray arr = JsonUtil.toJsonArray(root);
-        for (JsonElement el : arr) {
-          String ver = el.isJsonPrimitive() ? el.getAsString() : JsonUtil.getString(JsonUtil.toJsonObject(el), "name");
+        final JsonArray arr = JsonUtil.toJsonArray(root);
+        for (final JsonElement el : arr) {
+          final String ver = el.isJsonPrimitive() ? el.getAsString() : JsonUtil.getString(JsonUtil.toJsonObject(el), "name");
           if (ver == null)
             continue;
-          Version v = Version.trySemver(ver);
+          final Version v = Version.trySemver(ver);
           if (v != null)
             versions.add(v);
         }
@@ -58,14 +58,14 @@ public final class CodeMCSource implements DependencySource {
       // Fallback: try v1 endpoint
       url = API_V1 + URLEncoder.encode(id, StandardCharsets.UTF_8) + "/versions";
       resp = HttpUtil.get(url);
-      JsonArray arr = JsonUtil.toJsonArray(JsonUtil.fromJson(resp));
+      final JsonArray arr = JsonUtil.toJsonArray(JsonUtil.fromJson(resp));
       if (arr != null) {
-        for (JsonElement el : arr) {
-          String ver = el.isJsonPrimitive() ? el.getAsString()
+        for (final JsonElement el : arr) {
+          final String ver = el.isJsonPrimitive() ? el.getAsString()
               : JsonUtil.getString(JsonUtil.toJsonObject(el), "name");
           if (ver == null)
             continue;
-          Version v = Version.trySemver(ver);
+          final Version v = Version.trySemver(ver);
           if (v != null)
             versions.add(v);
         }
@@ -75,15 +75,15 @@ public final class CodeMCSource implements DependencySource {
         throw new DependencyException(id, "No parseable versions found on CodeMC");
       }
       return versions;
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       // As a last resort, delegate to GitHub if identifier looks like owner/repo
       if (id.contains("/")) {
         try {
-          GitHubSource gh = new GitHubSource();
+          final GitHubSource gh = new GitHubSource();
           return gh.fetchVersions(dependency);
-        } catch (Exception ignored) {
+        } catch (final Exception ignored) {
         }
       }
       throw new DependencyException(id, "Failed to fetch versions from CodeMC: " + e.getMessage(), e);
@@ -91,17 +91,17 @@ public final class CodeMCSource implements DependencySource {
   }
 
   @Override
-  public ResolvedDependency resolve(Dependency dependency, Version version) throws DependencyException {
-    String id = dependency.identifier();
+  public ResolvedDependency resolve(final Dependency dependency, final Version version) throws DependencyException {
+    final String id = dependency.identifier();
     try {
       // Try v2 asset endpoint
-      String url = API_V2 + URLEncoder.encode(id, StandardCharsets.UTF_8) + "/"
+      final String url = API_V2 + URLEncoder.encode(id, StandardCharsets.UTF_8) + "/"
           + URLEncoder.encode(version.toString(), StandardCharsets.UTF_8);
-      String resp = HttpUtil.get(url);
-      JsonObject obj = JsonUtil.toJsonObject(JsonUtil.fromJson(resp));
+      final String resp = HttpUtil.get(url);
+      final JsonObject obj = JsonUtil.toJsonObject(JsonUtil.fromJson(resp));
       if (obj != null) {
-        String download = JsonUtil.getString(obj, "downloadUrl");
-        String fileName = JsonUtil.getString(obj, "fileName");
+        final String download = JsonUtil.getString(obj, "downloadUrl");
+        final String fileName = JsonUtil.getString(obj, "fileName");
         if (download != null) {
           return new ResolvedDependency(dependency.name(), version, download,
               dependency.fileName() != null ? dependency.fileName()
@@ -111,14 +111,14 @@ public final class CodeMCSource implements DependencySource {
 
       // Fallback: delegate to GitHub if looks like owner/repo
       if (id.contains("/")) {
-        GitHubSource gh = new GitHubSource();
+        final GitHubSource gh = new GitHubSource();
         return gh.resolve(dependency, version);
       }
 
       throw new DependencyException(id, "Failed to resolve CodeMC resource for version " + version);
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(id, "Failed to resolve CodeMC resource: " + e.getMessage(), e);
     }
   }

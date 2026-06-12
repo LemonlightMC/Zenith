@@ -27,7 +27,7 @@ public final class LibraryRegistry {
     super();
   }
 
-  public static LibraryRegistry fromJson(String json) {
+  public static LibraryRegistry fromJson(final String json) {
     return JsonUtil.fromJson(json, LibraryRegistry.class);
   }
 
@@ -47,9 +47,9 @@ public final class LibraryRegistry {
   /**
    * Register a plugin's dependencies, merging with existing registrations.
    */
-  public void registerPlugin(String pluginName, List<Dependency> dependencies) {
-    for (Dependency dep : dependencies) {
-      String depName = dep.name();
+  public void registerPlugin(final String pluginName, final List<Dependency> dependencies) {
+    for (final Dependency dep : dependencies) {
+      final String depName = dep.name();
       DependencyRegistration reg = registrations.get(depName);
       if (reg == null) {
         reg = new DependencyRegistration(depName);
@@ -66,16 +66,16 @@ public final class LibraryRegistry {
    * @param dependencyName the dependency name
    * @return merged constraint, or null if not registered
    */
-  public VersionConstraint getMergedConstraint(String dependencyName) {
-    DependencyRegistration reg = registrations.get(dependencyName);
+  public VersionConstraint getMergedConstraint(final String dependencyName) {
+    final DependencyRegistration reg = registrations.get(dependencyName);
     return reg != null ? reg.getMergedConstraint() : null;
   }
 
   /**
    * Get all plugins that requested a dependency.
    */
-  public List<String> getRequestingPlugins(String dependencyName) {
-    DependencyRegistration reg = registrations.get(dependencyName);
+  public List<String> getRequestingPlugins(final String dependencyName) {
+    final DependencyRegistration reg = registrations.get(dependencyName);
     return reg != null ? new ArrayList<>(reg.requestedBy) : Collections.emptyList();
   }
 }

@@ -32,18 +32,18 @@ public final class ModrinthSource implements DependencySource {
   }
 
   @Override
-  public List<Version> fetchVersions(Dependency dependency) throws DependencyException {
-    String slug = dependency.identifier();
-    ServerPlatform platform = dependency.platform();
+  public List<Version> fetchVersions(final Dependency dependency) throws DependencyException {
+    final String slug = dependency.identifier();
+    final ServerPlatform platform = dependency.platform();
 
     try {
       // Build URL with query parameters
-      StringBuilder url = new StringBuilder(API_BASE)
+      final StringBuilder url = new StringBuilder(API_BASE)
           .append("/project/").append(slug).append("/version");
 
       // Add loader filter based on platform
-      String[] loaders = platform.modrinthLoaders();
-      StringBuilder loadersJson = new StringBuilder("[");
+      final String[] loaders = platform.modrinthLoaders();
+      final StringBuilder loadersJson = new StringBuilder("[");
       for (int i = 0; i < loaders.length; i++) {
         if (i > 0)
           loadersJson.append(",");
@@ -56,49 +56,49 @@ public final class ModrinthSource implements DependencySource {
           .append(URLEncoder.encode("[\"" + dependency.effectiveMinecraftVersion().toString() + "\"]",
               StandardCharsets.UTF_8));
 
-      JsonArray versions = JsonUtil.toJsonArray(JsonUtil.fromJson((HttpUtil.get(url.toString()))));
+      final JsonArray versions = JsonUtil.toJsonArray(JsonUtil.fromJson((HttpUtil.get(url.toString()))));
       if (versions == null || versions.size() == 0) {
         throw new DependencyException(slug, "No versions found on Modrinth");
       }
 
-      List<Version> result = new ArrayList<>();
-      for (JsonElement item : versions) {
-        String versionNumber = JsonUtil.getString(JsonUtil.toJsonObject(item), "version_number");
+      final List<Version> result = new ArrayList<>();
+      for (final JsonElement item : versions) {
+        final String versionNumber = JsonUtil.getString(JsonUtil.toJsonObject(item), "version_number");
         if (versionNumber == null) {
           continue;
         }
-        Version v = Version.semver(versionNumber);
+        final Version v = Version.semver(versionNumber);
         if (v != null) {
           result.add(v);
         }
       }
       return result;
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(slug, "Failed to fetch versions from Modrinth: " + e.getMessage(), e);
     }
   }
 
   @Override
-  public ResolvedDependency resolve(Dependency dependency, Version version)
+  public ResolvedDependency resolve(final Dependency dependency, final Version version)
       throws DependencyException {
-    String slug = dependency.identifier();
-    ServerPlatform platform = dependency.platform();
+    final String slug = dependency.identifier();
+    final ServerPlatform platform = dependency.platform();
 
     try {
       // Fetch all versions and find the matching one
-      String url = API_BASE + "/project/" + slug + "/version";
-      JsonArray versions = JsonUtil.toJsonArray(JsonUtil.fromJson(HttpUtil.get(url)));
+      final String url = API_BASE + "/project/" + slug + "/version";
+      final JsonArray versions = JsonUtil.toJsonArray(JsonUtil.fromJson(HttpUtil.get(url)));
       if (versions == null) {
         throw new DependencyException(slug, "Failed to parse Modrinth response");
       }
 
       // Find matching version
       JsonObject matchingVersion = null;
-      for (JsonElement item : versions) {
-        JsonObject versionData = JsonUtil.toJsonObject(item);
-        String versionNumber = JsonUtil.getString(versionData, "version_number");
+      for (final JsonElement item : versions) {
+        final JsonObject versionData = JsonUtil.toJsonObject(item);
+        final String versionNumber = JsonUtil.getString(versionData, "version_number");
         if (versionNumber != null && versionNumber.equals(version.toString())) {
           matchingVersion = versionData;
           break;
@@ -109,17 +109,17 @@ public final class ModrinthSource implements DependencySource {
       }
 
       // Get files list
-      JsonArray files = JsonUtil.getJsonArray(matchingVersion, "files");
+      final JsonArray files = JsonUtil.getJsonArray(matchingVersion, "files");
       if (files == null || files.size() == 0) {
         throw new DependencyException(slug, "No files found for version " + version);
       }
 
       // Select the best file based on platform
-      JsonObject selectedFile = selectFileForPlatform(files, platform);
-      String downloadUrl = JsonUtil.getString(selectedFile, "url");
-      String fileName = JsonUtil.getString(selectedFile, "filename");
-      JsonObject hashes = JsonUtil.getJsonObject(selectedFile, "hashes");
-      String sha512 = hashes != null ? JsonUtil.getString(hashes, "sha512") : null;
+      final JsonObject selectedFile = selectFileForPlatform(files, platform);
+      final String downloadUrl = JsonUtil.getString(selectedFile, "url");
+      final String fileName = JsonUtil.getString(selectedFile, "filename");
+      final JsonObject hashes = JsonUtil.getJsonObject(selectedFile, "hashes");
+      final String sha512 = hashes != null ? JsonUtil.getString(hashes, "sha512") : null;
 
       if (downloadUrl == null || fileName == null) {
         throw new DependencyException(slug, "Invalid file info for version " + version);
@@ -132,9 +132,9 @@ public final class ModrinthSource implements DependencySource {
           sha512,
           sha512 != null ? ChecksumType.SHA512 : null,
           dependency.fileName() != null ? dependency.fileName() : fileName);
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(slug, "Failed to resolve Modrinth version: " + e.getMessage(), e);
     }
   }
@@ -150,20 +150,20 @@ public final class ModrinthSource implements DependencySource {
    * @param platform the target platform
    * @return the best matching file
    */
-  private static JsonObject selectFileForPlatform(JsonArray files, ServerPlatform platform) {
+  private static JsonObject selectFileForPlatform(final JsonArray files, final ServerPlatform platform) {
 
     if (files.size() == 1) {
       return JsonUtil.toJsonObject(files.get(0));
     }
 
     // Platform-specific filename patterns (case-insensitive)
-    String[] preferredPatterns = getPlatformFilePatterns(platform);
+    final String[] preferredPatterns = getPlatformFilePatterns(platform);
 
     // First pass: look for platform-specific file
-    for (String pattern : preferredPatterns) {
-      for (JsonElement fileEl : files) {
-        JsonObject file = JsonUtil.toJsonObject(fileEl);
-        String filename = JsonUtil.getString(file, "filename");
+    for (final String pattern : preferredPatterns) {
+      for (final JsonElement fileEl : files) {
+        final JsonObject file = JsonUtil.toJsonObject(fileEl);
+        final String filename = JsonUtil.getString(file, "filename");
         if (filename != null && filename.toLowerCase().contains(pattern.toLowerCase())) {
           return file;
         }
@@ -171,16 +171,16 @@ public final class ModrinthSource implements DependencySource {
     }
 
     // Second pass: avoid files for incompatible platforms
-    String[] avoidPatterns = getIncompatibleFilePatterns(platform);
-    for (JsonElement fileEl : files) {
-      JsonObject file = JsonUtil.toJsonObject(fileEl);
-      String filename = JsonUtil.getString(file, "filename");
+    final String[] avoidPatterns = getIncompatibleFilePatterns(platform);
+    for (final JsonElement fileEl : files) {
+      final JsonObject file = JsonUtil.toJsonObject(fileEl);
+      final String filename = JsonUtil.getString(file, "filename");
       if (filename == null) {
         continue;
       }
 
       boolean shouldAvoid = false;
-      for (String pattern : avoidPatterns) {
+      for (final String pattern : avoidPatterns) {
         if (filename.toLowerCase().contains(pattern.toLowerCase())) {
           shouldAvoid = true;
           break;
@@ -192,9 +192,9 @@ public final class ModrinthSource implements DependencySource {
     }
 
     // Fall back to primary file or first file
-    for (JsonElement fileEl : files) {
-      JsonObject file = JsonUtil.toJsonObject(fileEl);
-      Boolean primary = JsonUtil.getBool(file, "primary");
+    for (final JsonElement fileEl : files) {
+      final JsonObject file = JsonUtil.toJsonObject(fileEl);
+      final Boolean primary = JsonUtil.getBool(file, "primary");
       if (Boolean.TRUE.equals(primary)) {
         return file;
       }
@@ -205,7 +205,7 @@ public final class ModrinthSource implements DependencySource {
   /**
    * Get filename patterns to prefer for this platform.
    */
-  private static String[] getPlatformFilePatterns(ServerPlatform platform) {
+  private static String[] getPlatformFilePatterns(final ServerPlatform platform) {
     return switch (platform) {
       case FOLIA -> new String[] { "folia", "paper" };
       case PURPUR -> new String[] { "purpur", "paper" };
@@ -230,7 +230,7 @@ public final class ModrinthSource implements DependencySource {
   /**
    * Get filename patterns to avoid for this platform.
    */
-  private static String[] getIncompatibleFilePatterns(ServerPlatform platform) {
+  private static String[] getIncompatibleFilePatterns(final ServerPlatform platform) {
     return switch (platform) {
       case SPIGOT, BUKKIT -> new String[] { "paper", "folia", "purpur", "velocity", "bungee" };
       case PAPER, SHREDDEDPAPER -> new String[] { "folia", "velocity", "bungee" };

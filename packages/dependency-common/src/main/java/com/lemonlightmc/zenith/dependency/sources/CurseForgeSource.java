@@ -27,69 +27,69 @@ public final class CurseForgeSource implements DependencySource {
   }
 
   @Override
-  public List<Version> fetchVersions(Dependency dependency) throws DependencyException {
-    String id = dependency.identifier();
+  public List<Version> fetchVersions(final Dependency dependency) throws DependencyException {
+    final String id = dependency.identifier();
     try {
-      int addonId = Integer.parseInt(id);
-      String url = API_BASE + addonId + "/files";
-      String resp = HttpUtil.get(url);
-      JsonArray files = JsonUtil.toJsonArray(JsonUtil.fromJson(resp));
+      final int addonId = Integer.parseInt(id);
+      final String url = API_BASE + addonId + "/files";
+      final String resp = HttpUtil.get(url);
+      final JsonArray files = JsonUtil.toJsonArray(JsonUtil.fromJson(resp));
       if (files == null || files.size() == 0) {
         throw new DependencyException(id, "No files found on CurseForge");
       }
-      List<Version> versions = new ArrayList<>();
-      for (JsonElement el : files) {
-        JsonObject file = JsonUtil.toJsonObject(el);
-        String fileName = JsonUtil.getString(file, "fileName");
+      final List<Version> versions = new ArrayList<>();
+      for (final JsonElement el : files) {
+        final JsonObject file = JsonUtil.toJsonObject(el);
+        final String fileName = JsonUtil.getString(file, "fileName");
         if (fileName == null)
           continue;
-        Version v = Version.trySemver(fileName);
+        final Version v = Version.trySemver(fileName);
         if (v != null) {
           versions.add(v);
         }
       }
       if (versions.isEmpty()) {
         // try to use file IDs as last resort
-        for (JsonElement el : files) {
-          JsonObject file = JsonUtil.toJsonObject(el);
-          String displayName = JsonUtil.getString(file, "displayName");
-          Version v = displayName != null ? Version.trySemver(displayName) : null;
+        for (final JsonElement el : files) {
+          final JsonObject file = JsonUtil.toJsonObject(el);
+          final String displayName = JsonUtil.getString(file, "displayName");
+          final Version v = displayName != null ? Version.trySemver(displayName) : null;
           if (v != null) {
             versions.add(v);
           }
         }
       }
       return versions;
-    } catch (NumberFormatException e) {
+    } catch (final NumberFormatException e) {
       throw new DependencyException(id, "CurseForge identifier must be numeric addon id");
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(id, "Failed to fetch versions from CurseForge: " + e.getMessage(), e);
     }
   }
 
   @Override
-  public ResolvedDependency resolve(Dependency dependency, Version version) throws DependencyException {
-    String id = dependency.identifier();
+  public ResolvedDependency resolve(final Dependency dependency, final Version version) throws DependencyException {
+    final String id = dependency.identifier();
     try {
-      int addonId = Integer.parseInt(id);
-      String url = API_BASE + addonId + "/files";
-      String resp = HttpUtil.get(url);
-      JsonArray files = JsonUtil.toJsonArray(JsonUtil.fromJson(resp));
+      final int addonId = Integer.parseInt(id);
+      final String url = API_BASE + addonId + "/files";
+      final String resp = HttpUtil.get(url);
+      final JsonArray files = JsonUtil.toJsonArray(JsonUtil.fromJson(resp));
       if (files == null || files.size() == 0) {
         throw new DependencyException(id, "No files found on CurseForge");
       }
 
       JsonObject target = null;
-      for (JsonElement el : files) {
-        JsonObject file = JsonUtil.toJsonObject(el);
-        String fileName = JsonUtil.getString(file, "fileName");
+      for (final JsonElement el : files) {
+        final JsonObject file = JsonUtil.toJsonObject(el);
+        final String fileName = JsonUtil.getString(file, "fileName");
         if (fileName != null && (fileName.contains(version.toString()) || fileName.equals(version.toString()))) {
           target = file;
           break;
         }
-        String displayName = JsonUtil.getString(file, "displayName");
+        final String displayName = JsonUtil.getString(file, "displayName");
         if (displayName != null && displayName.contains(version.toString())) {
           target = file;
           break;
@@ -101,8 +101,8 @@ public final class CurseForgeSource implements DependencySource {
         target = JsonUtil.toJsonObject(files.get(0));
       }
 
-      String downloadUrl = JsonUtil.getString(target, "downloadUrl");
-      String fileName = JsonUtil.getString(target, "fileName");
+      final String downloadUrl = JsonUtil.getString(target, "downloadUrl");
+      final String fileName = JsonUtil.getString(target, "fileName");
       if (downloadUrl == null) {
         throw new DependencyException(id, "No download URL found for selected CurseForge file");
       }
@@ -110,11 +110,11 @@ public final class CurseForgeSource implements DependencySource {
       return new ResolvedDependency(dependency.name(), version, downloadUrl,
           dependency.fileName() != null ? dependency.fileName()
               : fileName != null ? fileName : (dependency.identifier() + "-" + version + ".jar"));
-    } catch (NumberFormatException e) {
+    } catch (final NumberFormatException e) {
       throw new DependencyException(id, "CurseForge identifier must be numeric addon id");
-    } catch (DependencyException e) {
+    } catch (final DependencyException e) {
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new DependencyException(id, "Failed to resolve CurseForge addon: " + e.getMessage(), e);
     }
   }

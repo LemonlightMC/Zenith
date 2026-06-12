@@ -32,7 +32,7 @@ public final class DependencyCollector {
    * @param dependency the dependency to require
    * @return this collector for chaining
    */
-  public DependencyCollector require(Dependency dependency) {
+  public DependencyCollector require(final Dependency dependency) {
     if (dependency == null) {
       throw new IllegalArgumentException("Dependency cannot be null");
     }
@@ -46,8 +46,8 @@ public final class DependencyCollector {
    * @param deps the dependencies to add
    * @return this collector for chaining
    */
-  public DependencyCollector require(Dependency... deps) {
-    for (Dependency dep : deps) {
+  public DependencyCollector require(final Dependency... deps) {
+    for (final Dependency dep : deps) {
       require(dep);
     }
     return this;

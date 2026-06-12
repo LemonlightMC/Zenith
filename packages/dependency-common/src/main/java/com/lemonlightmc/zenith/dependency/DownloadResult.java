@@ -15,7 +15,7 @@ public record DownloadResult(List<DownloadedDependency> downloaded,
     List<FailedDependency> failed) {
 
   public static DownloadResult empty() {
-    return new DownloadResult(null, null, null, null);
+    return from(List.of(), List.of(), List.of(), List.of());
   }
 
   public static DownloadResult from(List<DownloadedDependency> downloaded,

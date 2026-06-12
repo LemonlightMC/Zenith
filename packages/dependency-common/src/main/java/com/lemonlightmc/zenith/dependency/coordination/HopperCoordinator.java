@@ -30,8 +30,8 @@ public final class HopperCoordinator implements Closeable {
   private final FileChannel lockChannel;
   private final FileLock lock;
 
-  private HopperCoordinator(Path coordinationDir, RandomAccessFile lockRaf,
-      FileChannel lockChannel, FileLock lock) {
+  private HopperCoordinator(final Path coordinationDir, final RandomAccessFile lockRaf,
+      final FileChannel lockChannel, final FileLock lock) {
     this.coordinationDir = coordinationDir;
     this.lockRaf = lockRaf;
     this.lockChannel = lockChannel;
@@ -44,15 +44,15 @@ public final class HopperCoordinator implements Closeable {
    * @param coordinationDir the .hopper directory
    * @return the coordinator (must be closed when done)
    */
-  public static HopperCoordinator acquire(Path coordinationDir) throws IOException {
+  public static HopperCoordinator acquire(final Path coordinationDir) throws IOException {
     Files.createDirectories(coordinationDir);
 
-    Path lockPath = coordinationDir.resolve(LOCK_FILE);
-    RandomAccessFile raf = new RandomAccessFile(lockPath.toFile(), "rw");
-    FileChannel channel = raf.getChannel();
+    final Path lockPath = coordinationDir.resolve(LOCK_FILE);
+    final RandomAccessFile raf = new RandomAccessFile(lockPath.toFile(), "rw");
+    final FileChannel channel = raf.getChannel();
 
     // Blocking lock - waits until lock is available
-    FileLock lock = channel.lock();
+    final FileLock lock = channel.lock();
 
     return new HopperCoordinator(coordinationDir, raf, channel, lock);
   }
@@ -63,15 +63,15 @@ public final class HopperCoordinator implements Closeable {
    * @param coordinationDir the .hopper directory
    * @return the coordinator, or null if lock is held by another process
    */
-  public static HopperCoordinator tryAcquire(Path coordinationDir) throws IOException {
+  public static HopperCoordinator tryAcquire(final Path coordinationDir) throws IOException {
     Files.createDirectories(coordinationDir);
 
-    Path lockPath = coordinationDir.resolve(LOCK_FILE);
-    RandomAccessFile raf = new RandomAccessFile(lockPath.toFile(), "rw");
-    FileChannel channel = raf.getChannel();
+    final Path lockPath = coordinationDir.resolve(LOCK_FILE);
+    final RandomAccessFile raf = new RandomAccessFile(lockPath.toFile(), "rw");
+    final FileChannel channel = raf.getChannel();
 
     // Non-blocking lock attempt
-    FileLock lock = channel.tryLock();
+    final FileLock lock = channel.tryLock();
     if (lock == null) {
       channel.close();
       raf.close();
@@ -85,9 +85,9 @@ public final class HopperCoordinator implements Closeable {
    * Load the registry (creates empty one if doesn't exist).
    */
   public LibraryRegistry loadRegistry() throws IOException {
-    Path registryPath = coordinationDir.resolve(REGISTRY_FILE);
+    final Path registryPath = coordinationDir.resolve(REGISTRY_FILE);
     if (Files.exists(registryPath)) {
-      String json = Files.readString(registryPath);
+      final String json = Files.readString(registryPath);
       return LibraryRegistry.fromJson(json);
     }
     return new LibraryRegistry();
@@ -96,8 +96,8 @@ public final class HopperCoordinator implements Closeable {
   /**
    * Save the registry.
    */
-  public void saveRegistry(LibraryRegistry registry) throws IOException {
-    Path registryPath = coordinationDir.resolve(REGISTRY_FILE);
+  public void saveRegistry(final LibraryRegistry registry) throws IOException {
+    final Path registryPath = coordinationDir.resolve(REGISTRY_FILE);
     Files.writeString(registryPath, registry.toJson());
   }
 
@@ -105,9 +105,9 @@ public final class HopperCoordinator implements Closeable {
    * Load the lockfile (creates empty one if doesn't exist).
    */
   public Lockfile loadLockfile() throws IOException {
-    Path lockfilePath = coordinationDir.resolve(LOCKFILE_FILE);
+    final Path lockfilePath = coordinationDir.resolve(LOCKFILE_FILE);
     if (Files.exists(lockfilePath)) {
-      String json = Files.readString(lockfilePath);
+      final String json = Files.readString(lockfilePath);
       return Lockfile.fromJson(json);
     }
     return new Lockfile();
@@ -116,8 +116,8 @@ public final class HopperCoordinator implements Closeable {
   /**
    * Save the lockfile.
    */
-  public void saveLockfile(Lockfile lockfile) throws IOException {
-    Path lockfilePath = coordinationDir.resolve(LOCKFILE_FILE);
+  public void saveLockfile(final Lockfile lockfile) throws IOException {
+    final Path lockfilePath = coordinationDir.resolve(LOCKFILE_FILE);
     Files.writeString(lockfilePath, lockfile.toJson());
   }
 

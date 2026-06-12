@@ -3,9 +3,9 @@ package com.lemonlightmc.zenith.utils;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpClient.Version;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
@@ -58,7 +58,7 @@ public final class HttpUtil {
   }
 
   public static HttpRequest.Builder requestBuilder(final String url, final String method, final List<String> headers) {
-    HttpRequest.Builder builder = requestBuilder(url, method);
+    final HttpRequest.Builder builder = requestBuilder(url, method);
     if (headers == null || headers.isEmpty()) {
       return builder;
     }
@@ -73,14 +73,14 @@ public final class HttpUtil {
 
   public static HttpRequest.Builder requestBuilder(final String url, final String method,
       final Map<String, String> headers) {
-    HttpRequest.Builder builder = requestBuilder(url, method);
+    final HttpRequest.Builder builder = requestBuilder(url, method);
     if (headers == null || headers.isEmpty()) {
       return builder;
     }
     if (headers.size() % 2 != 0) {
       throw new IllegalArgumentException("Headers list must contain an even number of elements (key-value pairs)");
     }
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
+    for (final Map.Entry<String, String> entry : headers.entrySet()) {
       builder.header(entry.getKey(), entry.getValue());
     }
     return builder;
@@ -110,7 +110,11 @@ public final class HttpUtil {
     return head(requestBuilder(url, "HEAD").build());
   }
 
-  public static String get(HttpRequest request) {
+  public static void download(final String url, final Path target) {
+    download(requestBuilder(url, "GET").build(), target);
+  }
+
+  public static String get(final HttpRequest request) {
     if (request == null) {
       return null;
     }
@@ -121,12 +125,12 @@ public final class HttpUtil {
       }
 
       return response.body();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
 
-  public static String put(HttpRequest request) {
+  public static String put(final HttpRequest request) {
     if (request == null) {
       return null;
     }
@@ -137,12 +141,12 @@ public final class HttpUtil {
       }
 
       return response.body();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
 
-  public static String post(HttpRequest request) {
+  public static String post(final HttpRequest request) {
     if (request == null) {
       return null;
     }
@@ -153,12 +157,12 @@ public final class HttpUtil {
       }
 
       return response.body();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
 
-  public static String patch(HttpRequest request) {
+  public static String patch(final HttpRequest request) {
     if (request == null) {
       return null;
     }
@@ -169,12 +173,12 @@ public final class HttpUtil {
       }
 
       return response.body();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
 
-  public static String delete(HttpRequest request) {
+  public static String delete(final HttpRequest request) {
     if (request == null) {
       return null;
     }
@@ -185,12 +189,12 @@ public final class HttpUtil {
       }
 
       return response.body();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
 
-  public static String head(HttpRequest request) {
+  public static String head(final HttpRequest request) {
     if (request == null) {
       return null;
     }
@@ -201,7 +205,7 @@ public final class HttpUtil {
       }
 
       return response.body();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new HttpException("HTTP request failed: " + request.uri().toString(), e);
     }
   }
@@ -227,7 +231,7 @@ public final class HttpUtil {
 
       FileUtils.moveFile(tempFile, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new HttpException("Download failed: " + request.uri().toString(), e);
     }
   }

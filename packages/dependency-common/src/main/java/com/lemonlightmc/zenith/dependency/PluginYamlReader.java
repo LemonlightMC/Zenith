@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Reads minimal metadata (name, version) from the <code>plugin.yml</code> or
  * <code>paper-plugin.yml</code> inside a plugin jar without pulling in a full
- * YAML parser. Used to detect user-installed plugins so Hopper never overwrites
+ * YAML parser. Used to detect user-installed plugins so DependencyAPI never overwrites
  * a jar a server admin put in place themselves.
  */
 public final class PluginYamlReader {

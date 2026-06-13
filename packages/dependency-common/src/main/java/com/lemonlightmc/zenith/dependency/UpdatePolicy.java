@@ -4,7 +4,7 @@ import com.lemonlightmc.zenith.version.Version;
 import com.lemonlightmc.zenith.version.VersionConstraint;
 
 /**
- * Defines how aggressively Hopper should update dependencies.
+ * Defines how aggressively DependencyAPI should update dependencies.
  */
 public enum UpdatePolicy {
   /**

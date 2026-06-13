@@ -26,7 +26,7 @@ public class Processor {
   private final Path coordinationDir;
   private final Map<SourceType, DependencySource> sources;
   // Tracks which plugins have had their dependencies processed successfully.
-  private static final Map<String, Boolean> readyPlugins = new ConcurrentHashMap<>();
+  private final Map<String, Boolean> readyPlugins = new ConcurrentHashMap<>();
 
   public Processor() {
     this.coordinationDir = ZenithProvider.getZenithFolder().resolve(".deps");
@@ -43,41 +43,41 @@ public class Processor {
   /**
    * Download dependencies with coordination.
    */
-  public DownloadResult downloadDependencies(final String pluginName, final List<Dependency> dependencies) {
+  public DownloadResult downloadDependencies(final String pluginName, final Dependency[] dependencies) {
     final DownloadResult.Builder result = DownloadResult.builder();
 
-    try {
-      // Use file-based coordination
-      try (HopperCoordinator coordinator = HopperCoordinator.acquire(coordinationDir)) {
-        // Load or create registry
-        final LibraryRegistry registry = coordinator.loadRegistry();
+    // Use file-based coordination
+    try (HopperCoordinator coordinator = HopperCoordinator.acquire(coordinationDir)) {
+      // Load or create registry
+      final LibraryRegistry registry = coordinator.loadRegistry();
 
-        // Register this plugin's dependencies
-        registry.registerPlugin(pluginName, dependencies);
+      // Register this plugin's dependencies
+      registry.registerPlugin(pluginName, dependencies);
 
-        // Load lockfile
-        final Lockfile lockfile = coordinator.loadLockfile();
+      // Load lockfile
+      final Lockfile lockfile = coordinator.loadLockfile();
 
-        // Process each dependency
-        for (final Dependency dep : dependencies) {
-          try {
-            processDependency(dep, registry, lockfile, result);
-          } catch (final DependencyException e) {
-            handleFailure(dep, e.getMessage(), result);
-          } catch (final Exception e) {
-            handleFailure(dep, e.getMessage(), result);
-          }
+      // Process each dependency
+      for (final Dependency dep : dependencies) {
+        try {
+          processDependency(dep, registry, lockfile, result);
+        } catch (final DependencyException e) {
+          handleFailure(dep, e.getMessage(), result);
+        } catch (final Exception e) {
+          handleFailure(dep, e.getMessage(), result);
         }
-
-        // Save updated registry and lockfile
-        coordinator.saveRegistry(registry);
-        coordinator.saveLockfile(lockfile);
       }
 
-      // Mark plugin as ready if successful (centralized in DependencyHandler)
+      // Save updated registry and lockfile
+      coordinator.saveRegistry(registry);
+      coordinator.saveLockfile(lockfile);
+
+      // Mark plugin as ready if successful
       if (result.isCurrentlySuccessful()) {
-        setReady(pluginName, true);
+        readyPlugins.put(pluginName, true);
       }
+    } catch (final IOException e) {
+      Logger.warn("Failed to process dependencies (Aquiring Coordinator): " + e.getMessage());
     } catch (final Exception e) {
       Logger.warn("Failed to process dependencies: " + e.getMessage());
     }
@@ -112,7 +112,7 @@ public class Processor {
     }
 
     // Respect any jar the user (or another plugin) has already installed under
-    // a different filename. Exclude the lockfile-tracked jar so Hopper's own
+    // a different filename. Exclude the lockfile-tracked jar so DependencyAPI's own
     // stale download doesn't block a legitimate upgrade to a new constraint.
     final List<PluginYamlReader.Match> installed = PluginYamlReader.findAll(ZenithProvider.getPluginsFolder(), depName);
     if (lockedEntry != null) {
@@ -126,7 +126,7 @@ public class Processor {
       if (installedVersion == null) {
         installedVersion = Version.trySemver("0.0.0");
       }
-      Logger.info("[Hopper] " + depName + " already installed as "
+      Logger.info("[DependencyAPI] " + depName + " already installed as "
           + chosen.path().getFileName()
           + (detectedVersion != null ? " v" + detectedVersion : "")
           + " - skipping download");
@@ -188,7 +188,7 @@ public class Processor {
     }
 
     // Download
-    Logger.info("[Hopper] Downloading " + depName + " " + selected + "...");
+    Logger.info("[DependencyAPI] Downloading " + depName + " " + selected + "...");
     Logger.info("  Downloading from: " + resolved.downloadUrl());
     HttpUtil.download(resolved.downloadUrl(), targetPath);
 
@@ -248,15 +248,15 @@ public class Processor {
       case FAIL:
         result.addFailed(depName, error, policy);
         // Errors are always logged (they're important regardless of verbosity)
-        Logger.error("[Hopper] " + depName + " FAILED: " + error);
+        Logger.error("[DependencyAPI] " + depName + " FAILED: " + error);
         break;
       case WARN_USE_LATEST:
         result.addFailed(depName, error, policy);
-        Logger.warn("[Hopper] " + depName + " WARNING: " + error);
+        Logger.warn("[DependencyAPI] " + depName + " WARNING: " + error);
         break;
       case WARN_SKIP:
         result.addSkipped(depName, error);
-        Logger.warn("[Hopper] " + depName + " SKIPPED: " + error);
+        Logger.warn("[DependencyAPI] " + depName + " SKIPPED: " + error);
         break;
     }
   }
@@ -272,16 +272,5 @@ public class Processor {
     }
     sources.put(type, source);
     return source;
-  }
-
-  /**
-   * Mark a plugin as ready (or not).
-   */
-  public static void setReady(final String key, final boolean ready) {
-    if (ready) {
-      readyPlugins.put(key, true);
-    } else {
-      readyPlugins.remove(key);
-    }
   }
 }

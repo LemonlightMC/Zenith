@@ -5,11 +5,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.lemonlightmc.zenith.files.FileUtils;
+
 /**
- * Coordinates multiple Hopper instances (from different plugins) via filesystem
+ * Coordinates multiple DependencyAPI instances (from different plugins) via filesystem
  * locks.
  * <p>
  * This ensures that only one plugin at a time can:
@@ -43,41 +44,16 @@ public final class HopperCoordinator implements Closeable {
    *
    * @param coordinationDir the .hopper directory
    * @return the coordinator (must be closed when done)
+   * @throws IOException
    */
   public static HopperCoordinator acquire(final Path coordinationDir) throws IOException {
-    Files.createDirectories(coordinationDir);
+    FileUtils.mkdirs(coordinationDir);
 
-    final Path lockPath = coordinationDir.resolve(LOCK_FILE);
-    final RandomAccessFile raf = new RandomAccessFile(lockPath.toFile(), "rw");
+    final RandomAccessFile raf = new RandomAccessFile(coordinationDir.resolve(LOCK_FILE).toFile(), "rw");
     final FileChannel channel = raf.getChannel();
 
     // Blocking lock - waits until lock is available
     final FileLock lock = channel.lock();
-
-    return new HopperCoordinator(coordinationDir, raf, channel, lock);
-  }
-
-  /**
-   * Try to acquire the coordination lock without blocking.
-   *
-   * @param coordinationDir the .hopper directory
-   * @return the coordinator, or null if lock is held by another process
-   */
-  public static HopperCoordinator tryAcquire(final Path coordinationDir) throws IOException {
-    Files.createDirectories(coordinationDir);
-
-    final Path lockPath = coordinationDir.resolve(LOCK_FILE);
-    final RandomAccessFile raf = new RandomAccessFile(lockPath.toFile(), "rw");
-    final FileChannel channel = raf.getChannel();
-
-    // Non-blocking lock attempt
-    final FileLock lock = channel.tryLock();
-    if (lock == null) {
-      channel.close();
-      raf.close();
-      return null;
-    }
-
     return new HopperCoordinator(coordinationDir, raf, channel, lock);
   }
 
@@ -86,9 +62,8 @@ public final class HopperCoordinator implements Closeable {
    */
   public LibraryRegistry loadRegistry() throws IOException {
     final Path registryPath = coordinationDir.resolve(REGISTRY_FILE);
-    if (Files.exists(registryPath)) {
-      final String json = Files.readString(registryPath);
-      return LibraryRegistry.fromJson(json);
+    if (FileUtils.exists(registryPath)) {
+      return LibraryRegistry.fromJson(FileUtils.readString(registryPath));
     }
     return new LibraryRegistry();
   }
@@ -97,8 +72,7 @@ public final class HopperCoordinator implements Closeable {
    * Save the registry.
    */
   public void saveRegistry(final LibraryRegistry registry) throws IOException {
-    final Path registryPath = coordinationDir.resolve(REGISTRY_FILE);
-    Files.writeString(registryPath, registry.toJson());
+    FileUtils.write(coordinationDir.resolve(REGISTRY_FILE), registry.toJson());
   }
 
   /**
@@ -106,9 +80,8 @@ public final class HopperCoordinator implements Closeable {
    */
   public Lockfile loadLockfile() throws IOException {
     final Path lockfilePath = coordinationDir.resolve(LOCKFILE_FILE);
-    if (Files.exists(lockfilePath)) {
-      final String json = Files.readString(lockfilePath);
-      return Lockfile.fromJson(json);
+    if (FileUtils.exists(lockfilePath)) {
+      return Lockfile.fromJson(FileUtils.readString(lockfilePath));
     }
     return new Lockfile();
   }
@@ -117,8 +90,7 @@ public final class HopperCoordinator implements Closeable {
    * Save the lockfile.
    */
   public void saveLockfile(final Lockfile lockfile) throws IOException {
-    final Path lockfilePath = coordinationDir.resolve(LOCKFILE_FILE);
-    Files.writeString(lockfilePath, lockfile.toJson());
+    FileUtils.write(coordinationDir.resolve(LOCKFILE_FILE), lockfile.toJson());
   }
 
   @Override

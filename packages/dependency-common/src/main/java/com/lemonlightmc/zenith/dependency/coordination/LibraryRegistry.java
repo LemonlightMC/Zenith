@@ -47,7 +47,7 @@ public final class LibraryRegistry {
   /**
    * Register a plugin's dependencies, merging with existing registrations.
    */
-  public void registerPlugin(final String pluginName, final List<Dependency> dependencies) {
+  public void registerPlugin(final String pluginName, final Dependency[] dependencies) {
     for (final Dependency dep : dependencies) {
       final String depName = dep.name();
       DependencyRegistration reg = registrations.get(depName);

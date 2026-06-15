@@ -43,6 +43,8 @@ public interface IZenithPlugin extends Plugin {
   @Override
   public java.util.logging.Logger getLogger();
 
+  public org.slf4j.Logger getSLFJLogger();
+
   public MessageStore getMessageStore();
 
   @Deprecated

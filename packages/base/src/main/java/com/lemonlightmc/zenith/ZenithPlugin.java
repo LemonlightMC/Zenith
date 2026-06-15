@@ -14,6 +14,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 
+import com.lemonlightmc.zenith.base.logger.BukkitLoggerAdapter;
 import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
@@ -26,7 +27,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     implements com.lemonlightmc.zenith.IZenithPlugin {
 
   private final Scheduler scheduler;
-
+  private final BukkitLoggerAdapter adapter;
   private final PluginInfo info;
   private final MessageStore messageStore;
 
@@ -35,6 +36,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     this.info = new PluginInfo(getDescription());
     this.scheduler = new Scheduler();
     messageStore = new MessageStore();
+    adapter = new BukkitLoggerAdapter(Bukkit.getServer().getLogger(), info.getName());
     ZenithProvider.setInstance(this);
   }
 
@@ -83,8 +85,8 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   }
 
   @Override
-  public java.util.logging.Logger getLogger() {
-    return Bukkit.getServer().getLogger();
+  public org.slf4j.Logger getSLFJLogger() {
+    return adapter;
   }
 
   public MessageStore getMessageStore() {

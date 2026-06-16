@@ -4,9 +4,9 @@
 [![Java](https://img.shields.io/badge/Java-21-orange)](https://openjdk.java.net/)
 [![Gradle](https://img.shields.io/badge/Gradle-8.14.2-02303A)](https://gradle.org/)
 
-> Elevate your Minecraft server plugins with Zenith – a comprehensive suite of utilities, APIs, and integrations designed for modern Bukkit/Spigot development.
+> Elevate your Minecraft Server plugins with Zenith – a comprehensive suite of utilities, APIs, and integrations designed for modern Bukkit/Spigot development.
 
-Zenith is a powerful, modular library that provides developers with essential tools to build feature-rich plugins with performance in mind for Minecraft servers. Zenith streamlines plugin development and enhances server capabilities.
+A powerful, modular library that provides developers with essential tools to build feature-rich plugins with performance in mind for Minecraft servers. Zenith streamlines plugin development and enhances server capabilities.
 
 ## ✨ Features
 

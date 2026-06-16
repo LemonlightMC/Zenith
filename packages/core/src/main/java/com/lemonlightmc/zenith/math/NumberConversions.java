@@ -46,21 +46,21 @@ public class NumberConversions {
     return toInt(str, 10);
   }
 
-  public static Integer toInt(final String str, int radix) {
+  public static Integer toInt(final String str, final int radix) {
     try {
-      return parseInt(str.toString(), radix);
+      return parseInt(str, radix);
     } catch (final NumberFormatException e) {
     } catch (final NullPointerException e) {
     }
     return 0;
   }
 
-  public static Long toLong(final String str, int radix) {
+  public static Long toLong(final String str, final int radix) {
     if (str == null) {
       return 0l;
     }
     try {
-      return Long.valueOf(str.toString(), radix);
+      return parseLong(str, radix);
     } catch (final Exception e) {
     }
     return 0l;
@@ -71,29 +71,29 @@ public class NumberConversions {
       return (short) 0;
     }
     try {
-      return Short.valueOf(str.toString());
+      return parseShort(str);
     } catch (final Exception e) {
     }
     return (short) 0;
   }
 
   public static Float toFloat(final String str) {
-    if (str == null) {
+    if (str == null || str.isEmpty()) {
       return 0f;
     }
     try {
-      return Float.valueOf(str.toString());
+      return Float.valueOf(str);
     } catch (final Exception e) {
     }
     return 0f;
   }
 
   public static Double toDouble(final String str) {
-    if (str == null) {
+    if (str == null || str.isEmpty()) {
       return 0d;
     }
     try {
-      return Double.valueOf(str.toString());
+      return Double.valueOf(str);
     } catch (final Exception e) {
     }
     return 0d;
@@ -108,7 +108,7 @@ public class NumberConversions {
       return (short) 0;
     }
     try {
-      return Byte.valueOf(str.toString());
+      return Byte.valueOf(str);
     } catch (final Exception e) {
     }
     return (short) 0;

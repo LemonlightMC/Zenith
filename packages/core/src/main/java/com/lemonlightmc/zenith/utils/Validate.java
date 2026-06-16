@@ -598,43 +598,6 @@ public final class Validate {
   }
 
   /**
-   * Asserts that string is not blank. If it is blank, an exception will be
-   * thrown. Blank means null, empty, or whitespace-only.
-   *
-   * @param string string to be asserted
-   * @return valid nonblank string
-   * @throws IllegalArgumentException thrown if the string is invalid in any way
-   */
-  public static String notBlank(final String string) throws IllegalArgumentException {
-    return assertNonEmpty(string);
-  }
-
-  public static String notBlank(final String string, final String variable_name) throws IllegalArgumentException {
-    return assertNonEmpty(string, variable_name);
-  }
-
-  /**
-   * Asserts that string is not empty. If it is empty, an exception will be
-   * thrown. Empty means null or an empty string, but whitespace is allowed.
-   *
-   * @param string string to be asserted
-   * @return valid nonempty string
-   * @throws IllegalArgumentException thrown if the string is invalid in any way
-   */
-  public static String notEmpty(final String string) throws IllegalArgumentException {
-    return notEmpty(string, null);
-  }
-
-  public static String notEmpty(final String string, final String variable_name) throws IllegalArgumentException {
-    final String normalized = innerAssertNonNull(string, variable_name, 1);
-    if (!normalized.equals(""))
-      return normalized;
-
-    // Otherwise go ahead and throw exception
-    throw createException(variable_name, EMPTY_STRING_MESSAGE, 0);
-  }
-
-  /**
    * Asserts that the object is an instance of the provided type. If it is not,
    * an exception will be thrown.
    *
@@ -685,7 +648,7 @@ public final class Validate {
   }
 
   /**
-   * Asserts that string is not an empty string. If it is an empty string, then an
+   * Asserts that string is not an blank string. If it is an blank string, then an
    * exception will be thrown.
    * White space is considered empty space so if string consists of four spaces
    * with nothing else, then it is considered to be empty.
@@ -694,7 +657,7 @@ public final class Validate {
    * @return valid nonempty string
    * @throws IllegalArgumentException thrown if the string is invalid in any way
    */
-  public static String assertNonEmpty(final String string) throws IllegalArgumentException {
+  public static String assertNonBlank(final String string) throws IllegalArgumentException {
     return assertNonEmpty(string, null);
   }
 
@@ -709,10 +672,44 @@ public final class Validate {
    * @return valid nonempty string
    * @throws IllegalArgumentException thrown if the string is invalid in any way
    */
+  public static String assertNonBlank(final String string, final String variable_name)
+      throws IllegalArgumentException {
+    if (string != null && !string.isBlank())
+      return string;
+
+    // Otherwise go ahead and throw exception
+    throw createException(variable_name, EMPTY_STRING_MESSAGE, 0);
+  }
+
+  /**
+   * Asserts that string is not an empty string. If it is an empty string, then an
+   * exception will be thrown.
+   * White space is are not considered empty space so if string consists of four
+   * spaces with nothing else, then it is considered NOT empty.
+   *
+   * @param string string to be asserted
+   * @return valid nonempty string
+   * @throws IllegalArgumentException thrown if the string is invalid in any way
+   */
+  public static String assertNonEmpty(final String string) throws IllegalArgumentException {
+    return assertNonEmpty(string, null);
+  }
+
+  /**
+   * Asserts that string is not an empty string. If it is an empty string, then an
+   * exception will be thrown.
+   * White space is are not considered empty space so if string consists of four
+   * spaces with nothing else, then it is considered NOT empty.
+   *
+   * @param string        string to be asserted
+   * @param variable_name name of variable
+   * @return valid nonempty string
+   * @throws IllegalArgumentException thrown if the string is invalid in any way
+   */
   public static String assertNonEmpty(String string, final String variable_name)
       throws IllegalArgumentException {
     string = innerAssertNonNull(string, variable_name, 1);
-    if (!string.trim().equals(""))
+    if (string != null && !string.isEmpty())
       return string;
 
     // Otherwise go ahead and throw exception
@@ -831,10 +828,10 @@ public final class Validate {
    * @param set           set to be asserted
    * @param empty_allowed true to allow an empty set, false to assert a non-empty
    *                      set
-   * @return valid nonnull set
+   * @return valid NonNull set
    * @throws IllegalArgumentException thrown if the set is invalid in any way
    */
-  public static <T> Set<T> assertNonnullElements(final Set<T> set, final boolean empty_allowed)
+  public static <T> Set<T> assertNonNullElements(final Set<T> set, final boolean empty_allowed)
       throws IllegalArgumentException {
     return innerAssertNonNullElements(set, null, empty_allowed);
   }
@@ -849,10 +846,10 @@ public final class Validate {
    * @param variable_name name of variable
    * @param empty_allowed true to allow an empty set, false to assert a non-empty
    *                      set
-   * @return valid nonnull set
+   * @return valid NonNull set
    * @throws IllegalArgumentException thrown if the set is invalid in any way
    */
-  public static <T> Set<T> assertNonnullElements(
+  public static <T> Set<T> assertNonNullElements(
       final Set<T> set,
       final String variable_name,
       final boolean empty_allowed)
@@ -870,7 +867,7 @@ public final class Validate {
    * @param variable_name name of variable
    * @param empty_allowed true to allow an empty set, false to assert a non-empty
    *                      set
-   * @return valid nonnull set
+   * @return valid NonNull set
    * @throws IllegalArgumentException thrown if the set is invalid in any way
    */
   private static <T> Set<T> innerAssertNonNullElements(
@@ -897,11 +894,11 @@ public final class Validate {
    * @param collection    collection to be asserted
    * @param empty_allowed true to allow an empty collection, false to assert a
    *                      non-empty collection
-   * @return valid nonnull collection
+   * @return valid NonNull collection
    * @throws IllegalArgumentException thrown if the collection is invalid in any
    *                                  way
    */
-  public static <T> Collection<T> assertNonnullElements(final Collection<T> collection, final boolean empty_allowed)
+  public static <T> Collection<T> assertNonNullElements(final Collection<T> collection, final boolean empty_allowed)
       throws IllegalArgumentException {
     if (collection instanceof Set)
       return innerAssertNonNullElements((Set<T>) collection, null, empty_allowed);
@@ -919,11 +916,11 @@ public final class Validate {
    * @param variable_name name of variable
    * @param empty_allowed true to allow an empty collection, false to assert a
    *                      non-empty collection
-   * @return valid nonnull collection
+   * @return valid NonNull collection
    * @throws IllegalArgumentException thrown if the collection is invalid in any
    *                                  way
    */
-  public static <T> Collection<T> assertNonnullElements(
+  public static <T> Collection<T> assertNonNullElements(
       final Collection<T> collection,
       final String variable_name,
       final boolean empty_allowed) throws IllegalArgumentException {
@@ -943,7 +940,7 @@ public final class Validate {
    * @param variable_name name of variable
    * @param empty_allowed true to allow an empty collection, false to assert a
    *                      non-empty collection
-   * @return valid nonnull collection
+   * @return valid NonNull collection
    * @throws IllegalArgumentException thrown if the collection is invalid in any
    *                                  way
    */
@@ -967,10 +964,10 @@ public final class Validate {
    * @param array         array to be asserted
    * @param empty_allowed true to allow an empty array, false to assert a
    *                      non-empty array
-   * @return valid nonnull array
+   * @return valid NonNull array
    * @throws IllegalArgumentException thrown if the array is invalid in any way
    */
-  public static <T> T[] assertNonnullElements(final T[] array, final boolean empty_allowed)
+  public static <T> T[] assertNonNullElements(final T[] array, final boolean empty_allowed)
       throws IllegalArgumentException {
     return innerAssertNonNullElements(array, null, empty_allowed, 0);
   }
@@ -985,7 +982,7 @@ public final class Validate {
    * @param variable_name name of variable
    * @param empty_allowed true to allow an empty array, false to assert a
    *                      non-empty array
-   * @return valid nonnull array
+   * @return valid NonNull array
    * @throws IllegalArgumentException thrown if the array is invalid in any way
    */
   public static <T> T[] assertNonNullElements(
@@ -1006,7 +1003,7 @@ public final class Validate {
    * @param empty_allowed true to allow an empty array, false to assert a
    *                      non-empty array
    * @param level         level of calls. This is used to adjust the stacktrace.
-   * @return valid nonnull array
+   * @return valid NonNull array
    * @throws IllegalArgumentException thrown if the array is invalid in any way
    */
 

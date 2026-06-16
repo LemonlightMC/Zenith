@@ -24,22 +24,27 @@ public class StringUtils {
   }
 
   public static String applyReplacements(String message, final String... replacements) {
-    if (message == null || message.length() == 0)
+    if (message == null || message.length() == 0) {
       return null;
-    final int len = replacements.length;
+    }
+    final int len = replacements.length - 1;
+    if (len < 1) {
+      return message;
+    }
     for (int i = 0; i < len; i += 2) {
-      if (i >= len) {
-        break;
-      }
       message = message.replaceAll(replacements[i], replacements[i + 1]);
     }
     return message;
   }
 
   public static String applyReplacements(String message, final Replaceable... replacements) {
-    if (message == null || message.length() == 0)
+    if (message == null || message.length() == 0) {
       return null;
-    message = message.replace("\\n", "\n");
+    }
+    final int len = replacements.length;
+    if (len == 0) {
+      return message;
+    }
     for (int i = 0; i < replacements.length; i++) {
       message = replacements[i].apply(message);
     }

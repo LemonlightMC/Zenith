@@ -17,7 +17,7 @@ public class ColorUtils {
       return Color.fromRGB(decodedColor.getRed(), decodedColor.getGreen(), decodedColor.getBlue());
     } catch (final NumberFormatException invalidHex) {
       try {
-        final var rgbValues = Arrays.stream(color.split(",")).map(Integer::parseInt).toArray(Integer[]::new);
+        final var rgbValues = Arrays.stream(color.split(",")).map(NumberConversions::toInt).toArray(Integer[]::new);
         return Color.fromRGB(rgbValues[0], rgbValues[1], rgbValues[2]);
       } catch (final Exception invalidRgb) {
         return null;

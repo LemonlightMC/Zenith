@@ -1,7 +1,6 @@
 package com.lemonlightmc.zenith.config.schema;
 
 import java.util.Optional;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import com.lemonlightmc.zenith.messages.Logger;
@@ -120,7 +119,6 @@ public class SchemaPair<T> extends SchemaNode {
   public int hashCode() {
     int result = 31 * super.hashCode() + ((value == null) ? 0 : value.hashCode());
     result = 31 * result + ((def == null) ? 0 : def.hashCode());
-    result = 31 * result + type.hashCode();
     return 31 * result + ((validator == null) ? 0 : validator.hashCode());
   }
 
@@ -133,12 +131,15 @@ public class SchemaPair<T> extends SchemaNode {
       return false;
     }
     final SchemaPair<?> other = (SchemaPair<?>) obj;
-    return Objects.equals(value, other.value) && Objects.equals(def, other.def) && type.equals(other.type)
-        && Objects.equals(validator, other.validator);
+    if (value == null && other.value != null || def == null && other.def != null
+        || validator == null && other.validator != null) {
+      return false;
+    }
+    return value.equals(other.value) && def.equals(other.def) && validator.equals(other.validator);
   }
 
   @Override
   public String toString() {
-    return "SchemaPair [path=" + path + ", type=" + type + ", value=" + value + ", def=" + def + "]";
+    return "SchemaPair [value=" + value + ", def=" + def + ", validator=" + validator + "]";
   }
 }

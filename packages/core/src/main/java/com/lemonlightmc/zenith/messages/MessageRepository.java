@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.function.Function;
@@ -302,12 +301,14 @@ public abstract class MessageRepository<T extends MessageRepository<T>> implemen
       return false;
     }
     final MessageRepository<?> other = (MessageRepository<?>) obj;
-    return Float.floatToIntBits(progress) == Float.floatToIntBits(other.progress)
+    if (name == null && other.name != null || version == null && other.version != null
+        || description == null && other.description != null || contributors == null && other.contributors != null) {
+      return false;
+    }
+    return Float.floatToIntBits(progress) != Float.floatToIntBits(other.progress)
         && locale.equals(other.locale)
-        && Objects.equals(version, other.version)
-        && Objects.equals(name, other.name)
-        && Objects.equals(description, other.description)
-        && Objects.equals(contributors, other.contributors);
+        && version.equals(other.version)
+        && name.equals(other.name);
   }
 
   @Override

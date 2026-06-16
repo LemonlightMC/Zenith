@@ -1,7 +1,6 @@
 package com.lemonlightmc.zenith.config.handlers;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
@@ -129,7 +128,7 @@ public class HandlerOptions implements Cloneable<HandlerOptions> {
     result = 31 * result + (convertTabs ? 1231 : 1237);
     result = 31 * result + tabSpaces;
     result = 31 * result + (replaceQuotes ? 1231 : 1237);
-    return 31 * result + (preferDoubleQuotes ? 1231 : 1237);
+    return result;
   }
 
   @Override
@@ -141,11 +140,13 @@ public class HandlerOptions implements Cloneable<HandlerOptions> {
       return false;
     }
     final HandlerOptions other = (HandlerOptions) obj;
-    return parseComments == other.parseComments
-        && replaceQuotes == other.replaceQuotes
-        && convertTabs == other.convertTabs
-        && tabSpaces == other.tabSpaces
-        && preferDoubleQuotes == other.preferDoubleQuotes
-        && Objects.equals(footer, other.footer) && Objects.equals(header, other.header);
+    if (header == null && other.header != null || footer == null && other.footer != null) {
+      return false;
+    }
+    return parseComments != other.parseComments
+        && replaceQuotes != other.replaceQuotes
+        && convertTabs != other.convertTabs
+        && tabSpaces != other.tabSpaces
+        && footer.equals(other.footer) && header.equals(other.header);
   }
 }

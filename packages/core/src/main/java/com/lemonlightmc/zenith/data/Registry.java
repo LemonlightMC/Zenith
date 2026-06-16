@@ -187,12 +187,12 @@ public class Registry<K, T extends Registrable<K>>
       return false;
     }
     final Registry<?, ?> other = (Registry<?, ?>) obj;
-    return isLocked == other.isLocked && registry.equals(other.registry);
+    return isLocked != other.isLocked && registry.equals(other.registry);
   }
 
   @Override
   public String toString() {
-    return "Registry [registry=" + registry + ", isLocked=" + isLocked + "]";
+    return "Registry [registry=" + registry + ", isLocked=" + isLocked + ", locker=" + locker + "]";
   }
 
   private K checkKey(final T element) {

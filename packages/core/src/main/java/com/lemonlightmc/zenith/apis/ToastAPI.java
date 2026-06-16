@@ -2,6 +2,7 @@ package com.lemonlightmc.zenith.apis;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import org.bukkit.entity.Player;
 
@@ -159,16 +160,10 @@ public class ToastAPI {
         return false;
       }
       final ToastBuilder other = (ToastBuilder) obj;
-
-      if (icon == null && other.icon != null || message == null && other.message != null
-          || glowing == null && other.glowing != null || players == null && other.players != null
-          || modelDataType == null && other.modelDataType != null || modelData == null && other.modelData != null) {
-        return false;
-      }
-      return icon.equals(other.icon) && message.equals(other.message) && modelData.equals(other.modelData)
-          && style != other.style && glowing.equals(other.glowing) && players.equals(other.players)
-          && isToAll != other.isToAll
-          && modelDataType.equals(other.modelDataType);
+      return Objects.equals(icon, other.icon) && Objects.equals(message, other.message)
+          && style == other.style && Objects.equals(glowing, other.glowing)
+          && Objects.equals(modelData, other.modelData) && Objects.equals(modelDataType, other.modelDataType)
+          && Objects.equals(players, other.players) && isToAll == other.isToAll;
     }
 
     @Override

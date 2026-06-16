@@ -3,6 +3,7 @@ package com.lemonlightmc.zenith.commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
@@ -314,11 +315,8 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
       return false;
     }
     final SimpleCommand other = (SimpleCommand) obj;
-    if (helpMessage == null && other.helpMessage != null) {
-      return false;
-    }
     return key.equals(other.key) && Arrays.equals(usageDescription, other.usageDescription)
-        && helpMessage.equals(other.helpMessage);
+        && Objects.equals(helpMessage, other.helpMessage);
   }
 
   @Override

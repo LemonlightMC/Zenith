@@ -1,6 +1,7 @@
 package com.lemonlightmc.zenith.config.handlers;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -275,21 +276,16 @@ public class ConfigOptions extends HandlerOptions {
       return false;
     }
     final ConfigOptions other = (ConfigOptions) obj;
-    if (onLoad == null && other.onLoad != null || onMigrate == null && other.onMigrate != null
-        || onReload == null && other.onReload != null || onSave == null && other.onSave != null) {
-      return false;
-    }
-    return pathSeparator != other.pathSeparator
-        && createDefaults != other.createDefaults
-        && autoLoad != other.autoLoad
-        && autoMigrate != other.autoMigrate
-        && autoReload != other.autoReload
-        && autoSave != other.autoSave
-        && onLoad.equals(other.onLoad)
-        && onMigrate.equals(other.onMigrate)
-        && onReload.equals(other.onReload)
-        && onSave.equals(other.onSave)
-        && footer.equals(other.footer) && header.equals(other.header);
+    return pathSeparator == other.pathSeparator
+        && createDefaults == other.createDefaults
+        && autoLoad == other.autoLoad
+        && autoMigrate == other.autoMigrate
+        && autoReload == other.autoReload
+        && autoSave == other.autoSave
+        && Objects.equals(onLoad, other.onLoad)
+        && Objects.equals(onMigrate, other.onMigrate)
+        && Objects.equals(onReload, other.onReload)
+        && Objects.equals(onSave, other.onSave);
   }
 
 }

@@ -227,8 +227,8 @@ public abstract class Playable implements Cloneable {
         return false;
       final PlayableBuilder other = (PlayableBuilder) obj;
       return source == other.source && panning == other.panning && seed == other.seed && isStereo == other.isStereo
-          && Double.doubleToLongBits(volume) != Double.doubleToLongBits(other.volume)
-          && Double.doubleToLongBits(pitch) != Double.doubleToLongBits(other.pitch);
+          && Double.doubleToLongBits(volume) == Double.doubleToLongBits(other.volume)
+          && Double.doubleToLongBits(pitch) == Double.doubleToLongBits(other.pitch);
     }
 
     @Override

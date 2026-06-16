@@ -1,5 +1,6 @@
 package com.lemonlightmc.zenith.config.schema;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -131,15 +132,12 @@ public class SchemaPair<T> extends SchemaNode {
       return false;
     }
     final SchemaPair<?> other = (SchemaPair<?>) obj;
-    if (value == null && other.value != null || def == null && other.def != null
-        || validator == null && other.validator != null) {
-      return false;
-    }
-    return value.equals(other.value) && def.equals(other.def) && validator.equals(other.validator);
+    return Objects.equals(value, other.value) && Objects.equals(def, other.def) && type.equals(other.type)
+        && Objects.equals(validator, other.validator);
   }
 
   @Override
   public String toString() {
-    return "SchemaPair [value=" + value + ", def=" + def + ", validator=" + validator + "]";
+    return "SchemaPair [path=" + path + ", type=" + type + ", value=" + value + ", def=" + def + "]";
   }
 }

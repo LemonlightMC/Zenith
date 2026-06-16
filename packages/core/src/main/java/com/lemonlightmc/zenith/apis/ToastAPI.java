@@ -2,6 +2,7 @@ package com.lemonlightmc.zenith.apis;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import org.bukkit.entity.Player;
 
@@ -65,7 +66,7 @@ public class ToastAPI {
     private String message = "Toast Message";
     private ToastType style = ToastType.TASK;
     private Object modelData;
-    private Boolean glowing = false;
+    private boolean glowing = false;
     private Collection<? extends Player> players;
     private boolean isToAll = false;
     private String modelDataType = null;
@@ -143,10 +144,10 @@ public class ToastAPI {
       int result = 31 + ((icon == null) ? 0 : icon.hashCode());
       result = 31 * result + ((message == null) ? 0 : message.hashCode());
       result = 31 * result + ((style == null) ? 0 : style.hashCode());
-      result = 31 * result + ((glowing == null) ? 0 : glowing.hashCode());
       result = 31 * result + ((modelData == null) ? 0 : modelData.hashCode());
       result = 31 * result + ((modelDataType == null) ? 0 : modelDataType.hashCode());
       result = 31 * result + ((players == null) ? 0 : players.hashCode());
+      result = 31 * result + (glowing ? 1231 : 1237);
       return 31 * result + (isToAll ? 1231 : 1237);
     }
 
@@ -159,16 +160,12 @@ public class ToastAPI {
         return false;
       }
       final ToastBuilder other = (ToastBuilder) obj;
-
-      if (icon == null && other.icon != null || message == null && other.message != null
-          || glowing == null && other.glowing != null || players == null && other.players != null
-          || modelDataType == null && other.modelDataType != null || modelData == null && other.modelData != null) {
-        return false;
-      }
-      return icon.equals(other.icon) && message.equals(other.message) && modelData.equals(other.modelData)
-          && style != other.style && glowing.equals(other.glowing) && players.equals(other.players)
-          && isToAll != other.isToAll
-          && modelDataType.equals(other.modelDataType);
+      return Objects.equals(message, other.message)
+          && Objects.equals(icon, other.icon)
+          && isToAll == other.isToAll && glowing == other.glowing
+          && Objects.equals(style, other.style)
+          && Objects.equals(modelData, other.modelData) && Objects.equals(modelDataType, other.modelDataType)
+          && Objects.equals(players, other.players);
     }
 
     @Override

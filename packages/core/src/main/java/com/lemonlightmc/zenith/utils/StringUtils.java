@@ -15,6 +15,36 @@ public class StringUtils {
     }
   }
 
+  public static String format(final String messagePattern, final Object arg1) {
+    if (messagePattern == null || messagePattern.isEmpty()) {
+      return "";
+    }
+    if (arg1 == null) {
+      return messagePattern;
+    }
+    return StringFormatter.format(messagePattern, new Object[] { arg1 });
+  }
+
+  public static String format(final String messagePattern, final Object arg1, final Object arg2) {
+    if (messagePattern == null || messagePattern.isEmpty()) {
+      return "";
+    }
+    if (arg1 == null && arg2 == null) {
+      return messagePattern;
+    }
+    return StringFormatter.format(messagePattern, new Object[] { arg1, arg2 });
+  }
+
+  public static String format(final String messagePattern, final Object[] argArray) {
+    if (messagePattern == null || messagePattern.isEmpty()) {
+      return "";
+    }
+    if (argArray == null || argArray.length == 0) {
+      return messagePattern;
+    }
+    return StringFormatter.format(messagePattern, argArray);
+  }
+
   public static boolean isBlank(final String str) {
     return str == null || str.length() == 0;
   }

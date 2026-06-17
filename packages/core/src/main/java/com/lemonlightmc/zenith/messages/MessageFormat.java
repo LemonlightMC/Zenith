@@ -21,6 +21,8 @@ import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
+// TODO: Rewrite completely 
+// (https://github.com/PlaceholderAPI/PlaceholderAPI/blob/master/src/main/java/me/clip/placeholderapi/util/Format.java)
 public record MessageFormat(String prefix, boolean prefixEachLine,
     String suffix, boolean suffixEachLine, boolean withColors, boolean withPlaceholders, int maxWidth,
     boolean wrapLines,
@@ -202,6 +204,10 @@ public record MessageFormat(String prefix, boolean prefixEachLine,
       }
     }
     return out.toString();
+  }
+
+  public static enum TextAlign {
+    LEFT, RIGHT
   }
 
   public Map<String, Object> serialize() {

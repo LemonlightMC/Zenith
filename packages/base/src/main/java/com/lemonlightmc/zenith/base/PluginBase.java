@@ -19,6 +19,7 @@ import com.lemonlightmc.zenith.base.events.PluginReloadEvent;
 import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.messages.MessageStore;
+import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.version.Version;
@@ -106,7 +107,7 @@ public abstract class PluginBase implements IPlugin {
     }
     messageStore.loadAll();
     if (scheduler == null) {
-      scheduler = new Scheduler();
+      scheduler = new BukkitScheduler();
     }
     if (Configurate.options().createDefaults()) {
       Configurate.createDefaults();

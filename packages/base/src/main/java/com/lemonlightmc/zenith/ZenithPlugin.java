@@ -19,6 +19,7 @@ import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.messages.MessageStore;
+import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.version.Version;
@@ -26,7 +27,7 @@ import com.lemonlightmc.zenith.version.Version;
 public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     implements com.lemonlightmc.zenith.IZenithPlugin {
 
-  private final Scheduler scheduler;
+  private final BukkitScheduler scheduler;
   private final BukkitLoggerAdapter adapter;
   private final PluginInfo info;
   private final MessageStore messageStore;
@@ -34,7 +35,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   public ZenithPlugin() {
     super();
     this.info = new PluginInfo(getDescription());
-    this.scheduler = new Scheduler();
+    this.scheduler = new BukkitScheduler();
     messageStore = new MessageStore();
     adapter = new BukkitLoggerAdapter(Bukkit.getServer().getLogger(), info.getName());
     ZenithProvider.setInstance(this);
@@ -80,6 +81,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     return Bukkit.getServer().getServicesManager();
   }
 
+  @Override
   public Scheduler getScheduler() {
     return scheduler;
   }

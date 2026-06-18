@@ -15,9 +15,9 @@ import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
-import org.bukkit.scheduler.BukkitTask;
 
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
+import com.lemonlightmc.zenith.scheduler.ScheduledTask;
 import com.lemonlightmc.zenith.sound.Playlist;
 import com.lemonlightmc.zenith.sound.RepeatMode;
 import com.lemonlightmc.zenith.sound.Song;
@@ -54,7 +54,7 @@ public abstract class SoundPlayer {
   protected RepeatMode repeat = RepeatMode.NO;
 
   private final Lock lock = new ReentrantLock();
-  private BukkitTask backgroundTask = null;
+  private ScheduledTask backgroundTask = null;
 
   public SoundPlayer(final Song song) {
     this(new Playlist(song));

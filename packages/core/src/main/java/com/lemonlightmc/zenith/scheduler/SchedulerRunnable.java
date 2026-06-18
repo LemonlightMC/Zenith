@@ -2,19 +2,25 @@ package com.lemonlightmc.zenith.scheduler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.scheduler.Scheduler.ThreadContext;
+import com.lemonlightmc.zenith.scheduler.BukkitScheduler.ThreadContext;
 
 public abstract class SchedulerRunnable implements Runnable {
 
   protected ScheduledTask task;
 
+  /**
+   * Returns true if this task has been cancelled, false otherwise. If the task is
+   * not currently scheduled, this will return false.
+   */
   public synchronized boolean isCancelled() {
     return task != null && task.isCancelled();
   }
 
+  /**
+   * Cancels this task if it is currently scheduled.
+   */
   public synchronized void cancel() {
     if (task != null) {
       task.cancel();
@@ -27,15 +33,18 @@ public abstract class SchedulerRunnable implements Runnable {
   }
 
   public synchronized int getTaskId() {
+    checkScheduled();
     return task == null ? -1 : task.getTaskId();
   }
 
   public synchronized Plugin getOwner() throws IllegalStateException {
+    checkScheduled();
     return task == null ? null : task.getOwner();
   }
 
   public synchronized ThreadContext getThreadContext() throws IllegalStateException {
-    return task == null ? null : task.getThreadContext();
+    checkScheduled();
+    return task.getThreadContext();
   }
 
   public synchronized boolean isRunning() throws IllegalStateException {
@@ -64,46 +73,40 @@ public abstract class SchedulerRunnable implements Runnable {
   }
 
   public synchronized long getDelay() {
-    return task == null ? 0 : task.getDelay();
+    return task.getDelay();
   }
 
   public synchronized boolean isRepeating() throws IllegalStateException {
     checkScheduled();
-    if (task instanceof final RepeatingScheduledTask repeatingTask) {
-      return repeatingTask.isRepeating();
-    }
-    return false;
+    return task.isRepeating();
   }
 
   public synchronized long getInterval() {
-    if (task != null && task instanceof final RepeatingScheduledTask repeatingTask) {
-      return repeatingTask.getInterval();
-    }
-    return -1;
+    return task.getInterval();
   }
 
   public synchronized ScheduledTask runTask() throws IllegalStateException {
     checkNotYetScheduled();
-    return setupTask(
+    return new BukkitScheduledTask(
         Bukkit.getScheduler().runTask(ZenithProvider.getInstance(), this), ThreadContext.SYNC, 0, -1);
   }
 
   public synchronized ScheduledTask runTaskAsync() throws IllegalStateException {
     checkNotYetScheduled();
-    return setupTask(
+    return new BukkitScheduledTask(
         Bukkit.getScheduler().runTaskAsynchronously(ZenithProvider.getInstance(), this), ThreadContext.ASYNC, 0, -1);
   }
 
   public synchronized ScheduledTask runTaskLater(final long delay) throws IllegalStateException {
     checkNotYetScheduled();
-    return setupTask(
+    return new BukkitScheduledTask(
         Bukkit.getScheduler().runTaskLater(ZenithProvider.getInstance(), this, delay), ThreadContext.SYNC, delay, -1);
   }
 
   public synchronized ScheduledTask runTaskLaterAsync(final long delay)
       throws IllegalStateException {
     checkNotYetScheduled();
-    return setupTask(
+    return new BukkitScheduledTask(
         Bukkit.getScheduler().runTaskLaterAsynchronously(ZenithProvider.getInstance(), this, delay),
         ThreadContext.ASYNC, delay, -1);
   }
@@ -111,7 +114,7 @@ public abstract class SchedulerRunnable implements Runnable {
   public synchronized ScheduledTask runTaskRepeating(final long delay, final long interval)
       throws IllegalStateException {
     checkNotYetScheduled();
-    return setupTask(
+    return new BukkitScheduledTask(
         Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), this, delay, interval),
         ThreadContext.SYNC, delay, interval);
   }
@@ -119,7 +122,7 @@ public abstract class SchedulerRunnable implements Runnable {
   public synchronized ScheduledTask runTaskRepeatingAsync(final long delay, final long interval)
       throws IllegalStateException {
     checkNotYetScheduled();
-    return setupTask(
+    return new BukkitScheduledTask(
         Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.getInstance(), this, delay,
             interval),
         ThreadContext.ASYNC, delay, interval);
@@ -137,38 +140,28 @@ public abstract class SchedulerRunnable implements Runnable {
     }
   }
 
-  private ScheduledTask setupTask(final BukkitTask task, final ThreadContext ctx, final long delay,
-      final long interval) {
-    if (interval > 0) {
-      this.task = new RepeatingScheduledTask(task, task.getTaskId(), ctx, delay, interval);
-    } else {
-      this.task = new ScheduledTask(task, task.getTaskId(), ctx, delay);
-    }
-    return this.task;
-  }
-
   @Override
-  public int hashCode() {
+  public synchronized int hashCode() {
     return 31 + ((task == null) ? 0 : task.hashCode());
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public synchronized boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    SchedulerRunnable other = (SchedulerRunnable) obj;
-    if (task == null && other.task != null) {
-      return false;
+    final SchedulerRunnable other = (SchedulerRunnable) obj;
+    if (task == null) {
+      return other.task == null;
     }
     return task.equals(other.task);
   }
 
   @Override
-  public String toString() {
+  public synchronized String toString() {
     return "SchedulerRunnable [task=" + task + "]";
   }
 }

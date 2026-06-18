@@ -17,19 +17,21 @@ import com.lemonlightmc.zenith.ZenithProvider;
  * This class is thread-safe.
  */
 public abstract class SchedulerOnceRunnable implements Runnable {
+  private static final int TASK_NOT_SCHEDULED = -1;
+  private static final int TASK_SCHEDULED_SOON = -2;
 
   private final Runnable _logicProxy;
   private final AtomicInteger _scheduledId;
 
   public SchedulerOnceRunnable() {
-    this._scheduledId = new AtomicInteger(ScheduledTask.TASK_NOT_SCHEDULED);
+    this._scheduledId = new AtomicInteger(TASK_NOT_SCHEDULED);
     this._logicProxy = () -> {
       // First, reset the scheduled task id to TASK_NOT_SCHEDULED
       // If the task was still scheduled (not cancelled), run the task.
       int oldTaskId;
       do {
         oldTaskId = this._scheduledId.get();
-      } while (!this._scheduledId.compareAndSet(oldTaskId, ScheduledTask.TASK_NOT_SCHEDULED));
+      } while (!this._scheduledId.compareAndSet(oldTaskId, TASK_NOT_SCHEDULED));
 
       if (oldTaskId >= 0) {
         SchedulerOnceRunnable.this.run();
@@ -51,7 +53,7 @@ public abstract class SchedulerOnceRunnable implements Runnable {
   }
 
   public boolean isScheduled() {
-    return this._scheduledId.get() != ScheduledTask.TASK_NOT_SCHEDULED;
+    return this._scheduledId.get() != TASK_NOT_SCHEDULED;
   }
 
   public void rerun(final long delay) {
@@ -64,10 +66,10 @@ public abstract class SchedulerOnceRunnable implements Runnable {
   }
 
   public void runLater(final long delay) {
-    if (this._scheduledId.compareAndSet(ScheduledTask.TASK_NOT_SCHEDULED, ScheduledTask.TASK_SCHEDULED_SOON)) {
+    if (this._scheduledId.compareAndSet(TASK_NOT_SCHEDULED, TASK_SCHEDULED_SOON)) {
       final int taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ZenithProvider.getInstance(), this._logicProxy,
           delay);
-      if (!this._scheduledId.compareAndSet(ScheduledTask.TASK_SCHEDULED_SOON, taskId)) {
+      if (!this._scheduledId.compareAndSet(TASK_SCHEDULED_SOON, taskId)) {
         Bukkit.getScheduler().cancelTask(taskId);
       }
     }
@@ -82,7 +84,7 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     int oldTaskId;
     do {
       oldTaskId = this._scheduledId.get();
-    } while (!this._scheduledId.compareAndSet(oldTaskId, ScheduledTask.TASK_NOT_SCHEDULED));
+    } while (!this._scheduledId.compareAndSet(oldTaskId, TASK_NOT_SCHEDULED));
 
     if (oldTaskId >= 0) {
       Bukkit.getScheduler().cancelTask(oldTaskId);
@@ -94,7 +96,7 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     int oldTaskId;
     do {
       oldTaskId = this._scheduledId.get();
-    } while (!this._scheduledId.compareAndSet(oldTaskId, ScheduledTask.TASK_NOT_SCHEDULED));
+    } while (!this._scheduledId.compareAndSet(oldTaskId, TASK_NOT_SCHEDULED));
 
     if (oldTaskId >= 0) {
       Bukkit.getScheduler().cancelTask(oldTaskId);

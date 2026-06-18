@@ -1,5 +1,5 @@
 package com.lemonlightmc.zenith.interfaces;
 
-public interface Builder<T> {
-  public T build();
+public interface Builder<O> {
+  public O build();
 }

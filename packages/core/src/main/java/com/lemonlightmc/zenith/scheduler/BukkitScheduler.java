@@ -35,21 +35,33 @@ public class BukkitScheduler implements Scheduler {
     return Math.min(Math.max(num, 0), Integer.MAX_VALUE);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledBuilder builder() {
     return new ScheduledBuilder(this);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public List<BukkitWorker> getWorkers() {
     return Bukkit.getScheduler().getActiveWorkers();
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public List<BukkitTask> getPendingTasks() {
     return Bukkit.getScheduler().getPendingTasks();
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void cancelTasks(final Collection<Integer> taskIds) {
     for (final int id : taskIds) {
@@ -57,11 +69,17 @@ public class BukkitScheduler implements Scheduler {
     }
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void cancelTasks(final int taskId) {
     Bukkit.getScheduler().cancelTask(taskId);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void cancelTasks(final int... taskIds) {
     for (final int id : taskIds) {
@@ -69,36 +87,57 @@ public class BukkitScheduler implements Scheduler {
     }
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void cancelTasks(final Plugin plugin) {
     Bukkit.getScheduler().cancelTasks(plugin);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void cancelTasks() {
     Bukkit.getScheduler().cancelTasks(ZenithProvider.getInstance());
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isRunning(final int taskId) {
     return Bukkit.getScheduler().isCurrentlyRunning(taskId);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isQueued(final int taskId) {
     return Bukkit.getScheduler().isQueued(taskId);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isGlobalThread() {
     return Bukkit.getServer().isPrimaryThread();
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isEntityThread(final Entity entity) {
     return Bukkit.getServer().isPrimaryThread();
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isRegionThread(final Location location) {
     return Bukkit.getServer().isPrimaryThread();
@@ -108,6 +147,9 @@ public class BukkitScheduler implements Scheduler {
   // CraftBukkit's scheduler will always redirect to runTaskTimer, which is why we
   // can short-cut the other methods!!
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask run(final Runnable runnable) {
     if (runnable == null) {
@@ -118,11 +160,17 @@ public class BukkitScheduler implements Scheduler {
         ThreadContext.SYNC, 0, NO_REPEATING);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask run(final Runnable runnable, final long delay) {
     return run(runnable, delay, NO_REPEATING);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask run(final Runnable runnable, long delay, long interval) {
     if (runnable == null) {
@@ -135,6 +183,9 @@ public class BukkitScheduler implements Scheduler {
         ThreadContext.SYNC, delay, interval);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void run(final Consumer<ScheduledTask> consumer) {
     if (consumer == null) {
@@ -148,6 +199,9 @@ public class BukkitScheduler implements Scheduler {
     }, 0, NO_REPEATING);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void run(final Consumer<ScheduledTask> consumer, final long delay) {
     if (consumer == null) {
@@ -161,6 +215,9 @@ public class BukkitScheduler implements Scheduler {
     }, clamp(delay), NO_REPEATING);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public void run(final Consumer<ScheduledTask> consumer, long delay, long interval) {
     if (consumer == null) {
@@ -177,6 +234,9 @@ public class BukkitScheduler implements Scheduler {
   }
 
   // runAsync
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask runAsync(final Runnable runnable) {
     if (runnable == null) {
@@ -187,6 +247,9 @@ public class BukkitScheduler implements Scheduler {
         ThreadContext.SYNC, 0, 0);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask runAsync(final Runnable runnable, long delay) {
     if (runnable == null) {
@@ -198,6 +261,9 @@ public class BukkitScheduler implements Scheduler {
         ThreadContext.ASYNC, delay, NO_REPEATING);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask runAsync(final Runnable runnable, long delay, long interval) {
     if (runnable == null) {
@@ -210,11 +276,17 @@ public class BukkitScheduler implements Scheduler {
         ThreadContext.ASYNC, delay, interval);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask runAsync(final Location location, final Runnable runnable) {
     return runAsync(runnable);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ScheduledTask runAsync(final Entity entity, final Runnable runnable) {
     return runAsync(runnable);

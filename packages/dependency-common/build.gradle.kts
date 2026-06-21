@@ -3,4 +3,4 @@ dependencies {
     implementation(project(":zenith-core"))
 }
 
-extensions.extraProperties["moduleName"] = "zenith-dependency:common"
+extensions.extraProperties["moduleName"] = "zenith-dependency-common"

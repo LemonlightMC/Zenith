@@ -1,15 +1,15 @@
 {
   "java.project.sourcePaths": [
-    "src/main/java",
-    "src/main/resources",
-    "src/test/java",
-    "src/bld/java",
-    "src/bld/resources"
+    "packages/*",
+    "packages/core/src/main",
+    "packages/config/src/main",
+    "packages/dependency-common/src/main",
+    "packages/dependency-bukkit/src/main",
+    "packages/dependency-commands-common/src/main",
+    "packages/dependency-base/src/main"
   ],
   "java.configuration.updateBuildConfiguration": "automatic",
-  "java.project.referencedLibraries": [
-    "${HOME}/.bld/dist/bld-2.3.0.jar",
-    "lib/**/*.jar"
-  ],
-  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx8G -Xms100m -Xlog:disable"
+  "java.project.referencedLibraries": ["lib/**/*.jar"],
+  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx8G -Xms100m -Xlog:disable",
+  "java.compile.nullAnalysis.mode": "disabled"
 }

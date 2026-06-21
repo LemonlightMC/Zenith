@@ -14,6 +14,7 @@ public class ZenithProvider {
   private static Path PLUGINS_FOLDER = Path.of("plugins");
   private static Path LIBARIES_FOLDER = Path.of("libaries");
   private static Path ZENITH_FOLDER = Path.of("plugins", "zenith");
+  private static Logger logger = Logger.getLogger("Zenith");
 
   public static Path getPluginsFolder() {
     return PLUGINS_FOLDER;
@@ -31,7 +32,7 @@ public class ZenithProvider {
     return instance != null;
   }
 
-  public static void setInstance(IZenithPlugin plugin) {
+  public static void setInstance(final IZenithPlugin plugin) {
     if (instance != null) {
       throw new IllegalStateException("ZenithProvider instance has already been set.");
     }
@@ -52,6 +53,14 @@ public class ZenithProvider {
 
   public static Logger getLogger() {
     return instance.getLogger();
+  }
+
+  public static Logger getZenithLogger() {
+    return logger;
+  }
+
+  public static Logger getZenithLogger(String subLogger) {
+    return Logger.getLogger("Zenith." + subLogger);
   }
 
   public static Scheduler getScheduler() {

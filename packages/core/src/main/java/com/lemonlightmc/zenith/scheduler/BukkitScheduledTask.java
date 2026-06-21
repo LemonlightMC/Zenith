@@ -36,7 +36,7 @@ public class BukkitScheduledTask implements ScheduledTask {
   }
 
   /**
-   * {@inheritDoc}
+   * {@InheritDoc}
    */
   @Override
   public void cancel() {
@@ -48,71 +48,113 @@ public class BukkitScheduledTask implements ScheduledTask {
     }
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isCancelled() {
     return this.cancelled.get();
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public int getTaskId() {
     return taskId;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public BukkitTask getBacking() {
     return this.backing;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isRunning() {
     return taskId != -1 && Bukkit.getScheduler().isCurrentlyRunning(taskId);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isQueued() {
     return taskId != -1 && Bukkit.getScheduler().isQueued(taskId);
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public int getTimesRan() {
     return this.counter.get();
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public Plugin getOwner() {
     return backing.getOwner();
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public ThreadContext getThreadContext() {
     return ctx;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isSync() {
     return ctx == ThreadContext.SYNC;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isAsync() {
     return ctx == ThreadContext.ASYNC;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isDelayed() {
     return delay > 0;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public long getDelay() {
     return delay;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public boolean isRepeating() {
     return interval > 0;
   }
 
+  /**
+   * {@InheritDoc}
+   */
   @Override
   public long getInterval() {
     return interval;

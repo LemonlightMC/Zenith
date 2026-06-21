@@ -1,15 +1,19 @@
 {
+  "java.project.referencedLibraries": ["lib/**/*.jar"],
+  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx8G -Xms100m -Xlog:disable",
+  "java.compile.nullAnalysis.mode": "disabled",
   "java.project.sourcePaths": [
-    "packages/*",
     "packages/core/src/main",
+    "packages/base/src/main",
     "packages/config/src/main",
     "packages/dependency-common/src/main",
     "packages/dependency-bukkit/src/main",
-    "packages/dependency-commands-common/src/main",
-    "packages/dependency-base/src/main"
-  ],
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.project.referencedLibraries": ["lib/**/*.jar"],
-  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx8G -Xms100m -Xlog:disable",
-  "java.compile.nullAnalysis.mode": "disabled"
+    "packages/commands-common/src/main",
+    "packages/commands-bukkit/src/main",
+    "packages/items/src/main",
+    "packages/custom/src/main",
+    "packages/database/src/main",
+    "packages/integrations/src/main",
+    "packages/nms/src/main"
+  ]
 }

@@ -124,7 +124,7 @@ public class ResourceUtils {
     }
   }
 
-  public static Properties loadPropertiesFromFile(final File file) {
+  public static Properties loadProperties(final File file) {
     if (!file.exists() || !file.isFile() || !file.getAbsolutePath().endsWith(".properties")) {
       return null;
     }
@@ -134,6 +134,21 @@ public class ResourceUtils {
       return props;
     } catch (final Exception e) {
       Logger.warn("Failed to read properties from: " + file.getPath());
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public static Properties loadProperties(final Path path) {
+    if (!FileUtils.exists(path) || FileUtils.isFile(path) || !path.toAbsolutePath().endsWith(".properties")) {
+      return null;
+    }
+    final Properties props = new Properties();
+    try (BufferedReader reader = FileUtils.createReader(path)) {
+      props.load(reader);
+      return props;
+    } catch (final Exception e) {
+      Logger.warn("Failed to read properties from: " + path);
       e.printStackTrace();
       return null;
     }

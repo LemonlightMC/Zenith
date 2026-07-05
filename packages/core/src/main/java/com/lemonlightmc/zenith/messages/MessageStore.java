@@ -4,9 +4,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class MessageStore implements Iterable<MessageRepository<?>> {
-  private final Map<Locale, MessageRepository<?>> repos = new HashMap<>();
+import com.lemonlightmc.zenith.messages.MessageBundle.MessageBundleSource;
+
+public class MessageStore implements Iterable<MessageBundle> {
+  private final Map<Locale, MessageBundle> bundles = new ConcurrentHashMap<>();
+  private final Map<Locale, MessageBundleSource<?>> sources = new HashMap<>();
   private Locale defaultLocale = Locale.ENGLISH;
 
   public MessageStore() {
@@ -14,42 +18,6 @@ public class MessageStore implements Iterable<MessageRepository<?>> {
 
   public MessageStore(final Locale defaultLocale) {
     this.defaultLocale = defaultLocale;
-  }
-
-  public void reloadAll() {
-    for (final MessageRepository<?> repo : repos.values()) {
-      if (repo.isEmpty()) {
-        repo.load();
-      }
-    }
-  }
-
-  public void loadAll() {
-    for (final MessageRepository<?> repo : repos.values()) {
-      if (repo.isEmpty()) {
-        repo.load();
-      }
-    }
-  }
-
-  public void clearAll() {
-    repos.clear();
-  }
-
-  public String getMessage(final String key, final Locale locale) {
-    if (key == null || key.length() == 0) {
-      return null;
-    }
-    final MessageRepository<?> repo = repos.get(locale);
-    return repo == null ? null : repo.getMessage(key);
-  }
-
-  public String getMessage(final String key) {
-    if (key == null || key.length() == 0) {
-      return null;
-    }
-    final MessageRepository<?> repo = repos.get(defaultLocale);
-    return repo == null ? null : repo.getMessage(key);
   }
 
   public Locale getDefaultLocale() {
@@ -60,30 +28,63 @@ public class MessageStore implements Iterable<MessageRepository<?>> {
     this.defaultLocale = locale;
   }
 
-  public void removeRepo(final Locale locale) {
-    repos.remove(locale);
+  public String getMessage(final String key, Locale locale) {
+    if (key == null || key.length() == 0) {
+      return null;
+    }
+    locale = locale == null ? defaultLocale : locale;
+    MessageBundle bundle = bundles.get(defaultLocale);
+    if (bundle == null) {
+      final MessageBundleSource<?> source = sources.get(defaultLocale);
+      if (source == null) {
+        return null;
+      }
+      bundle = source.resolve();
+      bundles.put(defaultLocale, bundle);
+    }
+    return bundle.getMessage(key);
   }
 
-  public MessageRepository<?> getRepo(final Locale locale) {
-    return repos.get(locale);
+  public String getMessage(final String key) {
+    return getMessage(key, defaultLocale);
   }
 
-  public Map<Locale, MessageRepository<?>> getRepos() {
-    return repos;
+  public void reloadAll() {
+    bundles.clear();
   }
 
-  public boolean hasRepo(final Locale locale) {
-    return repos.containsKey(locale);
+  public void loadAll() {
+
+  }
+
+  public void clearAll() {
+    bundles.clear();
+  }
+
+  public void removeBundle(final Locale locale) {
+    bundles.remove(locale);
+  }
+
+  public MessageBundle getBundle(final Locale locale) {
+    return bundles.get(locale);
+  }
+
+  public Map<Locale, MessageBundle> getBundles() {
+    return Map.copyOf(bundles);
+  }
+
+  public boolean hasBundle(final Locale locale) {
+    return bundles.containsKey(locale);
   }
 
   @Override
-  public Iterator<MessageRepository<?>> iterator() {
-    return repos.values().iterator();
+  public Iterator<MessageBundle> iterator() {
+    return bundles.values().iterator();
   }
 
   @Override
   public int hashCode() {
-    return 31 * defaultLocale.hashCode() + repos.hashCode();
+    return 31 * defaultLocale.hashCode() + bundles.hashCode();
   }
 
   @Override
@@ -95,11 +96,11 @@ public class MessageStore implements Iterable<MessageRepository<?>> {
       return false;
     }
     final MessageStore other = (MessageStore) obj;
-    return defaultLocale.equals(other.defaultLocale) && repos.equals(other.repos);
+    return defaultLocale.equals(other.defaultLocale) && bundles.equals(other.bundles);
   }
 
   @Override
   public String toString() {
-    return "MessageStore [repos=" + repos + ", defaultLocale=" + defaultLocale + "]";
+    return "MessageStore [bundles=" + bundles + ", defaultLocale=" + defaultLocale + "]";
   }
 }

@@ -25,7 +25,7 @@ public class ResourceUtils {
       return null;
     }
     try {
-      return ZenithProvider.getInstance().getClass().getClassLoader().getResource(path);
+      return ZenithProvider.instance().getClass().getClassLoader().getResource(path);
     } catch (final Exception e) {
       return null;
     }
@@ -101,7 +101,7 @@ public class ResourceUtils {
       return Collections.emptyListIterator();
     }
     try {
-      return ZenithProvider.getInstance().getClass().getClassLoader().getResources(path).asIterator();
+      return ZenithProvider.instance().getClass().getClassLoader().getResources(path).asIterator();
     } catch (final Exception e) {
       return Collections.emptyListIterator();
     }

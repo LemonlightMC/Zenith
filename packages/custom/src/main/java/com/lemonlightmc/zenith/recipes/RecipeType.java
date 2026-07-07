@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.NamespacedKey;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.messages.Logger;
 import com.lemonlightmc.zenith.recipes.types.*;
 
 public enum RecipeType {
@@ -115,7 +114,7 @@ public enum RecipeType {
   }
 
   public NamespacedKey getNamespacedKey(final String key) {
-    return new NamespacedKey(ZenithProvider.getInstance(), name().toLowerCase() + "_" + key);
+    return new NamespacedKey(ZenithProvider.instance(), name().toLowerCase() + "_" + key);
   }
 
   public boolean supportsCategory() {

@@ -43,7 +43,7 @@ public class SimpleVault {
       return false;
     }
     this.economy = rsp.getProvider();
-    name = ZenithProvider.getInstance().getName();
+    name = ZenithProvider.instance().getName();
     return true;
   }
 

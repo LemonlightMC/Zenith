@@ -51,7 +51,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
           "Exception while executing command '" +
               cmd.getName() +
               "' in plugin " +
-              ZenithProvider.getInstance().getFullName(),
+              ZenithProvider.instance().getFullName(),
           ex);
     }
   }
@@ -99,7 +99,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
           .append(' ')
           .append(String.join(" ", args))
           .append("' in plugin ")
-          .append(ZenithProvider.getInstance().getFullName());
+          .append(ZenithProvider.instance().getFullName());
       throw new CommandException(message.toString(), ex);
     }
   }
@@ -182,12 +182,12 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     if (sender == null) {
       return false;
     }
-    if (!ZenithProvider.getInstance().isEnabled()) {
+    if (!ZenithProvider.instance().isEnabled()) {
       Logger.warn(
           "Cannot execute command '" +
               cmd.getName() +
               "' in plugin " +
-              ZenithProvider.getInstance().getDescription().getFullName() +
+              ZenithProvider.instance().getDescription().getFullName() +
               " - plugin is disabled.");
       return false;
     }

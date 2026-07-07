@@ -468,7 +468,7 @@ public class Conditions {
       for (final String plugin : plugins) {
         if (plugin == null || plugin.isEmpty())
           continue;
-        final boolean isEnabled = ZenithProvider.getInstance().getPluginManager().isPluginEnabled(plugin);
+        final boolean isEnabled = ZenithProvider.instance().getPluginManager().isPluginEnabled(plugin);
         value = value && type.apply(isEnabled);
       }
       return value;

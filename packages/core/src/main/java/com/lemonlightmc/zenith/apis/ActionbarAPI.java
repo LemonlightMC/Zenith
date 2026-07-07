@@ -80,7 +80,7 @@ public class ActionbarAPI {
         count++;
       }
     }
-        .runTaskTimer(ZenithProvider.getInstance(), 0L, 20L);
+        .runTaskTimer(ZenithProvider.instance(), 0L, 20L);
     PENDING_MESSAGES.put(p.getUniqueId(), messageTask);
   }
 }

@@ -27,20 +27,20 @@ public class EventsAPI {
   }
 
   public static <T extends Event> T call(final T event) {
-    ZenithProvider.getInstance().getPluginManager().callEvent(event);
+    ZenithProvider.instance().getPluginManager().callEvent(event);
     return event;
   }
 
   public static <T extends Event> T callAsync(final T event) {
-    ZenithProvider.getInstance().getScheduler()
-        .runAsync(() -> ZenithProvider.getInstance().getPluginManager().callEvent(event));
+    ZenithProvider.instance().getScheduler()
+        .runAsync(() -> ZenithProvider.instance().getPluginManager().callEvent(event));
     return event;
 
   }
 
   public static <T extends Event> T callSync(final T event) {
-    ZenithProvider.getInstance().getScheduler()
-        .run(() -> ZenithProvider.getInstance().getPluginManager().callEvent(event));
+    ZenithProvider.instance().getScheduler()
+        .run(() -> ZenithProvider.instance().getPluginManager().callEvent(event));
     return event;
   }
 
@@ -80,7 +80,7 @@ public class EventsAPI {
       baseListener.onRegister();
     }
     call(new ListenerRegisterEvent(listener));
-    ZenithProvider.getInstance().getPluginManager().registerEvents(listener, ZenithProvider.getInstance());
+    ZenithProvider.instance().getPluginManager().registerEvents(listener, ZenithProvider.instance());
   }
 
   public static void register(final BaseListener listener) {
@@ -98,8 +98,8 @@ public class EventsAPI {
       return;
     }
     call(new ListenerRegisterEvent(listener));
-    ZenithProvider.getInstance().getPluginManager().registerEvent(event, listener,
-        priority == null ? EventPriority.NORMAL : priority, executor, ZenithProvider.getInstance(),
+    ZenithProvider.instance().getPluginManager().registerEvent(event, listener,
+        priority == null ? EventPriority.NORMAL : priority, executor, ZenithProvider.instance(),
         ignoreCancelled);
   }
 

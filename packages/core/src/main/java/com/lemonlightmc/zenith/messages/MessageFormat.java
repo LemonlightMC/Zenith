@@ -95,7 +95,7 @@ public record MessageFormat(String prefix, boolean prefixEachLine,
     }
 
     if (msg.startsWith("messages.")) {
-      msg = ZenithProvider.getInstance().getMessageAPI().translate(msg.substring(9), player);
+      msg = ZenithProvider.instance().getMessageAPI().translate(msg.substring(9), player);
     }
     if (msg == null || msg.isEmpty()) {
       return nullReplacement;

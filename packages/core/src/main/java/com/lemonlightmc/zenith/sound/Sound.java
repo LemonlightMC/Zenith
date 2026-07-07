@@ -75,7 +75,7 @@ public class Sound extends Playable {
   }
 
   public static Sound from(final String name) {
-    return new Sound(NamespacedKey.fromString(name, ZenithProvider.getInstance()));
+    return new Sound(NamespacedKey.fromString(name, ZenithProvider.instance()));
   }
 
   public static Sound from(final String name, final Plugin plugin) {

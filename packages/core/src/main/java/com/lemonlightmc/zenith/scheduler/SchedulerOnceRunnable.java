@@ -49,7 +49,7 @@ public abstract class SchedulerOnceRunnable implements Runnable {
   }
 
   public Plugin getPlugin() {
-    return ZenithProvider.getInstance();
+    return ZenithProvider.instance();
   }
 
   public boolean isScheduled() {
@@ -57,7 +57,7 @@ public abstract class SchedulerOnceRunnable implements Runnable {
   }
 
   public void rerun(final long delay) {
-    final int newTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ZenithProvider.getInstance(), this._logicProxy,
+    final int newTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ZenithProvider.instance(), this._logicProxy,
         delay);
     final int previousTaskId = this._scheduledId.getAndSet(newTaskId);
     if (previousTaskId >= 0) {
@@ -67,7 +67,7 @@ public abstract class SchedulerOnceRunnable implements Runnable {
 
   public void runLater(final long delay) {
     if (this._scheduledId.compareAndSet(TASK_NOT_SCHEDULED, TASK_SCHEDULED_SOON)) {
-      final int taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ZenithProvider.getInstance(), this._logicProxy,
+      final int taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ZenithProvider.instance(), this._logicProxy,
           delay);
       if (!this._scheduledId.compareAndSet(TASK_SCHEDULED_SOON, taskId)) {
         Bukkit.getScheduler().cancelTask(taskId);

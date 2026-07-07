@@ -83,7 +83,7 @@ public class MessageFormatter {
       return null;
     }
     if (msg.startsWith("messages.")) {
-      msg = ZenithProvider.getInstance().getMessageAPI().translate(msg.substring(9), locale);
+      msg = ZenithProvider.instance().getMessageAPI().translate(msg.substring(9), locale);
     }
     return msg == null || msg.length() == 0 ? null : msg;
   }

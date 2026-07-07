@@ -53,8 +53,8 @@ public final class RecipesManager {
     }
     recipes.put(recipe.getKey(), recipe);
     addToItemCache(recipe);
-    if (ZenithProvider.getInstance().getServer().getRecipe(recipe.getKey()) == null) {
-      ZenithProvider.getInstance().getServer().addRecipe(recipe.toBukkit());
+    if (ZenithProvider.instance().getServer().getRecipe(recipe.getKey()) == null) {
+      ZenithProvider.instance().getServer().addRecipe(recipe.toBukkit());
     }
     if (listener == null) {
       init();
@@ -65,7 +65,7 @@ public final class RecipesManager {
     if (key == null) {
       return;
     }
-    ZenithProvider.getInstance().getServer().removeRecipe(key);
+    ZenithProvider.instance().getServer().removeRecipe(key);
     recipes.remove(key);
     removeFromCache(key);
   }
@@ -79,7 +79,7 @@ public final class RecipesManager {
 
   public void unregisterAll() {
     for (final NamespacedKey key : recipes.keySet()) {
-      ZenithProvider.getInstance().getServer().removeRecipe(key);
+      ZenithProvider.instance().getServer().removeRecipe(key);
     }
     recipes.clear();
     itemCache.clear();
@@ -135,14 +135,14 @@ public final class RecipesManager {
     if (key == null) {
       return null;
     }
-    return ZenithProvider.getInstance().getServer().getRecipe(key);
+    return ZenithProvider.instance().getServer().getRecipe(key);
   }
 
   public List<org.bukkit.inventory.Recipe> getBukkitRecipe(final ItemStack item) {
     if (item == null) {
       return null;
     }
-    return ZenithProvider.getInstance().getServer().getRecipesFor(item);
+    return ZenithProvider.instance().getServer().getRecipesFor(item);
   }
 
   public void grantRecipe(final Recipe recipe) {

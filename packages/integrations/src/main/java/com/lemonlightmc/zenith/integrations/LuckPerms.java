@@ -53,7 +53,7 @@ public class LuckPerms {
   }
 
   public static boolean isEnabled() {
-    return ZenithProvider.getInstance().getPluginManager().isPluginEnabled("LuckPerms");
+    return ZenithProvider.instance().getPluginManager().isPluginEnabled("LuckPerms");
   }
 
   // Permissions

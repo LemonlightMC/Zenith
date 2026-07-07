@@ -88,26 +88,26 @@ public abstract class SchedulerRunnable implements Runnable {
   public synchronized ScheduledTask runTask() throws IllegalStateException {
     checkNotYetScheduled();
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTask(ZenithProvider.getInstance(), this), ThreadContext.SYNC, 0, -1);
+        Bukkit.getScheduler().runTask(ZenithProvider.instance(), this), ThreadContext.SYNC, 0, -1);
   }
 
   public synchronized ScheduledTask runTaskAsync() throws IllegalStateException {
     checkNotYetScheduled();
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskAsynchronously(ZenithProvider.getInstance(), this), ThreadContext.ASYNC, 0, -1);
+        Bukkit.getScheduler().runTaskAsynchronously(ZenithProvider.instance(), this), ThreadContext.ASYNC, 0, -1);
   }
 
   public synchronized ScheduledTask runTaskLater(final long delay) throws IllegalStateException {
     checkNotYetScheduled();
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskLater(ZenithProvider.getInstance(), this, delay), ThreadContext.SYNC, delay, -1);
+        Bukkit.getScheduler().runTaskLater(ZenithProvider.instance(), this, delay), ThreadContext.SYNC, delay, -1);
   }
 
   public synchronized ScheduledTask runTaskLaterAsync(final long delay)
       throws IllegalStateException {
     checkNotYetScheduled();
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskLaterAsynchronously(ZenithProvider.getInstance(), this, delay),
+        Bukkit.getScheduler().runTaskLaterAsynchronously(ZenithProvider.instance(), this, delay),
         ThreadContext.ASYNC, delay, -1);
   }
 
@@ -115,7 +115,7 @@ public abstract class SchedulerRunnable implements Runnable {
       throws IllegalStateException {
     checkNotYetScheduled();
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), this, delay, interval),
+        Bukkit.getScheduler().runTaskTimer(ZenithProvider.instance(), this, delay, interval),
         ThreadContext.SYNC, delay, interval);
   }
 
@@ -123,7 +123,7 @@ public abstract class SchedulerRunnable implements Runnable {
       throws IllegalStateException {
     checkNotYetScheduled();
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.getInstance(), this, delay,
+        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.instance(), this, delay,
             interval),
         ThreadContext.ASYNC, delay, interval);
   }

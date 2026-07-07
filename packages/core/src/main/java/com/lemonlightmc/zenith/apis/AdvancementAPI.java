@@ -22,13 +22,13 @@ public class AdvancementAPI {
     NamespacedKey advancementKey = createAdvancement(icon, message, style, modelData, modelDataType, glowing);
 
     for (Player p : players) {
-      ZenithProvider.getInstance().getScheduler().runLater(() -> {
+      ZenithProvider.instance().getScheduler().runLater(() -> {
         grantAdvancement(p, advancementKey);
-        ZenithProvider.getInstance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
+        ZenithProvider.instance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
       }, 1);
     }
 
-    ZenithProvider.getInstance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey),
+    ZenithProvider.instance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey),
         40);
   }
 
@@ -54,13 +54,13 @@ public class AdvancementAPI {
     NamespacedKey advancementKey = createAdvancement(icon, message, style, modelData, modelDataType, glowing);
 
     for (Player p : allPlayers) {
-      ZenithProvider.getInstance().getScheduler().runLater(() -> {
+      ZenithProvider.instance().getScheduler().runLater(() -> {
         grantAdvancement(p, advancementKey);
-        ZenithProvider.getInstance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
+        ZenithProvider.instance().getScheduler().runLater(() -> revokeAdvancement(p, advancementKey), 10);
       }, 1);
     }
 
-    ZenithProvider.getInstance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey),
+    ZenithProvider.instance().getScheduler().runLater(() -> Bukkit.getUnsafe().removeAdvancement(advancementKey),
         40);
   }
 
@@ -225,7 +225,7 @@ public class AdvancementAPI {
     message = MessageFormatter.format(message, true, false);
 
     UUID randomUUID = UUID.randomUUID();
-    NamespacedKey advancementKey = new NamespacedKey(ZenithProvider.getInstance(), "anelib_" + randomUUID);
+    NamespacedKey advancementKey = new NamespacedKey(ZenithProvider.instance(), "anelib_" + randomUUID);
 
     if (MCVersion.isBetween(MCVersion.v1_16_0, MCVersion.v1_20_4)) {
       // 1.16 - 1.20.4: NBT format with integer CustomModelData

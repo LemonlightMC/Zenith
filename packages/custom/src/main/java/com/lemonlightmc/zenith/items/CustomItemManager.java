@@ -1,11 +1,11 @@
 package com.lemonlightmc.zenith.items;
 
+import java.net.http.WebSocket.Listener;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 
 import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.recipes.RecipesManager;
@@ -38,7 +38,7 @@ public class CustomItemManager implements Listener {
 
     if (!hasRegisteredListener) {
       listener = new CustomItemListener();
-      Bukkit.getServer().getPluginManager().registerEvents(listener, ZenithProvider.getInstance());
+      Bukkit.getServer().getPluginManager().registerEvents(listener, ZenithProvider.instance());
       hasRegisteredListener = true;
     }
   }

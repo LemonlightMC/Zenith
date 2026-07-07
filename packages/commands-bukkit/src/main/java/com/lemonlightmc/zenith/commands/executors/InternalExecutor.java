@@ -78,7 +78,7 @@ public class InternalExecutor extends Command {
 
   @Override
   public String toString() {
-    return cmd.getName().toString() + "(" + ZenithProvider.getInstance().getDescription().getFullName() + ")";
+    return cmd.getName().toString() + "(" + ZenithProvider.instance().getDescription().getFullName() + ")";
   }
 
   @Override

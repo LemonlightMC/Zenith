@@ -27,7 +27,7 @@ public class ConfirmRequest {
     if (expiredTask != null) {
       return;
     }
-    expiredTask = ZenithProvider.getInstance().getScheduler().runLaterAsync(() -> {
+    expiredTask = ZenithProvider.instance().getScheduler().runLaterAsync(() -> {
       expire();
     }, ticksToExpire);
   }
@@ -41,7 +41,7 @@ public class ConfirmRequest {
 
   public void success() {
     stop();
-    ZenithProvider.getInstance().getScheduler().run(() -> {
+    ZenithProvider.instance().getScheduler().run(() -> {
       if (onSuccess != null) {
         onSuccess.run();
       }
@@ -53,7 +53,7 @@ public class ConfirmRequest {
       return;
     }
     onExpired.run();
-    ZenithProvider.getInstance().getScheduler().runLater(() -> {
+    ZenithProvider.instance().getScheduler().runLater(() -> {
       expiredTask = null;
     }, 1);
   }

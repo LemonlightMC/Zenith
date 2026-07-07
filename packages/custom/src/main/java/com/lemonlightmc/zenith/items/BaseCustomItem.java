@@ -25,9 +25,9 @@ public abstract class BaseCustomItem {
   private ItemStack baseItem = null;
   private Recipe recipe;
 
-  public static NamespacedKey customKey = new NamespacedKey(ZenithProvider.getInstance().getName().toLowerCase(),
+  public static NamespacedKey customKey = new NamespacedKey(ZenithProvider.instance().getName().toLowerCase(),
       "customitem_id");
-  public static NamespacedKey uuidKey = new NamespacedKey(ZenithProvider.getInstance().getName().toLowerCase(),
+  public static NamespacedKey uuidKey = new NamespacedKey(ZenithProvider.instance().getName().toLowerCase(),
       "customitem_uuid");
 
   protected abstract ItemStack generateItem(ItemStack itemStack, Player player);
@@ -36,13 +36,13 @@ public abstract class BaseCustomItem {
 
   public BaseCustomItem(final String itemID, final Material material) {
     this.itemID = "customitem_" + itemID;
-    this.key = new NamespacedKey(ZenithProvider.getInstance().getName().toLowerCase(), itemID);
+    this.key = new NamespacedKey(ZenithProvider.instance().getName().toLowerCase(), itemID);
     setBaseItem(new ItemStack(material, 1));
   }
 
   public BaseCustomItem(final String itemID, final ItemStack item) {
     this.itemID = "customitem_" + itemID;
-    this.key = new NamespacedKey(ZenithProvider.getInstance().getName().toLowerCase(), itemID);
+    this.key = new NamespacedKey(ZenithProvider.instance().getName().toLowerCase(), itemID);
     setBaseItem(item);
   }
 

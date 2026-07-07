@@ -25,7 +25,7 @@ public abstract class BaseEvent extends Event {
 
   public BaseEvent(final NamespacedKey key, final boolean isAsync) {
     super(isAsync);
-    this.key = key == null ? new NamespacedKey(ZenithProvider.getInstance().getKey(), getClass().getSimpleName()) : key;
+    this.key = key == null ? new NamespacedKey(ZenithProvider.instance().getKey(), getClass().getSimpleName()) : key;
   }
 
   @Override

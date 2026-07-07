@@ -100,7 +100,7 @@ public class BukkitScheduler implements Scheduler {
    */
   @Override
   public void cancelTasks() {
-    Bukkit.getScheduler().cancelTasks(ZenithProvider.getInstance());
+    Bukkit.getScheduler().cancelTasks(ZenithProvider.instance());
   }
 
   /**
@@ -156,7 +156,7 @@ public class BukkitScheduler implements Scheduler {
       return null;
     }
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), runnable, 0, NO_REPEATING),
+        Bukkit.getScheduler().runTaskTimer(ZenithProvider.instance(), runnable, 0, NO_REPEATING),
         ThreadContext.SYNC, 0, NO_REPEATING);
   }
 
@@ -179,7 +179,7 @@ public class BukkitScheduler implements Scheduler {
     delay = clamp(delay);
     interval = interval == NO_REPEATING ? NO_REPEATING : clamp(interval);
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), runnable, delay, interval),
+        Bukkit.getScheduler().runTaskTimer(ZenithProvider.instance(), runnable, delay, interval),
         ThreadContext.SYNC, delay, interval);
   }
 
@@ -191,7 +191,7 @@ public class BukkitScheduler implements Scheduler {
     if (consumer == null) {
       return;
     }
-    Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), new SchedulerRunnable() {
+    Bukkit.getScheduler().runTaskTimer(ZenithProvider.instance(), new SchedulerRunnable() {
       @Override
       public void run() {
         consumer.accept(this.task);
@@ -207,7 +207,7 @@ public class BukkitScheduler implements Scheduler {
     if (consumer == null) {
       return;
     }
-    Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), new SchedulerRunnable() {
+    Bukkit.getScheduler().runTaskTimer(ZenithProvider.instance(), new SchedulerRunnable() {
       @Override
       public void run() {
         consumer.accept(this.task);
@@ -225,7 +225,7 @@ public class BukkitScheduler implements Scheduler {
     }
     delay = clamp(delay);
     interval = interval == NO_REPEATING ? NO_REPEATING : clamp(interval);
-    Bukkit.getScheduler().runTaskTimer(ZenithProvider.getInstance(), new SchedulerRunnable() {
+    Bukkit.getScheduler().runTaskTimer(ZenithProvider.instance(), new SchedulerRunnable() {
       @Override
       public void run() {
         consumer.accept(this.task);
@@ -243,7 +243,7 @@ public class BukkitScheduler implements Scheduler {
       throw new IllegalArgumentException("Scheduler Runnable cannot be null");
     }
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.getInstance(), runnable, 0, 0),
+        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.instance(), runnable, 0, 0),
         ThreadContext.SYNC, 0, 0);
   }
 
@@ -257,7 +257,7 @@ public class BukkitScheduler implements Scheduler {
     }
     delay = clamp(delay);
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.getInstance(), runnable, delay, NO_REPEATING),
+        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.instance(), runnable, delay, NO_REPEATING),
         ThreadContext.ASYNC, delay, NO_REPEATING);
   }
 
@@ -272,7 +272,7 @@ public class BukkitScheduler implements Scheduler {
     delay = clamp(delay);
     interval = interval == -1 ? -1 : clamp(interval);
     return new BukkitScheduledTask(
-        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.getInstance(), runnable, delay, interval),
+        Bukkit.getScheduler().runTaskTimerAsynchronously(ZenithProvider.instance(), runnable, delay, interval),
         ThreadContext.ASYNC, delay, interval);
   }
 

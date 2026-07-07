@@ -60,7 +60,7 @@ public class ZenithProvider {
     LIBARIES_FOLDER = PLUGINS_FOLDER.getParent().resolve("libaries");
     ZENITH_FOLDER = PLUGINS_FOLDER.resolve("zenith");
     FileUtils.mkdirs(ZENITH_FOLDER);
-    config = ZenithConfig.from(ZENITH_FOLDER.resolve("config.properties"));
+    config = ZenithConfig.from(ZENITH_FOLDER.resolve("config.yml"));
 
     logger.debug("ZenithProvider initialized (from plugin: " + plugin.getInfo().getFullName() + ")");
   }
@@ -113,6 +113,7 @@ public class ZenithProvider {
     return instance.getMessageAPI();
   }
 
+  // TODO: switch to yaml!!
   public static class ZenithConfig {
 
     private final Properties properties;

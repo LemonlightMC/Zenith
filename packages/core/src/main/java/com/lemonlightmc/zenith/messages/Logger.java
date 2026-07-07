@@ -3,6 +3,7 @@ package com.lemonlightmc.zenith.messages;
 import java.io.PrintStream;
 import java.net.URI;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Level;
@@ -97,20 +98,24 @@ public class Logger {
     return ZenithLoggerContext.INSTANCE.getLogger(value, level, factory);
   }
 
-  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent, final String name) {
+  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent,
+      final String name) {
     return ZenithLoggerContext.INSTANCE.getLogger(parent.getName() + " " + name);
   }
 
-  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent, final String name, final Level level) {
+  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent,
+      final String name, final Level level) {
     return ZenithLoggerContext.INSTANCE.getLogger(parent.getName() + " " + name, level);
   }
 
-  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent, final String name,
+  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent,
+      final String name,
       final MessageFactory factory) {
     return ZenithLoggerContext.INSTANCE.getLogger(parent.getName() + " " + name, factory);
   }
 
-  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent, final String name, final Level level,
+  public static org.apache.logging.log4j.Logger getLogger(final org.apache.logging.log4j.Logger parent,
+      final String name, final Level level,
       final MessageFactory factory) {
     return ZenithLoggerContext.INSTANCE.getLogger(parent.getName() + " " + name);
   }
@@ -245,7 +250,6 @@ public class Logger {
   public static class ZenithLoggerContext implements LoggerContext {
     static final ZenithLoggerContext INSTANCE = new ZenithLoggerContext();
 
-    private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy/MM/dd HH:mm:ss:SSS zzz";
     private static final MessageFactory DEFAULT_MESSAGE_FACTORY = ParameterizedMessageFactory.INSTANCE;
     private final boolean showLogName;
     private final boolean showThreadContext;
@@ -253,6 +257,7 @@ public class Logger {
     private final String dateTimeFormat;
 
     private final Level defaultLevel;
+    private final Map<String, Level> logLevelMap;
 
     private final PropertiesUtil props;
     private final PrintStream stream;
@@ -266,8 +271,9 @@ public class Logger {
       showLogName = ZenithProvider.config().get("logging.format.showLoggerName", true);
       showThreadContext = ZenithProvider.config().get("logging.format.showThreadContext", true);
       showDateTime = ZenithProvider.config().get("logging.format.showDateTime", true);
-      dateTimeFormat = ZenithProvider.config().get("logging.format.dateTimeFormat", DEFAULT_DATE_TIME_FORMAT);
+      dateTimeFormat = ZenithProvider.config().get("logging.format.dateTimeFormat", "yyyy/MM/dd HH:mm:ss:SSS zzz");
       defaultLevel = ZenithProvider.config().get("logging.loglevels.default", Level.WARN);
+      logLevelMap = ZenithProvider.config().get("logging.loglevels", Map.of("default", Level.WARN));
     }
 
     @Override
@@ -338,16 +344,16 @@ public class Logger {
      *                       the logger but will log a warning if mismatched.
      * @return The logger with the specified name.
      */
-    public ExtendedLogger getLogger(final String name, final Level level, final MessageFactory messageFactory) {
+    public ExtendedLogger getLogger(final String name, Level level, final MessageFactory messageFactory) {
       final MessageFactory effectiveMessageFactory = messageFactory != null ? messageFactory : DEFAULT_MESSAGE_FACTORY;
       final ExtendedLogger oldLogger = loggerRegistry.getLogger(name, effectiveMessageFactory);
       if (oldLogger != null) {
         return oldLogger;
       }
-
+      level = level == null ? logLevelMap.getOrDefault(name, defaultLevel) : level;
       final ExtendedLogger newLogger = new SimpleLogger(
           name,
-          level == null ? defaultLevel : level,
+          level,
           showLogName,
           true,
           showDateTime,

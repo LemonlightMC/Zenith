@@ -27,10 +27,18 @@ localization:
 
 # Logging Settings
 logging:
+  # Whether to enable logging for Zenith. If disabled, no logs will be written to the console or log files.
   enabled: true
+  # The format of the log message
+  format:
+    showLoggerName: true
+    showThreadContext: true
+    showDateTime: true
+    dateTimeFormat: "yyyy-MM-dd HH:mm:ss"
+
   # the default log levels for different components of Zenith and the Server
   loglevels:
-    default: "INFO"
+    default: "WARN"
     core: "WARN"
     database: "WARN"
     commands: "WARN"

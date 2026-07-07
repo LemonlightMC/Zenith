@@ -4,14 +4,15 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginManager;
 
+import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.files.FileUtils;
 import com.lemonlightmc.zenith.files.ResourceUtils;
-import com.lemonlightmc.zenith.messages.MessageAPI;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 
 public class ZenithProvider {
@@ -23,6 +24,11 @@ public class ZenithProvider {
   private static Path ZENITH_FOLDER = Path.of("plugins", "zenith");
   private static Logger logger = LogManager.getLogger("Zenith");
   private static ZenithConfig config = ZenithConfig.from(ZENITH_FOLDER.resolve("config.properties"));
+
+  static {
+    LogManager.setFactory(com.lemonlightmc.zenith.messages.Logger.ZenithLoggerContextFactory.INSTANCE);
+    logger = LogManager.getLogger("Zenith");
+  }
 
   public static ZenithConfig config() {
     return config;
@@ -55,7 +61,7 @@ public class ZenithProvider {
     ZENITH_FOLDER = PLUGINS_FOLDER.resolve("zenith");
     FileUtils.mkdirs(ZENITH_FOLDER);
     config = ZenithConfig.from(ZENITH_FOLDER.resolve("config.properties"));
-    logger = LogManager.getLogger("Zenith");
+
     logger.debug("ZenithProvider initialized (from plugin: " + plugin.getInfo().getFullName() + ")");
   }
 
@@ -80,11 +86,19 @@ public class ZenithProvider {
   }
 
   public static Logger zenithLogger(final String subLogger) {
-    return LogManager.getLogger("[Zenith] " + subLogger);
+    return com.lemonlightmc.zenith.messages.Logger.getLogger("[Zenith] " + subLogger);
+  }
+
+  public static Logger zenithLogger(final String subLogger, final Level level) {
+    return com.lemonlightmc.zenith.messages.Logger.getLogger("[Zenith] " + subLogger);
   }
 
   public static Logger zenithLogger(final Logger logger, final String subLogger) {
-    return LogManager.getLogger(logger.getName() + " " + subLogger);
+    return com.lemonlightmc.zenith.messages.Logger.getLogger(logger.getName() + " " + subLogger);
+  }
+
+  public static Logger zenithLogger(final Logger logger, final String subLogger, final Level level) {
+    return com.lemonlightmc.zenith.messages.Logger.getLogger(logger.getName() + " " + subLogger);
   }
 
   public static Scheduler scheduler() {

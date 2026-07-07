@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -14,7 +15,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 
-import com.lemonlightmc.zenith.messages.MessageStore;
+import com.lemonlightmc.zenith.messages.MessageAPI;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.version.Version;
 
@@ -43,9 +44,9 @@ public interface IZenithPlugin extends Plugin {
   @Override
   public java.util.logging.Logger getLogger();
 
-  public org.slf4j.Logger getSLFJLogger();
+  public Logger getLog4jLogger();
 
-  public MessageStore getMessageStore();
+  public MessageAPI getMessageAPI();
 
   @Deprecated
   @Override

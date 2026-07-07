@@ -9,14 +9,14 @@ import org.bukkit.Bukkit;
 import com.lemonlightmc.zenith.ZenithProvider;
 
 public class Logger {
-  private final static Locale locale = ZenithProvider.getConfig().get("localization.logger-locale", Locale.ENGLISH);
+  private final static Locale locale = ZenithProvider.config().get("localization.logger-locale", Locale.ENGLISH);
 
-  public static java.util.logging.Logger getBukkitLogger() {
+  public static java.util.logging.Logger bukkitLogger() {
     return Bukkit.getLogger();
   }
 
-  public static org.apache.logging.log4j.Logger getLogger() {
-    return ZenithProvider.getInstance().getLog4jLogger();
+  public static org.apache.logging.log4j.Logger logger() {
+    return ZenithProvider.instance().getLog4jLogger();
   }
 
   private static String retrieveMessage(String msg) {
@@ -24,7 +24,7 @@ public class Logger {
       return null;
     }
     if (msg.startsWith("messages.")) {
-      msg = ZenithProvider.getInstance().getMessageAPI().translate(msg.substring(9), locale);
+      msg = ZenithProvider.instance().getMessageAPI().translate(msg.substring(9), locale);
     }
     return MessageFormatter.format(msg);
   }
@@ -46,7 +46,7 @@ public class Logger {
 
   private static Supplier<Message> createSupplier(final String msg, final Object... replaceables) {
     return () -> {
-      return getLogger().getMessageFactory().newMessage(retrieveMessage(msg), replaceables);
+      return logger().getMessageFactory().newMessage(retrieveMessage(msg), replaceables);
     };
   }
 
@@ -55,72 +55,72 @@ public class Logger {
       if (msgSupplier == null) {
         return null;
       }
-      return getLogger().getMessageFactory().newMessage(retrieveMessage(msgSupplier.get()), replaceables);
+      return logger().getMessageFactory().newMessage(retrieveMessage(msgSupplier.get()), replaceables);
     };
   }
 
   public static void debug(final String msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void debug(final String msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void debug(final Supplier<String> msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void debug(final Supplier<String> msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void info(final String msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void info(final String msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void info(final Supplier<String> msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void info(final Supplier<String> msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void warn(final String msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void warn(final String msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void warn(final Supplier<String> msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void warn(final Supplier<String> msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void severe(final String msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void severe(final String msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void severe(final Supplier<String> msg) {
-    getLogger().debug(createSupplier(msg));
+    logger().debug(createSupplier(msg));
   }
 
   public static void severe(final Supplier<String> msg, final Object... replaceables) {
-    getLogger().debug(createSupplier(msg, replaceables));
+    logger().debug(createSupplier(msg, replaceables));
   }
 
   public static void error(final String description) {
@@ -144,13 +144,13 @@ public class Logger {
     severe("*-----------------------------------------------------*");
     severe(
         "An error has occurred in " +
-            ZenithProvider.getInstance().getName() +
+            ZenithProvider.instance().getName() +
             ".");
     severe("Description: " + description);
     severe("Contact the plugin author if you cannot fix this issue.");
     severe("*-----------------------------------------------------*");
-    if (disable && Bukkit.getPluginManager().isPluginEnabled(ZenithProvider.getInstance())) {
-      Bukkit.getPluginManager().disablePlugin(ZenithProvider.getInstance());
+    if (disable && Bukkit.getPluginManager().isPluginEnabled(ZenithProvider.instance())) {
+      Bukkit.getPluginManager().disablePlugin(ZenithProvider.instance());
     }
   }
 

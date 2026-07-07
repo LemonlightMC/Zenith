@@ -1,0 +1,196 @@
+# Global Zenith Config
+# The global configuration file for Zenith. This file contains settings that apply to the entire server, including logging levels,
+# database connections, and other global parameters.
+
+localization:
+  # use the localization system to translate messages into different languages
+  # if you disable this, all messages will be in English
+  enabled: true
+  # The default language for the server
+  default-locale: "en"
+  # The language used for logging messages. This is independent of the default locale for players.
+  logger-locale: "en"
+  # use the player's locale if available, otherwise fall back to the default language
+  use-player-locale: true
+  # The list of allowed locales for the server
+  # If a player's locale is not in this list, the default locale will be used
+  allowed-locales:
+    - "en"
+    - "es"
+    - "fr"
+    - "de"
+    - "it"
+    - "pt"
+    - "ru"
+    - "zh"
+    - "ja"
+
+# Logging Settings
+logging:
+  enabled: true
+  # the default log levels for different components of Zenith and the Server
+  loglevels:
+    default: "INFO"
+    core: "WARN"
+    database: "WARN"
+    commands: "WARN"
+    dependency: "INFO"
+    updater: "INFO"
+    plugin: "INFO"
+
+# Formatting Strings - Customize date, money, location displays
+# WARNING: Only edit if you know what you're doing!
+formatters:
+  datetime-format: dd/M/yyyy hh:mm a
+  date: "dd/M/yyyy"
+  time: "hh:mm a"
+  timezone: "GMT"
+  duration-long: "{d} days, {h} hours, {m} minutes" # Removed "{s} seconds", you can add it
+  duration-short: "{d}d {h}h {m}m" # Removed "{s} seconds", you can add it
+
+  ago-days: "{v} days"
+  ago-hours: "{v} hours"
+  ago-minutes: "{v} minutes"
+  ago-seconds: "{v} seconds"
+
+  balance: ${balance}
+  location: "&6{world} &7(X: &6{x} &7Y: &6{y} &7Z: &6{z}&7)"
+  chunk: "&6{world} &7(X: &6{x} &7Z: &6{z}&7)"
+
+  gui-pagination-title: "&r{title} &r| &3{current-page}&r/&c{total-pages}"
+
+# Update checker settings
+updatechecker:
+  # Wether to check for updates periodically while the server is running
+  enbled: true
+  # How often to poll for updates (in hours). Set to 0 to disable the update checker
+  interval: 24
+  # The type of notification to send when an update is found. Options: "full", "minimal", "console"
+  notification-type: "full"
+  # Whether to notify players with the "zenith.update" permission when an update is found
+  notify-on-join: true
+  # Only notify once after an update is found
+  notify-once: false
+
+# +----------------------------------------------------------------------------------------------+ #
+# |                                                                                              | #
+# |                                       STORAGE SETTINGS                                       | #
+# |                                                                                              | #
+# |                Controls which storage method will be used to store data.                     | #
+# |                                                                                              | #
+# +----------------------------------------------------------------------------------------------+ #
+
+database:
+  # - Possible options:
+  #
+  #   |  Remote databases - require connection information to be configured below
+  #   |=> MySQL
+  #   |=> MariaDB (preferred over MySQL)
+  #   |=> PostgreSQL
+  #   |=> MongoDB
+  #
+  #   |  Flatfile/local database - don't require any extra configuration
+  #   |=> H2 (preferred over SQLite)
+  #   |=> SQLite
+  #
+  #   |  Readable & editable text files - don't require any extra configuration
+  #   |=> YAML (.yml files)
+  #   |=> JSON (.json files)
+  #   |=> HOCON (.conf files)
+  #   |=> TOML (.toml files)
+  #   |
+  #
+  # - A H2 database is the default option.
+  # - If you want to edit data manually in "traditional" storage files, we suggest using YAML.
+  storage-method: h2
+
+  # Define the address and port for the database.
+  # - The standard DB engine port is used by default
+  #   (MySQL: 3306, PostgreSQL: 5432, MongoDB: 27017)
+  # - Specify as "host:port" if differs
+  address: localhost
+
+  # The name of the database to store data in.
+  # - This must be created already. Don't worry about this setting if you're using MongoDB.
+  database: data
+
+  # Credentials for the database.
+  username: root
+  password: ""
+
+  # The prefix for all SQL tables.
+  #
+  # - This only applies for remote SQL storage types (MySQL, MariaDB, etc).
+  # - Change this if you want to use different tables for different servers.
+  table-prefix: "zenith_"
+
+  # These settings apply to the MySQL connection pool.
+  # - The default values will be suitable for the majority of users.
+  # - Do not change these settings unless you know what you're doing!
+  pool-settings:
+    # Sets the maximum size of the MySQL connection pool.
+    # - Basically this value will determine the maximum number of actual
+    #   connections to the database backend.
+    # - More information about determining the size of connection pools can be found here:
+    #   https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
+    maximum-pool-size: 10
+
+    # Sets the minimum number of idle connections that the pool will try to maintain.
+    # - For maximum performance and responsiveness to spike demands, it is recommended to not set
+    #   this value and instead allow the pool to act as a fixed size connection pool.
+    #   (set this value to the same as 'maximum-pool-size')
+    minimum-idle: 10
+
+    # This setting controls the maximum lifetime of a connection in the pool in milliseconds.
+    # - The value should be at least 30 seconds less than any database or infrastructure imposed
+    #   connection time limit.
+    maximum-lifetime: 1800000 # 30 minutes
+
+    # This setting controls how frequently the pool will 'ping' a connection in order to prevent it
+    # from being timed out by the database or network infrastructure, measured in milliseconds.
+    # - The value should be less than maximum-lifetime and greater than 30000 (30 seconds).
+    # - Setting the value to zero will disable the keepalive functionality.
+    keepalive-time: 0
+
+    # This setting controls the maximum number of milliseconds that the plugin will wait for a
+    # connection from the pool, before timing out.
+    connection-timeout: 5000 # 5 seconds
+
+  # This setting allows you to define extra properties for connections.
+  #
+  # By default, the following options are set to enable utf8 encoding. (you may need to remove
+  # these if you are using PostgreSQL)
+  #   useUnicode: true
+  #   characterEncoding: utf8
+  #
+  # You can also use this section to disable SSL connections, by uncommenting the 'useSSL' and
+  # 'verifyServerCertificate' options below.
+  properties:
+    useUnicode: true
+    characterEncoding: utf8
+    serverTimezone: UTC
+    allowPublicKeyRetrieval: true
+    #useSSL: false
+    #verifyServerCertificate: false
+
+  # The prefix to use for all MongoDB collections.
+  #
+  # - This only applies for the MongoDB storage type.
+  # - Change this if you want to use different collections for different servers. The default is no
+  # prefix.
+  mongodb-collection-prefix: "zenith"
+
+  # The connection string URI to use to connect to the MongoDB instance.
+  #
+  # - When configured, this setting will override anything defined in the address, database,
+  #   username or password fields above.
+  # - If you have a connection string that starts with 'mongodb://' or 'mongodb+srv://', enter it
+  #   below.
+  # - For more information, please see https://docs.mongodb.com/manual/reference/connection-string/
+  mongodb-connection-uri: "mongodb://localhost:27017"
+
+# Cache Flush Interval (seconds)
+# How often cached data is written to database
+# Lower = frequent saves, more CPU usage | Higher = better performance, slight crash risk
+# Recommendations: <20 players: 30s | 20-50: 60s | 50-100: 120-180s | 100+: 300s
+cache-interval: 30

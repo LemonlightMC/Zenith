@@ -22,16 +22,16 @@ public class MessageAPI {
   private static volatile MessageAPI api;
 
   public MessageAPI() {
-    alwaysUseEnglish = ZenithProvider.getConfig().get("localization.enabled", false);
+    alwaysUseEnglish = ZenithProvider.config().get("localization.enabled", false);
     if (alwaysUseEnglish) {
       defaultLocale = Locale.ENGLISH;
       usePlayerLocale = false;
       allowedLocales = List.of(Locale.ENGLISH);
       return;
     } else {
-      allowedLocales = ZenithProvider.getConfig().get("localization.allowed-locales", List.of(Locale.ENGLISH));
-      defaultLocale = ZenithProvider.getConfig().get("localization.default-locale", Locale.ENGLISH);
-      usePlayerLocale = ZenithProvider.getConfig().get("localization.use-player-locale", true);
+      allowedLocales = ZenithProvider.config().get("localization.allowed-locales", List.of(Locale.ENGLISH));
+      defaultLocale = ZenithProvider.config().get("localization.default-locale", Locale.ENGLISH);
+      usePlayerLocale = ZenithProvider.config().get("localization.use-player-locale", true);
     }
   }
 
@@ -56,7 +56,7 @@ public class MessageAPI {
     return plugin.getMessageAPI();
   }
 
-  public Locale getDefaultLocale() {
+  public Locale defaultLocale() {
     return defaultLocale;
   }
 

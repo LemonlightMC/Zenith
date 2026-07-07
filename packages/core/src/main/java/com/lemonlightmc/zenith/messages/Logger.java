@@ -1,143 +1,126 @@
 package com.lemonlightmc.zenith.messages;
 
+import java.util.Locale;
 import java.util.function.Supplier;
 
+import org.apache.logging.log4j.message.Message;
 import org.bukkit.Bukkit;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
 
 public class Logger {
-  public static java.util.logging.Logger getLogger() {
+  private final static Locale locale = ZenithProvider.getConfig().get("localization.logger-locale", Locale.ENGLISH);
+
+  public static java.util.logging.Logger getBukkitLogger() {
     return Bukkit.getLogger();
   }
 
-  public static void fine(String msg) {
-    msg = MessageFormatter.format(msg);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().fine(msg);
+  public static org.apache.logging.log4j.Logger getLogger() {
+    return ZenithProvider.getInstance().getLog4jLogger();
   }
 
-  public static void fine(String msg, final Replaceable... replaceables) {
-    msg = MessageFormatter.format(msg, replaceables);
-    if (msg == null) {
-      return;
+  private static String retrieveMessage(String msg) {
+    if (msg == null || msg.length() == 0) {
+      return null;
     }
-    Bukkit.getLogger().fine(msg);
+    if (msg.startsWith("messages.")) {
+      msg = ZenithProvider.getInstance().getMessageAPI().translate(msg.substring(9), locale);
+    }
+    return MessageFormatter.format(msg);
   }
 
-  public static void fine(final Supplier<String> msgSupplier) {
-    final String msg = MessageFormatter.format(msgSupplier.get());
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().fine(msg);
+  private static Supplier<String> createSupplier(final String msg) {
+    return () -> {
+      return retrieveMessage(msg);
+    };
   }
 
-  public static void fine(final Supplier<String> msgSupplier, final Replaceable... replaceables) {
-    final String msg = MessageFormatter.format(msgSupplier.get(), replaceables);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().fine(msg);
+  private static Supplier<String> createSupplier(final Supplier<String> msgSupplier) {
+    return () -> {
+      if (msgSupplier == null) {
+        return null;
+      }
+      return retrieveMessage(msgSupplier.get());
+    };
   }
 
-  public static void info(String msg) {
-    msg = MessageFormatter.format(msg);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().info(msg);
+  private static Supplier<Message> createSupplier(final String msg, final Object... replaceables) {
+    return () -> {
+      return getLogger().getMessageFactory().newMessage(retrieveMessage(msg), replaceables);
+    };
   }
 
-  public static void info(String msg, final Replaceable... replaceables) {
-    msg = MessageFormatter.format(msg, replaceables);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().info(msg);
+  private static Supplier<Message> createSupplier(final Supplier<String> msgSupplier, final Object... replaceables) {
+    return () -> {
+      if (msgSupplier == null) {
+        return null;
+      }
+      return getLogger().getMessageFactory().newMessage(retrieveMessage(msgSupplier.get()), replaceables);
+    };
   }
 
-  public static void info(final Supplier<String> msgSupplier) {
-    final String msg = MessageFormatter.format(msgSupplier.get());
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().info(msg);
+  public static void debug(final String msg) {
+    getLogger().debug(createSupplier(msg));
   }
 
-  public static void info(final Supplier<String> msgSupplier, final Replaceable... replaceables) {
-    final String msg = MessageFormatter.format(msgSupplier.get(), replaceables);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().info(msg);
+  public static void debug(final String msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
   }
 
-  public static void warn(String msg) {
-    msg = MessageFormatter.format(msg);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().warning(msg);
+  public static void debug(final Supplier<String> msg) {
+    getLogger().debug(createSupplier(msg));
   }
 
-  public static void warn(String msg, final Replaceable... replaceables) {
-    msg = MessageFormatter.format(msg, replaceables);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().warning(msg);
+  public static void debug(final Supplier<String> msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
   }
 
-  public static void warn(final Supplier<String> msgSupplier) {
-    final String msg = MessageFormatter.format(msgSupplier.get());
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().warning(msg);
+  public static void info(final String msg) {
+    getLogger().debug(createSupplier(msg));
   }
 
-  public static void warn(final Supplier<String> msgSupplier, final Replaceable... replaceables) {
-    final String msg = MessageFormatter.format(msgSupplier.get(), replaceables);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().warning(msg);
+  public static void info(final String msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
   }
 
-  public static void severe(String msg) {
-    msg = MessageFormatter.format(msg);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().severe(msg);
+  public static void info(final Supplier<String> msg) {
+    getLogger().debug(createSupplier(msg));
   }
 
-  public static void severe(String msg, final Replaceable... replaceables) {
-    msg = MessageFormatter.format(msg, replaceables);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().severe(msg);
+  public static void info(final Supplier<String> msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
   }
 
-  public static void severe(final Supplier<String> msgSupplier) {
-    final String msg = MessageFormatter.format(msgSupplier.get());
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().severe(msg);
+  public static void warn(final String msg) {
+    getLogger().debug(createSupplier(msg));
   }
 
-  public static void severe(final Supplier<String> msgSupplier, final Replaceable... replaceables) {
-    final String msg = MessageFormatter.format(msgSupplier.get(), replaceables);
-    if (msg == null) {
-      return;
-    }
-    Bukkit.getLogger().severe(msg);
+  public static void warn(final String msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
+  }
+
+  public static void warn(final Supplier<String> msg) {
+    getLogger().debug(createSupplier(msg));
+  }
+
+  public static void warn(final Supplier<String> msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
+  }
+
+  public static void severe(final String msg) {
+    getLogger().debug(createSupplier(msg));
+  }
+
+  public static void severe(final String msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
+  }
+
+  public static void severe(final Supplier<String> msg) {
+    getLogger().debug(createSupplier(msg));
+  }
+
+  public static void severe(final Supplier<String> msg, final Object... replaceables) {
+    getLogger().debug(createSupplier(msg, replaceables));
   }
 
   public static void error(final String description) {

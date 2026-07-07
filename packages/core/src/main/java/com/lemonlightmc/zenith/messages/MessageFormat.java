@@ -7,7 +7,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -16,7 +15,6 @@ import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.interfaces.Cloneable;
-import com.lemonlightmc.zenith.utils.StringUtils;
 import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -97,7 +95,7 @@ public record MessageFormat(String prefix, boolean prefixEachLine,
     }
 
     if (msg.startsWith("messages.")) {
-      msg = ZenithProvider.getInstance().getMessageStore().getMessage(msg.substring(9), parsePlayerLocale(player));
+      msg = ZenithProvider.getInstance().getMessageAPI().translate(msg.substring(9), player);
     }
     if (msg == null || msg.isEmpty()) {
       return nullReplacement;
@@ -157,18 +155,6 @@ public record MessageFormat(String prefix, boolean prefixEachLine,
     final Instant now = Clock.systemDefaultZone().instant();
     return LocalDateTime.ofEpochSecond(now.getEpochSecond(), now.getNano(),
         ZoneId.systemDefault().getRules().getOffset(now));
-  }
-
-  private static Locale parsePlayerLocale(final Player player) {
-    if (player == null) {
-      return Locale.getDefault();
-    }
-    try {
-      final Locale locale = StringUtils.parseLocale(player.getLocale());
-      return locale != null ? locale : Locale.getDefault();
-    } catch (final Exception e) {
-      return Locale.getDefault();
-    }
   }
 
   private String applyLayout(final String message) {

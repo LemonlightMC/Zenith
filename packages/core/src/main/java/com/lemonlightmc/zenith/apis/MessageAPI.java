@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.messages;
+package com.lemonlightmc.zenith.apis;
 
 import java.util.List;
 import java.util.Locale;
@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.IZenithPlugin;
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.messages.TranslationSource;
+import com.lemonlightmc.zenith.messages.Translator;
 import com.lemonlightmc.zenith.utils.StringUtils;
 
 public class MessageAPI {
@@ -166,5 +168,4 @@ public class MessageAPI {
   public Map<Locale, Translator> translators() {
     return translators;
   }
-
 }

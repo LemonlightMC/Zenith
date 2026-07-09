@@ -11,7 +11,7 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.math.NumberConversions;
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.messages.Logger;
 
 import net.luckperms.api.LuckPerms;

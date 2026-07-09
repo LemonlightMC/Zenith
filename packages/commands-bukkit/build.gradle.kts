@@ -3,6 +3,7 @@ dependencies {
     //compileOnly("dev.jorel:commandapi-bukkit-shade:10.1.2")
     implementation(project(":zenith-core"))
     implementation(project(":zenith-commands-common"))
+    implementation(project(":zenith-additive"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-commands-bukkit"

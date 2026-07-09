@@ -4,13 +4,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.lemonlightmc.zenith.interfaces.Cloneable;
-import com.lemonlightmc.zenith.time.PolyTimeUnit;
+import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.Lazy;
+import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 
 public class CooldownStore<T> implements Cloneable<CooldownStore<T>>, Iterable<T> {
   private final HashMap<T, CooldownHolder> cooldowns;
   public long defaultDuration;
-  private static Lazy<CooldownStore<?>> globalStore = Lazy.from(() -> new CooldownStore<>());
+  private static Lazy<CooldownStore<?>> globalStore = Lazy.of(() -> new CooldownStore<>());
 
   public CooldownStore() {
     this(1000L);

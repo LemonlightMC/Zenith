@@ -20,13 +20,13 @@ import org.bukkit.generator.structure.StructureType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.ParticleData;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
-import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class RegistryArguments {
   public static class BiomeArgument extends Argument<Biome, BiomeArgument, CommandSender> {

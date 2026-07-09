@@ -4,6 +4,7 @@ dependencies {
     //compileOnly("com.github.Traqueur-dev:RecipesAPI:2.0.2")
     //compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     implementation(project(":zenith-core"))
+    implementation(project(":zenith-additive"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-items"

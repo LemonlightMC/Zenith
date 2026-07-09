@@ -17,8 +17,8 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.interfaces.Builder;
-import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.additive.Builder;
+import com.lemonlightmc.zenith.additive.Cloneable;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 
 public class BossbarAPI {

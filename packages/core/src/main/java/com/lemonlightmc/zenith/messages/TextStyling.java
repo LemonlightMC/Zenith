@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.lemonlightmc.zenith.math.NumberConversions;
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;

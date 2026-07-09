@@ -9,9 +9,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.apis.ToastAPI.ToastType;
 import com.lemonlightmc.zenith.exceptions.OutdatedVersionError;
-import com.lemonlightmc.zenith.math.NumberConversions;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.version.MCVersion;
 

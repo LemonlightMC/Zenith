@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.lemonlightmc.zenith.math.NumberConversions;
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
 /**
  * Flexible version parser that handles non-standard Minecraft plugin versions.

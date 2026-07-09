@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.lemonlightmc.zenith.math.NumberConversions;
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.version.Version;
 
 public class TranslationBundle extends AbstractTranslator {

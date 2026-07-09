@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.bukkit.Color;
 
-import com.lemonlightmc.zenith.math.NumberConversions;
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
 // TODO: improve ColorUtils
 public class ColorUtils {

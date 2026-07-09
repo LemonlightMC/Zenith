@@ -10,6 +10,7 @@ dependencies {
     compileOnly("org.apache.logging.log4j:log4j-api:2.26.0")
     runtimeOnly("org.apache.logging.log4j:log4j-to-jul:2.26.0")
     //compileOnly("net.milkbowl.vault:VaultUnblockedAPI:2.19")
+    implementation(project(":zenith-additive"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-core"

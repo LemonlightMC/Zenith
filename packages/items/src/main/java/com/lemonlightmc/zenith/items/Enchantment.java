@@ -6,7 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import com.lemonlightmc.zenith.math.Numerals;
+import com.lemonlightmc.zenith.additive.math.Numerals;
 
 public class Enchantment extends org.bukkit.enchantments.Enchantment {
 

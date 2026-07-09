@@ -12,7 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.time.TimeRange;
+import com.lemonlightmc.zenith.additive.time.TimeRange;
 
 public class Conditions {
 

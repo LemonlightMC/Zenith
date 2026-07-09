@@ -23,6 +23,7 @@ plugins {
 
 rootProject.name = "Zenith"
 
+include(":zenith-additive")
 include(":zenith-core")
 include(":zenith-config")
 include(":zenith-base")
@@ -35,6 +36,7 @@ include(":zenith-items")
 //include(":zenith-custom")
 //include(":zenith-database")
 
+project(":zenith-additive").projectDir = file("packages/additive")
 project(":zenith-core").projectDir = file("packages/core")
 project(":zenith-config").projectDir = file("packages/config")
 project(":zenith-base").projectDir = file("packages/base")

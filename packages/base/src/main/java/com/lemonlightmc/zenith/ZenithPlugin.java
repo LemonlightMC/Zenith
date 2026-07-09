@@ -16,10 +16,10 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 
+import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
-import com.lemonlightmc.zenith.messages.MessageStore;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.utils.StringUtils;
@@ -31,13 +31,13 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   private final BukkitScheduler scheduler;
   private final Logger logger;
   private final PluginInfo info;
-  private final MessageStore messageStore;
+  private final MessageAPI messageAPI;
 
   public ZenithPlugin() {
     super();
     this.info = new PluginInfo(getDescription());
     this.scheduler = new BukkitScheduler();
-    messageStore = new MessageStore();
+    messageAPI = new MessageAPI();
     logger = LogManager.getLogger(super.getLogger().getName());
     if (!ZenithProvider.hasInstance()) {
       ZenithProvider.setInstance(this);
@@ -94,8 +94,8 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     return logger;
   }
 
-  public MessageStore getMessageStore() {
-    return messageStore;
+  public MessageAPI messageAPI() {
+    return messageAPI;
   }
 
   @Deprecated
@@ -173,7 +173,6 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   @Override
   public void onLoad() {
     MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    messageStore.loadAll();
     if (Configurate.options().createDefaults()) {
       Configurate.createDefaults();
     }
@@ -188,7 +187,6 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
 
   public void onReload() {
     MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    messageStore.reloadAll();
     if (Configurate.options().autoReload()) {
       Configurate.reloadAll();
     }

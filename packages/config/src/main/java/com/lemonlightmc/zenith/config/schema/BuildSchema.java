@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
 import com.lemonlightmc.zenith.files.FileUtils;
-import com.lemonlightmc.zenith.math.NumberConversions;
-import com.lemonlightmc.zenith.utils.Ref;
+import com.lemonlightmc.zenith.interfaces.Ref;
 import com.lemonlightmc.zenith.utils.StringUtils;
 
 public record BuildSchema(SchemaNode[] nodes, int len, String header, String footer) {

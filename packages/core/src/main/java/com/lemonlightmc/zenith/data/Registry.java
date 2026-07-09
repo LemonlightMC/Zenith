@@ -8,9 +8,9 @@ import java.util.stream.Stream;
 
 import org.bukkit.event.HandlerList;
 
+import com.lemonlightmc.zenith.additive.Cloneable;
 import com.lemonlightmc.zenith.events.BaseEvent;
 import com.lemonlightmc.zenith.events.EventsAPI;
-import com.lemonlightmc.zenith.interfaces.Cloneable;
 
 public class Registry<K, T extends Registrable<K>>
     implements Iterable<Map.Entry<K, T>>, Cloneable<Registry<K, T>>, Comparable<Registry<K, T>> {

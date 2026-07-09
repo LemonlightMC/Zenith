@@ -3,7 +3,7 @@ package com.lemonlightmc.zenith.wrapper;
 import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.interfaces.Builder;
+import com.lemonlightmc.zenith.additive.Builder;
 import com.lemonlightmc.zenith.scheduler.ScheduledTask;
 
 public class ConfirmRequest {

@@ -9,9 +9,11 @@ import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import com.lemonlightmc.zenith.additive.Lazy;
+
 public class Tps {
 
-  private static final Lazy<Supplier<double[]>> SUPPLIER = Lazy.from(() -> {
+  private static final Lazy<Supplier<double[]>> SUPPLIER = Lazy.of(() -> {
     try {
       final Method spigotMethod = Bukkit.getServer().getClass().getMethod("spigot");
       final Method getTPSMethod = Class.forName("org.bukkit.Server$Spigot").getMethod("getTPS");

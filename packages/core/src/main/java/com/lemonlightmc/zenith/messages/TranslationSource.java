@@ -16,10 +16,14 @@ import java.util.function.Supplier;
 
 import com.lemonlightmc.zenith.exceptions.TranslationException;
 import com.lemonlightmc.zenith.files.FileUtils;
+import com.lemonlightmc.zenith.utils.StringUtils;
 
+// TODO: Add support for YAML files and other formats if needed
 public interface TranslationSource {
 
   public Translator retrieve();
+
+  public Locale locale();
 
   public static TranslationBundleSource<Properties> from(final Locale locale, final Properties props) {
     if (props == null) {
@@ -42,11 +46,25 @@ public interface TranslationSource {
     return new TranslationBundleSource<>(locale, file, TranslationBundleSource::load);
   }
 
-  public static TranslationBundleSource<Path> from(final Locale locale, final Path path) {
+  public static TranslationBundleSource<File> from(final File file) {
+    if (file == null) {
+      throw new IllegalArgumentException("File cannot be null for Message Bundle Source!");
+    }
+    return new TranslationBundleSource<>(StringUtils.parseLocale(file.getName()), file, TranslationBundleSource::load);
+  }
+
+  public static TranslationBundleSource<File> from(final Locale locale, final Path path) {
     if (path == null) {
       throw new IllegalArgumentException("Path cannot be null for Message Bundle Source!");
     }
-    return new TranslationBundleSource<>(locale, path, TranslationBundleSource::load);
+    return from(locale, path.toFile());
+  }
+
+  public static TranslationBundleSource<File> from(final Path path) {
+    if (path == null) {
+      throw new IllegalArgumentException("Path cannot be null for Message Bundle Source!");
+    }
+    return from(path.toFile());
   }
 
   public static TranslationBundleSource<URI> from(final Locale locale, final URI uri) {
@@ -77,6 +95,10 @@ public interface TranslationSource {
 
     public TranslationBundle retrieve() {
       return mapper.apply(locale, source);
+    }
+
+    public Locale locale() {
+      return locale;
     }
 
     private static TranslationBundle load(final Locale tempLocale, final Properties props) {
@@ -118,6 +140,16 @@ public interface TranslationSource {
     }
 
     private static TranslationBundle load(final Locale tempLocale, final File file) {
+      if (file.getName().endsWith(".properties")) {
+        return loadProperties(tempLocale, file);
+      } else if (file.getName().endsWith(".yml") || file.getName().endsWith(".yaml")) {
+        return loadYaml(tempLocale, file);
+      } else {
+        throw new TranslationException("Unsupported file type for message bundle: " + file.getAbsolutePath());
+      }
+    }
+
+    private static TranslationBundle loadProperties(final Locale tempLocale, final File file) {
       final Properties props = new Properties();
       try (final InputStream in = FileUtils.createInputStream(file)) {
         props.load(in);
@@ -127,12 +159,12 @@ public interface TranslationSource {
       return TranslationBundleSource.load(tempLocale, props);
     }
 
-    private static TranslationBundle load(final Locale tempLocale, final Path path) {
+    private static TranslationBundle loadYaml(final Locale tempLocale, final File file) {
       final Properties props = new Properties();
-      try (final InputStream in = FileUtils.createInputStream(path)) {
+      try (final InputStream in = FileUtils.createInputStream(file)) {
         props.load(in);
       } catch (final IOException | IllegalArgumentException e) {
-        throw new TranslationException("Failed to load message bundle from path: " + path.toAbsolutePath(), e);
+        throw new TranslationException("Failed to load message bundle from file: " + file.getAbsolutePath(), e);
       }
       return TranslationBundleSource.load(tempLocale, props);
     }

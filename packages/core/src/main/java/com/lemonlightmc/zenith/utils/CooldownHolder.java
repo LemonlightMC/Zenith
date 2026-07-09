@@ -1,6 +1,6 @@
 package com.lemonlightmc.zenith.utils;
 
-import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.additive.Cloneable;
 
 public class CooldownHolder implements Cloneable<CooldownHolder> {
 

@@ -6,7 +6,7 @@ import java.lang.ref.WeakReference;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.additive.Cloneable;
 
 public class LiteLocation implements Cloneable<LiteLocation> {
   private Reference<World> world;

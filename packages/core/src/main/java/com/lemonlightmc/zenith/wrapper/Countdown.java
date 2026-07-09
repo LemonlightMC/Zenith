@@ -3,10 +3,10 @@ package com.lemonlightmc.zenith.wrapper;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.lemonlightmc.zenith.interfaces.Builder;
+import com.lemonlightmc.zenith.additive.Builder;
+import com.lemonlightmc.zenith.additive.time.IPolyTimeUnit;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.scheduler.ScheduledTask;
-import com.lemonlightmc.zenith.time.IPolyTimeUnit;
 
 public class Countdown {
 

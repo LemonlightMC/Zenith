@@ -1,5 +1,7 @@
 package com.lemonlightmc.zenith.apis;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -9,6 +11,8 @@ import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.IZenithPlugin;
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.files.FileFilter;
+import com.lemonlightmc.zenith.files.FileUtils;
 import com.lemonlightmc.zenith.messages.TranslationSource;
 import com.lemonlightmc.zenith.messages.Translator;
 import com.lemonlightmc.zenith.utils.StringUtils;
@@ -167,5 +171,16 @@ public class MessageAPI {
 
   public Map<Locale, Translator> translators() {
     return translators;
+  }
+
+  public void scan(final Path path) {
+    if (!FileUtils.isDirectory(path)) {
+      return;
+    }
+    List<File> files = FileUtils.listFiles(path, FileFilter.extensions(".yml", ".properties"));
+    for (File file : files) {
+      TranslationSource source = TranslationSource.from(file);
+      sources.put(source.locale(), source);
+    }
   }
 }

@@ -1,6 +1,6 @@
 package com.lemonlightmc.zenith.version;
 
-import com.lemonlightmc.zenith.math.Range;
+import com.lemonlightmc.zenith.additive.math.Range;
 
 public class VersionRange extends Range<VersionRange, Version> {
   public static VersionRange ALL = new VersionRange();

@@ -12,13 +12,13 @@ import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
 import com.lemonlightmc.zenith.PluginInfo;
+import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.base.events.PluginDisableEvent;
 import com.lemonlightmc.zenith.base.events.PluginEnableEvent;
 import com.lemonlightmc.zenith.base.events.PluginLoadEvent;
 import com.lemonlightmc.zenith.base.events.PluginReloadEvent;
 import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
-import com.lemonlightmc.zenith.messages.MessageStore;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 import com.lemonlightmc.zenith.utils.StringUtils;
@@ -30,7 +30,7 @@ public abstract class PluginBase implements IPlugin {
   private Server server = null;
   private Scheduler scheduler = null;
   private ClassLoader classLoader = null;
-  private MessageStore messageStore = null;
+  private MessageAPI messageAPI = null;
 
   private final File file;
   private final File dataFolder;
@@ -102,10 +102,9 @@ public abstract class PluginBase implements IPlugin {
 
   public void load() {
     MessageFormatter.setPlaceholdersSupport(server.getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    if (messageStore == null) {
-      messageStore = new MessageStore();
+    if (messageAPI == null) {
+      messageAPI = new MessageAPI();
     }
-    messageStore.loadAll();
     if (scheduler == null) {
       scheduler = new BukkitScheduler();
     }
@@ -127,7 +126,6 @@ public abstract class PluginBase implements IPlugin {
 
   public void reload() {
     MessageFormatter.setPlaceholdersSupport(server.getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    messageStore.reloadAll();
     if (Configurate.options().autoReload()) {
       Configurate.reloadAll();
     }
@@ -225,8 +223,8 @@ public abstract class PluginBase implements IPlugin {
   }
 
   @Override
-  public MessageStore getMessageStore() {
-    return messageStore;
+  public MessageAPI messageAPI() {
+    return messageAPI;
   }
 
   @Override

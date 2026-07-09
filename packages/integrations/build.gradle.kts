@@ -8,6 +8,7 @@ dependencies {
     compileOnly("com.github.NEZNAMY:TAB-API:6.0.0")
     compileOnly("com.viaversion:viaversion-api:5.9.2-SNAPSHOT")
     implementation(project(":zenith-core"))
+    implementation(project(":zenith-additive"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-integrations"

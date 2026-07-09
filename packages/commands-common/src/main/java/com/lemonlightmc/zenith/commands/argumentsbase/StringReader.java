@@ -2,9 +2,9 @@ package com.lemonlightmc.zenith.commands.argumentsbase;
 
 import java.util.ArrayDeque;
 
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.CommandSyntaxExceptionContainer;
-import com.lemonlightmc.zenith.math.NumberConversions;
 
 public class StringReader {
   private static final char SYNTAX_ESCAPE = '\\';

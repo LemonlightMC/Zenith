@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.additive.Cloneable;
 
 public class MojangProfile implements Cloneable<MojangProfile> {
   private final UUID uuid;

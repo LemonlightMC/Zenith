@@ -3,7 +3,7 @@ package com.lemonlightmc.zenith.version;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.lemonlightmc.zenith.math.NumberConversions;
+import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
 public class SemverVersion extends Version {
 

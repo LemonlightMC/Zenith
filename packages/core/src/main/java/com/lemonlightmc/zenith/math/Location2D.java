@@ -10,7 +10,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.util.NumberConversions;
 
-import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.additive.Cloneable;
 
 public class Location2D implements Cloneable<Location2D>, ConfigurationSerializable {
   private Reference<World> world;

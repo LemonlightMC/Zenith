@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import com.lemonlightmc.zenith.interfaces.ParameterizedBuilder;
+import com.lemonlightmc.zenith.additive.ParameterizedBuilder;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler.ThreadContext;
 
 /**

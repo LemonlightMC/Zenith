@@ -7,6 +7,10 @@ import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
+import com.lemonlightmc.zenith.additive.math.ranges.DoubleRange;
+import com.lemonlightmc.zenith.additive.math.ranges.FloatRange;
+import com.lemonlightmc.zenith.additive.math.ranges.IntegerRange;
+import com.lemonlightmc.zenith.additive.math.ranges.LongRange;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
@@ -16,10 +20,6 @@ import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.CommandSyntaxExceptionContainer;
 import com.lemonlightmc.zenith.math.Location2D;
 import com.lemonlightmc.zenith.math.Rotation;
-import com.lemonlightmc.zenith.math.ranges.DoubleRange;
-import com.lemonlightmc.zenith.math.ranges.FloatRange;
-import com.lemonlightmc.zenith.math.ranges.IntegerRange;
-import com.lemonlightmc.zenith.math.ranges.LongRange;
 
 public class NumberArguments {
   private static final CommandSyntaxExceptionContainer INVALID_RANGE = new CommandSyntaxExceptionContainer(

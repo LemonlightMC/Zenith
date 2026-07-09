@@ -5,6 +5,7 @@ dependencies {
     //compileOnly("com.github.Traqueur-dev:RecipesAPI:2.0.2")
     //compileOnly("dev.jorel:commandapi-bukkit-shade:10.1.2")
     implementation(project(":zenith-core"))
+    implementation(project(":zenith-additive"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-custom"

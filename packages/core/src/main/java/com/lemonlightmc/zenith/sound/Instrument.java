@@ -1,6 +1,6 @@
 package com.lemonlightmc.zenith.sound;
 
-import com.lemonlightmc.zenith.interfaces.Builder;
+import com.lemonlightmc.zenith.additive.Builder;
 import com.lemonlightmc.zenith.utils.MathUtils;
 
 public class Instrument {

@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly("me.clip:placeholderapi:2.12.2")
+    compileOnly("me.clip:placeholderapi:2.12.3")
     compileOnly("org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT")
     //compileOnly("com.github.Traqueur-dev:RecipesAPI:2.0.2")
     //compileOnly("com.github.MilkBowl:VaultAPI:1.7")

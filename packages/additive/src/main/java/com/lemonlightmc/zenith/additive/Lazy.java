@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class Lazy<@Nullable T> implements Supplier<T> {
+public class Lazy<T> implements Supplier<T> {
 
   protected volatile Supplier<T> supplier;
   protected volatile T value;

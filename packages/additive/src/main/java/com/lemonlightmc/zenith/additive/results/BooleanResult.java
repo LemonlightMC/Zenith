@@ -130,6 +130,12 @@ public sealed interface BooleanResult<E> {
   BooleanResult<E> mapToBoolean(
       Function<Boolean, Boolean> function);
 
+  /** Replaces the success value without reading it. */
+  default <N> Result<N, E> replace(final Supplier<? extends N> supplier) {
+    Objects.requireNonNull(supplier);
+    return map(ignored -> supplier.get());
+  }
+
   /**
    * If in error state, returns a {@code BooleanResult} containing the result
    * of applying the given mapping function to the error value, otherwise
@@ -165,6 +171,13 @@ public sealed interface BooleanResult<E> {
    */
   <N> Result<N, E> flatMap(
       Function<Boolean, Result<? extends N, ? extends E>> function);
+
+  /** Replaces this result with a supplied result when in success state. */
+  default <N> Result<N, E> flatReplace(
+      final Supplier<Result<? extends N, ? extends E>> supplier) {
+    Objects.requireNonNull(supplier);
+    return flatMap(ignored -> supplier.get());
+  }
 
   /**
    * If in success state, returns the {@code OptionalResult} from applying
@@ -427,7 +440,7 @@ public sealed interface BooleanResult<E> {
    * predicate evaluates to true, or the {@code BooleanResult} already was in
    * error state, the original {@code BooleanResult} is returned unaltered.
    *
-   * @param predicate     the predicate used to verify the boolean success value,
+   * @param predicate     the predicate used to filter the boolean success value,
    *                      if success state
    * @param errorSupplier supplier providing the error if predicate evaluates
    *                      to false
@@ -440,7 +453,7 @@ public sealed interface BooleanResult<E> {
    *                              supplier is {@code null} or
    *                              returns {@code null}
    */
-  BooleanResult<E> verify(Predicate<Boolean> predicate,
+  BooleanResult<E> filter(Predicate<Boolean> predicate,
       Supplier<? extends E> errorSupplier);
 
   /**
@@ -463,7 +476,7 @@ public sealed interface BooleanResult<E> {
    * @throws NullPointerException if the given function is {@code null} or
    *                              returns {@code null}
    */
-  BooleanResult<E> verify(Function<Boolean, ? extends VoidResult<? extends E>> function);
+  BooleanResult<E> filter(Function<Boolean, ? extends VoidResult<? extends E>> function);
 
   /**
    * Retrieve a value from this {@code BooleanResult} by folding the states.
@@ -795,7 +808,7 @@ public sealed interface BooleanResult<E> {
     }
 
     @Override
-    public BooleanResult<ERR> verify(final Predicate<Boolean> predicate, final Supplier<? extends ERR> errorSupplier) {
+    public BooleanResult<ERR> filter(final Predicate<Boolean> predicate, final Supplier<? extends ERR> errorSupplier) {
       if (predicate.test(value)) {
         return safeCast();
       } else {
@@ -804,7 +817,7 @@ public sealed interface BooleanResult<E> {
     }
 
     @Override
-    public BooleanResult<ERR> verify(final Function<Boolean, ? extends VoidResult<? extends ERR>> function) {
+    public BooleanResult<ERR> filter(final Function<Boolean, ? extends VoidResult<? extends ERR>> function) {
       final VoidResult<? extends ERR> apply = function.apply(value);
       return apply.fold(() -> this, BooleanResult::error);
     }
@@ -1002,12 +1015,12 @@ public sealed interface BooleanResult<E> {
     }
 
     @Override
-    public BooleanResult<ERR> verify(final Predicate<Boolean> predicate, final Supplier<? extends ERR> errorSupplier) {
+    public BooleanResult<ERR> filter(final Predicate<Boolean> predicate, final Supplier<? extends ERR> errorSupplier) {
       return safeCast();
     }
 
     @Override
-    public BooleanResult<ERR> verify(final Function<Boolean, ? extends VoidResult<? extends ERR>> function) {
+    public BooleanResult<ERR> filter(final Function<Boolean, ? extends VoidResult<? extends ERR>> function) {
       return safeCast();
     }
 

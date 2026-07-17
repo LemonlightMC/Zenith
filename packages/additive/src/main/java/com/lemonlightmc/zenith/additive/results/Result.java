@@ -190,6 +190,127 @@ public sealed interface Result<T, E> {
       Function<? super T, VoidResult<E>> function);
 
   /**
+   * If in success state, returns a {@code Result} containing the value
+   * provided by the given supplier, otherwise returns a {@code Result}
+   * containing the error value of this {@code Result}.
+   *
+   * @param supplier the supplier to provide the value if success state, may
+   *                 not be {@code null}
+   * @param <N>      the type of the value provided by the supplier
+   * @return a {@code Result} containing the value provided by the given
+   *         supplier, if in success state, otherwise a {@code Result} containing
+   *         the
+   *         error value of this {@code Result}
+   * @throws NullPointerException if the given supplier is {@code null} or
+   *                              returns {@code null}
+   */
+  <N> Result<N, E> replace(Supplier<? extends N> supplier);
+
+  /**
+   * If in success state, returns a {@code OptionalResult} containing the
+   * optional value provided by given supplier, otherwise returns a
+   * {@code OptionalResult} containing the error value of this
+   * {@code Result}.
+   *
+   * @param supplier the supplier to provide the optional value if success
+   *                 state, may not be {@code null}
+   * @param <N>      the type of the value which may be present in the
+   *                 {@code Optional} provided by the supplier
+   * @return a {@code OptionalResult} containing the optional value provided
+   *         by the given supplier, if in success state, otherwise a
+   *         {@code OptionalResult} containing the error value of this
+   *         {@code Result}
+   * @throws NullPointerException if the given supplier is {@code null} or
+   *                              returns {@code null}
+   */
+  <N> OptionalResult<N, E> replaceWithOptional(
+      Supplier<Optional<? extends N>> supplier);
+
+  /**
+   * If in success state, returns a {@code BooleanResult} containing the
+   * boolean value provided by the given supplier, otherwise returns a
+   * {@code BooleanResult} containing the error value of this
+   * {@code Result}.
+   *
+   * @param supplier the supplier to provide the boolean value if success
+   *                 state, may not be {@code null}
+   * @return a {@code BooleanResult} containing the boolean value provided by
+   *         the given supplier, if in success state, otherwise a
+   *         {@code BooleanResult} containing the error value of this
+   *         {@code Result}
+   * @throws NullPointerException if the given supplier is {@code null} or
+   *                              returns {@code null}
+   */
+  BooleanResult<E> replaceWithBoolean(Supplier<Boolean> supplier);
+
+  /**
+   * If in success state, returns the {@code Result} provided by the given
+   * supplier, otherwise returns a {@code Result} containing the error value
+   * of this {@code Result}.
+   *
+   * @param <N>      the type of success value which may be present in the
+   *                 {@code Result} provided by the supplier
+   * @param supplier the supplier to provide the {@code Result}, if success
+   *                 state
+   * @return the {@code Result} provided by the supplier, if in success state,
+   *         otherwise a {@code Result} containing the error value of this
+   *         {@code Result}
+   * @throws NullPointerException if the given supplier is {@code null} or
+   *                              returns {@code null}
+   */
+  <N> Result<N, E> flatReplace(
+      Supplier<Result<? extends N, ? extends E>> supplier);
+
+  /**
+   * If in success state, returns the {@code OptionalResult} provided by the
+   * given supplier, otherwise returns an {@code OptionalResult} containing
+   * the error value of this {@code Result}.
+   *
+   * @param <N>      the type of success value which may be present in the
+   *                 {@code OptionalResult} provided by the supplier
+   * @param supplier the supplier to provide the {@code OptionalResult}, if
+   *                 success state
+   * @return the {@code OptionalResult} provided by the supplier, if in
+   *         success state, otherwise an {@code OptionalResult} containing the
+   *         error
+   *         value of this {@code Result}
+   * @throws NullPointerException if the given supplier is {@code null} or
+   *                              returns {@code null}
+   */
+  <N> OptionalResult<N, E> flatReplaceToOptionalResult(
+      Supplier<OptionalResult<? extends N, ? extends E>> supplier);
+
+  /**
+   * If in success state, returns the {@code BooleanResult} provided by the
+   * given supplier, otherwise returns a {@code BooleanResult} containing the
+   * error value of this {@code Result}.
+   *
+   * @param supplier the supplier to provide the {@code BooleanResult}, if
+   *                 success state
+   * @return the {@code BooleanResult} provided by the supplier, if in
+   *         success state, otherwise a {@code BooleanResult} containing the error
+   *         value of this {@code Result}
+   * @throws NullPointerException if the given supplier is {@code null} or
+   *                              returns {@code null}
+   */
+  BooleanResult<E> flatReplaceToBooleanResult(
+      Supplier<BooleanResult<? extends E>> supplier);
+
+  /**
+   * If in success state, returns the {@code VoidResult} provided by the given
+   * supplier, otherwise returns the unaltered {@code VoidResult} in error
+   * state.
+   *
+   * @param supplier the supplier to provide the {@code VoidResult}, if
+   *                 success state
+   * @return the {@code VoidResult} provided by the supplier, if in success
+   *         state, otherwise the unaltered {@code VoidResult} in error state
+   * @throws NullPointerException if the given mapping function is
+   *                              {@code null} or returns {@code null}
+   */
+  VoidResult<E> flatReplaceToVoidResult(Supplier<VoidResult<? extends E>> supplier);
+
+  /**
    * If in error state, returns a {@code Result} with the success value from
    * applying the given mapping function to the error value, otherwise returns
    * the unaltered {@code Result} in success state.
@@ -334,7 +455,7 @@ public sealed interface Result<T, E> {
    * {@code Result} already was in error state, the original {@code Result} is
    * returned unaltered.
    *
-   * @param predicate     the predicate used to verify the success value, if
+   * @param predicate     the predicate used to filter the success value, if
    *                      success state
    * @param errorSupplier supplier providing the error if predicate evaluates
    *                      to false
@@ -347,29 +468,29 @@ public sealed interface Result<T, E> {
    *                              supplier is {@code null} or
    *                              returns {@code null}
    */
-  Result<T, E> verify(Predicate<? super T> predicate,
+  Result<T, E> filter(Predicate<? super T> predicate,
       Supplier<? extends E> errorSupplier);
 
   /**
    * If in success state, verifies the success value of this {@code Result} by
-   * mapping it to a {@code VoidResult}. If the returned {@code VoidResult} is
+   * mapping it to a {@code Result}. If the returned {@code Result} is
    * in error state, a new {@code Result} is returned containing the error
-   * value of the {@code VoidResult}. If the {@code VoidResult} is in success
+   * value of the {@code Result}. If the {@code Result} is in success
    * state, or the {@code Result} already was in error state, the original
    * {@code Result} is returned unaltered.
    *
    * @param function the function applied to the success value, if success
    *                 state
    * @return the original {@code Result} unaltered, unless the
-   *         {@code VoidResult} returned by the mapping function is in error
+   *         {@code Result} returned by the mapping function is in error
    *         state,
    *         then a new {@code Result} in error state is returned containing the
    *         error
-   *         value from the {@code VoidResult}
+   *         value from the {@code Result}
    * @throws NullPointerException if the given function is {@code null} or
    *                              returns {@code null}
    */
-  Result<T, E> verify(Function<? super T, ? extends VoidResult<? extends E>> function);
+  Result<T, E> filter(Function<? super T, ? extends VoidResult<? extends E>> function);
 
   /**
    * Retrieve a value from this {@code Result} by folding the states. If in
@@ -553,6 +674,53 @@ public sealed interface Result<T, E> {
     }
 
     @Override
+    public <N> Result<N, ERR> replace(final Supplier<? extends N> supplier) {
+      Objects.requireNonNull(supplier);
+      return Result.success(supplier.get());
+    }
+
+    @Override
+    public <N> OptionalResult<N, ERR> replaceWithOptional(final Supplier<Optional<? extends N>> supplier) {
+      Objects.requireNonNull(supplier);
+      return OptionalResult.success(supplier.get());
+    }
+
+    @Override
+    public BooleanResult<ERR> replaceWithBoolean(final Supplier<Boolean> supplier) {
+      Objects.requireNonNull(supplier);
+      return BooleanResult.success(supplier.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <N> Result<N, ERR> flatReplace(final Supplier<Result<? extends N, ? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return (Result<N, ERR>) Objects.requireNonNull(supplier.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <N> OptionalResult<N, ERR> flatReplaceToOptionalResult(
+        final Supplier<OptionalResult<? extends N, ? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return (OptionalResult<N, ERR>) Objects.requireNonNull(supplier.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BooleanResult<ERR> flatReplaceToBooleanResult(final Supplier<BooleanResult<? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return (BooleanResult<ERR>) Objects.requireNonNull(supplier.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public VoidResult<ERR> flatReplaceToVoidResult(final Supplier<VoidResult<? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return (VoidResult<ERR>) Objects.requireNonNull(supplier.get());
+    }
+
+    @Override
     public Result<S, ERR> recover(final Function<ERR, S> function) {
       return safeCast();
     }
@@ -621,7 +789,7 @@ public sealed interface Result<T, E> {
     }
 
     @Override
-    public Result<S, ERR> verify(final Predicate<? super S> predicate, final Supplier<? extends ERR> errorSupplier) {
+    public Result<S, ERR> filter(final Predicate<? super S> predicate, final Supplier<? extends ERR> errorSupplier) {
       Objects.requireNonNull(errorSupplier);
       if (predicate.test(value)) {
         return safeCast();
@@ -631,7 +799,7 @@ public sealed interface Result<T, E> {
     }
 
     @Override
-    public Result<S, ERR> verify(final Function<? super S, ? extends VoidResult<? extends ERR>> function) {
+    public Result<S, ERR> filter(final Function<? super S, ? extends VoidResult<? extends ERR>> function) {
       final VoidResult<? extends ERR> apply = function.apply(value);
       return apply.fold(() -> this, Result::error);
     }
@@ -745,6 +913,49 @@ public sealed interface Result<T, E> {
     }
 
     @Override
+    public <N> Result<N, ERR> replace(final Supplier<? extends N> supplier) {
+      Objects.requireNonNull(supplier);
+      return Result.error(error);
+    }
+
+    @Override
+    public <N> OptionalResult<N, ERR> replaceWithOptional(final Supplier<Optional<? extends N>> supplier) {
+      Objects.requireNonNull(supplier);
+      return OptionalResult.error(error);
+    }
+
+    @Override
+    public BooleanResult<ERR> replaceWithBoolean(final Supplier<Boolean> supplier) {
+      Objects.requireNonNull(supplier);
+      return BooleanResult.error(error);
+    }
+
+    @Override
+    public <N> Result<N, ERR> flatReplace(final Supplier<Result<? extends N, ? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return Result.error(error);
+    }
+
+    @Override
+    public <N> OptionalResult<N, ERR> flatReplaceToOptionalResult(
+        final Supplier<OptionalResult<? extends N, ? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return OptionalResult.error(error);
+    }
+
+    @Override
+    public BooleanResult<ERR> flatReplaceToBooleanResult(final Supplier<BooleanResult<? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return BooleanResult.error(error);
+    }
+
+    @Override
+    public VoidResult<ERR> flatReplaceToVoidResult(final Supplier<VoidResult<? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
+      return VoidResult.error(error);
+    }
+
+    @Override
     public Result<S, ERR> recover(final Function<ERR, S> function) {
       return new Success<>(function.apply(error));
     }
@@ -811,13 +1022,13 @@ public sealed interface Result<T, E> {
     }
 
     @Override
-    public Result<S, ERR> verify(final Predicate<? super S> predicate, final Supplier<? extends ERR> errorSupplier) {
+    public Result<S, ERR> filter(final Predicate<? super S> predicate, final Supplier<? extends ERR> errorSupplier) {
       Objects.requireNonNull(errorSupplier);
       return safeCast();
     }
 
     @Override
-    public Result<S, ERR> verify(final Function<? super S, ? extends VoidResult<? extends ERR>> function) {
+    public Result<S, ERR> filter(final Function<? super S, ? extends VoidResult<? extends ERR>> function) {
       Objects.requireNonNull(function);
       return safeCast();
     }

@@ -3,10 +3,12 @@ package com.lemonlightmc.zenith.additive.results;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * A result object which either is in success state containing a
@@ -72,6 +74,22 @@ public sealed interface BooleanResult<E> {
     return new Error<>(Objects.requireNonNull(value));
   }
 
+  /** Returns a boolean result in success state. */
+  static <E> BooleanResult<E> of(final boolean value) {
+    return success(value);
+  }
+
+  /** Executes the callable and captures a thrown exception as an error. */
+  static BooleanResult<Exception> of(final Callable<Boolean> callable) {
+    return handle(callable);
+  }
+
+  /** Executes the callable and maps a thrown exception to an error value. */
+  static <E> BooleanResult<E> of(final Callable<Boolean> callable,
+      final Function<Exception, E> exceptionMapper) {
+    return handle(callable, exceptionMapper);
+  }
+
   /**
    * If in success state, returns a {@code Result} containing the result of
    * applying the given mapping function to the boolean success value,
@@ -91,6 +109,12 @@ public sealed interface BooleanResult<E> {
    *                              {@code null} or returns {@code null}
    */
   <N> Result<N, E> map(Function<Boolean, ? extends N> function);
+
+  /** Maps a successful result to a supplied value. */
+  default <N> Result<N, E> map(final Supplier<? extends N> supplier) {
+    Objects.requireNonNull(supplier);
+    return map(ignored -> supplier.get());
+  }
 
   /**
    * If in success state, returns a {@code OptionalResult} containing the
@@ -171,6 +195,21 @@ public sealed interface BooleanResult<E> {
    */
   <N> Result<N, E> flatMap(
       Function<Boolean, Result<? extends N, ? extends E>> function);
+
+  /** Flat-maps a successful result with an additional argument. */
+  default <N, U> Result<N, E> flatMap(
+      final BiFunction<Boolean, ? super U, Result<? extends N, ? extends E>> function,
+      final U argument) {
+    Objects.requireNonNull(function);
+    return flatMap(value -> function.apply(value, argument));
+  }
+
+  /** Flat-maps a successful result to a supplied result. */
+  default <N> Result<N, E> flatMap(
+      final Supplier<? extends Result<? extends N, ? extends E>> supplier) {
+    Objects.requireNonNull(supplier);
+    return flatMap(ignored -> supplier.get());
+  }
 
   /** Replaces this result with a supplied result when in success state. */
   default <N> Result<N, E> flatReplace(
@@ -562,6 +601,22 @@ public sealed interface BooleanResult<E> {
    */
   Boolean orElseGet(Function<? super E, Boolean> function);
 
+  /** Returns the success value or a supplied fallback. */
+  default Boolean orElse(final Supplier<Boolean> supplier) {
+    Objects.requireNonNull(supplier);
+    return orElseGet(ignored -> supplier.get());
+  }
+
+  /** Returns the success value or maps the error to a fallback. */
+  default Boolean orElse(final Function<? super E, Boolean> function) {
+    return orElseGet(function);
+  }
+
+  /** Returns the success value, or {@code null} when in error state. */
+  default Boolean get() {
+    return orElse((Boolean) null);
+  }
+
   /**
    * If in success state, returns the boolean success value, otherwise throws
    * the exception returned by the given function.
@@ -576,6 +631,33 @@ public sealed interface BooleanResult<E> {
    */
   <X extends Throwable> Boolean orElseThrow(
       Function<? super E, ? extends X> function) throws X;
+
+  /** Returns the success value or throws the mapped exception. */
+  default <X extends Throwable> Boolean getOrThrow(
+      final Function<? super E, ? extends X> function) throws X {
+    return orElseThrow(function);
+  }
+
+  /** Returns the success value or throws an IllegalStateException. */
+  default Boolean getOrThrow(final String message) {
+    Objects.requireNonNull(message);
+    return orElseThrow(error -> new IllegalStateException(message + ": " + error));
+  }
+
+  /** Returns whether this result is in success state. */
+  default boolean isSuccess() {
+    return fold(value -> true, error -> false);
+  }
+
+  /** Returns whether this result is in error state. */
+  default boolean isError() {
+    return !isSuccess();
+  }
+
+  /** Returns a stream containing the success value, if present. */
+  default Stream<Boolean> stream() {
+    return fold(Stream::of, error -> Stream.empty());
+  }
 
   /**
    * Transforms this {@code BooleanResult} to an {@code OptionalResult}. If in

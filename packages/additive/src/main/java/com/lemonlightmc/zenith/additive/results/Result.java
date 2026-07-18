@@ -1,12 +1,16 @@
 package com.lemonlightmc.zenith.additive.results;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * A result object which either is in success state containing a
@@ -51,6 +55,197 @@ public sealed interface Result<T, E> {
   }
 
   /**
+   * Returns a {@code Result} in success state containing the given
+   * non-{@code null} value as success value.
+   *
+   * @param value the success value, which must be non-{@code null}
+   * @param <T>   the type of the success value
+   * @param <E>   the type of the error value
+   * @return a {@code Result} in success state containing the given success
+   *         value
+   * @throws NullPointerException if given success value is {@code null}
+   */
+  static <T, E> Result<T, E> of(final T value) {
+    return success(value);
+  }
+
+  /**
+   * Returns a {@code VoidResult} in success state.
+   *
+   * @param <E> the type of the error value
+   * @return a {@code VoidResult} in success state
+   */
+  static <E> VoidResult<E> of() {
+    return VoidResult.success();
+  }
+
+  /**
+   * Handle the given {@code Callable}. If the {@code Callable} executes
+   * successfully, the {@code Result} will be in success state containing the
+   * returned value. If the {@code Callable} throws an exception, the
+   * {@code Result} will be in error state containing the thrown exception.
+   *
+   * @param callable the {@code Callable} to handle
+   * @param <T>      type of the return value of the {@code Callable}
+   * @return a {@code Result} either in success state containing the value
+   *         from the {@code Callable}, or in error state containing the exception
+   *         thrown by the {@code Callable}
+   * @throws NullPointerException if the given callable is {@code null} or
+   *                              returns {@code null}
+   */
+
+  static <T> Result<T, Exception> of(final Callable<T> callable) {
+    Objects.requireNonNull(callable);
+    try {
+      return Result.success(callable.call());
+    } catch (final Exception e) {
+      return Result.error(e);
+    }
+  }
+
+  /**
+   * Handle the given {@code Callable}. If the {@code Callable} executes
+   * successfully, the {@code Result} will be in success state containing the
+   * returned value. If the {@code Callable} throws an exception, the
+   * {@code Result} will be in error state containing the result after mapping
+   * the exception with the given exception mapper function.
+   *
+   * @param callable the {@code Callable} to handle
+   * @param <T>      type of the return value of the {@code Callable}
+   * @param <E>      type of the error value after mapping a thrown exception
+   * @return a {@code Result} either in success state containing the value
+   *         from the {@code Callable}, or in error state containing the result
+   *         after
+   *         mapping the exception thrown by the {@code Callable}
+   * @throws NullPointerException if the given callable is {@code null} or
+   *                              returns {@code null}, or if the given exception
+   *                              mapper function is
+   *                              {@code null} or returns {@code null}
+   */
+  static <T, E> Result<T, E> of(final Callable<T> callable,
+      final Function<Exception, E> exceptionMapper) {
+    Objects.requireNonNull(callable);
+    Objects.requireNonNull(exceptionMapper);
+    try {
+      return Result.success(callable.call());
+    } catch (final Exception e) {
+      return Result.error(exceptionMapper.apply(e));
+    }
+  }
+
+  /**
+   * Returns a {@code Result} in success state containing a list of all
+   * success values from the given {@code Result}s, or the first error
+   * {@code Result} if any of the given {@code Result}s is in error state.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  static <T, E> Result<List<T>, E> all(
+      final Iterable<? extends Result<? extends T, ? extends E>> results) {
+    Objects.requireNonNull(results);
+
+    final List<T> values = new ArrayList<>();
+    for (final Result<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isError()) {
+        return (Result<List<T>, E>) result;
+      }
+      values.add((T) ((Success<?, ?>) result).value());
+    }
+    return success(List.copyOf(values));
+  }
+
+  /**
+   * Returns a {@code Result} in success state containing a list of all
+   * success values from the given {@code Result}s, or the first error
+   * {@code Result} if any of the given {@code Result}s is in error state.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  static <T, E> Result<List<T>, E> all(final Result<? extends T, ? extends E>... results) {
+    Objects.requireNonNull(results);
+
+    final List<T> values = new ArrayList<>();
+    for (final Result<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isError()) {
+        return (Result<List<T>, E>) result;
+      }
+      values.add((T) ((Success<?, ?>) result).value());
+    }
+    return success(List.copyOf(values));
+  }
+
+  /**
+   * Returns the first successful {@code Result}, or the last error when none
+   * succeeds.
+   * At least one result must be supplied.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  static <T, E> Result<T, E> any(
+      final Iterable<? extends Result<? extends T, ? extends E>> results) {
+    Objects.requireNonNull(results);
+
+    Result<T, E> lastError = null;
+    for (final Result<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isSuccess()) {
+        return (Result<T, E>) result;
+      }
+      lastError = (Result<T, E>) result;
+    }
+    return lastError;
+  }
+
+  /**
+   * Returns the first successful {@code Result}, or the last error when none
+   * succeeds.
+   * At least one result must be supplied.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  static <T, E> Result<T, E> any(final Result<? extends T, ? extends E>... results) {
+    Objects.requireNonNull(results);
+
+    Result<T, E> lastError = null;
+    for (final Result<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isSuccess()) {
+        return (Result<T, E>) result;
+      }
+      lastError = (Result<T, E>) result;
+    }
+    return lastError;
+  }
+
+  /**
    * If in success state, returns a {@code Result} containing the result of
    * applying the given mapping function to the success value, otherwise
    * returns the unaltered {@code Result} in error state.
@@ -65,6 +260,22 @@ public sealed interface Result<T, E> {
    *                              {@code null} or returns {@code null}
    */
   <N> Result<N, E> map(Function<? super T, ? extends N> function);
+
+  /**
+   * If in success state, returns a {@code Result} containing the result of
+   * the given supplier, otherwise returns the unaltered {@code Result}
+   * in error state.
+   *
+   * @param supplier the supplier of the success value, if
+   *                 success state
+   * @param <N>      the type of the value returned from the supplier
+   * @return a {@code Result} containing the result of applying the mapping
+   *         function to the success value of this {@code Result}, if in success
+   *         state, otherwise the unaltered {@code Result} in error state
+   * @throws NullPointerException if the given supplier is
+   *                              {@code null} or returns {@code null}
+   */
+  <N> Result<N, E> map(final Supplier<? extends N> supplier);
 
   /**
    * If in success state, returns a {@code OptionalResult} containing the
@@ -135,6 +346,40 @@ public sealed interface Result<T, E> {
    */
   <N> Result<N, E> flatMap(
       Function<? super T, ? extends Result<? extends N, ? extends E>> function);
+
+  /**
+   * If in success state, returns the {@code Result} from applying the given
+   * mapping function to the success value and the given argument, otherwise
+   * returns the unaltered {@code Result} in error state.
+   * 
+   * @param <N>      the type of success value which may be present in the
+   *                 {@code Result} returned by the mapping function
+   * @param <U>      the type of the argument to be passed to the mapping function
+   * @param function the mapping function to apply to the success value and the
+   *                 given argument, if success state
+   * @return the {@code Result} returned from the mapping function, if in
+   *         success state, otherwise the unaltered {@code Result} in error state
+   * @throws NullPointerException if the given mapping function is
+   *                              {@code null} or returns {@code null}
+   */
+  <N, U> Result<N, E> flatMap(
+      final BiFunction<? super T, ? super U, ? extends Result<? extends N, ? extends E>> function,
+      final U argument);
+
+  /**
+   * If in success state, returns the {@code Result} from the given supplier,
+   * otherwise returns the unaltered {@code Result} in error state.
+   *
+   * @param supplier the supplier to provide the {@code Result}, if success
+   *                 state
+   * @param <N>      the type of success value which may be present in the
+   *                 {@code Result} provided by the supplier
+   * @return the {@code Result} provided by the supplier, if in success state,
+   *         otherwise the unaltered {@code Result} in error state
+   * @throws NullPointerException if the given supplier is {@code null} or
+   *                              returns {@code null}
+   */
+  <N> Result<N, E> flatMap(final Supplier<? extends Result<? extends N, ? extends E>> supplier);
 
   /**
    * If in success state, returns the {@code OptionalResult} from applying
@@ -523,6 +768,18 @@ public sealed interface Result<T, E> {
 
   /**
    * If in success state, returns the success value, otherwise returns the
+   * value returned from the given supplier.
+   *
+   * @param function the mapping function to apply to the error value, if not
+   *                 in success state, it may return {@code null}
+   * @return the success value, if success state, otherwise the result
+   *         returned from the given function
+   * @throws NullPointerException if the given function is {@code null}
+   */
+  T orElse(final Supplier<? extends T> supplier);
+
+  /**
+   * If in success state, returns the success value, otherwise returns the
    * value returned from the given function.
    *
    * @param function the mapping function to apply to the error value, if not
@@ -531,7 +788,13 @@ public sealed interface Result<T, E> {
    *         returned from the given function
    * @throws NullPointerException if the given function is {@code null}
    */
-  T orElseGet(Function<? super E, ? extends T> function);
+  T orElse(Function<? super E, ? extends T> function);
+
+  /**
+   * If in success state, returns the success value, otherwise returns
+   * {@code null}.
+   */
+  T get();
 
   /**
    * If in success state, returns the success value, otherwise throws the
@@ -545,8 +808,39 @@ public sealed interface Result<T, E> {
    * @throws NullPointerException if the given function is {@code null} or
    *                              returns {@code null}
    */
-  <X extends Throwable> T orElseThrow(
+  <X extends Throwable> T getOrThrow(
       Function<? super E, ? extends X> function) throws X;
+
+  /**
+   * If in success state, returns the success value, otherwise throws an
+   * IllegalStateException with the given message and the error value.
+   *
+   * @param function the mapping function producing an exception by applying
+   *                 the error value, if not in success state
+   * @return the success value, if success state
+   * @throws IllegalStateException if in error state
+   * @throws NullPointerException  if the given string is {@code null}
+   */
+  T getOrThrow(final String message) throws IllegalStateException;
+
+  /**
+   * Returns whether this result is in the success state.
+   */
+  boolean isSuccess();
+
+  /**
+   * Returns whether this result is in the error state.
+   */
+  boolean isError();
+
+  /**
+   * Returns a sequential {@code Stream} containing the success value if this
+   * result is in success state, otherwise returns an empty {@code Stream}.
+   *
+   * @return a sequential {@code Stream} containing the success value if this
+   *         result is in success state, otherwise an empty {@code Stream}
+   */
+  Stream<T> stream();
 
   /**
    * Transforms this {@code Result} to an {@code OptionalResult}. If in
@@ -574,56 +868,6 @@ public sealed interface Result<T, E> {
    */
   VoidResult<E> toVoidResult();
 
-  /**
-   * Handle the given {@code Callable}. If the {@code Callable} executes
-   * successfully, the {@code Result} will be in success state containing the
-   * returned value. If the {@code Callable} throws an exception, the
-   * {@code Result} will be in error state containing the thrown exception.
-   *
-   * @param callable the {@code Callable} to handle
-   * @param <T>      type of the return value of the {@code Callable}
-   * @return a {@code Result} either in success state containing the value
-   *         from the {@code Callable}, or in error state containing the exception
-   *         thrown by the {@code Callable}
-   * @throws NullPointerException if the given callable is {@code null} or
-   *                              returns {@code null}
-   */
-  static <T> Result<T, Exception> handle(final Callable<T> callable) {
-    Objects.requireNonNull(callable);
-    final T value;
-    try {
-      value = callable.call();
-    } catch (final Exception e) {
-      return Result.error(e);
-    }
-    return Result.success(value);
-  }
-
-  /**
-   * Handle the given {@code Callable}. If the {@code Callable} executes
-   * successfully, the {@code Result} will be in success state containing the
-   * returned value. If the {@code Callable} throws an exception, the
-   * {@code Result} will be in error state containing the result after mapping
-   * the exception with the given exception mapper function.
-   *
-   * @param callable the {@code Callable} to handle
-   * @param <T>      type of the return value of the {@code Callable}
-   * @param <E>      type of the error value after mapping a thrown exception
-   * @return a {@code Result} either in success state containing the value
-   *         from the {@code Callable}, or in error state containing the result
-   *         after
-   *         mapping the exception thrown by the {@code Callable}
-   * @throws NullPointerException if the given callable is {@code null} or
-   *                              returns {@code null}, or if the given exception
-   *                              mapper function is
-   *                              {@code null} or returns {@code null}
-   */
-  static <T, E> Result<T, E> handle(final Callable<T> callable,
-      final Function<Exception, E> exceptionMapper) {
-    Objects.requireNonNull(exceptionMapper);
-    return handle(callable).mapError(exceptionMapper);
-  }
-
   record Success<S, ERR>(S value) implements Result<S, ERR> {
     public Success(final S value) {
       this.value = Objects.requireNonNull(value);
@@ -632,6 +876,11 @@ public sealed interface Result<T, E> {
     @Override
     public <N> Result<N, ERR> map(final Function<? super S, ? extends N> function) {
       return new Success<>(function.apply(value));
+    }
+
+    @Override
+    public <N> Result<N, ERR> map(final Supplier<? extends N> supplier) {
+      return Result.success(Objects.requireNonNull(supplier).get());
     }
 
     @Override
@@ -655,6 +904,19 @@ public sealed interface Result<T, E> {
     public <N> Result<N, ERR> flatMap(
         final Function<? super S, ? extends Result<? extends N, ? extends ERR>> function) {
       return (Result<N, ERR>) Objects.requireNonNull(function.apply(value));
+    }
+
+    @Override
+    public <N, U> Result<N, ERR> flatMap(
+        final BiFunction<? super S, ? super U, ? extends Result<? extends N, ? extends ERR>> function,
+        final U argument) {
+      return flatMap(current -> Objects.requireNonNull(function).apply(current, argument));
+    }
+
+    @Override
+    public <N> Result<N, ERR> flatMap(
+        final Supplier<? extends Result<? extends N, ? extends ERR>> supplier) {
+      return flatMap(ignored -> Objects.requireNonNull(supplier).get());
     }
 
     @Override
@@ -818,15 +1080,47 @@ public sealed interface Result<T, E> {
     }
 
     @Override
-    public S orElseGet(final Function<? super ERR, ? extends S> function) {
+    public S orElse(final Supplier<? extends S> supplier) {
+      Objects.requireNonNull(supplier);
+      return value;
+    }
+
+    @Override
+    public S orElse(final Function<? super ERR, ? extends S> function) {
       Objects.requireNonNull(function);
       return value;
     }
 
     @Override
-    public <X extends Throwable> S orElseThrow(final Function<? super ERR, ? extends X> function) throws X {
+    public S get() {
+      return value;
+    }
+
+    @Override
+    public <X extends Throwable> S getOrThrow(final Function<? super ERR, ? extends X> function) throws X {
       Objects.requireNonNull(function);
       return value;
+    }
+
+    @Override
+    public S getOrThrow(final String message) {
+      Objects.requireNonNull(message);
+      return value;
+    }
+
+    @Override
+    public boolean isSuccess() {
+      return true;
+    }
+
+    @Override
+    public boolean isError() {
+      return false;
+    }
+
+    @Override
+    public Stream<S> stream() {
+      return Stream.of(value);
     }
 
     @Override
@@ -875,6 +1169,12 @@ public sealed interface Result<T, E> {
     }
 
     @Override
+    public <N> Result<N, ERR> map(final Supplier<? extends N> supplier) {
+      Objects.requireNonNull(supplier);
+      return safeCast();
+    }
+
+    @Override
     public <N> OptionalResult<N, ERR> mapToOptional(final Function<? super S, Optional<N>> function) {
       return OptionalResult.error(error);
     }
@@ -893,6 +1193,21 @@ public sealed interface Result<T, E> {
     public <N> Result<N, ERR> flatMap(
         final Function<? super S, ? extends Result<? extends N, ? extends ERR>> function) {
       Objects.requireNonNull(function);
+      return safeCast();
+    }
+
+    @Override
+    public <N, U> Result<N, ERR> flatMap(
+        final BiFunction<? super S, ? super U, ? extends Result<? extends N, ? extends ERR>> function,
+        final U argument) {
+      Objects.requireNonNull(function);
+      return safeCast();
+    }
+
+    @Override
+    public <N> Result<N, ERR> flatMap(
+        final Supplier<? extends Result<? extends N, ? extends ERR>> supplier) {
+      Objects.requireNonNull(supplier);
       return safeCast();
     }
 
@@ -1045,13 +1360,43 @@ public sealed interface Result<T, E> {
     }
 
     @Override
-    public S orElseGet(final Function<? super ERR, ? extends S> function) {
+    public S orElse(final Supplier<? extends S> supplier) {
+      return Objects.requireNonNull(supplier).get();
+    }
+
+    @Override
+    public S orElse(final Function<? super ERR, ? extends S> function) {
       return function.apply(error);
     }
 
     @Override
-    public <X extends Throwable> S orElseThrow(final Function<? super ERR, ? extends X> function) throws X {
+    public S get() {
+      return null;
+    }
+
+    @Override
+    public <X extends Throwable> S getOrThrow(final Function<? super ERR, ? extends X> function) throws X {
       throw function.apply(error);
+    }
+
+    @Override
+    public S getOrThrow(final String message) {
+      throw new IllegalStateException(Objects.requireNonNull(message) + ": " + error);
+    }
+
+    @Override
+    public boolean isSuccess() {
+      return false;
+    }
+
+    @Override
+    public boolean isError() {
+      return true;
+    }
+
+    @Override
+    public Stream<S> stream() {
+      return Stream.empty();
     }
 
     @Override

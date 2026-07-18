@@ -1,12 +1,16 @@
 package com.lemonlightmc.zenith.additive.results;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * A result object which either is in success state, where it may contain a
@@ -35,9 +39,10 @@ public sealed interface OptionalResult<T, E> {
    * @throws NullPointerException if given {@code Optional} is {@code null}
    */
   static <T, E> OptionalResult<T, E> success(final Optional<? extends T> maybeValue) {
-    @SuppressWarnings("unchecked")
-    final Optional<T> t = (Optional<T>) Objects.requireNonNull(maybeValue);
-    return t.map(OptionalResult::<T, E>success).orElse(empty());
+    if (maybeValue == null || maybeValue.isEmpty()) {
+      return new Empty<T, E>();
+    }
+    return new Value<T, E>(maybeValue.get());
   }
 
   /**
@@ -100,6 +105,236 @@ public sealed interface OptionalResult<T, E> {
   }
 
   /**
+   * Returns an {@code OptionalResult} in success state, which is empty with
+   * no success value.
+   *
+   * @param <T> the type of the success value
+   * @param <E> the type of the error value
+   * @return an empty {@code OptionalResult} in success state
+   */
+  static <E> VoidResult<E> of() {
+    return VoidResult.success();
+  }
+
+  /**
+   * Returns an {@code OptionalResult} in success state containing the given
+   * non-{@code null} value as success value.
+   *
+   * @param value the success value, which must be non-{@code null}
+   * @param <T>   the type of the success value
+   * @param <E>   the type of the error value
+   * @return an {@code OptionalResult} in success state containing the given
+   *         success value
+   * @throws NullPointerException if given success value is {@code null}
+   */
+  static <T, E> OptionalResult<T, E> of(final T value) {
+    return new Value<>(Objects.requireNonNull(value));
+  }
+
+  /**
+   * Returns an {@code OptionalResult} in success state either containing the
+   * given value as success value, or empty if the given value is null.
+   *
+   * @param value the success value, which may be {@code null}
+   * @param <T>   the type of the success value
+   * @param <E>   the type of the error value
+   * @return an {@code OptionalResult} in success state containing the given
+   *         success value if not null, otherwise an empty {@code OptionalResult}
+   */
+  static <T, E> OptionalResult<T, E> ofNullable(final T value) {
+    return new Value<>(value);
+  }
+
+  /**
+   * Returns an {@code OptionalResult} in success state containing the given
+   * non-{@code null} value as success value.
+   *
+   * @param maybeValue an {@code Optional} which may contain an success value,
+   *                   or may be empty
+   * @param <T>        the type of the success value which may be present in the
+   *                   given {@code Optional}
+   * @param <E>        the type of the error value
+   * @return an {@code OptionalResult} in success state which either contains
+   *         a success value or is empty
+   * @throws NullPointerException if given {@code Optional} is {@code null}
+   */
+  static <T, E> OptionalResult<T, E> of(final Optional<? extends T> maybeValue) {
+    if (maybeValue == null || maybeValue.isEmpty()) {
+      return new Empty<T, E>();
+    }
+    return new Value<T, E>(maybeValue.get());
+  }
+
+  /**
+   * Handle the given {@code Callable}. If the {@code Callable} executes
+   * successfully, the {@code OptionalResult} will be in success state
+   * containing the returned value. If the {@code Callable} throws an
+   * exception, the {@code OptionalResult} will be in error state containing
+   * the thrown exception.
+   *
+   * @param callable the {@code Callable} to handle
+   * @param <T>      type of the return value of the {@code Callable}
+   * @return a {@code OptionalResult} either in success state containing the
+   *         value from the {@code Callable}, or in error state containing the
+   *         exception thrown by the {@code Callable}
+   * @throws NullPointerException if the given callable is {@code null} or
+   *                              returns {@code null}
+   */
+  static <T> OptionalResult<T, Exception> of(final Callable<T> callable) {
+    Objects.requireNonNull(callable);
+    try {
+      return OptionalResult.success(callable.call());
+    } catch (final Exception e) {
+      return OptionalResult.error(e);
+    }
+  }
+
+  /**
+   * Handle the given {@code Callable}. If the {@code Callable} executes
+   * successfully, the {@code OptionalResult} will be in success state
+   * containing the returned value. If the {@code Callable} throws an
+   * exception, the {@code OptionalResult} will be in error state containing
+   * the result after mapping the exception with the given exception mapper
+   * function.
+   *
+   * @param callable the {@code Callable} to handle
+   * @param <T>      type of the return value of the {@code Callable}
+   * @param <E>      type of the error value after mapping a thrown exception
+   * @return a {@code OptionalResult} either in success state containing the
+   *         value from the {@code Callable}, or in error state containing the
+   *         result
+   *         after mapping the exception thrown by the {@code Callable}
+   * @throws NullPointerException if the given callable is {@code null} or
+   *                              returns {@code null}, or if the given exception
+   *                              mapper function is
+   *                              {@code null} or returns {@code null}
+   */
+  static <T, E> OptionalResult<T, E> of(final Callable<T> callable,
+      final Function<Exception, E> exceptionMapper) {
+    Objects.requireNonNull(callable);
+    Objects.requireNonNull(exceptionMapper);
+    try {
+      return OptionalResult.success(callable.call());
+    } catch (final Exception e) {
+      return OptionalResult.error(exceptionMapper.apply(e));
+    }
+  }
+
+  /**
+   * Returns a {@code OptionalResult} in success state containing a list of all
+   * success values from the given {@code OptionalResult}s, or the first error
+   * {@code OptionalResult} if any of the given {@code OptionalResult}s is in
+   * error state.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code OptionalResult}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  static <T, E> OptionalResult<List<T>, E> all(
+      final Iterable<? extends OptionalResult<? extends T, ? extends E>> results) {
+    Objects.requireNonNull(results);
+
+    final List<T> values = new ArrayList<>();
+    for (final OptionalResult<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isError()) {
+        return (OptionalResult<List<T>, E>) result;
+      }
+      values.add((T) ((Value<?, ?>) result).value());
+    }
+    return success(List.copyOf(values));
+  }
+
+  /**
+   * Returns a {@code OptionalResult} in success state containing a list of all
+   * success values from the given {@code OptionalResult}s, or the first error
+   * {@code OptionalResult} if any of the given {@code OptionalResult}s is in
+   * error state.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code OptionalResult}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  static <T, E> OptionalResult<List<T>, E> all(final OptionalResult<? extends T, ? extends E>... results) {
+    Objects.requireNonNull(results);
+
+    final List<T> values = new ArrayList<>();
+    for (final OptionalResult<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isError()) {
+        return (OptionalResult<List<T>, E>) result;
+      }
+      values.add((T) ((Value<?, ?>) result).value());
+    }
+    return success(List.copyOf(values));
+  }
+
+  /**
+   * Returns the first successful {@code OptionalResult}, or the last error when
+   * none succeeds.
+   * At least one result must be supplied.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  static <T, E> OptionalResult<T, E> any(
+      final Iterable<? extends OptionalResult<? extends T, ? extends E>> results) {
+    Objects.requireNonNull(results);
+
+    OptionalResult<T, E> lastError = null;
+    for (final OptionalResult<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isSuccess()) {
+        return (OptionalResult<T, E>) result;
+      }
+      lastError = (OptionalResult<T, E>) result;
+    }
+    return lastError;
+  }
+
+  /**
+   * Returns the first successful {@code OptionalResult}, or the last error when
+   * none succeeds.
+   * At least one result must be supplied.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  static <T, E> OptionalResult<T, E> any(final OptionalResult<? extends T, ? extends E>... results) {
+    Objects.requireNonNull(results);
+
+    OptionalResult<T, E> lastError = null;
+    for (final OptionalResult<? extends T, ? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isSuccess()) {
+        return (OptionalResult<T, E>) result;
+      }
+      lastError = (OptionalResult<T, E>) result;
+    }
+    return lastError;
+  }
+
+  /**
    * If in success state, returns a {@code Result} containing the result of
    * applying the given mapping function to the optional success value of this
    * {@code OptionalResult}, otherwise returns a {@code Result} containing the
@@ -118,6 +353,9 @@ public sealed interface OptionalResult<T, E> {
    *                              {@code null} or returns {@code null}
    */
   <N> Result<N, E> map(Function<Optional<T>, ? extends N> function);
+
+  /** Maps a successful result to a supplied value. */
+  <N> Result<N, E> map(final Supplier<? extends N> supplier);
 
   /**
    * If in success state, returns a {@code OptionalResult} containing the
@@ -250,6 +488,21 @@ public sealed interface OptionalResult<T, E> {
    */
   <N> Result<N, E> flatMap(
       Function<Optional<T>, Result<? extends N, ? extends E>> function);
+
+  /** Flat-maps a successful result with an additional argument. */
+  default <N, U> Result<N, E> flatMap(
+      final BiFunction<Optional<T>, ? super U, Result<? extends N, ? extends E>> function,
+      final U argument) {
+    Objects.requireNonNull(function);
+    return flatMap(value -> function.apply(value, argument));
+  }
+
+  /** Flat-maps a successful result to a supplied result. */
+  default <N> Result<N, E> flatMap(
+      final Supplier<? extends Result<? extends N, ? extends E>> supplier) {
+    Objects.requireNonNull(supplier);
+    return flatMap(ignored -> supplier.get());
+  }
 
   /**
    * If in success state, returns the {@code OptionalResult} from applying
@@ -848,6 +1101,22 @@ public sealed interface OptionalResult<T, E> {
    */
   Optional<T> orElseGet(Function<? super E, ? extends Optional<T>> function);
 
+  /** Returns the optional success value or a supplied fallback. */
+  default Optional<T> orElse(final Supplier<? extends Optional<T>> supplier) {
+    Objects.requireNonNull(supplier);
+    return orElseGet(ignored -> supplier.get());
+  }
+
+  /** Returns the optional success value or maps the error to a fallback. */
+  default Optional<T> orElse(final Function<? super E, ? extends Optional<T>> function) {
+    return orElseGet(function);
+  }
+
+  /** Returns the optional success value, or an empty optional on error. */
+  default Optional<T> get() {
+    return orElse(Optional.empty());
+  }
+
   /**
    * If in success state with a success value, returns the success value,
    * otherwise returns the value returned from the given function.
@@ -875,6 +1144,33 @@ public sealed interface OptionalResult<T, E> {
    */
   <X extends Throwable> Optional<T> orElseThrow(
       Function<? super E, ? extends X> function) throws X;
+
+  /** Returns the optional success value or throws the mapped exception. */
+  default <X extends Throwable> Optional<T> getOrThrow(
+      final Function<? super E, ? extends X> function) throws X {
+    return orElseThrow(function);
+  }
+
+  /** Returns the optional success value or throws an IllegalStateException. */
+  default Optional<T> getOrThrow(final String message) {
+    Objects.requireNonNull(message);
+    return orElseThrow(error -> new IllegalStateException(message + ": " + error));
+  }
+
+  /** Returns whether this result is in success state, including empty state. */
+  default boolean isSuccess() {
+    return fold(value -> true, error -> false);
+  }
+
+  /** Returns whether this result is in error state. */
+  default boolean isError() {
+    return !isSuccess();
+  }
+
+  /** Returns a stream containing the success value, if present. */
+  default Stream<T> stream() {
+    return fold(Optional::stream, error -> Stream.empty());
+  }
 
   /**
    * If in success state with a success value, returns the success value,
@@ -922,58 +1218,6 @@ public sealed interface OptionalResult<T, E> {
    *         containing the error value from this {@code OptionalResult}
    */
   VoidResult<E> toVoidResult();
-
-  /**
-   * Handle the given {@code Callable}. If the {@code Callable} executes
-   * successfully, the {@code OptionalResult} will be in success state
-   * containing the returned value. If the {@code Callable} throws an
-   * exception, the {@code OptionalResult} will be in error state containing
-   * the thrown exception.
-   *
-   * @param callable the {@code Callable} to handle
-   * @param <T>      type of the return value of the {@code Callable}
-   * @return a {@code OptionalResult} either in success state containing the
-   *         value from the {@code Callable}, or in error state containing the
-   *         exception thrown by the {@code Callable}
-   * @throws NullPointerException if the given callable is {@code null} or
-   *                              returns {@code null}
-   */
-  static <T> OptionalResult<T, Exception> handle(final Callable<Optional<T>> callable) {
-    Objects.requireNonNull(callable);
-    final Optional<T> value;
-    try {
-      value = callable.call();
-    } catch (final Exception e) {
-      return OptionalResult.error(e);
-    }
-    return OptionalResult.success(value);
-  }
-
-  /**
-   * Handle the given {@code Callable}. If the {@code Callable} executes
-   * successfully, the {@code OptionalResult} will be in success state
-   * containing the returned value. If the {@code Callable} throws an
-   * exception, the {@code OptionalResult} will be in error state containing
-   * the result after mapping the exception with the given exception mapper
-   * function.
-   *
-   * @param callable the {@code Callable} to handle
-   * @param <T>      type of the return value of the {@code Callable}
-   * @param <E>      type of the error value after mapping a thrown exception
-   * @return a {@code OptionalResult} either in success state containing the
-   *         value from the {@code Callable}, or in error state containing the
-   *         result
-   *         after mapping the exception thrown by the {@code Callable}
-   * @throws NullPointerException if the given callable is {@code null} or
-   *                              returns {@code null}, or if the given exception
-   *                              mapper function is
-   *                              {@code null} or returns {@code null}
-   */
-  static <T, E> OptionalResult<T, E> handle(final Callable<Optional<T>> callable,
-      final Function<Exception, E> exceptionMapper) {
-    Objects.requireNonNull(exceptionMapper);
-    return handle(callable).mapError(exceptionMapper);
-  }
 
   record Value<S, ERR>(S value) implements OptionalResult<S, ERR> {
 

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import com.lemonlightmc.zenith.additive.ThrowingRunnable;
 
@@ -17,7 +18,7 @@ import com.lemonlightmc.zenith.additive.ThrowingRunnable;
  *
  * @param <E> the type of the error value
  */
-public sealed interface VoidResult<E> {
+public sealed interface VoidResult<E> permits VoidResult.Success, VoidResult.Error {
 
   /**
    * Returns a {@code VoidResult} in success state.
@@ -41,6 +42,172 @@ public sealed interface VoidResult<E> {
    */
   static <E> VoidResult<E> error(final E value) {
     return new Error<>(Objects.requireNonNull(value));
+  }
+
+  /**
+   * Returns a {@code VoidResult} in success state.
+   *
+   * @param <E> the type of the error value
+   * @return a {@code VoidResult} in success state
+   */
+  static <E> VoidResult<E> of() {
+    return success();
+  }
+
+  /**
+   * Handle the given {@code ThrowingRunnable}. If the {@code ThrowingRunnable}
+   * executes successfully, the {@code VoidResult} will be in success state.
+   * If the {@code ThrowingRunnable} throws an exception, the
+   * {@code VoidResult} will be in error state containing the thrown exception.
+   *
+   * Note! A custom {@code ThrowingRunnable} is used here instead of
+   * {@code Runnable} to allow handling of checked exceptions.
+   *
+   * @param runnable the {@code ThrowingRunnable} to handle
+   * @return a {@code VoidResult} either in success state, or in error state
+   *         containing the exception thrown by the {@code ThrowingRunnable}
+   * @throws NullPointerException if the given runnable is {@code null}
+   */
+  static VoidResult<Exception> of(final ThrowingRunnable runnable) {
+    Objects.requireNonNull(runnable);
+    try {
+      runnable.run();
+      return VoidResult.success();
+    } catch (final Exception e) {
+      return VoidResult.error(e);
+    }
+  }
+
+  /**
+   * Handle the given {@code ThrowingRunnable}. If the {@code ThrowingRunnable}
+   * executes successfully, the {@code VoidResult} will be in success state.
+   * If the {@code ThrowingRunnable} throws an exception, the
+   * {@code VoidResult} will be in error state containing the result after
+   * mapping the exception with the given exception mapper function.
+   *
+   * Note! A custom {@code ThrowingRunnable} is used here instead of
+   * {@code Runnable} to allow handling of checked exceptions.
+   *
+   * @param runnable the {@code ThrowingRunnable} to handle
+   * @param <E>      type of the error value after mapping a thrown exception
+   * @return a {@code VoidResult} either in success state, or in error state
+   *         containing the result after mapping the exception thrown by the
+   *         {@code ThrowingRunnable}
+   * @throws NullPointerException if the given runnable is {@code null} or
+   *                              the given exception mapper function is
+   *                              {@code null} or returns
+   *                              {@code null}
+   */
+  static <E> VoidResult<E> of(final ThrowingRunnable runnable,
+      final Function<Exception, E> exceptionMapper) {
+    Objects.requireNonNull(exceptionMapper);
+    return of(runnable).mapError(exceptionMapper);
+  }
+
+  /**
+   * Returns a {@code VoidResult} in success state or the first error
+   * {@code VoidResult} if any of the given {@code Result}s is in error state.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  static <E> VoidResult<E> all(
+      final Iterable<? extends VoidResult<? extends E>> results) {
+    Objects.requireNonNull(results);
+
+    for (final VoidResult<? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isError()) {
+        return (VoidResult<E>) result;
+      }
+    }
+    return VoidResult.success();
+  }
+
+  /**
+   * Returns a {@code VoidResult} in success state or the first error
+   * {@code VoidResult} if any of the given {@code Result}s is in error state.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  static <E> VoidResult<E> all(final VoidResult<? extends E>... results) {
+    Objects.requireNonNull(results);
+
+    for (final VoidResult<? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isError()) {
+        return (VoidResult<E>) result;
+      }
+    }
+    return VoidResult.success();
+  }
+
+  /**
+   * Returns the first successful {@code VoidResult}, or the last error when none
+   * succeeds.
+   * At least one result must be supplied.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  static <E> VoidResult<E> any(
+      final Iterable<? extends VoidResult<? extends E>> results) {
+    Objects.requireNonNull(results);
+
+    VoidResult<E> lastError = null;
+    for (final VoidResult<? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isSuccess()) {
+        return (VoidResult<E>) result;
+      }
+      lastError = (VoidResult<E>) result;
+    }
+    return lastError;
+  }
+
+  /**
+   * Returns the first successful {@code VoidResult}, or the last error when none
+   * succeeds.
+   * At least one result must be supplied.
+   * 
+   * @apiNote The returned list is unmodifiable and will not contain any
+   *          {@code null}
+   * @param results the {@code Result}s to collect success values from
+   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   */
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  static <E> VoidResult<E> any(final VoidResult<? extends E>... results) {
+    Objects.requireNonNull(results);
+
+    VoidResult<E> lastError = null;
+    for (final VoidResult<? extends E> result : results) {
+      if (result == null) {
+        continue;
+      }
+      if (result.isSuccess()) {
+        return (VoidResult<E>) result;
+      }
+      lastError = (VoidResult<E>) result;
+    }
+    return lastError;
   }
 
   /**
@@ -302,18 +469,29 @@ public sealed interface VoidResult<E> {
       Function<? super E, ? extends N> errorFunction);
 
   /**
-   * If in success state, does nothing, otherwise throws the exception returned
-   * by the given function.
-   *
-   * @param <X>      type of the exception to be thrown
-   * @param function the mapping function producing an exception by applying
-   *                 the error value, if not in success state
-   * @throws X                    if in error state
-   * @throws NullPointerException if the given function is {@code null} or
-   *                              returns {@code null}
+   * Returns whether this result is in the success state.
    */
-  <X extends Throwable> void orElseThrow(
-      Function<? super E, ? extends X> function) throws X;
+  default boolean isSuccess() {
+    return fold(() -> true, error -> false);
+  }
+
+  /**
+   * Returns whether this result is in the error state.
+   */
+  default boolean isError() {
+    return !isSuccess();
+  }
+
+  /**
+   * Returns a sequential {@code Stream} containing the success value if this
+   * result is in success state, otherwise returns an empty {@code Stream}.
+   *
+   * @return a sequential {@code Stream} containing the success value if this
+   *         result is in success state, otherwise an empty {@code Stream}
+   */
+  default Stream<Void> stream() {
+    return Stream.empty();
+  }
 
   /**
    * Transforms this {@code VoidResult} to an {@code OptionalResult}. If in
@@ -329,56 +507,6 @@ public sealed interface VoidResult<E> {
    *         state containing the error value from this {@code VoidResult}
    */
   <N> OptionalResult<N, E> toOptionalResult();
-
-  /**
-   * Handle the given {@code ThrowingRunnable}. If the {@code ThrowingRunnable}
-   * executes successfully, the {@code VoidResult} will be in success state.
-   * If the {@code ThrowingRunnable} throws an exception, the
-   * {@code VoidResult} will be in error state containing the thrown exception.
-   *
-   * Note! A custom {@code ThrowingRunnable} is used here instead of
-   * {@code Runnable} to allow handling of checked exceptions.
-   *
-   * @param runnable the {@code ThrowingRunnable} to handle
-   * @return a {@code VoidResult} either in success state, or in error state
-   *         containing the exception thrown by the {@code ThrowingRunnable}
-   * @throws NullPointerException if the given runnable is {@code null}
-   */
-  static VoidResult<Exception> handle(final ThrowingRunnable runnable) {
-    Objects.requireNonNull(runnable);
-    try {
-      runnable.run();
-      return VoidResult.success();
-    } catch (final Exception e) {
-      return VoidResult.error(e);
-    }
-  }
-
-  /**
-   * Handle the given {@code ThrowingRunnable}. If the {@code ThrowingRunnable}
-   * executes successfully, the {@code VoidResult} will be in success state.
-   * If the {@code ThrowingRunnable} throws an exception, the
-   * {@code VoidResult} will be in error state containing the result after
-   * mapping the exception with the given exception mapper function.
-   *
-   * Note! A custom {@code ThrowingRunnable} is used here instead of
-   * {@code Runnable} to allow handling of checked exceptions.
-   *
-   * @param runnable the {@code ThrowingRunnable} to handle
-   * @param <E>      type of the error value after mapping a thrown exception
-   * @return a {@code VoidResult} either in success state, or in error state
-   *         containing the result after mapping the exception thrown by the
-   *         {@code ThrowingRunnable}
-   * @throws NullPointerException if the given runnable is {@code null} or
-   *                              the given exception mapper function is
-   *                              {@code null} or returns
-   *                              {@code null}
-   */
-  static <E> VoidResult<E> handle(final ThrowingRunnable runnable,
-      final Function<Exception, E> exceptionMapper) {
-    Objects.requireNonNull(exceptionMapper);
-    return handle(runnable).mapError(exceptionMapper);
-  }
 
   record Success<ERR>() implements VoidResult<ERR> {
 
@@ -482,11 +610,6 @@ public sealed interface VoidResult<E> {
     public <N> N fold(final Supplier<? extends N> valueSupplier,
         final Function<? super ERR, ? extends N> errorFunction) {
       return valueSupplier.get();
-    }
-
-    @Override
-    public <X extends Throwable> void orElseThrow(final Function<? super ERR, ? extends X> function) throws X {
-
     }
 
     @Override
@@ -604,11 +727,6 @@ public sealed interface VoidResult<E> {
     public <N> N fold(final Supplier<? extends N> valueSupplier,
         final Function<? super ERR, ? extends N> errorFunction) {
       return errorFunction.apply(error);
-    }
-
-    @Override
-    public <X extends Throwable> void orElseThrow(final Function<? super ERR, ? extends X> function) throws X {
-      throw function.apply(error);
     }
 
     @Override

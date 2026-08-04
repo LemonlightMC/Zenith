@@ -5,11 +5,9 @@ import java.lang.reflect.Proxy;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 
-public class ExpiringLazy<@Nullable T> extends Lazy<T> {
+public class ExpiringLazy<T> extends Lazy<T> {
 
   private volatile long expiryTime;
   private volatile boolean initialized;

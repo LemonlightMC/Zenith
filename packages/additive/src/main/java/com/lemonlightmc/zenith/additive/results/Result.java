@@ -1,7 +1,9 @@
 package com.lemonlightmc.zenith.additive.results;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -156,7 +158,9 @@ public sealed interface Result<T, E> {
       if (result.isError()) {
         return (Result<List<T>, E>) result;
       }
-      values.add((T) ((Success<?, ?>) result).value());
+      if (result instanceof Success<? extends T, ?> successResult) {
+        values.add(successResult.value());
+      }
     }
     return success(List.copyOf(values));
   }
@@ -171,33 +175,20 @@ public sealed interface Result<T, E> {
    * @param results the {@code Result}s to collect success values from
    * @throws NullPointerException if the given {@code Iterable} is {@code null}
    */
-  @SuppressWarnings("unchecked")
   @SafeVarargs
   static <T, E> Result<List<T>, E> all(final Result<? extends T, ? extends E>... results) {
     Objects.requireNonNull(results);
-
-    final List<T> values = new ArrayList<>();
-    for (final Result<? extends T, ? extends E> result : results) {
-      if (result == null) {
-        continue;
-      }
-      if (result.isError()) {
-        return (Result<List<T>, E>) result;
-      }
-      values.add((T) ((Success<?, ?>) result).value());
-    }
-    return success(List.copyOf(values));
+    return all(Arrays.asList(results));
   }
 
   /**
    * Returns the first successful {@code Result}, or the last error when none
    * succeeds.
-   * At least one result must be supplied.
+   * At least one non-{@code null} result must be supplied.
    * 
-   * @apiNote The returned list is unmodifiable and will not contain any
-   *          {@code null}
-   * @param results the {@code Result}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @param results the {@code Result}s to check
+   * @throws NullPointerException   if the given {@code Iterable} is {@code null}
+   * @throws NoSuchElementException if no non-{@code null} result is supplied
    */
   @SuppressWarnings("unchecked")
   static <T, E> Result<T, E> any(
@@ -214,35 +205,25 @@ public sealed interface Result<T, E> {
       }
       lastError = (Result<T, E>) result;
     }
+    if (lastError == null) {
+      throw new NoSuchElementException("No results supplied");
+    }
     return lastError;
   }
 
   /**
    * Returns the first successful {@code Result}, or the last error when none
    * succeeds.
-   * At least one result must be supplied.
+   * At least one non-{@code null} result must be supplied.
    * 
-   * @apiNote The returned list is unmodifiable and will not contain any
-   *          {@code null}
-   * @param results the {@code Result}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @param results the {@code Result}s to check
+   * @throws NullPointerException   if the given array is {@code null}
+   * @throws NoSuchElementException if no non-{@code null} result is supplied
    */
-  @SuppressWarnings("unchecked")
   @SafeVarargs
   static <T, E> Result<T, E> any(final Result<? extends T, ? extends E>... results) {
     Objects.requireNonNull(results);
-
-    Result<T, E> lastError = null;
-    for (final Result<? extends T, ? extends E> result : results) {
-      if (result == null) {
-        continue;
-      }
-      if (result.isSuccess()) {
-        return (Result<T, E>) result;
-      }
-      lastError = (Result<T, E>) result;
-    }
-    return lastError;
+    return any(Arrays.asList(results));
   }
 
   /**

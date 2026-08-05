@@ -1,7 +1,9 @@
 package com.lemonlightmc.zenith.additive.results;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -112,8 +114,8 @@ public sealed interface OptionalResult<T, E> {
    * @param <E> the type of the error value
    * @return an empty {@code OptionalResult} in success state
    */
-  static <E> VoidResult<E> of() {
-    return VoidResult.success();
+  static <T, E> OptionalResult<T, E> of() {
+    return empty();
   }
 
   /**
@@ -142,7 +144,7 @@ public sealed interface OptionalResult<T, E> {
    *         success value if not null, otherwise an empty {@code OptionalResult}
    */
   static <T, E> OptionalResult<T, E> ofNullable(final T value) {
-    return new Value<>(value);
+    return successNullable(value);
   }
 
   /**
@@ -244,7 +246,9 @@ public sealed interface OptionalResult<T, E> {
       if (result.isError()) {
         return (OptionalResult<List<T>, E>) result;
       }
-      values.add((T) ((Value<?, ?>) result).value());
+      if (result instanceof Value<? extends T, ?> valueResult) {
+        values.add(valueResult.value());
+      }
     }
     return success(List.copyOf(values));
   }
@@ -253,40 +257,27 @@ public sealed interface OptionalResult<T, E> {
    * Returns a {@code OptionalResult} in success state containing a list of all
    * success values from the given {@code OptionalResult}s, or the first error
    * {@code OptionalResult} if any of the given {@code OptionalResult}s is in
-   * error state.
+   * error state. Empty results contribute no value to the list.
    * 
    * @apiNote The returned list is unmodifiable and will not contain any
    *          {@code null}
    * @param results the {@code OptionalResult}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @throws NullPointerException if the given array is {@code null}
    */
-  @SuppressWarnings("unchecked")
   @SafeVarargs
   static <T, E> OptionalResult<List<T>, E> all(final OptionalResult<? extends T, ? extends E>... results) {
     Objects.requireNonNull(results);
-
-    final List<T> values = new ArrayList<>();
-    for (final OptionalResult<? extends T, ? extends E> result : results) {
-      if (result == null) {
-        continue;
-      }
-      if (result.isError()) {
-        return (OptionalResult<List<T>, E>) result;
-      }
-      values.add((T) ((Value<?, ?>) result).value());
-    }
-    return success(List.copyOf(values));
+    return all(Arrays.asList(results));
   }
 
   /**
    * Returns the first successful {@code OptionalResult}, or the last error when
    * none succeeds.
-   * At least one result must be supplied.
+   * At least one non-{@code null} result must be supplied.
    * 
-   * @apiNote The returned list is unmodifiable and will not contain any
-   *          {@code null}
-   * @param results the {@code Result}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @param results the {@code OptionalResult}s to check
+   * @throws NullPointerException   if the given {@code Iterable} is {@code null}
+   * @throws NoSuchElementException if no non-{@code null} result is supplied
    */
   @SuppressWarnings("unchecked")
   static <T, E> OptionalResult<T, E> any(
@@ -303,35 +294,25 @@ public sealed interface OptionalResult<T, E> {
       }
       lastError = (OptionalResult<T, E>) result;
     }
+    if (lastError == null) {
+      throw new NoSuchElementException("No results supplied");
+    }
     return lastError;
   }
 
   /**
    * Returns the first successful {@code OptionalResult}, or the last error when
    * none succeeds.
-   * At least one result must be supplied.
+   * At least one non-{@code null} result must be supplied.
    * 
-   * @apiNote The returned list is unmodifiable and will not contain any
-   *          {@code null}
-   * @param results the {@code Result}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @param results the {@code OptionalResult}s to check
+   * @throws NullPointerException   if the given array is {@code null}
+   * @throws NoSuchElementException if no non-{@code null} result is supplied
    */
-  @SuppressWarnings("unchecked")
   @SafeVarargs
   static <T, E> OptionalResult<T, E> any(final OptionalResult<? extends T, ? extends E>... results) {
     Objects.requireNonNull(results);
-
-    OptionalResult<T, E> lastError = null;
-    for (final OptionalResult<? extends T, ? extends E> result : results) {
-      if (result == null) {
-        continue;
-      }
-      if (result.isSuccess()) {
-        return (OptionalResult<T, E>) result;
-      }
-      lastError = (OptionalResult<T, E>) result;
-    }
-    return lastError;
+    return any(Arrays.asList(results));
   }
 
   /**
@@ -354,7 +335,20 @@ public sealed interface OptionalResult<T, E> {
    */
   <N> Result<N, E> map(Function<Optional<T>, ? extends N> function);
 
-  /** Maps a successful result to a supplied value. */
+  /**
+   * If in success state, returns a {@code Result} containing the result of
+   * the given supplier, otherwise returns a {@code Result} containing the
+   * error value of this {@code OptionalResult}.
+   *
+   * @param function the supplier to apply, if success state
+   * @param <N>      the type of the value returned from the mapping function
+   * @return a {@code Result} containing the result of the supplier, if
+   *         in success state, otherwise a {@code Result} containing the error
+   *         value
+   *         of this {@code OptionalResult}
+   * @throws NullPointerException if the given mapping function is
+   *                              {@code null} or returns {@code null}
+   */
   <N> Result<N, E> map(final Supplier<? extends N> supplier);
 
   /**
@@ -1231,6 +1225,11 @@ public sealed interface OptionalResult<T, E> {
     }
 
     @Override
+    public <N> Result<N, ERR> map(final Supplier<? extends N> supplier) {
+      return Result.success(supplier.get());
+    }
+
+    @Override
     public <N> OptionalResult<N, ERR> mapToOptional(
         final Function<Optional<S>, ? extends Optional<? extends N>> function) {
       return OptionalResult.success(function.apply(Optional.of(value)));
@@ -1549,9 +1548,14 @@ public sealed interface OptionalResult<T, E> {
     }
 
     @Override
+    public <N> Result<N, ERR> map(final Supplier<? extends N> supplier) {
+      return Result.success(supplier.get());
+    }
+
+    @Override
     public <N> OptionalResult<N, ERR> mapToOptional(
         final Function<Optional<S>, ? extends Optional<? extends N>> function) {
-      return OptionalResult.empty();
+      return OptionalResult.success(function.apply(Optional.empty()));
     }
 
     @Override
@@ -1848,6 +1852,11 @@ public sealed interface OptionalResult<T, E> {
 
     @Override
     public <N> Result<N, ERR> map(final Function<Optional<S>, ? extends N> function) {
+      return Result.error(error);
+    }
+
+    @Override
+    public <N> Result<N, ERR> map(final Supplier<? extends N> supplier) {
       return Result.error(error);
     }
 

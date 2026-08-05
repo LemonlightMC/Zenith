@@ -1,5 +1,7 @@
 package com.lemonlightmc.zenith.additive.results;
 
+import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -133,36 +135,23 @@ public sealed interface VoidResult<E> permits VoidResult.Success, VoidResult.Err
    * Returns a {@code VoidResult} in success state or the first error
    * {@code VoidResult} if any of the given {@code Result}s is in error state.
    * 
-   * @apiNote The returned list is unmodifiable and will not contain any
-   *          {@code null}
-   * @param results the {@code Result}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @param results the {@code VoidResult}s to check
+   * @throws NullPointerException if the given array is {@code null}
    */
-  @SuppressWarnings("unchecked")
   @SafeVarargs
   static <E> VoidResult<E> all(final VoidResult<? extends E>... results) {
     Objects.requireNonNull(results);
-
-    for (final VoidResult<? extends E> result : results) {
-      if (result == null) {
-        continue;
-      }
-      if (result.isError()) {
-        return (VoidResult<E>) result;
-      }
-    }
-    return VoidResult.success();
+    return all(Arrays.asList(results));
   }
 
   /**
    * Returns the first successful {@code VoidResult}, or the last error when none
    * succeeds.
-   * At least one result must be supplied.
+   * At least one non-{@code null} result must be supplied.
    * 
-   * @apiNote The returned list is unmodifiable and will not contain any
-   *          {@code null}
-   * @param results the {@code Result}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @param results the {@code VoidResult}s to check
+   * @throws NullPointerException   if the given {@code Iterable} is {@code null}
+   * @throws NoSuchElementException if no non-{@code null} result is supplied
    */
   @SuppressWarnings("unchecked")
   static <E> VoidResult<E> any(
@@ -179,35 +168,25 @@ public sealed interface VoidResult<E> permits VoidResult.Success, VoidResult.Err
       }
       lastError = (VoidResult<E>) result;
     }
+    if (lastError == null) {
+      throw new NoSuchElementException("No results supplied");
+    }
     return lastError;
   }
 
   /**
    * Returns the first successful {@code VoidResult}, or the last error when none
    * succeeds.
-   * At least one result must be supplied.
+   * At least one non-{@code null} result must be supplied.
    * 
-   * @apiNote The returned list is unmodifiable and will not contain any
-   *          {@code null}
-   * @param results the {@code Result}s to collect success values from
-   * @throws NullPointerException if the given {@code Iterable} is {@code null}
+   * @param results the {@code VoidResult}s to check
+   * @throws NullPointerException   if the given array is {@code null}
+   * @throws NoSuchElementException if no non-{@code null} result is supplied
    */
-  @SuppressWarnings("unchecked")
   @SafeVarargs
   static <E> VoidResult<E> any(final VoidResult<? extends E>... results) {
     Objects.requireNonNull(results);
-
-    VoidResult<E> lastError = null;
-    for (final VoidResult<? extends E> result : results) {
-      if (result == null) {
-        continue;
-      }
-      if (result.isSuccess()) {
-        return (VoidResult<E>) result;
-      }
-      lastError = (VoidResult<E>) result;
-    }
-    return lastError;
+    return any(Arrays.asList(results));
   }
 
   /**

@@ -9,8 +9,8 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
+import com.lemonlightmc.zenith.additive.Cloneable;
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
-import com.lemonlightmc.zenith.interfaces.Cloneable;
 
 @SerializableAs("PotionEffect")
 public class PotionEffect implements ConfigurationSerializable, Cloneable<PotionEffect> {

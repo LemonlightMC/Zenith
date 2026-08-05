@@ -7,7 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.lemonlightmc.zenith.interfaces.Builder;
+import com.lemonlightmc.zenith.additive.Builder;
 
 public class ItemStackBuilder implements Builder<ItemStack> {
   protected final ItemStack item;

@@ -12,9 +12,9 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
 
+import com.lemonlightmc.zenith.additive.Cloneable;
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 import com.lemonlightmc.zenith.apis.PotionAPI;
-import com.lemonlightmc.zenith.interfaces.Cloneable;
 
 public class Potion implements Cloneable<Potion> {
   private NamespacedKey key;

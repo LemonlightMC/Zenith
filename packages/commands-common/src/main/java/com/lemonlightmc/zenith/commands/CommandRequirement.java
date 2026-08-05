@@ -2,7 +2,7 @@ package com.lemonlightmc.zenith.commands;
 
 import java.util.function.Predicate;
 
-import com.lemonlightmc.zenith.interfaces.Cloneable;
+import com.lemonlightmc.zenith.additive.Cloneable;
 
 @SuppressWarnings("rawtypes")
 public class CommandRequirement<C extends CommandSource> implements Cloneable<CommandRequirement<C>> {

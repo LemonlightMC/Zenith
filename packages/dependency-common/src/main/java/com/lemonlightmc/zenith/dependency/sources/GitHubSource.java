@@ -7,12 +7,12 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.lemonlightmc.zenith.additive.GlobUtils;
+import com.lemonlightmc.zenith.additive.HttpUtil;
+import com.lemonlightmc.zenith.additive.JsonUtil;
 import com.lemonlightmc.zenith.dependency.Dependency;
 import com.lemonlightmc.zenith.dependency.DependencySource;
 import com.lemonlightmc.zenith.exceptions.DependencyException;
-import com.lemonlightmc.zenith.utils.GlobUtils;
-import com.lemonlightmc.zenith.utils.HttpUtil;
-import com.lemonlightmc.zenith.utils.JsonUtil;
 import com.lemonlightmc.zenith.version.Version;
 
 /**

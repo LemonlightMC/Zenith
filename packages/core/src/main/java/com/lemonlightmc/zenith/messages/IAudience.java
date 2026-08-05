@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 public interface IAudience<V> extends Iterable<V>, Comparable<IAudience<V>>, Cloneable<IAudience<V>> {
 

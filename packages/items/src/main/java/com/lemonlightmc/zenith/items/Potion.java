@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 import com.lemonlightmc.zenith.apis.PotionAPI;
 

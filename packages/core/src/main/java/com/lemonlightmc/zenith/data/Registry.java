@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 import org.bukkit.event.HandlerList;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.events.BaseEvent;
 import com.lemonlightmc.zenith.events.EventsAPI;
 

@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
   private List<Pattern> patterns;

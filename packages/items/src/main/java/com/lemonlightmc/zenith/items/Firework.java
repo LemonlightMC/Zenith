@@ -8,7 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.meta.FireworkMeta;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 public class Firework implements Cloneable<Firework>, ConfigurationSerializable {
   private List<FireworkEffect> effects;

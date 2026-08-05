@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
 import com.lemonlightmc.zenith.additive.Lazy;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 
 public class CooldownStore<T> implements Cloneable<CooldownStore<T>>, Iterable<T> {

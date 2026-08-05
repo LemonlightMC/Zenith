@@ -2,9 +2,9 @@ package com.lemonlightmc.zenith.sound;
 
 import org.bukkit.SoundCategory;
 
-import com.lemonlightmc.zenith.additive.Builder;
-import com.lemonlightmc.zenith.apis.SoundAPI;
-import com.lemonlightmc.zenith.utils.MathUtils;;
+import com.lemonlightmc.zenith.additive.MathUtils;
+import com.lemonlightmc.zenith.additive.interfaces.Builder;
+import com.lemonlightmc.zenith.apis.SoundAPI;;
 
 public abstract class Playable implements Cloneable {
 

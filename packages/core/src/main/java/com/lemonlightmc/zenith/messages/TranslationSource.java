@@ -14,9 +14,9 @@ import java.util.ResourceBundle;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.additive.files.FileUtils;
 import com.lemonlightmc.zenith.exceptions.TranslationException;
-import com.lemonlightmc.zenith.files.FileUtils;
-import com.lemonlightmc.zenith.utils.StringUtils;
 
 // TODO: Add support for YAML files and other formats if needed
 public interface TranslationSource {

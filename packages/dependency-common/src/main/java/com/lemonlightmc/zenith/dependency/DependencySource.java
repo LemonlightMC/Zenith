@@ -2,8 +2,8 @@ package com.lemonlightmc.zenith.dependency;
 
 import java.util.List;
 
+import com.lemonlightmc.zenith.additive.math.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.exceptions.DependencyException;
-import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.version.Version;
 
 /**

@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginManager;
 
+import com.lemonlightmc.zenith.additive.files.FileUtils;
+import com.lemonlightmc.zenith.additive.files.ResourceUtils;
 import com.lemonlightmc.zenith.apis.MessageAPI;
-import com.lemonlightmc.zenith.files.FileUtils;
-import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 
 public class ZenithProvider {

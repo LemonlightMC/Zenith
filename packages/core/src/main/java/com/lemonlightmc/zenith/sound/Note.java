@@ -3,7 +3,7 @@ package com.lemonlightmc.zenith.sound;
 import org.bukkit.Note.Tone;
 
 import com.google.common.base.Preconditions;
-import com.lemonlightmc.zenith.utils.MathUtils;
+import com.lemonlightmc.zenith.additive.MathUtils;
 
 public class Note extends Playable {
   public static final int MINIMUM_NOTE = 0;

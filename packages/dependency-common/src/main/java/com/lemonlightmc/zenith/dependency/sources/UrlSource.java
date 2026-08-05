@@ -3,10 +3,10 @@ package com.lemonlightmc.zenith.dependency.sources;
 import java.net.URI;
 import java.util.List;
 
+import com.lemonlightmc.zenith.additive.math.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.dependency.Dependency;
 import com.lemonlightmc.zenith.dependency.DependencySource;
 import com.lemonlightmc.zenith.exceptions.DependencyException;
-import com.lemonlightmc.zenith.utils.Checksum.ChecksumType;
 import com.lemonlightmc.zenith.version.Version;
 
 /**

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Comparator;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.additive.math.ranges.BigDecimalRange;
 import com.lemonlightmc.zenith.additive.math.ranges.BigIntegerRange;
 import com.lemonlightmc.zenith.additive.math.ranges.ByteRange;

@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.utils.Reflect;
+import com.lemonlightmc.zenith.additive.Reflect;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.ViaAPI;
 import com.viaversion.viaversion.api.connection.UserConnection;

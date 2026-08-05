@@ -12,6 +12,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.additive.UUIDUtils;
+
 public class PlayerUtils {
 
   public static OfflinePlayer getOfflinePlayer(final String name) {

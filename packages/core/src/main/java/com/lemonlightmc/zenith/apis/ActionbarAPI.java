@@ -10,8 +10,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.additive.StringUtils.Replaceable;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
-import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;

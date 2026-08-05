@@ -9,7 +9,7 @@ import org.bukkit.Color;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import com.google.common.collect.ImmutableList;
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 // TODO: Rework FireworkEffect for 1.1
 public class FireworkEffect

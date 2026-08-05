@@ -11,11 +11,11 @@ import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.IZenithPlugin;
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.files.FileFilter;
-import com.lemonlightmc.zenith.files.FileUtils;
+import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.additive.files.FileFilter;
+import com.lemonlightmc.zenith.additive.files.FileUtils;
 import com.lemonlightmc.zenith.messages.TranslationSource;
 import com.lemonlightmc.zenith.messages.Translator;
-import com.lemonlightmc.zenith.utils.StringUtils;
 
 public class MessageAPI {
   private final Map<Locale, TranslationSource> sources = new ConcurrentHashMap<>();

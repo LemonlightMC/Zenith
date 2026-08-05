@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
+import com.lemonlightmc.zenith.additive.StringUtils.Replaceable;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 

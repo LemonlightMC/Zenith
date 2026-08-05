@@ -1,6 +1,6 @@
 package com.lemonlightmc.zenith.version;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 public abstract class Version implements Cloneable<Version>, Comparable<Version> {
 

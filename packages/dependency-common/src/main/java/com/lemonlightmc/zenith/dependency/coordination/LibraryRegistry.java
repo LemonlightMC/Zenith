@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.lemonlightmc.zenith.additive.JsonUtil;
 import com.lemonlightmc.zenith.dependency.Dependency;
-import com.lemonlightmc.zenith.utils.JsonUtil;
 import com.lemonlightmc.zenith.version.VersionConstraint;
 
 /**

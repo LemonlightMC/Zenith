@@ -3,7 +3,7 @@ package com.lemonlightmc.zenith.config.handlers;
 import java.util.List;
 import java.util.Objects;
 
-import com.lemonlightmc.zenith.additive.Cloneable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.config.Configurate;
 
 public class HandlerOptions implements Cloneable<HandlerOptions> {

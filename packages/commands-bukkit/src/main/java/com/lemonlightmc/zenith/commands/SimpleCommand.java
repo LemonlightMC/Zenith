@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 
+import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.exceptions.InvalidCommandNameException;
 import com.lemonlightmc.zenith.commands.exceptions.MissingCommandExecutorException;
@@ -17,7 +18,6 @@ import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.executors.RootCommand;
 import com.lemonlightmc.zenith.exceptions.PlatformException;
 import com.lemonlightmc.zenith.utils.ServerPlatform;
-import com.lemonlightmc.zenith.utils.StringUtils;
 
 public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 

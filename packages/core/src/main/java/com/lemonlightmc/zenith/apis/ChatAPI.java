@@ -5,8 +5,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+import com.lemonlightmc.zenith.additive.StringUtils.Replaceable;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
-import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
 
 public class ChatAPI {
   public static void send(

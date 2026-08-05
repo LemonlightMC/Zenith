@@ -2,7 +2,7 @@ package com.lemonlightmc.zenith.messages;
 
 import java.util.Locale;
 
-import com.lemonlightmc.zenith.utils.StringUtils;
+import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.version.Version;
 
 public abstract class AbstractTranslator implements Translator {

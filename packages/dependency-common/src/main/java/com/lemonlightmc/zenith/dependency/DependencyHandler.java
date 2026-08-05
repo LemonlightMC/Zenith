@@ -11,13 +11,13 @@ import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
 
+import com.lemonlightmc.zenith.additive.HttpUtil;
+import com.lemonlightmc.zenith.additive.math.Checksum;
 import com.lemonlightmc.zenith.dependency.coordination.HopperCoordinator;
 import com.lemonlightmc.zenith.dependency.coordination.LibraryRegistry;
 import com.lemonlightmc.zenith.dependency.coordination.Lockfile;
 import com.lemonlightmc.zenith.dependency.sources.SourceType;
 import com.lemonlightmc.zenith.exceptions.DependencyException;
-import com.lemonlightmc.zenith.utils.Checksum;
-import com.lemonlightmc.zenith.utils.HttpUtil;
 import com.lemonlightmc.zenith.version.Version;
 import com.lemonlightmc.zenith.version.VersionConstraint;
 

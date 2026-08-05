@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.lemonlightmc.zenith.additive.ThrowingRunnable;
+import com.lemonlightmc.zenith.additive.interfaces.ThrowingRunnable;
 
 /**
  * A result object which either is in success state with no value, or in error

@@ -14,8 +14,8 @@ import java.util.function.Supplier;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.additive.Cloneable;
-import com.lemonlightmc.zenith.utils.StringUtils.Replaceable;
+import com.lemonlightmc.zenith.additive.StringUtils.Replaceable;
+import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 

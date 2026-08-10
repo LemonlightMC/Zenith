@@ -3,10 +3,12 @@ package com.lemonlightmc.zenith.additive.logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
+import com.lemonlightmc.zenith.additive.Lazy;
 import com.lemonlightmc.zenith.additive.Reflect;
 
 public final class GlobalLogger {
@@ -14,6 +16,7 @@ public final class GlobalLogger {
   private static final String JUL_ROOT_LOGGER_NAME = "";
   private static final Level defaultLevel;
   private static final Map<String, Level> logLevelMap;
+  private static Lazy<LoggerAdapter> globalLogger = Lazy.of(() -> getLogger(""));
 
   static {
     loggerRegistry = new ConcurrentHashMap<String, LoggerAdapter>();
@@ -22,6 +25,10 @@ public final class GlobalLogger {
 
     // ensure jul initialization.
     java.util.logging.Logger.getLogger("");
+  }
+
+  public static void setGlobalLogger(final java.util.logging.Logger logger) {
+    globalLogger = Lazy.of(() -> globalLogger.get().setParent(logger));
   }
 
   /**
@@ -43,7 +50,7 @@ public final class GlobalLogger {
    */
   public static LoggerAdapter getLogger(final String name) {
     return name != null
-        ? createLogger(name, null)
+        ? createLogger(name, null, null)
         : getLogger(Reflect.getCallerClass(2), null);
   }
 
@@ -56,7 +63,7 @@ public final class GlobalLogger {
    */
   public static LoggerAdapter getLogger(final String name, final Level level) {
     return name != null
-        ? createLogger(name, level)
+        ? createLogger(name, level, null)
         : getLogger(Reflect.getCallerClass(2), level);
   }
 
@@ -108,7 +115,7 @@ public final class GlobalLogger {
       }
     }
     final String canonicalName = cls.getCanonicalName();
-    return createLogger(canonicalName != null ? canonicalName : cls.getName(), null);
+    return createLogger(canonicalName != null ? canonicalName : cls.getName(), null, null);
   }
 
   /**
@@ -127,7 +134,7 @@ public final class GlobalLogger {
       }
     }
     final String canonicalName = cls.getCanonicalName();
-    return createLogger(canonicalName != null ? canonicalName : cls.getName(), level);
+    return createLogger(canonicalName != null ? canonicalName : cls.getName(), level, null);
   }
 
   /**
@@ -139,8 +146,8 @@ public final class GlobalLogger {
    */
   public static LoggerAdapter getLogger(final Logger parent, final String name) {
     return name != null
-        ? createLogger(name, null)
-        : getLogger(Reflect.getCallerClass(2), null);
+        ? createLogger(name, null, parent)
+        : getLogger(parent, Reflect.getCallerClass(2), null);
   }
 
   /**
@@ -153,8 +160,8 @@ public final class GlobalLogger {
    */
   public static LoggerAdapter getLogger(final Logger parent, final String name, final Level level) {
     return name != null
-        ? createLogger(name, level)
-        : getLogger(Reflect.getCallerClass(2), level);
+        ? createLogger(name, level, parent)
+        : getLogger(parent, Reflect.getCallerClass(2), level);
   }
 
   /**
@@ -172,7 +179,7 @@ public final class GlobalLogger {
    *                                       determined.
    */
   public static LoggerAdapter getLogger(final Logger parent, final Object value) {
-    return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), null);
+    return getLogger(parent, value != null ? value.getClass() : Reflect.getCallerClass(2), null);
   }
 
   /**
@@ -191,7 +198,7 @@ public final class GlobalLogger {
    *                                       determined.
    */
   public static LoggerAdapter getLogger(final Logger parent, final Object value, final Level level) {
-    return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), level);
+    return getLogger(parent, value != null ? value.getClass() : Reflect.getCallerClass(2), level);
   }
 
   /**
@@ -210,7 +217,7 @@ public final class GlobalLogger {
       }
     }
     final String canonicalName = cls.getCanonicalName();
-    return createLogger(canonicalName != null ? canonicalName : cls.getName(), null).setParent(parent);
+    return createLogger(canonicalName != null ? canonicalName : cls.getName(), null, parent);
   }
 
   /**
@@ -230,10 +237,10 @@ public final class GlobalLogger {
       }
     }
     final String canonicalName = cls.getCanonicalName();
-    return createLogger(canonicalName != null ? canonicalName : cls.getName(), level);
+    return createLogger(canonicalName != null ? canonicalName : cls.getName(), level, null);
   }
 
-  private static LoggerAdapter createLogger(String name, Level level) {
+  private static LoggerAdapter createLogger(String name, Level level, final Logger parent) {
     // the root logger is called "" in JUL
     if (name.equalsIgnoreCase(Logger.ROOT_LOGGER_NAME)) {
       name = JUL_ROOT_LOGGER_NAME;
@@ -250,6 +257,7 @@ public final class GlobalLogger {
       return oldLogger;
     else {
       final LoggerAdapter newInstance = new LoggerAdapter(java.util.logging.Logger.getLogger(name), name, level);
+      newInstance.setParent(parent);
       final LoggerAdapter oldInstance = loggerRegistry.putIfAbsent(name, newInstance);
       return oldInstance == null ? newInstance : oldInstance;
     }
@@ -261,5 +269,125 @@ public final class GlobalLogger {
       name = JUL_ROOT_LOGGER_NAME;
     }
     return loggerRegistry.containsKey(name);
+  }
+
+  public static void trace(final String msg) {
+    globalLogger.get().trace(msg);
+  }
+
+  public static void trace(final String msg, final Object arg) {
+    globalLogger.get().trace(msg, arg);
+  }
+
+  public static void trace(final String msg, final Object arg1, final Object arg2) {
+    globalLogger.get().trace(msg, arg1, arg2);
+  }
+
+  public static void trace(final String msg, final Object... arguments) {
+    globalLogger.get().trace(msg, arguments);
+  }
+
+  public static void trace(final Supplier<?> msgSupplier) {
+    globalLogger.get().trace(msgSupplier);
+  }
+
+  public static void trace(final String msg, final Supplier<?>... paramSuppliers) {
+    globalLogger.get().trace(msg, paramSuppliers);
+  }
+
+  public static void debug(final String msg) {
+    globalLogger.get().debug(msg);
+  }
+
+  public static void debug(final String msg, final Object arg) {
+    globalLogger.get().debug(msg, arg);
+  }
+
+  public static void debug(final String msg, final Object arg1, final Object arg2) {
+    globalLogger.get().debug(msg, arg1, arg2);
+  }
+
+  public static void debug(final String msg, final Object... arguments) {
+    globalLogger.get().debug(msg, arguments);
+  }
+
+  public static void debug(final Supplier<?> msgSupplier) {
+    globalLogger.get().debug(msgSupplier);
+  }
+
+  public static void debug(final String msg, final Supplier<?>... paramSuppliers) {
+    globalLogger.get().debug(msg, paramSuppliers);
+  }
+
+  public static void info(final String msg) {
+    globalLogger.get().info(msg);
+  }
+
+  public static void info(final String msg, final Object arg) {
+    globalLogger.get().info(msg, arg);
+  }
+
+  public static void info(final String msg, final Object arg1, final Object arg2) {
+    globalLogger.get().info(msg, arg1, arg2);
+  }
+
+  public static void info(final String msg, final Object... arguments) {
+    globalLogger.get().info(msg, arguments);
+  }
+
+  public static void info(final Supplier<?> msgSupplier) {
+    globalLogger.get().info(msgSupplier);
+  }
+
+  public static void info(final String msg, final Supplier<?>... paramSuppliers) {
+    globalLogger.get().info(msg, paramSuppliers);
+  }
+
+  public static void warn(final String msg) {
+    globalLogger.get().warn(msg);
+  }
+
+  public static void warn(final String msg, final Object arg) {
+    globalLogger.get().warn(msg, arg);
+  }
+
+  public static void warn(final String msg, final Object arg1, final Object arg2) {
+    globalLogger.get().warn(msg, arg1, arg2);
+  }
+
+  public static void warn(final String msg, final Object... arguments) {
+    globalLogger.get().warn(msg, arguments);
+  }
+
+  public static void warn(final Supplier<?> msgSupplier) {
+    globalLogger.get().warn(msgSupplier);
+  }
+
+  public static void warn(final String msg, final Supplier<?>... paramSuppliers) {
+    globalLogger.get().warn(msg, paramSuppliers);
+  }
+
+  public static void error(final String msg) {
+    globalLogger.get().error(msg);
+  }
+
+  public static void error(final String msg, final Object arg) {
+    globalLogger.get().error(msg, arg);
+  }
+
+  public static void error(final String msg, final Object arg1, final Object arg2) {
+    globalLogger.get().error(msg, arg1, arg2);
+  }
+
+  public static void error(final String msg, final Object... arguments) {
+    globalLogger.get().error(msg, arguments);
+  }
+
+  public static void error(final Supplier<?> msgSupplier) {
+    globalLogger.get().error(msgSupplier);
+  }
+
+  public static void error(final String msg, final Supplier<?>... paramSuppliers) {
+    globalLogger.get().error(msg, paramSuppliers);
   }
 }

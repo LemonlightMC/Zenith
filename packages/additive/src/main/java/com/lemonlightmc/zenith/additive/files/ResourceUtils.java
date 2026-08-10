@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.messages.Logger;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 
 public class ResourceUtils {
 
@@ -25,7 +24,7 @@ public class ResourceUtils {
       return null;
     }
     try {
-      return ZenithProvider.instance().getClass().getClassLoader().getResource(path);
+      return ResourceUtils.class.getClassLoader().getResource(path);
     } catch (final Exception e) {
       return null;
     }
@@ -101,7 +100,7 @@ public class ResourceUtils {
       return Collections.emptyListIterator();
     }
     try {
-      return ZenithProvider.instance().getClass().getClassLoader().getResources(path).asIterator();
+      return ResourceUtils.class.getClassLoader().getResources(path).asIterator();
     } catch (final Exception e) {
       return Collections.emptyListIterator();
     }
@@ -133,7 +132,7 @@ public class ResourceUtils {
       props.load(reader);
       return props;
     } catch (final Exception e) {
-      Logger.warn("Failed to read properties from: " + file.getPath());
+      GlobalLogger.warn("Failed to read properties from: " + file.getPath());
       e.printStackTrace();
       return null;
     }
@@ -148,7 +147,7 @@ public class ResourceUtils {
       props.load(reader);
       return props;
     } catch (final Exception e) {
-      Logger.warn("Failed to read properties from: " + path);
+      GlobalLogger.warn("Failed to read properties from: " + path);
       e.printStackTrace();
       return null;
     }
@@ -166,7 +165,7 @@ public class ResourceUtils {
         writer.newLine();
       }
     } catch (final Exception e) {
-      Logger.warn("Failed to save properties to: " + file.getPath());
+      GlobalLogger.warn("Failed to save properties to: " + file.getPath());
       e.printStackTrace();
     }
   }

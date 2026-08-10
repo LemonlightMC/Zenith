@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.lemonlightmc.zenith.additive.StringUtils;
-import com.lemonlightmc.zenith.messages.Logger;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 
 class FileOperations extends FileDatas {
 
@@ -90,7 +90,7 @@ class FileOperations extends FileDatas {
       input.close();
       return builder.toString();
     } catch (final Exception e) {
-      Logger.warn("Failed to read File: " + path.toString());
+      GlobalLogger.warn("Failed to read File: " + path.toString());
       return null;
     }
   }

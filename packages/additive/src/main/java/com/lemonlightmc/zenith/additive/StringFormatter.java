@@ -3,15 +3,13 @@ package com.lemonlightmc.zenith.additive;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.lemonlightmc.zenith.messages.Logger;
-
-class StringFormatter {
+public class StringFormatter {
   static final char DELIM_START = '{';
   static final char DELIM_STOP = '}';
   static final String DELIM_STR = "{}";
   private static final char ESCAPE_CHAR = '\\';
 
-  final static String format(final String messagePattern, final Object[] argArray) {
+  public final static String format(final String messagePattern, final Object[] argArray) {
     int i = 0;
     int j;
     final int len = messagePattern.length();
@@ -99,7 +97,6 @@ class StringFormatter {
       final String oAsString = o.toString();
       sb.append(oAsString);
     } catch (final Throwable t) {
-      Logger.warn("Failed toString() invocation on an object of type [" + o.getClass().getName() + "]");
       sb.append("[FAILED toString()]");
     }
 

@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.lemonlightmc.zenith.additive.files.FileUtils;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 
 public class JsonUtil {
   private static volatile Gson gson;
@@ -59,7 +60,7 @@ public class JsonUtil {
     try {
       return gson().toJson(obj);
     } catch (final Exception e) {
-      Logger.warn("Failed to serialize object to JSON: " + obj);
+      GlobalLogger.warn("Failed to serialize object to JSON: " + obj);
       e.printStackTrace();
       return null;
     }
@@ -72,7 +73,7 @@ public class JsonUtil {
     try {
       return gson().toJson(obj);
     } catch (final Exception e) {
-      Logger.warn("Failed to serialize object to JSON: " + obj);
+      GlobalLogger.warn("Failed to serialize object to JSON: " + obj);
       e.printStackTrace();
       return null;
     }
@@ -85,7 +86,7 @@ public class JsonUtil {
     try {
       return JsonParser.parseString(str);
     } catch (final Exception e) {
-      Logger.warn("Failed to parse JSON: " + str);
+      GlobalLogger.warn("Failed to parse JSON: " + str);
       e.printStackTrace();
       return null;
     }
@@ -98,7 +99,7 @@ public class JsonUtil {
     try {
       return gson().fromJson(str, elementCls);
     } catch (final Exception e) {
-      Logger.warn("Failed to parse JSON: " + str);
+      GlobalLogger.warn("Failed to parse JSON: " + str);
       e.printStackTrace();
       return null;
     }
@@ -111,7 +112,7 @@ public class JsonUtil {
     try {
       return gson().fromJson(reader, elementCls);
     } catch (final Exception e) {
-      Logger.warn("Failed to parse JSON from Reader");
+      GlobalLogger.warn("Failed to parse JSON from Reader");
       e.printStackTrace();
       return null;
     }
@@ -125,7 +126,7 @@ public class JsonUtil {
     try {
       return gson().fromJson(str, typeToken);
     } catch (final Exception e) {
-      Logger.warn("Failed to parse JSON: " + str);
+      GlobalLogger.warn("Failed to parse JSON: " + str);
       e.printStackTrace();
       return null;
     }
@@ -138,7 +139,7 @@ public class JsonUtil {
     try {
       return gson().fromJson(reader, typeToken);
     } catch (final Exception e) {
-      Logger.warn("Failed to parse JSON from reader");
+      GlobalLogger.warn("Failed to parse JSON from reader");
       e.printStackTrace();
       return null;
     }
@@ -280,7 +281,7 @@ public class JsonUtil {
     try {
       return gson().fromJson(element, elementClass);
     } catch (final Exception e) {
-      Logger.warn("Invalid Json: " + element);
+      GlobalLogger.warn("Invalid Json: " + element);
       return null;
     }
   }
@@ -293,7 +294,7 @@ public class JsonUtil {
     try {
       return gson().fromJson(element, typeToken);
     } catch (final Exception e) {
-      Logger.warn("Invalid Json: " + element);
+      GlobalLogger.warn("Invalid Json: " + element);
       return null;
     }
   }
@@ -327,7 +328,7 @@ public class JsonUtil {
       reader.close();
       return JsonUtil.toJsonObject(JsonUtil.fromJson(response.toString()));
     } catch (final Exception e) {
-      Logger.warn("Failed to request JSON from URL: " + urlStr);
+      GlobalLogger.warn("Failed to request JSON from URL: " + urlStr);
       e.printStackTrace();
       return null;
     }

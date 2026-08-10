@@ -7,8 +7,9 @@ import java.util.logging.LogRecord;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
-import org.slf4j.helpers.MessageFormatter;
 import org.slf4j.spi.DefaultLoggingEventBuilder;
+
+import com.lemonlightmc.zenith.additive.StringFormatter;
 
 /**
  * This class is responsible for adapting the JUL logger instance against the
@@ -1680,7 +1681,7 @@ public final class LoggerAdapter implements Logger {
             final Object[] args,
             final Throwable throwable) {
 
-        final LogRecord julLogRecord = new LogRecord(level, MessageFormatter.basicArrayFormat(msg, args));
+        final LogRecord julLogRecord = new LogRecord(level, StringFormatter.format(msg, args));
         julLogRecord.setLoggerName(name);
         julLogRecord.setThrown(throwable);
 
@@ -1700,8 +1701,7 @@ public final class LoggerAdapter implements Logger {
             final Object[] args,
             final Throwable throwable) {
 
-        final LogRecord julLogRecord = new LogRecord(julLevel(level),
-                MessageFormatter.basicArrayFormat(msg, args));
+        final LogRecord julLogRecord = new LogRecord(julLevel(level), StringFormatter.format(msg, args));
         julLogRecord.setLoggerName(name);
         julLogRecord.setThrown(throwable);
 

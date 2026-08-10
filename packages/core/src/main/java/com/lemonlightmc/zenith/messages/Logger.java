@@ -17,10 +17,10 @@ import org.apache.logging.log4j.spi.LoggerContext;
 import org.apache.logging.log4j.spi.LoggerContextFactory;
 import org.apache.logging.log4j.spi.LoggerRegistry;
 import org.apache.logging.log4j.util.PropertiesUtil;
-import org.apache.logging.log4j.util.StackLocatorUtil;
 import org.bukkit.Bukkit;
 
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.additive.Reflect;
 
 public class Logger {
   private final static Locale locale = ZenithProvider.config().get("localization.logger-locale", Locale.ENGLISH);
@@ -289,7 +289,7 @@ public class Logger {
      *                                       determined.
      */
     public ExtendedLogger getLogger() {
-      return getLogger(StackLocatorUtil.getCallerClass(2));
+      return getLogger(Reflect.getCallerClass(2));
     }
 
     /**
@@ -302,7 +302,7 @@ public class Logger {
     public ExtendedLogger getLogger(final String name) {
       return name != null
           ? getLogger(name, null, DEFAULT_MESSAGE_FACTORY)
-          : getLogger(StackLocatorUtil.getCallerClass(2), null, DEFAULT_MESSAGE_FACTORY);
+          : getLogger(Reflect.getCallerClass(2), null, DEFAULT_MESSAGE_FACTORY);
     }
 
     /**
@@ -315,7 +315,7 @@ public class Logger {
     public ExtendedLogger getLogger(final String name, final Level level) {
       return name != null
           ? getLogger(name, null, DEFAULT_MESSAGE_FACTORY)
-          : getLogger(StackLocatorUtil.getCallerClass(2), null, DEFAULT_MESSAGE_FACTORY);
+          : getLogger(Reflect.getCallerClass(2), null, DEFAULT_MESSAGE_FACTORY);
     }
 
     /**
@@ -331,7 +331,7 @@ public class Logger {
     public ExtendedLogger getLogger(final String name, final MessageFactory messageFactory) {
       return name != null
           ? getLogger(name, null, messageFactory)
-          : getLogger(StackLocatorUtil.getCallerClass(2), null, messageFactory);
+          : getLogger(Reflect.getCallerClass(2), null, messageFactory);
     }
 
     /**
@@ -422,7 +422,7 @@ public class Logger {
      *                                       determined.
      */
     public ExtendedLogger getLogger(final MessageFactory messageFactory) {
-      return getLogger(StackLocatorUtil.getCallerClass(2), null, messageFactory);
+      return getLogger(Reflect.getCallerClass(2), null, messageFactory);
     }
 
     /**
@@ -438,7 +438,7 @@ public class Logger {
      *                                       determined.
      */
     public ExtendedLogger getLogger(final Object value) {
-      return getLogger(value != null ? value.getClass() : StackLocatorUtil.getCallerClass(2));
+      return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2));
     }
 
     /**
@@ -455,7 +455,7 @@ public class Logger {
      *                                       determined.
      */
     public ExtendedLogger getLogger(final Object value, final Level level) {
-      return getLogger(value != null ? value.getClass() : StackLocatorUtil.getCallerClass(2), level,
+      return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), level,
           DEFAULT_MESSAGE_FACTORY);
     }
 
@@ -475,7 +475,7 @@ public class Logger {
      *                                       determined.
      */
     public ExtendedLogger getLogger(final Object value, final MessageFactory messageFactory) {
-      return getLogger(value != null ? value.getClass() : StackLocatorUtil.getCallerClass(2), null, messageFactory);
+      return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), null, messageFactory);
     }
 
     /**
@@ -495,14 +495,14 @@ public class Logger {
      *                                       determined.
      */
     public ExtendedLogger getLogger(final Object value, final Level level, final MessageFactory messageFactory) {
-      return getLogger(value != null ? value.getClass() : StackLocatorUtil.getCallerClass(2), level, messageFactory);
+      return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), level, messageFactory);
     }
 
     private static Class<?> getCallerClass(Class<?> cls) {
       if (cls != null) {
         return cls;
       }
-      cls = StackLocatorUtil.getCallerClass(3);
+      cls = Reflect.getCallerClass(3);
       if (cls == null) {
         throw new IllegalArgumentException("No class provided, and an appropriate one cannot be found.");
       }

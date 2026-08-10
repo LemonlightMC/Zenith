@@ -12,10 +12,6 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import org.bukkit.entity.Player;
-
-import com.lemonlightmc.zenith.version.MCVersion;
-
 public class Reflect {
 
   public static boolean hasClass(final String className) {
@@ -28,36 +24,6 @@ public class Reflect {
     } catch (final ClassNotFoundException var2) {
       return false;
     }
-  }
-
-  public static Class<?> getMinecraftClass(final String className) {
-    return getClass("net.minecraft." + className);
-  }
-
-  public static Class<?> getNMSClass(final String clazz) {
-    return getClass("net.minecraft.server." + MCVersion.current() + clazz);
-  }
-
-  public static Class<?> getBukkitClass(final String className) {
-    return getClass("org.bukkit.craftbukkit." + MCVersion.current() + className);
-  }
-
-  public static Object getConnection(final Player player) {
-    if (player == null) {
-      return null;
-    }
-    final Object entityPlayer = invokeMethod(player.getClass(), player, "getHandle", Player.class, player);
-    return getObject(entityPlayer.getClass(), entityPlayer, "playerConnection");
-  }
-
-  public static void sendPacket(final Object packet, final Player player) {
-    if (packet == null || player == null) {
-      return;
-    }
-
-    final Class<?> packetClazz = getMinecraftClass("Packet");
-    final Object conn = getConnection(player);
-    invokeMethod(conn.getClass(), conn, "sendPacket", packetClazz, packet);
   }
 
   public static Class<?> getClass(final String className) {
@@ -278,4 +244,58 @@ public class Reflect {
     }
   }
 
+  public static Class<?> getCallerClass(final int depth) {
+    try {
+      final StackTraceElement element = getCallerElement(depth + 1);
+      return element == null ? null : Class.forName(element.getClassName());
+    } catch (final Exception e) {
+      return null;
+    }
+  }
+
+  // from org.apache.logging.log4j.util.StackLocatorUtil
+  private static StackTraceElement getCallerElement(final int depth) {
+    final StackTraceElement[] stack = new Throwable().getStackTrace();
+    if (stack == null) {
+      return null;
+    }
+    int i = 0;
+    for (final StackTraceElement element : stack) {
+      // ignore native methods (oftentimes are repeated frames)
+      if (element.isNativeMethod()) {
+        continue;
+      }
+      final String cn = element.getClassName();
+      // ignore OpenJDK internal classes involved with reflective invocation
+      if (cn.startsWith("sun.reflect.")) {
+        continue;
+      }
+      final String mn = element.getMethodName();
+      // ignore use of reflection including:
+      // Method.invoke
+      // InvocationHandler.invoke
+      // Constructor.newInstance
+      if (cn.startsWith("java.lang.reflect.") && (mn.equals("invoke") || mn.equals("newInstance"))) {
+        continue;
+      }
+      // ignore use of Java 1.9+ reflection classes
+      if (cn.startsWith("jdk.internal.reflect.")) {
+        continue;
+      }
+      // ignore Class.newInstance
+      if (cn.equals("java.lang.Class") && mn.equals("newInstance")) {
+        continue;
+      }
+      // ignore use of Java 1.7+ MethodHandle.invokeFoo() methods
+      if (cn.equals("java.lang.invoke.MethodHandle") && mn.startsWith("invoke")) {
+        continue;
+      }
+      // any others?
+      if (i == depth) {
+        return element;
+      }
+      ++i;
+    }
+    throw new IndexOutOfBoundsException(Integer.toString(depth));
+  }
 }

@@ -31,7 +31,7 @@ public final class GlobalLogger {
    * @throws UnsupportedOperationException if the calling class cannot be
    *                                       determined.
    */
-  public static Logger getLogger() {
+  public static LoggerAdapter getLogger() {
     return getLogger(Reflect.getCallerClass(2), null);
   }
 
@@ -41,7 +41,7 @@ public final class GlobalLogger {
    * @param name The name of the Logger to return.
    * @return The logger with the specified name.
    */
-  public static Logger getLogger(final String name) {
+  public static LoggerAdapter getLogger(final String name) {
     return name != null
         ? createLogger(name, null)
         : getLogger(Reflect.getCallerClass(2), null);
@@ -54,7 +54,7 @@ public final class GlobalLogger {
    * @param level The Level to use for the logger.
    * @return The logger with the specified name.
    */
-  public static Logger getLogger(final String name, final Level level) {
+  public static LoggerAdapter getLogger(final String name, final Level level) {
     return name != null
         ? createLogger(name, level)
         : getLogger(Reflect.getCallerClass(2), level);
@@ -72,7 +72,7 @@ public final class GlobalLogger {
    *                                       the calling class cannot be
    *                                       determined.
    */
-  public static Logger getLogger(final Object value) {
+  public static LoggerAdapter getLogger(final Object value) {
     return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), null);
   }
 
@@ -89,7 +89,7 @@ public final class GlobalLogger {
    *                                       the calling class cannot be
    *                                       determined.
    */
-  public static Logger getLogger(final Object value, final Level level) {
+  public static LoggerAdapter getLogger(final Object value, final Level level) {
     return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), level);
   }
 
@@ -100,7 +100,7 @@ public final class GlobalLogger {
    * @param cls The Class whose name should be used as the Logger name.
    * @return The logger.
    */
-  public static Logger getLogger(Class<?> cls) {
+  public static LoggerAdapter getLogger(Class<?> cls) {
     if (cls == null) {
       cls = Reflect.getCallerClass(2);
       if (cls == null) {
@@ -119,7 +119,7 @@ public final class GlobalLogger {
    * @param level The Level to use for the logger.
    * @return The logger.
    */
-  public static Logger getLogger(Class<?> cls, final Level level) {
+  public static LoggerAdapter getLogger(Class<?> cls, final Level level) {
     if (cls == null) {
       cls = Reflect.getCallerClass(2);
       if (cls == null) {
@@ -137,7 +137,7 @@ public final class GlobalLogger {
    * @param name   The name of the Logger to return.
    * @return The logger with the specified name.
    */
-  public static Logger getLogger(final Logger parent, final String name) {
+  public static LoggerAdapter getLogger(final Logger parent, final String name) {
     return name != null
         ? createLogger(name, null)
         : getLogger(Reflect.getCallerClass(2), null);
@@ -151,7 +151,7 @@ public final class GlobalLogger {
    * @param level  The Level to use for the logger.
    * @return The logger with the specified name.
    */
-  public static Logger getLogger(final Logger parent, final String name, final Level level) {
+  public static LoggerAdapter getLogger(final Logger parent, final String name, final Level level) {
     return name != null
         ? createLogger(name, level)
         : getLogger(Reflect.getCallerClass(2), level);
@@ -171,7 +171,7 @@ public final class GlobalLogger {
    *                                       the calling class cannot be
    *                                       determined.
    */
-  public static Logger getLogger(final Logger parent, final Object value) {
+  public static LoggerAdapter getLogger(final Logger parent, final Object value) {
     return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), null);
   }
 
@@ -190,7 +190,7 @@ public final class GlobalLogger {
    *                                       the calling class cannot be
    *                                       determined.
    */
-  public static Logger getLogger(final Logger parent, final Object value, final Level level) {
+  public static LoggerAdapter getLogger(final Logger parent, final Object value, final Level level) {
     return getLogger(value != null ? value.getClass() : Reflect.getCallerClass(2), level);
   }
 
@@ -202,7 +202,7 @@ public final class GlobalLogger {
    * @param cls    The Class whose name should be used as the Logger name.
    * @return The logger.
    */
-  public static Logger getLogger(final Logger parent, Class<?> cls) {
+  public static LoggerAdapter getLogger(final Logger parent, Class<?> cls) {
     if (cls == null) {
       cls = Reflect.getCallerClass(2);
       if (cls == null) {
@@ -222,7 +222,7 @@ public final class GlobalLogger {
    * @param level  The Level to use for the logger.
    * @return The logger.
    */
-  public static Logger getLogger(final Logger parent, Class<?> cls, final Level level) {
+  public static LoggerAdapter getLogger(final Logger parent, Class<?> cls, final Level level) {
     if (cls == null) {
       cls = Reflect.getCallerClass(2);
       if (cls == null) {

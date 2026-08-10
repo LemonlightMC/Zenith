@@ -16,6 +16,10 @@ import org.slf4j.spi.DefaultLoggingEventBuilder;
  */
 public final class LoggerAdapter implements Logger {
 
+    private record CallerLocation(
+            String sourceClassName, String sourceMethodName) {
+    }
+
     /**
      * Marker for method entry tracing.
      */
@@ -46,10 +50,6 @@ public final class LoggerAdapter implements Logger {
         THROWING_MARKER.add(EXCEPTION_MARKER);
     }
 
-    private record CallerLocation(
-            String sourceClassName, String sourceMethodName) {
-    }
-
     private static final String FQCN = LoggerAdapter.class.getName();
     private static final String[] LOGGER_IMPL_CLASS_NAMES = {
             LoggerAdapter.class.getName(),
@@ -68,6 +68,89 @@ public final class LoggerAdapter implements Logger {
             case WARN -> java.util.logging.Level.WARNING;
             case ERROR -> java.util.logging.Level.SEVERE;
         };
+    }
+
+    /**
+     * Tries to infer the caller location and eventually return a
+     * {@link CallerLocation} object.
+     *
+     * <p>
+     * This implementation relies on the execution stack trace when attempting to
+     * retrieve the
+     * class name and method name of the caller. One "hacky" way found to retrieve
+     * the execution stack
+     * trace is by generating an exception stack trace through
+     * {@link Throwable#getStackTrace()}. Once
+     * retrieved, we simply iterate over the stack trace elements until finding the
+     * caller frame.
+     *
+     * <p>
+     * A better approach for the implementation would be to rely on the
+     * {@link StackWalker} class
+     * instead since that's the official and supported way for answering our
+     * specific need here. If we
+     * want to improve the implementation, it seems to be the way to go. The JUL
+     * implementation has
+     * gone into this direction, for example, since a recent version of JDK higher
+     * than 8 (see the
+     * {@link LogRecord}{@code #inferCaller()} method for details). Furthermore, it
+     * will make the code
+     * more testable (that's not fully the case with the current implementation
+     * because of <code>
+     * new Throwable()</code> call).
+     *
+     * @return The inferred caller location if found, null otherwise
+     */
+    private static CallerLocation inferCallerLocation() {
+        // The first element is the top-most call on the execution stack
+        final StackTraceElement[] stackTraceElements = new Throwable().getStackTrace();
+
+        // First, search for a method in a logger implementation class.
+        int firstLoggerImplClassIndex = -1;
+        for (int i = 0; i < stackTraceElements.length; i++) {
+            final String className = stackTraceElements[i].getClassName();
+
+            if (isLoggerImplClass(className, FQCN)) {
+                firstLoggerImplClassIndex = i;
+                break;
+            }
+        }
+
+        // Now search for the first frame called before the logger implementation
+        // classes.
+        int inferedCallerClassNameIndex = -1;
+        for (int i = firstLoggerImplClassIndex + 1; i < stackTraceElements.length; i++) {
+            final String className = stackTraceElements[i].getClassName();
+
+            if (!isLoggerImplClass(className, FQCN)) {
+                inferedCallerClassNameIndex = i;
+                break;
+            }
+        }
+
+        // We haven't found a suitable frame, so let's just punt. This is acceptable as
+        // we are only
+        // committed to making a "best effort" here.
+        if (inferedCallerClassNameIndex == -1) {
+            return null;
+        }
+
+        final StackTraceElement stackTraceElement = stackTraceElements[inferedCallerClassNameIndex];
+        return new CallerLocation(stackTraceElement.getClassName(), stackTraceElement.getMethodName());
+    }
+
+    private static boolean isLoggerImplClass(
+            final String className, final String adapterOrSubstituteCallerFqcn) {
+        if (className.equals(adapterOrSubstituteCallerFqcn)) {
+            return true;
+        }
+
+        for (final String loggerImplClassName : LOGGER_IMPL_CLASS_NAMES) {
+            if (loggerImplClassName.equals(className)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private final transient java.util.logging.Logger logger;
@@ -96,7 +179,7 @@ public final class LoggerAdapter implements Logger {
         return this.level;
     }
 
-    public void setLevel(final org.slf4j.event.Level level) {
+    public LoggerAdapter setLevel(final org.slf4j.event.Level level) {
         final Level julLevel = logger.getLevel();
         try {
             if (julLevel == null || julLevel.intValue() != julLevel(level).intValue()) {
@@ -106,6 +189,7 @@ public final class LoggerAdapter implements Logger {
         } catch (final SecurityException e) {
             // Ignore the exception and continue
         }
+        return this;
     }
 
     public String getFullyQualifiedCallerName() {
@@ -141,7 +225,7 @@ public final class LoggerAdapter implements Logger {
      * @param parent The parent logger to set.
      * @throws NullPointerException if the parent logger is null.
      */
-    public Logger setParent(final java.util.logging.Logger parent) {
+    public LoggerAdapter setParent(final java.util.logging.Logger parent) {
         if (logger.getParent() == null) {
             logger.setParent(parent);
         }
@@ -155,7 +239,7 @@ public final class LoggerAdapter implements Logger {
      * @param parent The parent logger to set.
      * @throws NullPointerException if the parent logger is null.
      */
-    public Logger setParent(final Logger parent) {
+    public LoggerAdapter setParent(final Logger parent) {
         if (parent != null && logger.getParent() == null && parent instanceof final LoggerAdapter adapter) {
             logger.setParent(adapter.logger);
         }
@@ -238,12 +322,14 @@ public final class LoggerAdapter implements Logger {
         return throwable;
     }
 
-    public void catching(final org.slf4j.event.Level level, final Throwable throwable) {
+    public LoggerAdapter catching(final org.slf4j.event.Level level, final Throwable throwable) {
         handleLogging(julLevel(level), CATCHING_MARKER, "catching", null, throwable);
+        return this;
     }
 
-    public void catching(final Throwable throwable) {
+    public LoggerAdapter catching(final Throwable throwable) {
         handleLogging(Level.SEVERE, CATCHING_MARKER, "catching", null, throwable);
+        return this;
     }
 
     @Override
@@ -281,16 +367,18 @@ public final class LoggerAdapter implements Logger {
         }
     }
 
-    public void trace(final String msg, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter trace(final String msg, final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled()) {
             handleArgArray(Level.FINEST, null, msg, paramSuppliers);
         }
+        return this;
     }
 
-    public void trace(final Supplier<?> msgSupplier) {
+    public LoggerAdapter trace(final Supplier<?> msgSupplier) {
         if (isTraceEnabled()) {
             handleLogging(Level.FINEST, null, String.valueOf(msgSupplier.get()), null, null);
         }
+        return this;
     }
 
     @Override
@@ -327,89 +415,107 @@ public final class LoggerAdapter implements Logger {
         }
     }
 
-    public void trace(final Object message) {
+    public LoggerAdapter trace(final Object message) {
         if (isTraceEnabled()) {
             handleLogging(Level.FINER, null, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void trace(final Object message, final Throwable throwable) {
+    public LoggerAdapter trace(final Object message, final Throwable throwable) {
         if (isTraceEnabled()) {
             handleLogging(Level.FINER, null, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void trace(final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter trace(final String message, final Object p0, final Object p1, final Object p2) {
         if (isTraceEnabled()) {
             handleArgArray(Level.FINER, null, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {
+    public LoggerAdapter trace(final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
         if (isTraceEnabled()) {
             handleArgArray(Level.FINER, null, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void trace(final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter trace(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isTraceEnabled()) {
             handleLogging(Level.FINER, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void trace(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter trace(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled()) {
             handleArgArray(Level.FINER, null, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final Object message) {
+    public LoggerAdapter trace(final Marker marker, final Object message) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final Object message, final Throwable throwable) {
+    public LoggerAdapter trace(final Marker marker, final Object message, final Throwable throwable) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter trace(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled(marker)) {
             handleArgArray(Level.FINER, marker, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final Supplier<?> messageSupplier) {
+    public LoggerAdapter trace(final Marker marker, final Supplier<?> messageSupplier) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter trace(final Marker marker, final Supplier<?> messageSupplier,
+            final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled(marker)) {
             handleArgArray(Level.FINER, marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter trace(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter trace(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2) {
         if (isTraceEnabled(marker)) {
             handleArgArray(Level.FINER, marker, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+    public LoggerAdapter trace(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2,
             final Object p3) {
         if (isTraceEnabled(marker)) {
             handleArgArray(Level.FINER, marker, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
     public void debug(final String msg) {
@@ -472,101 +578,121 @@ public final class LoggerAdapter implements Logger {
         }
     }
 
-    public void debug(final Marker marker, final Object message) {
+    public LoggerAdapter debug(final Marker marker, final Object message) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void debug(final Marker marker, final Object message, final Throwable throwable) {
+    public LoggerAdapter debug(final Marker marker, final Object message, final Throwable throwable) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void debug(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter debug(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void debug(final Marker marker, final Supplier<?> messageSupplier) {
+    public LoggerAdapter debug(final Marker marker, final Supplier<?> messageSupplier) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void debug(final Marker marker, final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter debug(final Marker marker, final Supplier<?> messageSupplier,
+            final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void debug(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter debug(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void debug(final Object message) {
+    public LoggerAdapter debug(final Object message) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void debug(final Object message, final Throwable throwable) {
+    public LoggerAdapter debug(final Object message, final Throwable throwable) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void debug(final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter debug(final String message, final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void debug(final Supplier<?> messageSupplier) {
+    public LoggerAdapter debug(final Supplier<?> messageSupplier) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void debug(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter debug(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void debug(final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter debug(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void debug(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter debug(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void debug(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+    public LoggerAdapter debug(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2,
             final Object p3) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void debug(final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter debug(final String message, final Object p0, final Object p1, final Object p2) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void debug(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {
+    public LoggerAdapter debug(final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
     public void info(final String msg) {
@@ -635,95 +761,114 @@ public final class LoggerAdapter implements Logger {
         }
     }
 
-    public void info(final Marker marker, final Object message, final Throwable throwable) {
+    public LoggerAdapter info(final Marker marker, final Object message, final Throwable throwable) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void info(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter info(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void info(final Marker marker, final Supplier<?> messageSupplier) {
+    public LoggerAdapter info(final Marker marker, final Supplier<?> messageSupplier) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void info(final Marker marker, final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter info(final Marker marker, final Supplier<?> messageSupplier,
+            final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void info(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter info(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void info(final Object message) {
+    public LoggerAdapter info(final Object message) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void info(final Object message, final Throwable throwable) {
+    public LoggerAdapter info(final Object message, final Throwable throwable) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void info(final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter info(final String message, final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void info(final Supplier<?> messageSupplier) {
+    public LoggerAdapter info(final Supplier<?> messageSupplier) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void info(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter info(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void info(final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter info(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter info(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+    public LoggerAdapter info(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2,
             final Object p3) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void info(final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter info(final String message, final Object p0, final Object p1, final Object p2) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {
+    public LoggerAdapter info(final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
     public void warn(final String msg) {
@@ -786,101 +931,121 @@ public final class LoggerAdapter implements Logger {
         }
     }
 
-    public void warn(final Marker marker, final Object message) {
+    public LoggerAdapter warn(final Marker marker, final Object message) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void warn(final Marker marker, final Object message, final Throwable throwable) {
+    public LoggerAdapter warn(final Marker marker, final Object message, final Throwable throwable) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void warn(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter warn(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void warn(final Marker marker, final Supplier<?> messageSupplier) {
+    public LoggerAdapter warn(final Marker marker, final Supplier<?> messageSupplier) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void warn(final Marker marker, final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter warn(final Marker marker, final Supplier<?> messageSupplier,
+            final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void warn(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter warn(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void warn(final Object message) {
+    public LoggerAdapter warn(final Object message) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void warn(final Object message, final Throwable throwable) {
+    public LoggerAdapter warn(final Object message, final Throwable throwable) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void warn(final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter warn(final String message, final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void warn(final Supplier<?> messageSupplier) {
+    public LoggerAdapter warn(final Supplier<?> messageSupplier) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void warn(final Supplier<?> messageSupplie, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter warn(final Supplier<?> messageSupplie, final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, String.valueOf(messageSupplie.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void warn(final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter warn(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter warn(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+    public LoggerAdapter warn(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2,
             final Object p3) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void warn(final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter warn(final String message, final Object p0, final Object p1, final Object p2) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {
+    public LoggerAdapter warn(final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
     public void error(final String msg) {
@@ -943,428 +1108,513 @@ public final class LoggerAdapter implements Logger {
         }
     }
 
-    public void error(final Marker marker, final Object message) {
+    public LoggerAdapter error(final Marker marker, final Object message) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void error(final Marker marker, final Object message, final Throwable throwable) {
+    public LoggerAdapter error(final Marker marker, final Object message, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void error(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter error(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void error(final Marker marker, final Supplier<?> messageSupplier) {
+    public LoggerAdapter error(final Marker marker, final Supplier<?> messageSupplier) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void error(final Marker marker, final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter error(final Marker marker, final Supplier<?> messageSupplier,
+            final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void error(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter error(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void error(final Object message) {
+    public LoggerAdapter error(final Object message) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void error(final Object message, final Throwable throwable) {
+    public LoggerAdapter error(final Object message, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void error(final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter error(final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void error(final Supplier<?> messageSupplier) {
+    public LoggerAdapter error(final Supplier<?> messageSupplier) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void error(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter error(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void error(final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter error(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void error(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter error(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void error(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+    public LoggerAdapter error(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2,
             final Object p3) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void error(final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter error(final String message, final Object p0, final Object p1, final Object p2) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void error(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {
+    public LoggerAdapter error(final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final Object message) {
+    public LoggerAdapter fatal(final Marker marker, final Object message) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final Object message, final Throwable throwable) {
+    public LoggerAdapter fatal(final Marker marker, final Object message, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message) {
+    public LoggerAdapter fatal(final Marker marker, final String message) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, message, null, null);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message, final Object... params) {
+    public LoggerAdapter fatal(final Marker marker, final String message, final Object... params) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, params);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter fatal(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message, final Throwable throwable) {
+    public LoggerAdapter fatal(final Marker marker, final String message, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, message, null, throwable);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final Supplier<?> messageSupplier) {
+    public LoggerAdapter fatal(final Marker marker, final Supplier<?> messageSupplier) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter fatal(final Marker marker, final Supplier<?> messageSupplier,
+            final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter fatal(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void fatal(final Object message) {
+    public LoggerAdapter fatal(final Object message) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void fatal(final Object message, final Throwable throwable) {
+    public LoggerAdapter fatal(final Object message, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void fatal(final String message) {
+    public LoggerAdapter fatal(final String message) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, message, null, null);
         }
+        return this;
     }
 
-    public void fatal(final String message, final Object... params) {
+    public LoggerAdapter fatal(final String message, final Object... params) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, params);
         }
+        return this;
     }
 
-    public void fatal(final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter fatal(final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void fatal(final String message, final Throwable throwable) {
+    public LoggerAdapter fatal(final String message, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, message, null, throwable);
         }
+        return this;
     }
 
-    public void fatal(final Supplier<?> messageSupplier) {
+    public LoggerAdapter fatal(final Supplier<?> messageSupplier) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void fatal(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter fatal(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void fatal(final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter fatal(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message, final Object p0) {
+    public LoggerAdapter fatal(final Marker marker, final String message, final Object p0) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message, final Object p0, final Object p1) {
+    public LoggerAdapter fatal(final Marker marker, final String message, final Object p0, final Object p1) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0, p1);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter fatal(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void fatal(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+    public LoggerAdapter fatal(final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2,
             final Object p3) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void fatal(final String message, final Object p0) {
+    public LoggerAdapter fatal(final String message, final Object p0) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0);
         }
+        return this;
     }
 
-    public void fatal(final String message, final Object p0, final Object p1) {
+    public LoggerAdapter fatal(final String message, final Object p0, final Object p1) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1);
         }
+        return this;
     }
 
-    public void fatal(final String message, final Object p0, final Object p1, final Object p2) {
+    public LoggerAdapter fatal(final String message, final Object p0, final Object p1, final Object p2) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void fatal(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {
+    public LoggerAdapter fatal(final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final Object message) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Object message) {
         if (isEnabled(level, marker)) {
             handleLogging(level, marker, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final Object message,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Object message,
             final Throwable throwable) {
         if (isEnabled(level, marker)) {
             handleLogging(level, marker, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message) {
         if (isEnabled(level, marker)) {
             handleLogging(level, marker, message, null, null);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object... params) {
         if (isEnabled(level, marker)) {
             handleArgArray(julLevel(level), marker, message, params);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Supplier<?>... paramSuppliers) {
         if (isEnabled(level, marker)) {
             handleArgSupplier(julLevel(level), marker, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Throwable throwable) {
         if (isEnabled(level, marker)) {
             handleLogging(level, marker, message, null, throwable);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final Supplier<?> messageSupplier) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker,
+            final Supplier<?> messageSupplier) {
         if (isEnabled(level, marker)) {
             handleLogging(level, marker, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void log(final Marker marker, final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter log(final Marker marker, final Supplier<?> messageSupplier,
+            final Supplier<?>... paramSuppliers) {
         // ponytail: TempLogger omits Level; uses adapter level or INFO
         final org.slf4j.event.Level effective = this.level != null ? this.level : org.slf4j.event.Level.INFO;
         if (isEnabled(effective, marker)) {
             handleArgSupplier(julLevel(effective), marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final Supplier<?> messageSupplier,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Supplier<?> messageSupplier,
             final Throwable throwable) {
         if (isEnabled(level, marker)) {
             handleLogging(level, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Object message) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Object message) {
         if (isEnabled(level)) {
             handleLogging(level, null, String.valueOf(message), null, null);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Object message, final Throwable throwable) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Object message, final Throwable throwable) {
         if (isEnabled(level)) {
             handleLogging(level, null, String.valueOf(message), null, throwable);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message) {
         if (isEnabled(level)) {
             handleLogging(level, null, message, null, null);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message, final Object... params) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object... params) {
         if (isEnabled(level)) {
             handleArgArray(julLevel(level), null, message, params);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message, final Supplier<?>... paramSuppliers) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message,
+            final Supplier<?>... paramSuppliers) {
         if (isEnabled(level)) {
             handleArgSupplier(julLevel(level), null, message, paramSuppliers);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message, final Throwable throwable) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Throwable throwable) {
         if (isEnabled(level)) {
             handleLogging(level, null, message, null, throwable);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier) {
         if (isEnabled(level)) {
             handleLogging(level, null, String.valueOf(messageSupplier.get()), null, null);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         if (isEnabled(level)) {
             handleArgSupplier(julLevel(level), null, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier, final Throwable throwable) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier,
+            final Throwable throwable) {
         if (isEnabled(level)) {
             handleLogging(level, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message, final Object p0) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
+            final Object p0) {
         if (isEnabled(level, marker)) {
             handleArgArray(julLevel(level), marker, message, p0);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message, final Object p0,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
+            final Object p0,
             final Object p1) {
         if (isEnabled(level, marker)) {
             handleArgArray(julLevel(level), marker, message, p0, p1);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message, final Object p0,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
+            final Object p0,
             final Object p1, final Object p2) {
         if (isEnabled(level, marker)) {
             handleArgArray(julLevel(level), marker, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final Marker marker, final String message, final Object p0,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
+            final Object p0,
             final Object p1, final Object p2,
             final Object p3) {
         if (isEnabled(level, marker)) {
             handleArgArray(julLevel(level), marker, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message, final Object p0) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0) {
         if (isEnabled(level)) {
             handleArgArray(julLevel(level), null, message, p0);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1) {
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0,
+            final Object p1) {
         if (isEnabled(level)) {
             handleArgArray(julLevel(level), null, message, p0, p1);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
             final Object p2) {
         if (isEnabled(level)) {
             handleArgArray(julLevel(level), null, message, p0, p1, p2);
         }
+        return this;
     }
 
-    public void log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
             final Object p2, final Object p3) {
         if (isEnabled(level)) {
             handleArgArray(julLevel(level), null, message, p0, p1, p2, p3);
         }
+        return this;
     }
 
     public EntryMessage traceEntry() {
@@ -1395,10 +1645,11 @@ public final class LoggerAdapter implements Logger {
         return null;
     }
 
-    public void traceExit() {
+    public LoggerAdapter traceExit() {
         if (isTraceEnabled(ENTRY_MARKER)) {
             handleExit((String) null, (Object) null);
         }
+        return this;
     }
 
     public <R> R traceExit(final R result) {
@@ -1565,89 +1816,6 @@ public final class LoggerAdapter implements Logger {
         } else {
             handleLogging(level, marker, msg, args, null);
         }
-    }
-
-    /**
-     * Tries to infer the caller location and eventually return a
-     * {@link CallerLocation} object.
-     *
-     * <p>
-     * This implementation relies on the execution stack trace when attempting to
-     * retrieve the
-     * class name and method name of the caller. One "hacky" way found to retrieve
-     * the execution stack
-     * trace is by generating an exception stack trace through
-     * {@link Throwable#getStackTrace()}. Once
-     * retrieved, we simply iterate over the stack trace elements until finding the
-     * caller frame.
-     *
-     * <p>
-     * A better approach for the implementation would be to rely on the
-     * {@link StackWalker} class
-     * instead since that's the official and supported way for answering our
-     * specific need here. If we
-     * want to improve the implementation, it seems to be the way to go. The JUL
-     * implementation has
-     * gone into this direction, for example, since a recent version of JDK higher
-     * than 8 (see the
-     * {@link LogRecord}{@code #inferCaller()} method for details). Furthermore, it
-     * will make the code
-     * more testable (that's not fully the case with the current implementation
-     * because of <code>
-     * new Throwable()</code> call).
-     *
-     * @return The inferred caller location if found, null otherwise
-     */
-    private static CallerLocation inferCallerLocation() {
-        // The first element is the top-most call on the execution stack
-        final StackTraceElement[] stackTraceElements = new Throwable().getStackTrace();
-
-        // First, search for a method in a logger implementation class.
-        int firstLoggerImplClassIndex = -1;
-        for (int i = 0; i < stackTraceElements.length; i++) {
-            final String className = stackTraceElements[i].getClassName();
-
-            if (isLoggerImplClass(className, FQCN)) {
-                firstLoggerImplClassIndex = i;
-                break;
-            }
-        }
-
-        // Now search for the first frame called before the logger implementation
-        // classes.
-        int inferedCallerClassNameIndex = -1;
-        for (int i = firstLoggerImplClassIndex + 1; i < stackTraceElements.length; i++) {
-            final String className = stackTraceElements[i].getClassName();
-
-            if (!isLoggerImplClass(className, FQCN)) {
-                inferedCallerClassNameIndex = i;
-                break;
-            }
-        }
-
-        // We haven't found a suitable frame, so let's just punt. This is acceptable as
-        // we are only
-        // committed to making a "best effort" here.
-        if (inferedCallerClassNameIndex == -1) {
-            return null;
-        }
-
-        final StackTraceElement stackTraceElement = stackTraceElements[inferedCallerClassNameIndex];
-        return new CallerLocation(stackTraceElement.getClassName(), stackTraceElement.getMethodName());
-    }
-
-    private static boolean isLoggerImplClass(
-            final String className, final String adapterOrSubstituteCallerFqcn) {
-        if (className.equals(adapterOrSubstituteCallerFqcn)) {
-            return true;
-        }
-
-        for (final String loggerImplClassName : LOGGER_IMPL_CLASS_NAMES) {
-            if (loggerImplClassName.equals(className)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

@@ -9,9 +9,9 @@ import java.util.Map;
 
 import com.lemonlightmc.zenith.additive.Ref;
 import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.additive.files.FileUtils;
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
-import com.lemonlightmc.zenith.files.FileUtils;
 
 public record BuildSchema(SchemaNode[] nodes, int len, String header, String footer) {
 

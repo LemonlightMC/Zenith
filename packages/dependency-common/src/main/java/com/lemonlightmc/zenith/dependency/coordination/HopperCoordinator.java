@@ -7,10 +7,11 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
 
-import com.lemonlightmc.zenith.files.FileUtils;
+import com.lemonlightmc.zenith.additive.files.FileUtils;
 
 /**
- * Coordinates multiple DependencyAPI instances (from different plugins) via filesystem
+ * Coordinates multiple DependencyAPI instances (from different plugins) via
+ * filesystem
  * locks.
  * <p>
  * This ensures that only one plugin at a time can:

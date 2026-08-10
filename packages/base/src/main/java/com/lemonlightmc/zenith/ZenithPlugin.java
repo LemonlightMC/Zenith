@@ -17,9 +17,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 
 import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.additive.files.ResourceUtils;
 import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.config.Configurate;
-import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;

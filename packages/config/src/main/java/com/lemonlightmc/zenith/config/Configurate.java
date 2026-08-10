@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.lemonlightmc.zenith.additive.files.ResourceUtils;
 import com.lemonlightmc.zenith.config.handlers.ConfigHandlerType;
 import com.lemonlightmc.zenith.config.handlers.ConfigOptions;
 import com.lemonlightmc.zenith.config.handlers.YamlHandler;
 import com.lemonlightmc.zenith.config.schema.BuildSchema;
 import com.lemonlightmc.zenith.exceptions.ConfigHandlingException;
-import com.lemonlightmc.zenith.files.ResourceUtils;
 import com.lemonlightmc.zenith.messages.Logger;
 
 public class Configurate {

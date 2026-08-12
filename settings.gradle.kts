@@ -52,9 +52,6 @@ project(":zenith-items").projectDir = file("packages/items")
 //project(":zenith-database").projectDir = file("packages/database")
 
 
-print("Finished Building: ")
-println(rootProject)
-
 dependencyResolutionManagement {
     repositories {
         mavenCentral()

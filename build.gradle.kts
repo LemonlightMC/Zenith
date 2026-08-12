@@ -17,6 +17,14 @@ subprojects {
         //withJavadocJar()
     }
 
+    val projectName = name
+
+    tasks.named("build") {
+        doLast {
+            println("Finished Building: $projectName")
+        }
+    }
+
     extensions.configure<PublishingExtension> {
         publications.create(
             "maven", MavenPublication::class

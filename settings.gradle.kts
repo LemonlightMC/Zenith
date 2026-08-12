@@ -9,6 +9,7 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
+        mavenLocal()
         mavenCentral()
         maven {
             url = uri("https://plugins.gradle.org/m2/")
@@ -21,7 +22,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "Zenith"
+rootProject.name = "zenith"
 
 include(":zenith-additive")
 include(":zenith-core")
@@ -29,8 +30,8 @@ include(":zenith-config")
 include(":zenith-base")
 include(":zenith-commands-common")
 include(":zenith-commands-bukkit")
-include(":zenith-dependency-common")
-include(":zenith-dependency-bukkit")
+//include(":zenith-dependency-common")
+//include(":zenith-dependency-bukkit")
 include(":zenith-integrations")
 include(":zenith-items")
 //include(":zenith-custom")
@@ -44,8 +45,8 @@ project(":zenith-base").projectDir = file("packages/base")
 project(":zenith-commands-common").projectDir = file("packages/commands-common")
 project(":zenith-commands-bukkit").projectDir = file("packages/commands-bukkit")
 //project(":zenith-dependency").projectDir = file("packages")
-project(":zenith-dependency-common").projectDir = file("packages/dependency-common")
-project(":zenith-dependency-bukkit").projectDir = file("packages/dependency-bukkit")
+//project(":zenith-dependency-common").projectDir = file("packages/dependency-common")
+//project(":zenith-dependency-bukkit").projectDir = file("packages/dependency-bukkit")
 project(":zenith-integrations").projectDir = file("packages/integrations")
 project(":zenith-items").projectDir = file("packages/items")
 //project(":zenith-custom").projectDir = file("packages/custom")

@@ -12,8 +12,8 @@ import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.items.Enchantment;
-import com.lemonlightmc.zenith.messages.Logger;
 
 public class EnchantmentAPI {
   private static final org.bukkit.enchantments.Enchantment[] values = values();
@@ -64,7 +64,7 @@ public class EnchantmentAPI {
       return;
     }
     if (isRegistered(enchantment.getKey())) {
-      Logger.warn("Enchantment " + enchantment.getName() + " has already been registered");
+      GlobalLogger.warn("Enchantment " + enchantment.getName() + " has already been registered");
       return;
     }
     try {
@@ -76,7 +76,7 @@ public class EnchantmentAPI {
       enchantment.register();
       method.invoke(enchantment);
     } catch (final Exception e) {
-      Logger.warn("Failed to register the Enchantment: " + enchantment.getName());
+      GlobalLogger.warn("Failed to register the Enchantment: " + enchantment.getName());
       e.printStackTrace();
     }
   }

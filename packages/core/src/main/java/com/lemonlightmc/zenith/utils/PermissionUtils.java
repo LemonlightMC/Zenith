@@ -11,8 +11,8 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
-import com.lemonlightmc.zenith.messages.Logger;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -47,7 +47,7 @@ public class PermissionUtils {
           .max(Integer::compareTo)
           .orElse(-1);
     } catch (final Exception e) {
-      Logger.warn("&cInvalid permission value for &4" + player.getName() + "&c: &4" + permission);
+      GlobalLogger.warn("&cInvalid permission value for &4" + player.getName() + "&c: &4" + permission);
       e.printStackTrace();
     }
     return -1;
@@ -222,7 +222,7 @@ public class PermissionUtils {
       if (rsp != null) {
         this.vault = rsp.getProvider();
       } else {
-        Logger.warn("Vault permission provider not found");
+        GlobalLogger.warn("Vault permission provider not found");
         vault = null;
         return;
       }
@@ -341,13 +341,13 @@ public class PermissionUtils {
         } else {
           this.luckPerms = LuckPermsProvider.get();
           if (luckPerms == null) {
-            Logger.warn("LuckPerms permission provider not found");
+            GlobalLogger.warn("LuckPerms permission provider not found");
             return;
           }
         }
         this.playerAdapter = luckPerms.getPlayerAdapter(Player.class);
       } catch (final Exception e) {
-        Logger.warn("LuckPerms permission provider not found");
+        GlobalLogger.warn("LuckPerms permission provider not found");
         this.playerAdapter = null;
       }
     }

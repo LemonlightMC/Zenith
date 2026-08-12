@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.SimpleSubCommand;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
@@ -18,7 +19,6 @@ import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.messages.Logger;
 
 public class CommandHandler<S, C extends CommandSource<S>> {
   public static final int MAX_TABCOMPLETIONS = 512;
@@ -183,7 +183,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
       return false;
     }
     if (!ZenithProvider.instance().isEnabled()) {
-      Logger.warn(
+      GlobalLogger.warn(
           "Cannot execute command '" +
               cmd.getName() +
               "' in plugin " +

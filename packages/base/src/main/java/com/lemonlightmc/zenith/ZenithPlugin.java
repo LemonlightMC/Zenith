@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,6 +16,8 @@ import org.bukkit.plugin.ServicesManager;
 
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.files.ResourceUtils;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
+import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
 import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
@@ -29,7 +29,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     implements com.lemonlightmc.zenith.IZenithPlugin {
 
   private final BukkitScheduler scheduler;
-  private final Logger logger;
+  private final LoggerAdapter logger;
   private final PluginInfo info;
   private final MessageAPI messageAPI;
 
@@ -38,7 +38,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     this.info = new PluginInfo(getDescription());
     this.scheduler = new BukkitScheduler();
     messageAPI = new MessageAPI();
-    logger = LogManager.getLogger(super.getLogger().getName());
+    logger = GlobalLogger.getLogger(super.getLogger().getName());
     if (!ZenithProvider.hasInstance()) {
       ZenithProvider.setInstance(this);
     }
@@ -90,7 +90,7 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   }
 
   @Override
-  public Logger getLog4jLogger() {
+  public LoggerAdapter getSlf4jLogger() {
     return logger;
   }
 
@@ -202,6 +202,29 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   @Override
   public String toString() {
     return info.getFullName();
+  }
+
+  public void disableWithCause(final String description) {
+    logger.error("*-----------------------------------------------------*");
+    logger.error(
+        "An error has occurred in " +
+            ZenithProvider.instance().getName() +
+            ".");
+    logger.error("Description: " + description);
+    logger.error("Contact the plugin author if you cannot fix this issue.");
+    logger.error("*-----------------------------------------------------*");
+    if (Bukkit.getPluginManager().isPluginEnabled(ZenithProvider.instance())) {
+      Bukkit.getPluginManager().disablePlugin(ZenithProvider.instance());
+    }
+  }
+
+  public void disableWithCause(
+      final String description,
+      final Throwable throwable) {
+    if (throwable != null) {
+      throwable.printStackTrace();
+    }
+    disableWithCause(description);
   }
 
   @Override

@@ -27,8 +27,12 @@ public final class GlobalLogger {
     java.util.logging.Logger.getLogger("");
   }
 
-  public static void setGlobalLogger(final java.util.logging.Logger logger) {
+  public static void setRootLogger(final java.util.logging.Logger logger) {
     globalLogger = Lazy.of(() -> globalLogger.get().setParent(logger));
+  }
+
+  public static LoggerAdapter getRootLogger() {
+    return globalLogger.get();
   }
 
   /**

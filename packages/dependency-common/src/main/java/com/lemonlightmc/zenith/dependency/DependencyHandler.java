@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import org.apache.logging.log4j.Logger;
-
 import com.lemonlightmc.zenith.additive.HttpUtil;
 import com.lemonlightmc.zenith.additive.math.Checksum;
 import com.lemonlightmc.zenith.dependency.coordination.HopperCoordinator;

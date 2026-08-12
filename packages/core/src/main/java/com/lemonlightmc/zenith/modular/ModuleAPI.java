@@ -11,9 +11,9 @@ import java.util.function.Predicate;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.events.BaseEvent;
 import com.lemonlightmc.zenith.events.EventsAPI;
-import com.lemonlightmc.zenith.messages.Logger;
 
 public class ModuleAPI {
   private static final Map<String, Module> modules = new HashMap<>(6);
@@ -47,7 +47,7 @@ public class ModuleAPI {
       return;
     }
     if (modules.containsKey(module.getKey())) {
-      Logger.warn("Module with key '" + module.getKey() + "' is already registered!");
+      GlobalLogger.warn("Module with key '" + module.getKey() + "' is already registered!");
       return;
     }
     modules.put(module.getKey(), module);
@@ -142,7 +142,7 @@ public class ModuleAPI {
       modules.put(module.getKey(), module);
       return module;
     } catch (final Exception e) {
-      Logger.warn("Failed to create module: " + moduleCls.getName());
+      GlobalLogger.warn("Failed to create module: " + moduleCls.getName());
       return null;
     }
   }
@@ -197,7 +197,7 @@ public class ModuleAPI {
         isEnabled = enable(key);
       }
       if (!isEnabled && !soft) {
-        Logger.warn("Failed to load Dependency '" + key + "' for Module");
+        GlobalLogger.warn("Failed to load Dependency '" + key + "' for Module");
         success = false;
       }
     }

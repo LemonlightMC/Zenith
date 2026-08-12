@@ -1,7 +1,7 @@
 package com.lemonlightmc.zenith.sound.fade;
 
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.apis.SoundAPI;
-import com.lemonlightmc.zenith.messages.Logger;
 
 public abstract class SoundFading {
 
@@ -78,7 +78,7 @@ public abstract class SoundFading {
       try {
         return (SoundFading) cls.getDeclaredConstructor().newInstance(duration);
       } catch (final Exception e) {
-        Logger.warn("Failed to create SoundFading Instance");
+        GlobalLogger.warn("Failed to create SoundFading Instance");
         e.printStackTrace();
         return null;
       }

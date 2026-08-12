@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import com.lemonlightmc.zenith.messages.Logger;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 
 public class SchemaPair<T> extends SchemaNode {
 
@@ -60,7 +60,7 @@ public class SchemaPair<T> extends SchemaNode {
   public T parse(final Object obj) {
     value = type.parse(obj);
     if (value == null || (validator != null && validator.test(value))) {
-      Logger.warn("Validation failed for path " + path + " with value " + value);
+      GlobalLogger.warn("Validation failed for path " + path + " with value " + value);
       this.value = def;
     }
     return value;

@@ -8,7 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.lemonlightmc.zenith.ZenithProvider;
-import com.lemonlightmc.zenith.messages.Logger;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 
 import net.milkbowl.vault2.economy.Economy;
 import net.milkbowl.vault2.economy.EconomyResponse;
@@ -27,7 +27,7 @@ public class SimpleVault {
 
   public SimpleVault() {
     if (!setupEconomy()) {
-      Logger.warn("Could not find Vault");
+      GlobalLogger.warn("Could not find Vault");
     }
   }
 

@@ -16,12 +16,12 @@ import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.SimplePluginManager;
 
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.exceptions.InvalidCommandNameException;
 import com.lemonlightmc.zenith.commands.exceptions.MissingCommandExecutorException;
 import com.lemonlightmc.zenith.commands.executors.CommandHandler;
 import com.lemonlightmc.zenith.commands.executors.InternalExecutor;
-import com.lemonlightmc.zenith.messages.Logger;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 
@@ -130,7 +130,7 @@ public class CommandAPI {
       final InternalExecutor cmd = new InternalExecutor(command, true);
       return getCommandMap().register(cmd.getLabel(), cmd.getNamespace(), cmd);
     } catch (final Exception e) {
-      Logger.warn("Failed to register a command: " + (command == null ? "null" : command.getName().toString()));
+      GlobalLogger.warn("Failed to register a command: " + (command == null ? "null" : command.getName().toString()));
       e.printStackTrace();
       return false;
     }
@@ -147,7 +147,7 @@ public class CommandAPI {
       namespace = namespace == null || namespace.isEmpty() ? getNamespace() : namespace;
       return getCommandMap().register(command.getLabel(), namespace, command);
     } catch (final Exception e) {
-      Logger.warn("Failed to register a command: " + (command == null ? "null" : command.getName()));
+      GlobalLogger.warn("Failed to register a command: " + (command == null ? "null" : command.getName()));
       e.printStackTrace();
       return false;
     }
@@ -200,7 +200,7 @@ public class CommandAPI {
       command.unregister(getCommandMap());
       return true;
     } catch (final Exception e) {
-      Logger.warn("Failed to unregister a command: " + key);
+      GlobalLogger.warn("Failed to unregister a command: " + key);
       e.printStackTrace();
       return false;
     }
@@ -228,7 +228,7 @@ public class CommandAPI {
       cmd.unregister(getCommandMap());
       return true;
     } catch (final Exception e) {
-      Logger.warn("Failed to unregister a command: " + command.getName().toString());
+      GlobalLogger.warn("Failed to unregister a command: " + command.getName().toString());
       e.printStackTrace();
       return false;
     }
@@ -249,7 +249,7 @@ public class CommandAPI {
       command.unregister(getCommandMap());
       return true;
     } catch (final Exception e) {
-      Logger.warn("Failed to unregister a command: " + command.getLabel());
+      GlobalLogger.warn("Failed to unregister a command: " + command.getLabel());
       e.printStackTrace();
       return false;
     }
@@ -274,7 +274,7 @@ public class CommandAPI {
       getCommandMap().clearCommands();
       return true;
     } catch (final Exception e) {
-      Logger.warn("Failed to unregister all commands");
+      GlobalLogger.warn("Failed to unregister all commands");
       e.printStackTrace();
       return false;
     }
@@ -432,12 +432,12 @@ public class CommandAPI {
 
     if (source instanceof final BlockCommandSender blockSender) {
       if (!blockSender.getBlock().getWorld().getGameRuleValue(GameRule.COMMAND_BLOCK_OUTPUT)) {
-        Logger.info(colored);
+        GlobalLogger.info(colored);
         return;
       }
     } else if (source instanceof final CommandMinecart cartSender) {
       if (!cartSender.getWorld().getGameRuleValue(GameRule.COMMAND_BLOCK_OUTPUT)) {
-        Logger.info(colored);
+        GlobalLogger.info(colored);
         return;
       }
     }

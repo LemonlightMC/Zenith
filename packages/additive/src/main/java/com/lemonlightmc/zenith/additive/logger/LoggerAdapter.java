@@ -1,5 +1,6 @@
 package com.lemonlightmc.zenith.additive.logger;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -58,9 +59,34 @@ public final class LoggerAdapter implements Logger {
             DefaultLoggingEventBuilder.class.getName()
     };
 
-    private static java.util.logging.Level julLevel(final org.slf4j.event.Level slf4jLevel) {
+    private final transient java.util.logging.Logger logger;
+    private final String name;
+    private org.slf4j.event.Level level;
+    private Function<String, String> messageTransformer;
+
+    public LoggerAdapter(final java.util.logging.Logger logger, final String name, final org.slf4j.event.Level level) {
+        if (logger == null) {
+            throw new IllegalArgumentException("Logger must not be null");
+        }
+        if (name == null) {
+            throw new IllegalArgumentException("Logger name must not be null");
+        }
+        if (level == null) {
+            throw new IllegalArgumentException("Logger level must not be null");
+        }
+        this.name = name;
+        this.logger = logger;
+        try {
+            this.level = level;
+            logger.setLevel(julLevel(level));
+        } catch (final SecurityException e) {
+            // Ignore the exception and continue
+        }
+    }
+
+    private java.util.logging.Level julLevel(final org.slf4j.event.Level slf4jLevel) {
         if (slf4jLevel == null) {
-            return null;
+            return logger.getLevel();
         }
         return switch (slf4jLevel) {
             case TRACE -> java.util.logging.Level.FINEST;
@@ -71,104 +97,9 @@ public final class LoggerAdapter implements Logger {
         };
     }
 
-    /**
-     * Tries to infer the caller location and eventually return a
-     * {@link CallerLocation} object.
-     *
-     * <p>
-     * This implementation relies on the execution stack trace when attempting to
-     * retrieve the
-     * class name and method name of the caller. One "hacky" way found to retrieve
-     * the execution stack
-     * trace is by generating an exception stack trace through
-     * {@link Throwable#getStackTrace()}. Once
-     * retrieved, we simply iterate over the stack trace elements until finding the
-     * caller frame.
-     *
-     * <p>
-     * A better approach for the implementation would be to rely on the
-     * {@link StackWalker} class
-     * instead since that's the official and supported way for answering our
-     * specific need here. If we
-     * want to improve the implementation, it seems to be the way to go. The JUL
-     * implementation has
-     * gone into this direction, for example, since a recent version of JDK higher
-     * than 8 (see the
-     * {@link LogRecord}{@code #inferCaller()} method for details). Furthermore, it
-     * will make the code
-     * more testable (that's not fully the case with the current implementation
-     * because of <code>
-     * new Throwable()</code> call).
-     *
-     * @return The inferred caller location if found, null otherwise
-     */
-    private static CallerLocation inferCallerLocation() {
-        // The first element is the top-most call on the execution stack
-        final StackTraceElement[] stackTraceElements = new Throwable().getStackTrace();
-
-        // First, search for a method in a logger implementation class.
-        int firstLoggerImplClassIndex = -1;
-        for (int i = 0; i < stackTraceElements.length; i++) {
-            final String className = stackTraceElements[i].getClassName();
-
-            if (isLoggerImplClass(className, FQCN)) {
-                firstLoggerImplClassIndex = i;
-                break;
-            }
-        }
-
-        // Now search for the first frame called before the logger implementation
-        // classes.
-        int inferedCallerClassNameIndex = -1;
-        for (int i = firstLoggerImplClassIndex + 1; i < stackTraceElements.length; i++) {
-            final String className = stackTraceElements[i].getClassName();
-
-            if (!isLoggerImplClass(className, FQCN)) {
-                inferedCallerClassNameIndex = i;
-                break;
-            }
-        }
-
-        // We haven't found a suitable frame, so let's just punt. This is acceptable as
-        // we are only
-        // committed to making a "best effort" here.
-        if (inferedCallerClassNameIndex == -1) {
-            return null;
-        }
-
-        final StackTraceElement stackTraceElement = stackTraceElements[inferedCallerClassNameIndex];
-        return new CallerLocation(stackTraceElement.getClassName(), stackTraceElement.getMethodName());
-    }
-
-    private static boolean isLoggerImplClass(
-            final String className, final String adapterOrSubstituteCallerFqcn) {
-        if (className.equals(adapterOrSubstituteCallerFqcn)) {
-            return true;
-        }
-
-        for (final String loggerImplClassName : LOGGER_IMPL_CLASS_NAMES) {
-            if (loggerImplClassName.equals(className)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private final transient java.util.logging.Logger logger;
-
-    private final String name;
-
-    private org.slf4j.event.Level level = null;
-
-    public LoggerAdapter(final java.util.logging.Logger logger, final String name, final org.slf4j.event.Level level) {
-        this.name = name;
-        this.logger = logger;
-        try {
-            this.level = level;
-            logger.setLevel(julLevel(level));
-        } catch (final SecurityException e) {
-            // Ignore the exception and continue
-        }
+    public LoggerAdapter setTransformer(final Function<String, String> messageTransformer) {
+        this.messageTransformer = messageTransformer;
+        return this;
     }
 
     @Override
@@ -181,10 +112,14 @@ public final class LoggerAdapter implements Logger {
     }
 
     public LoggerAdapter setLevel(final org.slf4j.event.Level level) {
-        final Level julLevel = logger.getLevel();
+        if (level == null) {
+            return this;
+        }
+        final Level currentLevel = logger.getLevel();
+        final Level julLevel = julLevel(level);
         try {
-            if (julLevel == null || julLevel.intValue() != julLevel(level).intValue()) {
-                logger.setLevel(julLevel(level));
+            if (currentLevel == null || currentLevel.intValue() != julLevel.intValue()) {
+                logger.setLevel(julLevel);
             }
             this.level = level;
         } catch (final SecurityException e) {
@@ -227,7 +162,7 @@ public final class LoggerAdapter implements Logger {
      * @throws NullPointerException if the parent logger is null.
      */
     public LoggerAdapter setParent(final java.util.logging.Logger parent) {
-        if (logger.getParent() == null) {
+        if (parent != null && logger.getParent() == null) {
             logger.setParent(parent);
         }
         return this;
@@ -253,6 +188,14 @@ public final class LoggerAdapter implements Logger {
 
     public boolean isEnabled(final org.slf4j.event.Level level, final Marker marker) {
         return logger.isLoggable(julLevel(level));
+    }
+
+    public boolean isEnabled(final Level level) {
+        return logger.isLoggable(level);
+    }
+
+    public boolean isEnabled(final Level level, final Marker marker) {
+        return logger.isLoggable(level);
     }
 
     @Override
@@ -1414,147 +1357,164 @@ public final class LoggerAdapter implements Logger {
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Object message) {
-        if (isEnabled(level, marker)) {
-            handleLogging(level, marker, String.valueOf(message), null, null);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleLogging(julLevel, marker, String.valueOf(message), null, null);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Object message,
             final Throwable throwable) {
-        if (isEnabled(level, marker)) {
-            handleLogging(level, marker, String.valueOf(message), null, throwable);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleLogging(julLevel, marker, String.valueOf(message), null, throwable);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message) {
-        if (isEnabled(level, marker)) {
-            handleLogging(level, marker, message, null, null);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleLogging(julLevel, marker, message, null, null);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object... params) {
-        if (isEnabled(level, marker)) {
-            handleArgArray(julLevel(level), marker, message, params);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleArgArray(julLevel, marker, message, params);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Supplier<?>... paramSuppliers) {
-        if (isEnabled(level, marker)) {
-            handleArgSupplier(julLevel(level), marker, message, paramSuppliers);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleArgSupplier(julLevel, marker, message, paramSuppliers);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Throwable throwable) {
-        if (isEnabled(level, marker)) {
-            handleLogging(level, marker, message, null, throwable);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleLogging(julLevel, marker, message, null, throwable);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker,
             final Supplier<?> messageSupplier) {
-        if (isEnabled(level, marker)) {
-            handleLogging(level, marker, String.valueOf(messageSupplier.get()), null, null);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleLogging(julLevel, marker, String.valueOf(messageSupplier.get()), null, null);
         }
         return this;
     }
 
-    public LoggerAdapter log(final Marker marker, final Supplier<?> messageSupplier,
+    public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
-        // ponytail: TempLogger omits Level; uses adapter level or INFO
-        final org.slf4j.event.Level effective = this.level != null ? this.level : org.slf4j.event.Level.INFO;
-        if (isEnabled(effective, marker)) {
-            handleArgSupplier(julLevel(effective), marker, String.valueOf(messageSupplier.get()), paramSuppliers);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleArgSupplier(julLevel, marker, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Supplier<?> messageSupplier,
             final Throwable throwable) {
-        if (isEnabled(level, marker)) {
-            handleLogging(level, marker, String.valueOf(messageSupplier.get()), null, throwable);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleLogging(julLevel, marker, String.valueOf(messageSupplier.get()), null, throwable);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Object message) {
-        if (isEnabled(level)) {
-            handleLogging(level, null, String.valueOf(message), null, null);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleLogging(julLevel, null, String.valueOf(message), null, null);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Object message, final Throwable throwable) {
-        if (isEnabled(level)) {
-            handleLogging(level, null, String.valueOf(message), null, throwable);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleLogging(julLevel, null, String.valueOf(message), null, throwable);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message) {
-        if (isEnabled(level)) {
-            handleLogging(level, null, message, null, null);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleLogging(julLevel, null, message, null, null);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object... params) {
-        if (isEnabled(level)) {
-            handleArgArray(julLevel(level), null, message, params);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleArgArray(julLevel, null, message, params);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message,
             final Supplier<?>... paramSuppliers) {
-        if (isEnabled(level)) {
-            handleArgSupplier(julLevel(level), null, message, paramSuppliers);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleArgSupplier(julLevel, null, message, paramSuppliers);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Throwable throwable) {
-        if (isEnabled(level)) {
-            handleLogging(level, null, message, null, throwable);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleLogging(julLevel, null, message, null, throwable);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier) {
-        if (isEnabled(level)) {
-            handleLogging(level, null, String.valueOf(messageSupplier.get()), null, null);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleLogging(julLevel, null, String.valueOf(messageSupplier.get()), null, null);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
-        if (isEnabled(level)) {
-            handleArgSupplier(julLevel(level), null, String.valueOf(messageSupplier.get()), paramSuppliers);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleArgSupplier(julLevel, null, String.valueOf(messageSupplier.get()), paramSuppliers);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier,
             final Throwable throwable) {
-        if (isEnabled(level)) {
-            handleLogging(level, null, String.valueOf(messageSupplier.get()), null, throwable);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleLogging(julLevel, null, String.valueOf(messageSupplier.get()), null, throwable);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object p0) {
-        if (isEnabled(level, marker)) {
-            handleArgArray(julLevel(level), marker, message, p0);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleArgArray(julLevel, marker, message, p0);
         }
         return this;
     }
@@ -1562,8 +1522,9 @@ public final class LoggerAdapter implements Logger {
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object p0,
             final Object p1) {
-        if (isEnabled(level, marker)) {
-            handleArgArray(julLevel(level), marker, message, p0, p1);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleArgArray(julLevel, marker, message, p0, p1);
         }
         return this;
     }
@@ -1571,8 +1532,9 @@ public final class LoggerAdapter implements Logger {
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object p0,
             final Object p1, final Object p2) {
-        if (isEnabled(level, marker)) {
-            handleArgArray(julLevel(level), marker, message, p0, p1, p2);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleArgArray(julLevel, marker, message, p0, p1, p2);
         }
         return this;
     }
@@ -1581,39 +1543,44 @@ public final class LoggerAdapter implements Logger {
             final Object p0,
             final Object p1, final Object p2,
             final Object p3) {
-        if (isEnabled(level, marker)) {
-            handleArgArray(julLevel(level), marker, message, p0, p1, p2, p3);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel, marker)) {
+            handleArgArray(julLevel, marker, message, p0, p1, p2, p3);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0) {
-        if (isEnabled(level)) {
-            handleArgArray(julLevel(level), null, message, p0);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleArgArray(julLevel, null, message, p0);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0,
             final Object p1) {
-        if (isEnabled(level)) {
-            handleArgArray(julLevel(level), null, message, p0, p1);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleArgArray(julLevel, null, message, p0, p1);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
             final Object p2) {
-        if (isEnabled(level)) {
-            handleArgArray(julLevel(level), null, message, p0, p1, p2);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleArgArray(julLevel, null, message, p0, p1, p2);
         }
         return this;
     }
 
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
             final Object p2, final Object p3) {
-        if (isEnabled(level)) {
-            handleArgArray(julLevel(level), null, message, p0, p1, p2, p3);
+        final Level julLevel = julLevel(level);
+        if (isEnabled(julLevel)) {
+            handleArgArray(julLevel, null, message, p0, p1, p2, p3);
         }
         return this;
     }
@@ -1677,31 +1644,15 @@ public final class LoggerAdapter implements Logger {
     protected void handleLogging(
             final Level level,
             final Marker marker,
-            final String msg,
+            String msg,
             final Object[] args,
             final Throwable throwable) {
 
-        final LogRecord julLogRecord = new LogRecord(level, StringFormatter.format(msg, args));
-        julLogRecord.setLoggerName(name);
-        julLogRecord.setThrown(throwable);
-
-        final CallerLocation callerLocation = inferCallerLocation();
-        if (callerLocation != null) {
-            julLogRecord.setSourceClassName(callerLocation.sourceClassName());
-            julLogRecord.setSourceMethodName(callerLocation.sourceMethodName());
+        if (messageTransformer != null) {
+            msg = messageTransformer.apply(msg);
         }
-
-        logger.log(julLogRecord);
-    }
-
-    protected void handleLogging(
-            final org.slf4j.event.Level level,
-            final Marker marker,
-            final String msg,
-            final Object[] args,
-            final Throwable throwable) {
-
-        final LogRecord julLogRecord = new LogRecord(julLevel(level), StringFormatter.format(msg, args));
+        final LogRecord julLogRecord = new LogRecord(level == null ? logger.getLevel() : level,
+                StringFormatter.format(msg, args));
         julLogRecord.setLoggerName(name);
         julLogRecord.setThrown(throwable);
 
@@ -1816,6 +1767,89 @@ public final class LoggerAdapter implements Logger {
         } else {
             handleLogging(level, marker, msg, args, null);
         }
+    }
+
+    /**
+     * Tries to infer the caller location and eventually return a
+     * {@link CallerLocation} object.
+     *
+     * <p>
+     * This implementation relies on the execution stack trace when attempting to
+     * retrieve the
+     * class name and method name of the caller. One "hacky" way found to retrieve
+     * the execution stack
+     * trace is by generating an exception stack trace through
+     * {@link Throwable#getStackTrace()}. Once
+     * retrieved, we simply iterate over the stack trace elements until finding the
+     * caller frame.
+     *
+     * <p>
+     * A better approach for the implementation would be to rely on the
+     * {@link StackWalker} class
+     * instead since that's the official and supported way for answering our
+     * specific need here. If we
+     * want to improve the implementation, it seems to be the way to go. The JUL
+     * implementation has
+     * gone into this direction, for example, since a recent version of JDK higher
+     * than 8 (see the
+     * {@link LogRecord}{@code #inferCaller()} method for details). Furthermore, it
+     * will make the code
+     * more testable (that's not fully the case with the current implementation
+     * because of <code>
+     * new Throwable()</code> call).
+     *
+     * @return The inferred caller location if found, null otherwise
+     */
+    private static CallerLocation inferCallerLocation() {
+        // The first element is the top-most call on the execution stack
+        final StackTraceElement[] stackTraceElements = new Throwable().getStackTrace();
+
+        // First, search for a method in a logger implementation class.
+        int firstLoggerImplClassIndex = -1;
+        for (int i = 0; i < stackTraceElements.length; i++) {
+            final String className = stackTraceElements[i].getClassName();
+
+            if (isLoggerImplClass(className, FQCN)) {
+                firstLoggerImplClassIndex = i;
+                break;
+            }
+        }
+
+        // Now search for the first frame called before the logger implementation
+        // classes.
+        int inferedCallerClassNameIndex = -1;
+        for (int i = firstLoggerImplClassIndex + 1; i < stackTraceElements.length; i++) {
+            final String className = stackTraceElements[i].getClassName();
+
+            if (!isLoggerImplClass(className, FQCN)) {
+                inferedCallerClassNameIndex = i;
+                break;
+            }
+        }
+
+        // We haven't found a suitable frame, so let's just punt. This is acceptable as
+        // we are only
+        // committed to making a "best effort" here.
+        if (inferedCallerClassNameIndex == -1) {
+            return null;
+        }
+
+        final StackTraceElement stackTraceElement = stackTraceElements[inferedCallerClassNameIndex];
+        return new CallerLocation(stackTraceElement.getClassName(), stackTraceElement.getMethodName());
+    }
+
+    private static boolean isLoggerImplClass(
+            final String className, final String adapterOrSubstituteCallerFqcn) {
+        if (className.equals(adapterOrSubstituteCallerFqcn)) {
+            return true;
+        }
+
+        for (final String loggerImplClassName : LOGGER_IMPL_CLASS_NAMES) {
+            if (loggerImplClassName.equals(className)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

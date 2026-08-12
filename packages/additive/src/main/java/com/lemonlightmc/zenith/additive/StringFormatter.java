@@ -9,56 +9,56 @@ public class StringFormatter {
   static final String DELIM_STR = "{}";
   private static final char ESCAPE_CHAR = '\\';
 
-  public final static String format(final String messagePattern, final Object[] argArray) {
+  public final static String format(final String message, final Object[] argArray) {
     int i = 0;
     int j;
-    final int len = messagePattern.length();
+    final int len = message.length();
     final StringBuilder sb = new StringBuilder(len + 50);
 
     for (int idx = 0; idx < argArray.length; idx++) {
-      j = messagePattern.indexOf(DELIM_STR, i);
+      j = message.indexOf(DELIM_STR, i);
       if (j == -1) {
-        return messagePattern;
+        return message;
       }
 
-      if (isEscapedDelimeter(messagePattern, j)) {
-        if (!isDoubleEscaped(messagePattern, j)) {
+      if (isEscapedDelimeter(message, j)) {
+        if (!isDoubleEscaped(message, j)) {
           idx--; // DELIM_START was escaped, thus should not be incremented
-          sb.append(messagePattern, i, j - 1);
+          sb.append(message, i, j - 1);
           sb.append(DELIM_START);
           i = j + 1;
         } else {
           // The escape character preceding the delimiter start is
           // itself escaped: "abc x:\\{}"
           // we have to consume one backward slash
-          sb.append(messagePattern, i, j - 1);
+          sb.append(message, i, j - 1);
           deeplyAppendParameter(sb, argArray[idx], new HashSet<Object[]>());
           i = j + 2;
         }
         continue;
       }
       // normal case
-      sb.append(messagePattern, i, j);
+      sb.append(message, i, j);
       deeplyAppendParameter(sb, argArray[idx], new HashSet<Object[]>());
       i = j + 2;
     }
     // append the characters following the last {} pair.
-    sb.append(messagePattern, i, len);
+    sb.append(message, i, len);
     return sb.toString();
   }
 
-  final static boolean isEscapedDelimeter(final String messagePattern, final int delimeterStartIndex) {
+  final static boolean isEscapedDelimeter(final String message, final int delimeterStartIndex) {
     if (delimeterStartIndex == 0) {
       return false;
     }
-    return messagePattern.charAt(delimeterStartIndex - 1) == ESCAPE_CHAR;
+    return message.charAt(delimeterStartIndex - 1) == ESCAPE_CHAR;
   }
 
-  final static boolean isDoubleEscaped(final String messagePattern, final int delimeterStartIndex) {
-    return delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR;
+  final static boolean isDoubleEscaped(final String message, final int delimeterStartIndex) {
+    return delimeterStartIndex >= 2 && message.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR;
   }
 
-  // special treatment of array values was suggested by 'lizongbo'
+  // special treatment of array values was suggested
   private static void deeplyAppendParameter(final StringBuilder sb, final Object o,
       final Set<Object[]> seenMap) {
     if (o == null) {

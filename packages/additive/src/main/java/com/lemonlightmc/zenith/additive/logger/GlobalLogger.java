@@ -14,14 +14,12 @@ import com.lemonlightmc.zenith.additive.Reflect;
 public final class GlobalLogger {
   private static final ConcurrentMap<String, LoggerAdapter> loggerRegistry;
   private static final String JUL_ROOT_LOGGER_NAME = "";
-  private static final Level defaultLevel;
-  private static final Map<String, Level> logLevelMap;
+  private static Level defaultLevel = Level.INFO;
+  private static Map<String, Level> logLevelMap = null;
   private static Lazy<LoggerAdapter> globalLogger = Lazy.of(() -> getLogger(""));
 
   static {
     loggerRegistry = new ConcurrentHashMap<String, LoggerAdapter>();
-    defaultLevel = Level.INFO;
-    logLevelMap = new ConcurrentHashMap<String, Level>();
 
     // ensure jul initialization.
     java.util.logging.Logger.getLogger("");
@@ -33,6 +31,17 @@ public final class GlobalLogger {
 
   public static LoggerAdapter getRootLogger() {
     return globalLogger.get();
+  }
+
+  public static void setDefaultLogLevel(final Level level) {
+    if (level == null) {
+      throw new IllegalArgumentException("Default LogLevel of GlobalLogger cannot be null!");
+    }
+    GlobalLogger.defaultLevel = level;
+  }
+
+  public static void setLogLevelMapping(final Map<String, Level> logLevelMap) {
+    GlobalLogger.logLevelMap = logLevelMap;
   }
 
   /**
@@ -250,7 +259,7 @@ public final class GlobalLogger {
       name = JUL_ROOT_LOGGER_NAME;
     }
     if (level == null) {
-      level = logLevelMap.isEmpty() ? defaultLevel : logLevelMap.get(name);
+      level = logLevelMap == null || logLevelMap.isEmpty() ? defaultLevel : logLevelMap.get(name);
       if (level == null) {
         level = defaultLevel;
       }

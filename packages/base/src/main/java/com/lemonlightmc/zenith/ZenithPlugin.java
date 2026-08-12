@@ -205,16 +205,16 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   }
 
   public void disableWithCause(final String description) {
-    logger.error("*-----------------------------------------------------*");
-    logger.error(
+    logger.fatal("*-----------------------------------------------------*");
+    logger.fatal(
         "An error has occurred in " +
-            ZenithProvider.instance().getName() +
+            getName() +
             ".");
-    logger.error("Description: " + description);
-    logger.error("Contact the plugin author if you cannot fix this issue.");
-    logger.error("*-----------------------------------------------------*");
-    if (Bukkit.getPluginManager().isPluginEnabled(ZenithProvider.instance())) {
-      Bukkit.getPluginManager().disablePlugin(ZenithProvider.instance());
+    logger.fatal("Description: " + description);
+    logger.fatal("Contact the plugin author if you cannot fix this issue.");
+    logger.fatal("*-----------------------------------------------------*");
+    if (Bukkit.getPluginManager().isPluginEnabled(this)) {
+      Bukkit.getPluginManager().disablePlugin(this);
     }
   }
 

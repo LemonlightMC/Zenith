@@ -204,29 +204,6 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     return info.getFullName();
   }
 
-  public void disableWithCause(final String description) {
-    logger.fatal("*-----------------------------------------------------*");
-    logger.fatal(
-        "An error has occurred in " +
-            getName() +
-            ".");
-    logger.fatal("Description: " + description);
-    logger.fatal("Contact the plugin author if you cannot fix this issue.");
-    logger.fatal("*-----------------------------------------------------*");
-    if (Bukkit.getPluginManager().isPluginEnabled(this)) {
-      Bukkit.getPluginManager().disablePlugin(this);
-    }
-  }
-
-  public void disableWithCause(
-      final String description,
-      final Throwable throwable) {
-    if (throwable != null) {
-      throwable.printStackTrace();
-    }
-    disableWithCause(description);
-  }
-
   @Override
   @Deprecated
   public List<String> onTabComplete(final CommandSender sender, final Command command, final String label,

@@ -1,5 +1,6 @@
 package com.lemonlightmc.zenith.additive.logger;
 
+import java.time.Instant;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -8,7 +9,9 @@ import java.util.logging.LogRecord;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+import org.slf4j.event.LoggingEvent;
 import org.slf4j.spi.DefaultLoggingEventBuilder;
+import org.slf4j.spi.LocationAwareLogger;
 
 import com.lemonlightmc.zenith.additive.StringFormatter;
 
@@ -16,7 +19,7 @@ import com.lemonlightmc.zenith.additive.StringFormatter;
  * This class is responsible for adapting the JUL logger instance against the
  * SLF4J {@link org.slf4j.Logger} interface.
  */
-public final class LoggerAdapter implements Logger {
+public final class LoggerAdapter implements LocationAwareLogger {
 
     private record CallerLocation(
             String sourceClassName, String sourceMethodName) {
@@ -55,7 +58,11 @@ public final class LoggerAdapter implements Logger {
     private static final String FQCN = LoggerAdapter.class.getName();
     private static final String[] LOGGER_IMPL_CLASS_NAMES = {
             LoggerAdapter.class.getName(),
+            LocationAwareLogger.class.getName(),
             Logger.class.getName(),
+            org.slf4j.helpers.SubstituteLogger.class.getName(),
+            org.slf4j.helpers.AbstractLogger.class.getName(),
+            org.slf4j.helpers.LegacyAbstractLogger.class.getName(),
             DefaultLoggingEventBuilder.class.getName()
     };
 
@@ -129,7 +136,7 @@ public final class LoggerAdapter implements Logger {
     }
 
     public String getFullyQualifiedCallerName() {
-        return getClass().getName();
+        return FQCN;
     }
 
     @Override
@@ -1585,6 +1592,14 @@ public final class LoggerAdapter implements Logger {
         return this;
     }
 
+    public void log(final Marker marker, final String fqcn, final int level, final String message,
+            final Object[] argArray, final Throwable t) {
+        final Level julLevel = Level.parse(String.valueOf(level));
+        if (isEnabled(julLevel)) {
+            handleLogging(julLevel, marker, message, argArray, t);
+        }
+    }
+
     public EntryMessage traceEntry() {
         if (isTraceEnabled(ENTRY_MARKER)) {
             return EntryMessage.of().log(this);
@@ -1639,6 +1654,28 @@ public final class LoggerAdapter implements Logger {
             handleExit(message, result);
         }
         return result;
+    }
+
+    public void log(final LoggingEvent event) {
+        // assumes that the invocation is made from a substitute logger
+        // this assumption might change in the future with the advent of a fluent API
+        final Level julLevel = julLevel(event.getLevel());
+        if (!logger.isLoggable(julLevel)) {
+            return;
+        }
+        String msg = event.getMessage();
+        if (messageTransformer != null) {
+            msg = messageTransformer.apply(msg);
+        }
+        final LogRecord record = new LogRecord(julLevel == null ? logger.getLevel() : julLevel,
+                StringFormatter.format(msg, event.getArgumentArray()));
+        record.setLoggerName(event.getLoggerName());
+        record.setThrown(event.getThrowable());
+        record.setInstant(Instant.ofEpochMilli(event.getTimeStamp()));
+        record.setSourceClassName("NOT_FOUND");
+        record.setSourceMethodName("NOT_FOUND");
+
+        logger.log(record);
     }
 
     protected void handleLogging(

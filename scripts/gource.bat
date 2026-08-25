@@ -1,0 +1,1 @@
+gource --seconds-per-day 0.3 --auto-skip-seconds 0.8 --hide filenames --highlight-users --camera-mode track --background 111111 --title "My Project - Development History" --output-framerate 60 .

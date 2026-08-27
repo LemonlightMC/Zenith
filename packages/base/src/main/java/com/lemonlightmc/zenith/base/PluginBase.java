@@ -12,13 +12,13 @@ import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
 import com.lemonlightmc.zenith.PluginInfo;
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.base.events.PluginDisableEvent;
 import com.lemonlightmc.zenith.base.events.PluginEnableEvent;
 import com.lemonlightmc.zenith.base.events.PluginLoadEvent;
 import com.lemonlightmc.zenith.base.events.PluginReloadEvent;
-import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
@@ -108,27 +108,19 @@ public abstract class PluginBase implements IPlugin {
     if (scheduler == null) {
       scheduler = new BukkitScheduler();
     }
-    if (Configurate.options().createDefaults()) {
-      Configurate.createDefaults();
-    }
     onLoad();
     getPluginManager().callEvent(new PluginLoadEvent(this));
   }
 
   public void enable() {
     isEnabled = true;
-    if (Configurate.options().autoLoad()) {
-      Configurate.loadAll();
-    }
     onEnable();
     getPluginManager().callEvent(new PluginEnableEvent(this));
   }
 
   public void reload() {
     MessageFormatter.setPlaceholdersSupport(server.getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    if (Configurate.options().autoReload()) {
-      Configurate.reloadAll();
-    }
+    ZenithProvider.reloadZenithConfig();
     onReload();
     getPluginManager().callEvent(new PluginReloadEvent(this));
   }
@@ -136,9 +128,6 @@ public abstract class PluginBase implements IPlugin {
   public void disable() {
     getPluginManager().callEvent(new PluginDisableEvent(this));
     onDisable();
-    if (Configurate.options().autoSave()) {
-      Configurate.saveAll();
-    }
     isEnabled = false;
   }
 

@@ -2,7 +2,6 @@ package com.lemonlightmc.zenith;
 
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.Bukkit;
@@ -12,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
 import com.lemonlightmc.zenith.additive.files.FileUtils;
-import com.lemonlightmc.zenith.additive.files.ResourceUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
 import com.lemonlightmc.zenith.apis.MessageAPI;
@@ -59,12 +57,9 @@ public class ZenithProvider {
     LIBARIES_FOLDER = PLUGINS_FOLDER.getParent().resolve("libaries");
     ZENITH_FOLDER = PLUGINS_FOLDER.resolve("zenith");
     FileUtils.mkdirs(ZENITH_FOLDER);
-    config = ZenithConfig.from(ZENITH_FOLDER.resolve("config.yml"));
 
-    loggerLocale = ZenithProvider.config().get("localization.logger-locale", Locale.ENGLISH);
     GlobalLogger.setRootLogger(instance.getLogger());
-    GlobalLogger.setLogLevelMapping(ZenithProvider.config().get("logging.loglevels", null));
-    GlobalLogger.setDefaultLogLevel(ZenithProvider.config().get("logging.loglevels.default", Level.INFO));
+    reloadZenithConfig();
     GlobalLogger.getRootLogger().setTransformer((msg) -> {
       if (msg == null || msg.length() == 0) {
         return null;
@@ -101,6 +96,18 @@ public class ZenithProvider {
 
   public static MessageAPI messageAPI() {
     return instance.getMessageAPI();
+  }
+
+  /**
+   * Re-reads the global {@code config.yml} and re-applies the derived logger
+   * settings. Useful for reloading the plugin at runtime.
+   */
+  public static void reloadZenithConfig() {
+    config = ZenithConfig.from(ZENITH_FOLDER.resolve("config.yml"));
+    loggerLocale = config.localization.loggerLocale;
+    GlobalLogger.setLogLevelMapping(config.logging.logLevels);
+    GlobalLogger.setDefaultLogLevel(
+        config.logging.logLevels.getOrDefault("default", Level.INFO));
   }
 
   public static LoggerAdapter pluginLogger() {
@@ -146,41 +153,4 @@ public class ZenithProvider {
     return GlobalLogger.getLogger(zenithLogger, subLogger, level);
   }
 
-  // TODO: switch to yaml!!
-  public static class ZenithConfig {
-
-    private final Properties properties;
-
-    public ZenithConfig(final Properties properties) {
-      this.properties = properties;
-    }
-
-    public Properties getProperties() {
-      return properties;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T get(final String key) {
-      final Object obj = properties.get(key);
-      return obj != null ? (T) obj : null;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T get(final String key, final T defaultValue) {
-      final Object obj = properties.get(key);
-      return obj != null ? (T) obj : defaultValue == null ? null : (T) defaultValue;
-    }
-
-    public boolean containsKey(final String key) {
-      return properties.containsKey(key);
-    }
-
-    public static ZenithConfig from(final Path path) {
-      return new ZenithConfig(ResourceUtils.loadProperties(path));
-    }
-
-    public static ZenithConfig from(final Properties properties) {
-      return new ZenithConfig(properties);
-    }
-  }
 }

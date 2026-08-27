@@ -2,6 +2,7 @@ package com.lemonlightmc.zenith.apis;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.IZenithPlugin;
+import com.lemonlightmc.zenith.ZenithConfig;
 import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.files.FileFilter;
@@ -22,22 +24,22 @@ public class MessageAPI {
   private final Map<Locale, Translator> translators = new ConcurrentHashMap<>();
   private Locale defaultLocale;
   private boolean usePlayerLocale;
-  private boolean alwaysUseEnglish;
+  private boolean shouldLocalize;
   private List<Locale> allowedLocales;
 
   private static volatile MessageAPI api;
 
   public MessageAPI() {
-    alwaysUseEnglish = ZenithProvider.config().get("localization.enabled", false);
-    if (alwaysUseEnglish) {
+    final ZenithConfig.Localization localization = ZenithProvider.config().localization;
+    shouldLocalize = localization.enabled;
+    if (!shouldLocalize) {
       defaultLocale = Locale.ENGLISH;
       usePlayerLocale = false;
       allowedLocales = List.of(Locale.ENGLISH);
-      return;
     } else {
-      allowedLocales = ZenithProvider.config().get("localization.allowed-locales", List.of(Locale.ENGLISH));
-      defaultLocale = ZenithProvider.config().get("localization.default-locale", Locale.ENGLISH);
-      usePlayerLocale = ZenithProvider.config().get("localization.use-player-locale", true);
+      allowedLocales = localization.allowedLocales;
+      defaultLocale = localization.defaultLocale;
+      usePlayerLocale = localization.usePlayerLocale;
     }
   }
 
@@ -72,6 +74,7 @@ public class MessageAPI {
     }
     this.defaultLocale = locale;
     if (!allowedLocales.contains(locale)) {
+      allowedLocales = new ArrayList<>(allowedLocales);
       allowedLocales.add(locale);
     }
   }

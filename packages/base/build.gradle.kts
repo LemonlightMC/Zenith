@@ -2,7 +2,7 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT")
     implementation(project(":zenith-additive"))
     implementation(project(":zenith-core"))
-    implementation(project(":zenith-config"))
+    implementation("org.spongepowered:configurate-yaml:4.2.0")
 }
 
 extensions.extraProperties["moduleName"] = "zenith-base"

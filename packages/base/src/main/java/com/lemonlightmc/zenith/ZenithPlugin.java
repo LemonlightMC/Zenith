@@ -19,7 +19,6 @@ import com.lemonlightmc.zenith.additive.files.ResourceUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
 import com.lemonlightmc.zenith.apis.MessageAPI;
-import com.lemonlightmc.zenith.config.Configurate;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
@@ -102,35 +101,40 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   @Override
   public FileConfiguration getConfig() {
     throw new UnsupportedOperationException(
-        "FileConfiguration is not supported in PluginBase. Use Configurate instead.");
+        "FileConfiguration is not supported by Zenith. Use Configurate instead (industry standard)!");
   }
 
   @Override
   @Deprecated
   public void reloadConfig() {
-    Configurate.reloadAll();
+    throw new UnsupportedOperationException(
+        "FileConfiguration is not supported by Zenith. Use Configurate instead (industry standard)!");
   }
 
   @Override
   @Deprecated
   public void saveConfig() {
-    Configurate.saveAll();
+    throw new UnsupportedOperationException(
+        "FileConfiguration is not supported by Zenith. Use Configurate instead (industry standard)!");
   }
 
   @Deprecated
   public void loadConfig() {
-    Configurate.loadAll();
+    throw new UnsupportedOperationException(
+        "FileConfiguration is not supported by Zenith. Use Configurate instead (industry standard)!");
   }
 
   @Deprecated
   public void loadConfig(final File file) {
-    Configurate.load(file.getName());
+    throw new UnsupportedOperationException(
+        "FileConfiguration is not supported by Zenith. Use Configurate instead (industry standard)!");
   }
 
   @Override
   @Deprecated
   public void saveDefaultConfig() {
-    Configurate.createDefaults();
+    throw new UnsupportedOperationException(
+        "FileConfiguration is not supported by Zenith. Use Configurate instead (industry standard)!");
   }
 
   @Deprecated
@@ -173,30 +177,19 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   @Override
   public void onLoad() {
     MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    if (Configurate.options().createDefaults()) {
-      Configurate.createDefaults();
-    }
   }
 
   @Override
   public void onEnable() {
-    if (Configurate.options().autoLoad()) {
-      Configurate.loadAll();
-    }
   }
 
   public void onReload() {
     MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    if (Configurate.options().autoReload()) {
-      Configurate.reloadAll();
-    }
+    ZenithProvider.reloadZenithConfig();
   }
 
   @Override
   public void onDisable() {
-    if (Configurate.options().autoSave()) {
-      Configurate.saveAll();
-    }
   }
 
   @Override

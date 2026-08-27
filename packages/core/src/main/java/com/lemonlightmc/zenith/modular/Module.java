@@ -2,12 +2,12 @@ package com.lemonlightmc.zenith.modular;
 
 import java.util.List;
 
+import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.events.EventsAPI;
 import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleDisableEvent;
 import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleEnableEvent;
 import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleRegisterEvent;
 import com.lemonlightmc.zenith.modular.ModuleAPI.ModuleUnregisterEvent;
-import com.lemonlightmc.zenith.version.Version;
 
 public abstract class Module {
   protected final String key;

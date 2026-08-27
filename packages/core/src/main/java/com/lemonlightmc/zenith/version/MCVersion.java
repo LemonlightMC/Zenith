@@ -2,6 +2,8 @@ package com.lemonlightmc.zenith.version;
 
 import org.bukkit.Bukkit;
 
+import com.lemonlightmc.zenith.additive.version.SemverVersion;
+import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.exceptions.PlatformException;
 import com.lemonlightmc.zenith.utils.ServerPlatform;
 

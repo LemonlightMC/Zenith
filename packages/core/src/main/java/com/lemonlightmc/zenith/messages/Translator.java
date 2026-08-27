@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.version.Version;
+import com.lemonlightmc.zenith.additive.version.Version;
 
 public interface Translator {
 

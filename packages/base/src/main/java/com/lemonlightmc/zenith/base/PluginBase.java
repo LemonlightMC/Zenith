@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import com.lemonlightmc.zenith.PluginInfo;
 import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.base.events.PluginDisableEvent;
 import com.lemonlightmc.zenith.base.events.PluginEnableEvent;
@@ -22,7 +23,6 @@ import com.lemonlightmc.zenith.base.events.PluginReloadEvent;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
-import com.lemonlightmc.zenith.version.Version;
 
 public abstract class PluginBase implements IPlugin {
 

@@ -10,7 +10,7 @@ import org.bukkit.plugin.PluginAwareness;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoadOrder;
 
-import com.lemonlightmc.zenith.version.Version;
+import com.lemonlightmc.zenith.additive.version.Version;
 
 public class PluginInfo {
 

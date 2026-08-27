@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.version;
+package com.lemonlightmc.zenith.additive.version;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.version;
+package com.lemonlightmc.zenith.additive.version;
 
 import com.lemonlightmc.zenith.additive.math.Range;
 

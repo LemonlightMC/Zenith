@@ -1,15 +1,15 @@
-package com.lemonlightmc.zenith.version;
+package com.lemonlightmc.zenith.additive.version;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.lemonlightmc.zenith.version.VersionConstraintsHolder.CaretConstraint;
-import com.lemonlightmc.zenith.version.VersionConstraintsHolder.CompositeConstraint;
-import com.lemonlightmc.zenith.version.VersionConstraintsHolder.ExactVersionConstraint;
-import com.lemonlightmc.zenith.version.VersionConstraintsHolder.OrConstraint;
-import com.lemonlightmc.zenith.version.VersionConstraintsHolder.RangeConstraint;
-import com.lemonlightmc.zenith.version.VersionConstraintsHolder.TildeConstraint;
-import com.lemonlightmc.zenith.version.VersionConstraintsHolder.VersionConstraintParser;
+import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.CaretConstraint;
+import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.CompositeConstraint;
+import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.ExactVersionConstraint;
+import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.OrConstraint;
+import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.RangeConstraint;
+import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.TildeConstraint;
+import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.VersionConstraintParser;
 
 /**
  * Represents a version constraint that can evaluate whether specific versions

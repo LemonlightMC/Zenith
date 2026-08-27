@@ -18,11 +18,11 @@ import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.files.ResourceUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
+import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
-import com.lemonlightmc.zenith.version.Version;
 
 public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     implements com.lemonlightmc.zenith.IZenithPlugin {

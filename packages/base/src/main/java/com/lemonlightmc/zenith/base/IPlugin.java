@@ -8,9 +8,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
 
 import com.lemonlightmc.zenith.PluginInfo;
+import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
-import com.lemonlightmc.zenith.version.Version;
 
 public interface IPlugin {
 

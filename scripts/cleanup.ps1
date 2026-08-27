@@ -1,4 +1,3 @@
-# Remove root-level bin and build folders
 $rootBinPath = Join-Path (Get-Location) "bin"
 $rootBuildPath = Join-Path (Get-Location) "build"
 
@@ -12,7 +11,6 @@ if (Test-Path $rootBuildPath) {
     Write-Host "Removed: $rootBuildPath"
 }
 
-# Remove bin and build folders from zenith-* directories
 Get-ChildItem -Directory -Filter "packages/" | ForEach-Object {
     $binPath = Join-Path $_.FullName "bin"
     $buildPath = Join-Path $_.FullName "build"

@@ -1,7 +1,6 @@
 package com.lemonlightmc.zenith.modular;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -11,160 +10,231 @@ import java.util.function.Predicate;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 
+import com.lemonlightmc.zenith.IZenithPlugin;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.events.BaseEvent;
 import com.lemonlightmc.zenith.events.EventsAPI;
+import com.lemonlightmc.zenith.exceptions.ModuleLoadException;
 
 public class ModuleAPI {
-  private static final Map<String, Module> modules = new HashMap<>(6);
+  private final Map<String, Module> loadedModules = new HashMap<>();
+  private final Map<String, ModuleDefinition<?>> registeredModules = new HashMap<>();
 
-  public static Module getModule(final String key) {
-    return key == null ? null : modules.get(key);
+  private final IZenithPlugin plugin;
+
+  public ModuleAPI(final IZenithPlugin plugin) {
+    this.plugin = plugin;
   }
 
-  public static <S extends Module> Optional<S> getModule(final String name, final Class<S> cls) {
-    final Module module = modules.get(name);
+  public Module getOrNull(final String key) {
+    return key == null || key.isEmpty() ? null : loadedModules.get(key);
+  }
+
+  public <M extends Module> M getOrNull(final String key, final Class<M> cls) {
+    final Module module = key == null || key.isEmpty() ? null : loadedModules.get(key);
     if (module == null || !cls.isInstance(module)) {
-      return Optional.empty();
+      return null;
     }
-    return Optional.of(cls.cast(module));
+    return cls.cast(module);
   }
 
-  public static Map<String, Module> getModules() {
-    return modules;
+  public Module getOrThrow(final String key) {
+    final Module module = key == null || key.isEmpty() ? null : loadedModules.get(key);
+    if (module == null) {
+      throw new IllegalArgumentException("Module with key '" + key + "' is not registered!");
+    }
+    return module;
   }
 
-  public static boolean isEnabled(final String key) {
-    if (key == null) {
-      return false;
+  public <M extends Module> M getOrThrow(final String key, final Class<M> cls) {
+    final Module module = key == null || key.isEmpty() ? null : loadedModules.get(key);
+    if (module == null) {
+      throw new IllegalArgumentException("Module with key '" + key + "' is not registered!");
     }
-    final Module module = modules.get(key);
+    if (!cls.isInstance(module)) {
+      throw new IllegalArgumentException("Module with key '" + key + "' is not of type " + cls.getName() + "!");
+    }
+    return cls.cast(module);
+  }
+
+  public Optional<Module> getOptional(final String key) {
+    return key == null || key.isEmpty() ? Optional.empty() : Optional.of(loadedModules.get(key));
+  }
+
+  public <M extends Module> Optional<M> getOptional(final String key, final Class<M> cls) {
+    return Optional.ofNullable(getOrNull(key, cls));
+  }
+
+  public Map<String, Module> getLoadedModules() {
+    return loadedModules;
+  }
+
+  public Map<String, ModuleDefinition<?>> getRegisteredModules() {
+    return registeredModules;
+  }
+
+  public boolean isEnabled(final String key) {
+    final Module module = getOrNull(key);
     return module == null ? false : module.isEnabled();
   }
 
-  public static void register(final Module module) {
-    if (module == null) {
-      return;
-    }
-    if (modules.containsKey(module.getKey())) {
-      GlobalLogger.warn("Module with key '" + module.getKey() + "' is already registered!");
-      return;
-    }
-    modules.put(module.getKey(), module);
-    module.register();
+  public boolean isRegistered(final String key) {
+    return key == null || key.isEmpty() ? false : registeredModules.containsKey(key);
   }
 
-  public static void unregister(final String key) {
-    if (key == null) {
+  public <T extends Module> void register(final ModuleDefinition<T> definition) {
+    if (definition == null) {
       return;
     }
-    unregister(modules.get(key));
+    if (registeredModules.containsKey(definition.key())) {
+      GlobalLogger.warn("Module with key '" + definition.key() + "' is already registered!");
+      return;
+    }
+    registeredModules.put(definition.key(), definition);
   }
 
-  public static void unregister(final Module module) {
-    if (module == null) {
+  public void unregister(final Module module) {
+    unregister(module.key());
+  }
+
+  public void unregister(final String key) {
+    if (key == null || key.isEmpty()) {
       return;
     }
-    final Module old = modules.remove(module.getKey());
+    Module oldModule = loadedModules.remove(key);
+    if (oldModule != null) {
+      unloadModule(oldModule);
+    }
+    oldModule = null;
+    final ModuleDefinition<?> old = registeredModules.remove(key);
     if (old == null) {
       return;
     }
-    module.unregister();
   }
 
-  public static boolean enable(final String key) {
-    if (key == null) {
+  @SuppressWarnings("unchecked")
+  public <T extends Module> boolean loadModule(final String key) {
+    if (key == null || key.isEmpty()) {
       return false;
     }
-    return enable(modules.get(key));
-  }
-
-  public static boolean enable(final Module module) {
-    if (module == null) {
-      return false;
+    final ModuleDefinition<T> definition = (ModuleDefinition<T>) registeredModules.get(key);
+    if (definition == null) {
+      throw new IllegalStateException("Module '" + key + "' is not registered!");
     }
-    if (_loadDeps(module.getDepends(), false)) {
-      return false;
-    }
-    _loadDeps(module.getSoftDepends(), true);
-    module.enable();
-    return module.isEnabled();
-  }
-
-  public static boolean disable(final String key) {
-    if (key == null) {
-      return false;
-    }
-    return disable(modules.get(key));
-  }
-
-  public static boolean disable(final Module module) {
-    if (module == null) {
+    if (loadedModules.containsKey(key)) {
+      GlobalLogger.warn("Module with key '" + definition.key() + "' is already loaded!");
       return true;
     }
-    module.disable();
-    return !module.isEnabled();
-  }
-
-  public static void reload() {
-    for (final Module module : modules.values()) {
-      module.reload();
+    if (_loadDeps(definition.depends(), false)) {
+      return false;
     }
-  }
+    _loadDeps(definition.softDepends(), true);
 
-  public static void enableAll() {
-    for (final Module module : modules.values()) {
-      if (module == null) {
-        return;
-      }
-      module.enable();
-    }
-  }
-
-  public static void disableAll() {
-    for (final Module module : modules.values()) {
-      if (module == null) {
-        return;
-      }
-      module.disable();
-    }
-  }
-
-  public static void shutdown() {
-    EventsAPI.call(new ModulesShutdownEvent());
-    disableAll();
-    modules.clear();
-  }
-
-  public static Module createModule(final Class<? extends Module> moduleCls) {
     try {
-      final Module module = moduleCls.getDeclaredConstructor(moduleCls).newInstance();
-      modules.put(module.getKey(), module);
-      return module;
-    } catch (final Exception e) {
-      GlobalLogger.warn("Failed to create module: " + moduleCls.getName());
-      return null;
+      final LoadCondition condition = definition.condition().get();
+      if (!condition.isSuccess()) {
+        this.plugin.getSlf4jLogger().error("Module '%s' can not be loaded: '%s'".formatted(
+            definition.key(), condition.reason().orElse(null)));
+        return false;
+      }
+
+      final T module = definition.factory().load(plugin, definition);
+      module.loadModule();
+      EventsAPI.call(new ModuleLoadEvent<>(module));
+      return module.isEnabled();
+    } catch (final ModuleLoadException exception) {
+      this.plugin.getSlf4jLogger().error(
+          "Failed trying to load module '%s': %s".formatted(definition.key(), exception.getMessage()));
+    }
+    return false;
+  }
+
+  public boolean unloadModule(final String key) {
+    if (key == null || key.isEmpty()) {
+      return false;
+    }
+    return unloadModule(loadedModules.get(key));
+  }
+
+  public boolean unloadModule(final Module module) {
+    if (module == null) {
+      return false;
+    }
+    try {
+      EventsAPI.call(new ModuleUnloadEvent<>(module));
+      module.unloadModule();
+    } catch (final ModuleLoadException exception) {
+      this.plugin.getSlf4jLogger().error(
+          "Failed trying to unload module '%s': %s".formatted(module.key(), exception.getMessage()));
+    }
+    module.isEnabled = false;
+    return true;
+  }
+
+  public boolean reloadModule(final String key) {
+    if (key == null || key.isEmpty()) {
+      return false;
+    }
+    return reloadModule(loadedModules.get(key));
+  }
+
+  public boolean reloadModule(final Module module) {
+    if (module == null) {
+      return false;
+    }
+    try {
+      module.reloadModule();
+      EventsAPI.call(new ModuleReloadEvent<>(module));
+    } catch (final ModuleLoadException exception) {
+      this.plugin.getSlf4jLogger().error(
+          "Failed trying to reload module '%s': %s".formatted(module.key(), exception.getMessage()));
+    }
+    return true;
+  }
+
+  public void loadAll() {
+    for (final ModuleDefinition<?> definition : registeredModules.values()) {
+      loadModule(definition.key());
     }
   }
 
-  public static void computeModule(final String key, final Consumer<Module> consumer) {
-    final Module module = modules.get(key);
+  public void unloadAll() {
+    for (final Module module : loadedModules.values()) {
+      this.unloadModule(module);
+    }
+  }
+
+  public void reloadAll() {
+    for (final Module module : loadedModules.values()) {
+      this.reloadModule(module);
+    }
+  }
+
+  public void shutdown() {
+    EventsAPI.call(new ModulesShutdownEvent());
+    unloadAll();
+    loadedModules.clear();
+    registeredModules.clear();
+  }
+
+  public void computeModule(final String key, final Consumer<Module> consumer) {
+    final Module module = getOrNull(key);
     if (module == null || !module.isEnabled()) {
       return;
     }
     consumer.accept(module);
   }
 
-  public static boolean computeModule(final String key, final Predicate<Module> consumer) {
-    final Module module = modules.get(key);
+  public boolean computeModule(final String key, final Predicate<Module> consumer) {
+    final Module module = getOrNull(key);
     if (module == null || !module.isEnabled()) {
       return false;
     }
     return consumer.test(module);
   }
 
-  public static <T> T computeModule(final String key, final Function<Module, T> consumer) {
-    final Module module = modules.get(key);
+  public <T> T computeModule(final String key, final Function<Module, T> consumer) {
+    final Module module = getOrNull(key);
     if (module == null || !module.isEnabled()) {
       return null;
     }
@@ -172,8 +242,8 @@ public class ModuleAPI {
   }
 
   @SuppressWarnings("unchecked")
-  public static <M extends Module, T> T computeModule(final String key, Class<M> cls, final Function<M, T> consumer) {
-    final Module module = modules.get(key);
+  public <M extends Module, T> T computeModule(final String key, final Class<M> cls, final Function<M, T> consumer) {
+    final Module module = getOrNull(key);
     if (module == null || !module.isEnabled()) {
       return null;
     }
@@ -184,8 +254,8 @@ public class ModuleAPI {
     return consumer.apply((M) module);
   }
 
-  private static boolean _loadDeps(final List<String> deps, final boolean soft) {
-    if (deps == null || deps.size() == 0) {
+  private boolean _loadDeps(final String[] deps, final boolean soft) {
+    if (deps == null || deps.length == 0) {
       return true;
     }
     boolean isEnabled = true;
@@ -194,7 +264,7 @@ public class ModuleAPI {
       if (key.startsWith("$")) {
         isEnabled = Bukkit.getPluginManager().isPluginEnabled(key.substring(1));
       } else {
-        isEnabled = enable(key);
+        isEnabled = loadModule(key);
       }
       if (!isEnabled && !soft) {
         GlobalLogger.warn("Failed to load Dependency '" + key + "' for Module");
@@ -204,20 +274,20 @@ public class ModuleAPI {
     return success;
   }
 
-  public static class ModuleEnableEvent extends BaseEvent {
+  public static class ModuleLoadEvent<T extends Module> extends BaseEvent {
     private static final HandlerList handlers = new HandlerList();
-    private final Module module;
+    private final T module;
 
-    public ModuleEnableEvent(final Module module) {
+    public ModuleLoadEvent(final T module) {
       this.module = module;
     }
 
-    public Module getModule() {
+    public T module() {
       return module;
     }
 
-    public String getKey() {
-      return module.getKey();
+    public String key() {
+      return module.key();
     }
 
     @Override
@@ -230,20 +300,20 @@ public class ModuleAPI {
     }
   }
 
-  public static class ModuleDisableEvent extends BaseEvent {
+  public static class ModuleUnloadEvent<T extends Module> extends BaseEvent {
     private static final HandlerList handlers = new HandlerList();
-    private final Module module;
+    private final T module;
 
-    public ModuleDisableEvent(final Module module) {
+    public ModuleUnloadEvent(final T module) {
       this.module = module;
     }
 
-    public Module getModule() {
+    public T module() {
       return module;
     }
 
-    public String getKey() {
-      return module.getKey();
+    public String key() {
+      return module.key();
     }
 
     @Override
@@ -256,46 +326,20 @@ public class ModuleAPI {
     }
   }
 
-  public static class ModuleRegisterEvent extends BaseEvent {
+  public static class ModuleReloadEvent<T extends Module> extends BaseEvent {
     private static final HandlerList handlers = new HandlerList();
-    private final Module module;
+    private final T module;
 
-    public ModuleRegisterEvent(final Module module) {
+    public ModuleReloadEvent(final T module) {
       this.module = module;
     }
 
-    public Module getModule() {
+    public T module() {
       return module;
     }
 
-    public String getKey() {
-      return module.getKey();
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-      return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
-      return handlers;
-    }
-  }
-
-  public static class ModuleUnregisterEvent extends BaseEvent {
-    private static final HandlerList handlers = new HandlerList();
-    private final Module module;
-
-    public ModuleUnregisterEvent(final Module module) {
-      this.module = module;
-    }
-
-    public Module getModule() {
-      return module;
-    }
-
-    public String getKey() {
-      return module.getKey();
+    public String key() {
+      return module.key();
     }
 
     @Override

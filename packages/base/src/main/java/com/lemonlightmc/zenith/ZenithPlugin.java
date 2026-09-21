@@ -11,9 +11,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.ServicesManager;
 
+import com.lemonlightmc.zenith.additive.Lazy;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.files.ResourceUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
@@ -21,6 +20,7 @@ import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
 import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.apis.MessageAPI;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
+import com.lemonlightmc.zenith.modular.ModuleAPI;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 
@@ -31,16 +31,36 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
   private final LoggerAdapter logger;
   private final PluginInfo info;
   private final MessageAPI messageAPI;
+  private Lazy<ModuleAPI> moduleAPI = Lazy.of(() -> new ModuleAPI(this));
 
   public ZenithPlugin() {
     super();
     this.info = new PluginInfo(getDescription());
     this.scheduler = new BukkitScheduler();
-    messageAPI = new MessageAPI();
     logger = GlobalLogger.getLogger(super.getLogger().getName());
+    messageAPI = new MessageAPI();
     if (!ZenithProvider.hasInstance()) {
       ZenithProvider.setInstance(this);
     }
+  }
+
+  @Override
+  public void onLoad() {
+    MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
+  }
+
+  @Override
+  public void onEnable() {
+    moduleAPI.get().loadAll();
+  }
+
+  public void onReload() {
+    MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
+    ZenithProvider.reloadZenithConfig();
+  }
+
+  @Override
+  public void onDisable() {
   }
 
   public PluginInfo getInfo() {
@@ -75,14 +95,6 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     return new File(this.getDataFolder(), StringUtils.join(File.separator, path));
   }
 
-  public PluginManager getPluginManager() {
-    return Bukkit.getServer().getPluginManager();
-  }
-
-  public ServicesManager getServicesManager() {
-    return Bukkit.getServer().getServicesManager();
-  }
-
   @Override
   public Scheduler getScheduler() {
     return scheduler;
@@ -95,6 +107,10 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
 
   public MessageAPI messageAPI() {
     return messageAPI;
+  }
+
+  public ModuleAPI moduleAPI() {
+    return moduleAPI.get();
   }
 
   @Deprecated
@@ -172,24 +188,6 @@ public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
     } else {
       return null;
     }
-  }
-
-  @Override
-  public void onLoad() {
-    MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
-  }
-
-  @Override
-  public void onEnable() {
-  }
-
-  public void onReload() {
-    MessageFormatter.setPlaceholdersSupport(Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"));
-    ZenithProvider.reloadZenithConfig();
-  }
-
-  @Override
-  public void onDisable() {
   }
 
   @Override

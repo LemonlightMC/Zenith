@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith;
+package com.lemonlightmc.zenith.plugin;
 
 import java.io.File;
 import java.io.InputStream;
@@ -11,7 +11,11 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import com.lemonlightmc.zenith.IZenithPlugin;
+import com.lemonlightmc.zenith.PluginInfo;
+import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.Lazy;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.files.ResourceUtils;
@@ -24,8 +28,8 @@ import com.lemonlightmc.zenith.modular.ModuleAPI;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 
-public abstract class ZenithPlugin extends org.bukkit.plugin.java.JavaPlugin
-    implements com.lemonlightmc.zenith.IZenithPlugin {
+public abstract class ZenithPlugin extends JavaPlugin
+    implements IZenithPlugin {
 
   private final BukkitScheduler scheduler;
   private final LoggerAdapter logger;

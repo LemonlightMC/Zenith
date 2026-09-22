@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.base;
+package com.lemonlightmc.zenith.plugin;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -16,11 +16,11 @@ import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.apis.MessageAPI;
-import com.lemonlightmc.zenith.base.events.PluginDisableEvent;
-import com.lemonlightmc.zenith.base.events.PluginEnableEvent;
-import com.lemonlightmc.zenith.base.events.PluginLoadEvent;
-import com.lemonlightmc.zenith.base.events.PluginReloadEvent;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
+import com.lemonlightmc.zenith.plugin.events.PluginDisableEvent;
+import com.lemonlightmc.zenith.plugin.events.PluginEnableEvent;
+import com.lemonlightmc.zenith.plugin.events.PluginLoadEvent;
+import com.lemonlightmc.zenith.plugin.events.PluginReloadEvent;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 

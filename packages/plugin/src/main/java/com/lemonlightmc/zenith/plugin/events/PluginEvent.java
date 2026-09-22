@@ -1,8 +1,8 @@
-package com.lemonlightmc.zenith.base.events;
+package com.lemonlightmc.zenith.plugin.events;
 
 import org.bukkit.event.Event;
 
-import com.lemonlightmc.zenith.base.IPlugin;
+import com.lemonlightmc.zenith.plugin.IPlugin;
 
 public abstract class PluginEvent extends Event {
   private final IPlugin plugin;

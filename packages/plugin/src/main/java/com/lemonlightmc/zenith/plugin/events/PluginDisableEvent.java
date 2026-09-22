@@ -1,12 +1,13 @@
-package com.lemonlightmc.zenith.base.events;
+package com.lemonlightmc.zenith.plugin.events;
 
 import org.bukkit.event.HandlerList;
-import com.lemonlightmc.zenith.base.IPlugin;
 
-public class PluginEnableEvent extends PluginEvent {
+import com.lemonlightmc.zenith.plugin.IPlugin;
+
+public class PluginDisableEvent extends PluginEvent {
   private static final HandlerList handlers = new HandlerList();
 
-  public PluginEnableEvent(final IPlugin plugin) {
+  public PluginDisableEvent(final IPlugin plugin) {
     super(plugin);
   }
 

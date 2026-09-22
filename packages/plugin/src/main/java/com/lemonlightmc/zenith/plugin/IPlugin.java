@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.base;
+package com.lemonlightmc.zenith.plugin;
 
 import java.nio.file.Path;
 

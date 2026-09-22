@@ -5,4 +5,4 @@ dependencies {
     implementation("org.spongepowered:configurate-yaml:4.2.0")
 }
 
-extensions.extraProperties["moduleName"] = "zenith-base"
+extensions.extraProperties["moduleName"] = "zenith-plugin"

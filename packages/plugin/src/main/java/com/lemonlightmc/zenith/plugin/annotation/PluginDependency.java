@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.base.annotation;
+package com.lemonlightmc.zenith.plugin.annotation;
 
 import javax.annotation.Nonnull;
 

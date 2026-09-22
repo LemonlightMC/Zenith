@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.base.annotation;
+package com.lemonlightmc.zenith.plugin.annotation;
 
 import org.bukkit.plugin.PluginLoadOrder;
 import org.yaml.snakeyaml.Yaml;

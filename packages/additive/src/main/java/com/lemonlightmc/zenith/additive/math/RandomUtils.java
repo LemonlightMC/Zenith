@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.additive;
+package com.lemonlightmc.zenith.additive.math;
 
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
@@ -106,15 +106,15 @@ public class RandomUtils {
     return arr;
   }
 
-  public static double getExponential() {
+  public static double exponential() {
     return ThreadLocalRandom.current().nextExponential();
   }
 
-  public static double getGaussian() {
+  public static double gaussian() {
     return ThreadLocalRandom.current().nextGaussian();
   }
 
-  public static double getGaussian(final double mean, final double deviation) {
+  public static double gussian(final double mean, final double deviation) {
     return ThreadLocalRandom.current().nextGaussian(mean, deviation);
   }
 
@@ -132,8 +132,12 @@ public class RandomUtils {
     return arr[ThreadLocalRandom.current().nextInt(size)];
   }
 
-  public static <T> RandomSelector<T> createSelector(final Collection<T> collection) {
+  public static <T> RandomSelector<T> uniformSelection(final Collection<T> collection) {
     return new RandomSelector<T>(collection);
+  }
+
+  public static <T extends Weighted> WeightedRandomSelector<T> weightedSelection(final Collection<T> collection) {
+    return new WeightedRandomSelector<T>(collection);
   }
 
   public static <T extends Weighted> T pickWeighted(final Collection<T> collection) {
@@ -141,10 +145,6 @@ public class RandomUtils {
       return null;
     }
     return (new WeightedRandomSelector<T>(collection)).pick();
-  }
-
-  public static <T extends Weighted> WeightedRandomSelector<T> createWeightedSelector(final Collection<T> collection) {
-    return new WeightedRandomSelector<T>(collection);
   }
 
   public static class WeightedRandomSelector<T extends Weighted> {
@@ -155,6 +155,9 @@ public class RandomUtils {
     private final int len;
 
     public WeightedRandomSelector(final T[] arr) {
+      if (arr == null || arr.length == 0) {
+        throw new IllegalArgumentException("Array cannot be null or empty");
+      }
       this.arr = arr;
       this.len = arr.length;
       this.totalWeight = 0d;
@@ -191,6 +194,9 @@ public class RandomUtils {
     private final int len;
 
     public RandomSelector(final T[] arr) {
+      if (arr == null || arr.length == 0) {
+        throw new IllegalArgumentException("Array cannot be null or empty");
+      }
       this.arr = arr;
       this.len = arr.length;
     }
@@ -201,6 +207,7 @@ public class RandomUtils {
     }
 
     public T pick() {
+
       return arr[ThreadLocalRandom.current().nextInt(len)];
     }
   }

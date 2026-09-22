@@ -7,8 +7,8 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.additive.MathUtils;
 import com.lemonlightmc.zenith.additive.StringUtils.Replaceable;
+import com.lemonlightmc.zenith.additive.math.MathUtils;
 import com.lemonlightmc.zenith.additive.time.Ticks;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 

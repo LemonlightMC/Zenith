@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.additive;
+package com.lemonlightmc.zenith.additive.math;
 
 import java.util.Random;
 

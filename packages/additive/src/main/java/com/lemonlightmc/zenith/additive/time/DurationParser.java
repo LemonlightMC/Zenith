@@ -12,31 +12,36 @@ public class DurationParser {
       .compile(
           "([1-9]+(?:\\.\\w+)?\\s*)(tick|ticks|sec|second|seconds|min|minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years|[tsmhdwy])");
 
-  public static long parse(String str) {
+  public static long parse(final String str) {
     if (str == null || str.length() == 0) {
       return 0l;
     }
-    String[] parts = pattern1.split(str);
-    long time = 0l;
-    for (String part : parts) {
-      time += parseSingle(part);
+    final long time = 0l;
+    for (final String part : pattern1.split(str)) {
+      if (part.isEmpty()) {
+        continue;
+      }
+      final String[] parts2 = pattern2.split(part);
+      if (parts2.length != 2) {
+        continue;
+      }
+      try {
+        return PolyTimeUnit.from(parts2[1]).toMillis() * NumberConversions.parseLong(parts2[0]);
+      } catch (final Exception e) {
+        continue;
+      }
     }
     return time;
   }
 
-  public static long parseSingle(String part) {
-    if (part == null || part.length() == 0) {
-      return 0l;
-    }
-    String[] parts2 = pattern2.split(part);
-    if (parts2 == null || parts2.length != 2) {
+  public static long parse(final String str, final PolyTimeUnit unit) {
+    if (str == null || str.length() == 0) {
       return 0l;
     }
     try {
-      long time = NumberConversions.parseLong(parts2[0]);
-      return PolyTimeUnit.from(parts2[1]).toMillis(time);
-    } catch (Exception e) {
-      return 0l;
+      return NumberConversions.parseLong(str) * unit.toMillis();
+    } catch (final Exception e) {
+      return 0;
     }
   }
 }

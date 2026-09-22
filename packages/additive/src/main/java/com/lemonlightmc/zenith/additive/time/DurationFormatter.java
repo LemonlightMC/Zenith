@@ -34,11 +34,11 @@ public enum DurationFormatter {
     return elements;
   }
 
-  public void setElements(int elements) {
+  public void setElements(final int elements) {
     this.elements = elements;
   }
 
-  public void setConcise(boolean concise) {
+  public void setConcise(final boolean concise) {
     this.concise = concise;
   }
 
@@ -63,9 +63,9 @@ public enum DurationFormatter {
     int outputSize = 0;
 
     for (final PolyTimeUnit unit : PolyTimeUnit.values()) {
-      final long n = seconds / unit.duration.toMillis();
+      final long n = seconds / unit.toDuration().toMillis();
       if (n > 0) {
-        seconds -= unit.duration.toMillis() * n;
+        seconds -= unit.toDuration().toMillis() * n;
         output.append(' ').append(n).append(unit.toString(concise, n));
         outputSize++;
       }

@@ -88,6 +88,14 @@ public final class TimeUtils {
     return DurationFormatter.format(duration, concise, elements);
   }
 
+  public static long parseDuration(final String str) {
+    return DurationParser.parse(str);
+  }
+
+  public static long parseDuration(final String str, final PolyTimeUnit unit) {
+    return DurationParser.parse(str, unit);
+  }
+
   private TimeUtils() {
     throw new UnsupportedOperationException(
         "This class cannot be instantiated");

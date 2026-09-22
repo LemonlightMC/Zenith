@@ -8,33 +8,16 @@ import org.bukkit.World;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
-public class LiteLocation implements Cloneable<LiteLocation> {
-  private Reference<World> world;
-  private double x;
-  private double y;
-  private double z;
-  private float pitch;
-  private float yaw;
+public record LiteLocation(Reference<World> world, double x, double y, double z, float pitch,
+    float yaw) implements Cloneable<LiteLocation> {
 
   public LiteLocation(final World world, final double x, final double y, final double z, final float yaw,
       final float pitch) {
-    if (world != null) {
-      this.world = new WeakReference<>(world);
-    }
-
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.pitch = pitch;
-    this.yaw = yaw;
+    this(world != null ? new WeakReference<>(world) : null, x, y, z, yaw, pitch);
   }
 
   public LiteLocation(final World world, final double x, final double y, final double z) {
     this(world, x, y, z, 0, 0);
-  }
-
-  public LiteLocation(final World world) {
-    this.world = (world == null) ? null : new WeakReference<>(world);
   }
 
   public World getWorld() {
@@ -58,52 +41,16 @@ public class LiteLocation implements Cloneable<LiteLocation> {
     return world != null && world.equals(Bukkit.getWorld(world.getUID()));
   }
 
-  public void setWorld(final Reference<World> world) {
-    this.world = world;
-  }
-
-  public double getX() {
-    return x;
-  }
-
-  public void setX(final double x) {
-    this.x = x;
-  }
-
-  public double getY() {
-    return z;
-  }
-
-  public void setY(final double y) {
-    this.y = y;
-  }
-
-  public double getZ() {
-    return z;
-  }
-
-  public void setZ(final double z) {
-    this.z = z;
-  }
-
-  public float getPitch() {
-    return pitch;
-  }
-
-  public void setPitch(final float pitch) {
-    this.pitch = pitch;
-  }
-
-  public float getYaw() {
-    return yaw;
-  }
-
-  public void setYaw(final float yaw) {
-    this.yaw = yaw;
-  }
-
   public org.bukkit.Location toLocation() {
     return new org.bukkit.Location(getWorld(), x, y, z, yaw, pitch);
+  }
+
+  public Rotation toRotation() {
+    return new Rotation(yaw, pitch);
+  }
+
+  public Position toPosition() {
+    return new Position(world, x, y, z);
   }
 
   public double distance(final LiteLocation o) {

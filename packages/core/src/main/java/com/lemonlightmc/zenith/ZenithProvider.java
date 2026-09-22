@@ -47,9 +47,14 @@ public class ZenithProvider {
     return initialized.get();
   }
 
-  public static void setInstance(final IZenithPlugin plugin) {
+  public static synchronized void setInstance(final IZenithPlugin plugin) {
     if (initialized.getAndSet(true)) {
-      throw new IllegalStateException("ZenithProvider instance has already been set.");
+      // plugin SHOULD already be initialized
+      GlobalLogger.warn("ZenithProvider instance has already been set.");
+      return;
+    }
+    if (!Bukkit.getServer().isPrimaryThread()) {
+      return;
     }
     instance = plugin;
 

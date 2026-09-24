@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 
 import com.lemonlightmc.zenith.IZenithPlugin;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
@@ -140,6 +141,11 @@ public class ModuleAPI {
 
       final T module = definition.factory().load(plugin, definition);
       module.loadModule();
+      if (module.listeners != null) {
+        for (Listener listener : module.listeners) {
+          EventsAPI.register(listener);
+        }
+      }
       EventsAPI.call(new ModuleLoadEvent<>(module));
       return module.isEnabled();
     } catch (final ModuleLoadException exception) {

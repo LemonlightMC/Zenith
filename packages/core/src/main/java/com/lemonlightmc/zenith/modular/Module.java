@@ -1,6 +1,11 @@
 package com.lemonlightmc.zenith.modular;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.event.Listener;
+
 import com.lemonlightmc.zenith.IZenithPlugin;
 
 public abstract class Module {
@@ -8,6 +13,7 @@ public abstract class Module {
   protected final IZenithPlugin plugin;
   protected final ModuleDefinition<?> definition;
   protected boolean isEnabled = false;
+  protected List<Listener> listeners;
 
   public Module(final IZenithPlugin plugin, final ModuleDefinition<?> definition) {
     if (plugin == null) {
@@ -18,6 +24,10 @@ public abstract class Module {
     }
     this.plugin = plugin;
     this.definition = definition;
+  }
+
+  public IZenithPlugin plugin() {
+    return plugin;
   }
 
   public String key() {
@@ -54,11 +64,15 @@ public abstract class Module {
 
   }
 
-  public void register() {
-  }
-
-  public void unregister() {
-
+  public void registerListeners(Listener... listeners) {
+    if (this.listeners == null) {
+      this.listeners = new ArrayList<>();
+    }
+    for (Listener listener : listeners) {
+      if (listener != null) {
+        this.listeners.add(listener);
+      }
+    }
   }
 
   @Override

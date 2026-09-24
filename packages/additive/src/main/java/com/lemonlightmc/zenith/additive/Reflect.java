@@ -1,9 +1,12 @@
 package com.lemonlightmc.zenith.additive;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -13,6 +16,52 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 public class Reflect {
+  public static VarHandle modifiersVarHandle;
+  public static Field modifiersField;
+  public static Method getDeclaredFields0;
+
+  public static VarHandle modifiersVarHandle() {
+    if (modifiersVarHandle != null) {
+      return modifiersVarHandle;
+    }
+    try {
+      VarHandle.class.getName(); // Makes this method fail-fast on JDK 8
+      final Object temp = MethodHandles.privateLookupIn(Field.class, MethodHandles.lookup())
+          .findVarHandle(Field.class, "modifiers", int.class);
+      modifiersVarHandle = temp == null ? null : (VarHandle) temp;
+    } catch (IllegalAccessException | NoClassDefFoundError | NoSuchFieldException e) {
+    }
+    return modifiersVarHandle;
+  }
+
+  public static Field modifiersField() {
+    if (modifiersField != null) {
+      return modifiersField;
+    }
+    try {
+      modifiersField = Field.class.getDeclaredField("modifiers");
+      modifiersField.setAccessible(true);
+    } catch (NoClassDefFoundError | NoSuchFieldException ignored) {
+    }
+    return modifiersField;
+  }
+
+  public static Field[] declaredFields(final Class<?> cls) {
+    if (getDeclaredFields0 == null) {
+      try {
+        getDeclaredFields0 = Class.class.getDeclaredMethod("getDeclaredFields0",
+            boolean.class);
+        getDeclaredFields0.setAccessible(true);
+      } catch (NoClassDefFoundError | NoSuchMethodException | SecurityException e) {
+        return null;
+      }
+    }
+    try {
+      return (Field[]) getDeclaredFields0.invoke(cls, false);
+    } catch (final Exception e) {
+      return null;
+    }
+  }
 
   public static boolean hasClass(final String className) {
     if (className == null || className.isEmpty()) {
@@ -70,7 +119,7 @@ public class Reflect {
       }
       loader.close();
       return classes.isEmpty() ? null : classes.get(0);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return null;
     }
   }
@@ -184,7 +233,7 @@ public class Reflect {
     if (obj == null) {
       return null;
     }
-    return invokeMethod(obj.getClass(), obj, methodName);
+    return invokeMethod(obj.getClass(), obj, methodName, (Class<?>[]) null, (Object[]) null);
   }
 
   public static Object invokeMethod(final Object obj, final String methodName, final Object[] args) {
@@ -217,12 +266,38 @@ public class Reflect {
 
   public static Object invokeMethod(final Class<?> clazz, final Object obj, final String methodName,
       final Class<?>[] argTypes, final Object[] args) {
-    final Method m = getMethod(clazz, methodName, argTypes);
-    if (m == null) {
+    if (clazz == null || methodName == null || methodName.isEmpty()) {
       return null;
     }
     try {
+      final Method m = clazz.getDeclaredMethod(methodName, argTypes);
+      if (m == null) {
+        return null;
+      }
+      m.setAccessible(true);
       return m.invoke(obj, args);
+    } catch (final Exception e) {
+      return null;
+    }
+  }
+
+  public static Object invokeMethod(final Method method, final Object obj) {
+    if (method == null) {
+      return null;
+    }
+    try {
+      return method.invoke(obj, (Object[]) null);
+    } catch (final Exception e) {
+      return null;
+    }
+  }
+
+  public static Object invokeMethod(final Method method, final Object obj, final Object[] args) {
+    if (method == null) {
+      return null;
+    }
+    try {
+      return method.invoke(obj, args);
     } catch (final Exception e) {
       return null;
     }
@@ -241,6 +316,83 @@ public class Reflect {
       return f == null ? null : f.get(obj);
     } catch (final Exception e) {
       return null;
+    }
+  }
+
+  /**
+   * Sets the field accessible and removes final modifiers
+   *
+   * @param field Field to set accessible
+   * @return the Field
+   */
+
+  public static Field setAccessible(final Field field) {
+    try {
+      field.setAccessible(true);
+    } catch (final Exception e) {
+    }
+    return field;
+  }
+
+  /**
+   * Sets the method accessible
+   *
+   * @param method Method to set accessible
+   * @return the Method
+   * @throws ReflectiveOperationException (usually never)
+   */
+  public static Method setAccessible(final Method method) throws ReflectiveOperationException {
+    try {
+      method.setAccessible(true);
+    } catch (final Exception e) {
+    }
+    return method;
+  }
+
+  /**
+   * Sets the constructor accessible
+   *
+   * @param constructor Constructor to set accessible
+   * @return the Constructor
+   * @throws ReflectiveOperationException (usually never)
+   */
+  public static <T> Constructor<T> setAccessible(final Constructor<T> constructor) throws ReflectiveOperationException {
+    try {
+      constructor.setAccessible(true);
+    } catch (final Exception e) {
+    }
+    return constructor;
+  }
+
+  public static void removeFinal(final Field field) {
+    final int modifiers = field.getModifiers();
+    if (!Modifier.isFinal(modifiers)) {
+      return;
+    }
+    final int newModifiers = modifiers & ~Modifier.FINAL;
+    try {
+      modifiersField.setInt(field, newModifiers);
+    } catch (final Exception e1) {
+      try {
+        if (modifiersVarHandle() != null) {
+          modifiersVarHandle().set(field, newModifiers);
+        } else {
+          modifiersField.setInt(field, newModifiers);
+        }
+      } catch (final Exception e2) {
+        try {
+          // https://github.com/ViaVersion/ViaVersion/blob/e07c994ddc50e00b53b728d08ab044e66c35c30f/bungee/src/main/java/us/myles/ViaVersion/bungee/platform/BungeeViaInjector.java
+          // Java 12 compatibility
+          for (final Field classField : declaredFields(Field.class)) {
+            if ("modifiers".equals(classField.getName())) {
+              classField.setAccessible(true);
+              classField.set(field, newModifiers);
+              break;
+            }
+          }
+        } catch (final Exception e3) {
+        }
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.wrapper;
+package com.lemonlightmc.zenith.unfinished;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.wrapper;
+package com.lemonlightmc.zenith.unfinished;
 
 import org.bukkit.command.CommandSender;
 

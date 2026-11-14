@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
@@ -33,11 +34,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     this.power = firework.power < 0 ? 1 : power;
   }
 
-  public org.bukkit.entity.Firework toEntity(final Location loc) {
+  public org.bukkit.entity.Firework spawnEntity(final Location loc) {
     if (loc == null) {
       return null;
     }
-    final org.bukkit.entity.Firework entity = loc.getWorld().createEntity(loc, org.bukkit.entity.Firework.class);
+    final org.bukkit.entity.Firework entity = (org.bukkit.entity.Firework) loc.getWorld().spawnEntity(loc,
+        EntityType.FIREWORK_ROCKET);
     final FireworkMeta meta = entity.getFireworkMeta();
     for (final FireworkEffect fireworkEffect : effects) {
       meta.addEffects(fireworkEffect.toBukkit());
@@ -46,11 +48,18 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return entity;
   }
 
-  public org.bukkit.entity.Firework spawn(final Location loc) {
+  public org.bukkit.entity.Firework toEntity(final Location loc) {
     if (loc == null) {
       return null;
     }
-    return loc.getWorld().addEntity(toEntity(loc));
+    final org.bukkit.entity.Firework entity = (org.bukkit.entity.Firework) loc.getWorld().createEntity(loc,
+        org.bukkit.entity.Firework.class);
+    final FireworkMeta meta = entity.getFireworkMeta();
+    for (final FireworkEffect fireworkEffect : effects) {
+      meta.addEffects(fireworkEffect.toBukkit());
+    }
+    meta.setPower(power);
+    return entity;
   }
 
   public List<FireworkEffect> getEffects() {

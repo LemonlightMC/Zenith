@@ -19,6 +19,10 @@ public class BukkitScheduler implements Scheduler {
   public static enum ThreadContext {
     SYNC,
     ASYNC;
+    
+    public static boolean isPrimary() {
+      return Bukkit.getServer().isPrimaryThread();
+    }
 
     public static ThreadContext forCurrentThread() {
       return Bukkit.getServer().isPrimaryThread() ? SYNC : ASYNC;

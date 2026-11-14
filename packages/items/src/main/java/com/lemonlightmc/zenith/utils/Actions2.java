@@ -7,12 +7,13 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.items.Firework;
 import com.lemonlightmc.zenith.items.Potion;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.wrapper.Actions.Action;
-import com.lemonlightmc.zenith.wrapper.Conditions.ConditionSet;
+import com.lemonlightmc.zenith.unfinished.Conditions.ConditionSet;
+import com.lemonlightmc.zenith.utils.Actions.Action;
+import com.lemonlightmc.zenith.utils.Actions.ActionContext;
 
 public class Actions2 {
 
-    public static class PotionEffectAction extends Action<Player> {
+    public static class PotionEffectAction extends Action {
 
         private final Potion potion;
         private final boolean clear;
@@ -30,6 +31,14 @@ public class Actions2 {
             this.broadcast = broadcast;
         }
 
+        public PotionEffectAction(final Potion potion, final boolean clear,
+                final boolean broadcast, final ConditionSet<Player> conditions, final boolean useSync) {
+            super(conditions, useSync);
+            this.potion = potion;
+            this.clear = clear;
+            this.broadcast = broadcast;
+        }
+
         public static PotionEffectAction clear(final Potion potion) {
             return new PotionEffectAction(potion, true, false, null);
         }
@@ -39,7 +48,8 @@ public class Actions2 {
         }
 
         @Override
-        protected void run(final Player player) {
+        protected boolean run(final ActionContext context) {
+            final Player player = context.getTarget();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     apply(p);
@@ -47,6 +57,7 @@ public class Actions2 {
             } else if (player != null) {
                 apply(player);
             }
+            return true;
         }
 
         private void apply(final Player target) {
@@ -67,7 +78,7 @@ public class Actions2 {
         }
     }
 
-    public static class FireworkAction extends Action<Player> {
+    public static class FireworkAction extends Action {
 
         private final Firework firework;
         private final boolean broadcast;
@@ -83,8 +94,17 @@ public class Actions2 {
             this.broadcast = broadcast;
         }
 
+        public FireworkAction(
+                final Firework firework, final boolean broadcast, final ConditionSet<Player> conditions,
+                final boolean useSync) {
+            super(conditions, useSync);
+            this.firework = firework;
+            this.broadcast = broadcast;
+        }
+
         @Override
-        protected void run(final Player player) {
+        protected boolean run(final ActionContext context) {
+            final Player player = context.getTarget();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     spawn(p.getLocation());
@@ -92,6 +112,7 @@ public class Actions2 {
             } else if (player != null) {
                 spawn(player.getLocation());
             }
+            return true;
         }
 
         private void spawn(final Location location) {

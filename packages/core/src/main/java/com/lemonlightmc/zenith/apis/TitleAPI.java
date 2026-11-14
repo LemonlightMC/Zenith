@@ -6,6 +6,11 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.TypeSerializer;
+import java.lang.reflect.Type;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import com.lemonlightmc.zenith.additive.StringUtils.Replaceable;
 import com.lemonlightmc.zenith.additive.math.MathUtils;
@@ -297,6 +302,51 @@ public class TitleAPI {
       return "TitleInfo [fadeIn=" + fadeIn + ", stay=" + stay + ", fadeOut=" + fadeOut + ", title=" + title
           + ", subtitle=" + subtitle + "]";
     }
+
+    public static final TitleInfoSerializer SERIALIZER = new TitleInfoSerializer();
+
+    public static final class TitleInfoSerializer implements TypeSerializer<TitleInfo> {
+
+      private static final String TITLE = "title";
+      private static final String SUBTITLE = "subtitle";
+      private static final String FADE_IN = "fade-in";
+      private static final String STAY = "stay";
+      private static final String FADE_OUT = "fade-out";
+
+      private TitleInfoSerializer() {
+      }
+
+      @Override
+      public TitleInfo deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
+        if (node.virtual() || node.isNull()) {
+          return null;
+        }
+
+        final String title = node.node(TITLE).getString();
+        final String subtitle = node.node(SUBTITLE).getString();
+        final int fadeIn = node.node(FADE_IN).getInt(TitleAPI.DEFAULT_FADEIN);
+        final int stay = node.node(STAY).getInt(TitleAPI.DEFAULT_STAY);
+        final int fadeOut = node.node(FADE_OUT).getInt(TitleAPI.DEFAULT_FADEOUT);
+
+        return new TitleInfo(title, subtitle, null, fadeIn, stay, fadeOut);
+      }
+
+      @Override
+      public void serialize(final Type type, final @Nullable TitleInfo obj, final ConfigurationNode node)
+          throws SerializationException {
+        if (obj == null) {
+          node.set(null);
+          return;
+        }
+
+        node.node(TITLE).set(obj.getTitle());
+        node.node(SUBTITLE).set(obj.getSubtitle());
+        node.node(FADE_IN).set(obj.getFadeIn());
+        node.node(STAY).set(obj.getStay());
+        node.node(FADE_OUT).set(obj.getFadeOut());
+      }
+    }
+
   }
 
   public static class TitleBuilder {

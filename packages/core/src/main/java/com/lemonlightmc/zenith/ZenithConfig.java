@@ -18,6 +18,10 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import java.lang.reflect.Type;
 
 import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.apis.TitleAPI;
+import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
+import com.lemonlightmc.zenith.apis.bossbar.BossBar;
+import com.lemonlightmc.zenith.apis.bossbar.BossBarBuilder;
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
 
 import io.leangen.geantyref.TypeToken;
@@ -93,6 +97,8 @@ public class ZenithConfig {
             .shouldCopyDefaults(true)
             .serializers(build -> build
                 .register(TypeToken.get(Locale.class), new LocaleSerializer())
+                .register(TypeToken.get(BossBar.class), BossBarBuilder.SERIALIZER)
+                .register(TypeToken.get(TitleAPI.TitleInfo.class), TitleInfo.SERIALIZER)
                 .registerAnnotatedObjects(customFactory)))
         .build();
     final CommentedConfigurationNode root;

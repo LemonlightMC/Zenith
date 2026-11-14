@@ -13,7 +13,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.apis.bossbar.BossBar.BossBarBuilder;
 import com.lemonlightmc.zenith.apis.bossbar.events.BossBarAddEvent;
 import com.lemonlightmc.zenith.apis.bossbar.events.BossBarRemoveEvent;
 

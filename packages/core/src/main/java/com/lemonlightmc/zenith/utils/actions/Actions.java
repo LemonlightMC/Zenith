@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.utils;
+package com.lemonlightmc.zenith.utils.actions;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -32,83 +32,15 @@ import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
 import com.lemonlightmc.zenith.apis.bossbar.BossBar;
 import com.lemonlightmc.zenith.apis.bossbar.BossbarAPI;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.unfinished.Conditions.ConditionSet;
 
 public class Actions {
-
-  public static class ActionContext {
-    private final Player target;
-    private volatile boolean stopped;
-
-    public ActionContext(final Player target) {
-      this.target = target;
-    }
-
-    public Player getTarget() {
-      return target;
-    }
-
-    public boolean isStopped() {
-      return stopped;
-    }
-
-    public void stop() {
-      this.stopped = true;
-    }
-  }
-
-  public static abstract class Action {
-
-    private final ConditionSet<Player> conditions;
-    private final boolean useSync;
-
-    public Action(final ConditionSet<Player> conditions) {
-      this(conditions, true);
-    }
-
-    public Action(final ConditionSet<Player> conditions, final boolean useSync) {
-      this.conditions = conditions;
-      this.useSync = useSync;
-    }
-
-    public ConditionSet<Player> getConditions() {
-      return conditions;
-    }
-
-    public boolean isUseSync() {
-      return useSync;
-    }
-
-    public boolean execute(final Player target) {
-      return execute(new ActionContext(target));
-    }
-
-    public boolean shouldRun(final ActionContext context) {
-      if (context == null || context.isStopped()) {
-        return false;
-      }
-      return conditions != null && !conditions.test(context.getTarget());
-    }
-
-    public boolean execute(final ActionContext context) {
-      if (context == null || context.isStopped()) {
-        return false;
-      }
-      if (conditions != null && !conditions.test(context.getTarget())) {
-        return true;
-      }
-      return run(context);
-    }
-
-    protected abstract boolean run(ActionContext context);
-  }
 
   public static final class StopAction extends Action {
     public StopAction() {
       super(null, true);
     }
 
-    public StopAction(final ConditionSet<Player> conditions) {
+    public StopAction(final Condition<Player> conditions) {
       super(conditions, true);
     }
 
@@ -127,12 +59,12 @@ public class Actions {
       this(command, null);
     }
 
-    public ConsoleCommandAction(final String command, final ConditionSet<Player> conditions) {
+    public ConsoleCommandAction(final String command, final Condition<Player> conditions) {
       super(conditions);
       this.command = command;
     }
 
-    public ConsoleCommandAction(final String command, final ConditionSet<Player> conditions,
+    public ConsoleCommandAction(final String command, final Condition<Player> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.command = command;
@@ -160,12 +92,12 @@ public class Actions {
       this(command, null);
     }
 
-    public PlayerCommandAction(final String command, final ConditionSet<Player> conditions) {
+    public PlayerCommandAction(final String command, final Condition<Player> conditions) {
       super(conditions);
       this.command = command;
     }
 
-    public PlayerCommandAction(final String command, final ConditionSet<Player> conditions, final boolean useSync) {
+    public PlayerCommandAction(final String command, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.command = command;
     }
@@ -195,13 +127,13 @@ public class Actions {
       this(message, broadcast, null);
     }
 
-    public MessageAction(final String message, final boolean broadcast, final ConditionSet<Player> conditions) {
+    public MessageAction(final String message, final boolean broadcast, final Condition<Player> conditions) {
       super(conditions);
       this.message = message;
       this.broadcast = broadcast;
     }
 
-    public MessageAction(final String message, final boolean broadcast, final ConditionSet<Player> conditions,
+    public MessageAction(final String message, final boolean broadcast, final Condition<Player> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.message = message;
@@ -233,13 +165,13 @@ public class Actions {
       this(info, broadcast, null);
     }
 
-    public TitleAction(final TitleInfo info, final boolean broadcast, final ConditionSet<Player> conditions) {
+    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition<Player> conditions) {
       super(conditions);
       this.info = info;
       this.broadcast = broadcast;
     }
 
-    public TitleAction(final TitleInfo info, final boolean broadcast, final ConditionSet<Player> conditions,
+    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition<Player> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.info = info;
@@ -275,14 +207,14 @@ public class Actions {
     }
 
     public ActionbarAction(final String message, final boolean broadcast,
-        final ConditionSet<Player> conditions) {
+        final Condition<Player> conditions) {
       super(conditions);
       this.message = message;
       this.broadcast = broadcast;
     }
 
     public ActionbarAction(final String message, final boolean broadcast,
-        final ConditionSet<Player> conditions, final boolean useSync) {
+        final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.message = message;
       this.broadcast = broadcast;
@@ -313,13 +245,13 @@ public class Actions {
       this(loc, all, null);
     }
 
-    public TeleportAction(final Location loc, final boolean all, final ConditionSet<Player> conditions) {
+    public TeleportAction(final Location loc, final boolean all, final Condition<Player> conditions) {
       super(conditions);
       this.loc = loc;
       this.all = all;
     }
 
-    public TeleportAction(final Location loc, final boolean all, final ConditionSet<Player> conditions,
+    public TeleportAction(final Location loc, final boolean all, final Condition<Player> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.loc = loc;
@@ -359,7 +291,7 @@ public class Actions {
     }
 
     public SoundAction(final String sound, final float volume, final float pitch, final boolean broadcast,
-        final ConditionSet<Player> conditions) {
+        final Condition<Player> conditions) {
       super(conditions);
       this.sound = sound;
       this.volume = volume;
@@ -368,7 +300,7 @@ public class Actions {
     }
 
     public SoundAction(final String sound, final float volume, final float pitch, final boolean broadcast,
-        final ConditionSet<Player> conditions, final boolean useSync) {
+        final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
       this.volume = volume;
@@ -429,7 +361,7 @@ public class Actions {
 
     public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
         final double progress, final int durationTicks, final boolean broadcast,
-        final ConditionSet<Player> conditions) {
+        final Condition<Player> conditions) {
       super(conditions);
       this.key = key;
       this.title = title == null ? "" : title;
@@ -442,7 +374,7 @@ public class Actions {
 
     public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
         final double progress, final int durationTicks, final boolean broadcast,
-        final ConditionSet<Player> conditions, final boolean useSync) {
+        final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.key = key;
       this.title = title == null ? "" : title;
@@ -490,7 +422,7 @@ public class Actions {
 
     public ParticleAction(final Particle particle, final int count, final double offsetX, final double offsetY,
         final double offsetZ, final double speed, final boolean broadcast,
-        final ConditionSet<Player> conditions) {
+        final Condition<Player> conditions) {
       super(conditions);
       this.particle = particle;
       this.count = count;
@@ -503,7 +435,7 @@ public class Actions {
 
     public ParticleAction(final Particle particle, final int count, final double offsetX, final double offsetY,
         final double offsetZ, final double speed, final boolean broadcast,
-        final ConditionSet<Player> conditions, final boolean useSync) {
+        final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.particle = particle;
       this.count = count;
@@ -539,12 +471,12 @@ public class Actions {
       this(item, null);
     }
 
-    public GiveItemAction(final ItemStack item, final ConditionSet<Player> conditions) {
+    public GiveItemAction(final ItemStack item, final Condition<Player> conditions) {
       super(conditions);
       this.item = item;
     }
 
-    public GiveItemAction(final ItemStack item, final ConditionSet<Player> conditions, final boolean useSync) {
+    public GiveItemAction(final ItemStack item, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.item = item;
     }
@@ -572,13 +504,13 @@ public class Actions {
       this(material, amount, null);
     }
 
-    public RemoveItemAction(final Material material, final int amount, final ConditionSet<Player> conditions) {
+    public RemoveItemAction(final Material material, final int amount, final Condition<Player> conditions) {
       super(conditions);
       this.material = material;
       this.amount = Math.max(1, amount);
     }
 
-    public RemoveItemAction(final Material material, final int amount, final ConditionSet<Player> conditions,
+    public RemoveItemAction(final Material material, final int amount, final Condition<Player> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.material = material;
@@ -618,12 +550,12 @@ public class Actions {
       this(amount, null);
     }
 
-    public ExperienceAction(final int amount, final ConditionSet<Player> conditions) {
+    public ExperienceAction(final int amount, final Condition<Player> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public ExperienceAction(final int amount, final ConditionSet<Player> conditions, final boolean useSync) {
+    public ExperienceAction(final int amount, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -646,12 +578,12 @@ public class Actions {
       this(amount, null);
     }
 
-    public LevelAction(final int amount, final ConditionSet<Player> conditions) {
+    public LevelAction(final int amount, final Condition<Player> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public LevelAction(final int amount, final ConditionSet<Player> conditions, final boolean useSync) {
+    public LevelAction(final int amount, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -674,12 +606,12 @@ public class Actions {
       this(amount, null);
     }
 
-    public HealthAction(final double amount, final ConditionSet<Player> conditions) {
+    public HealthAction(final double amount, final Condition<Player> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public HealthAction(final double amount, final ConditionSet<Player> conditions, final boolean useSync) {
+    public HealthAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -706,13 +638,13 @@ public class Actions {
       this(amount, 0f, null);
     }
 
-    public FoodAction(final int amount, final float saturation, final ConditionSet<Player> conditions) {
+    public FoodAction(final int amount, final float saturation, final Condition<Player> conditions) {
       super(conditions);
       this.amount = amount;
       this.saturation = saturation;
     }
 
-    public FoodAction(final int amount, final float saturation, final ConditionSet<Player> conditions,
+    public FoodAction(final int amount, final float saturation, final Condition<Player> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
@@ -741,12 +673,12 @@ public class Actions {
       this(amount, null);
     }
 
-    public CurrencyAction(final double amount, final ConditionSet<Player> conditions) {
+    public CurrencyAction(final double amount, final Condition<Player> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public CurrencyAction(final double amount, final ConditionSet<Player> conditions, final boolean useSync) {
+    public CurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -788,11 +720,11 @@ public class Actions {
       super(amount);
     }
 
-    public AddCurrencyAction(final double amount, final ConditionSet<Player> conditions) {
+    public AddCurrencyAction(final double amount, final Condition<Player> conditions) {
       super(amount, conditions);
     }
 
-    public AddCurrencyAction(final double amount, final ConditionSet<Player> conditions, final boolean useSync) {
+    public AddCurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
       super(amount, conditions, useSync);
     }
   }
@@ -802,11 +734,11 @@ public class Actions {
       super(amount);
     }
 
-    public RemoveCurrencyAction(final double amount, final ConditionSet<Player> conditions) {
+    public RemoveCurrencyAction(final double amount, final Condition<Player> conditions) {
       super(amount, conditions);
     }
 
-    public RemoveCurrencyAction(final double amount, final ConditionSet<Player> conditions, final boolean useSync) {
+    public RemoveCurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
       super(amount, conditions, useSync);
     }
   }
@@ -820,7 +752,7 @@ public class Actions {
       this.delayTicks = Math.max(0L, delayTicks);
     }
 
-    public DelayAction(final long delayTicks, final ConditionSet<Player> conditions) {
+    public DelayAction(final long delayTicks, final Condition<Player> conditions) {
       super(conditions, true);
       this.delayTicks = Math.max(0L, delayTicks);
     }
@@ -853,7 +785,7 @@ public class Actions {
 
     public PotionEffectAction(final PotionEffectType type, final int durationTicks, final int amplifier,
         final boolean ambient, final boolean particles, final boolean icon, final boolean clear,
-        final boolean broadcast, final ConditionSet<Player> conditions) {
+        final boolean broadcast, final Condition<Player> conditions) {
       super(conditions);
       this.type = type;
       this.durationTicks = durationTicks;
@@ -867,7 +799,7 @@ public class Actions {
 
     public PotionEffectAction(final PotionEffectType type, final int durationTicks, final int amplifier,
         final boolean ambient, final boolean particles, final boolean icon, final boolean clear,
-        final boolean broadcast, final ConditionSet<Player> conditions, final boolean useSync) {
+        final boolean broadcast, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.type = type;
       this.durationTicks = durationTicks;
@@ -934,7 +866,7 @@ public class Actions {
     }
 
     public StopSoundAction(final String sound, final SoundCategory category, final boolean broadcast,
-        final ConditionSet<Player> conditions) {
+        final Condition<Player> conditions) {
       super(conditions);
       this.sound = sound;
       this.category = category;
@@ -942,7 +874,7 @@ public class Actions {
     }
 
     public StopSoundAction(final String sound, final SoundCategory category, final boolean broadcast,
-        final ConditionSet<Player> conditions, final boolean useSync) {
+        final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
       this.category = category;
@@ -1010,7 +942,7 @@ public class Actions {
     }
 
     public MovementAction(final Vector velocity, final boolean add, final boolean relativeToLook,
-        final boolean broadcast, final ConditionSet<Player> conditions) {
+        final boolean broadcast, final Condition<Player> conditions) {
       super(conditions);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
       this.add = add;
@@ -1019,7 +951,7 @@ public class Actions {
     }
 
     public MovementAction(final Vector velocity, final boolean add, final boolean relativeToLook,
-        final boolean broadcast, final ConditionSet<Player> conditions, final boolean useSync) {
+        final boolean broadcast, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
       this.add = add;
@@ -1063,13 +995,13 @@ public class Actions {
       this(gameMode, false, null);
     }
 
-    public GameModeAction(final GameMode gameMode, final boolean broadcast, final ConditionSet<Player> conditions) {
+    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition<Player> conditions) {
       super(conditions);
       this.gameMode = gameMode;
       this.broadcast = broadcast;
     }
 
-    public GameModeAction(final GameMode gameMode, final boolean broadcast, final ConditionSet<Player> conditions,
+    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition<Player> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.gameMode = gameMode;
@@ -1104,7 +1036,7 @@ public class Actions {
     }
 
     public FlyAction(final boolean allowFlight, final boolean flying, final boolean broadcast,
-        final ConditionSet<Player> conditions) {
+        final Condition<Player> conditions) {
       super(conditions);
       this.allowFlight = allowFlight;
       this.flying = flying;
@@ -1112,7 +1044,7 @@ public class Actions {
     }
 
     public FlyAction(final boolean allowFlight, final boolean flying, final boolean broadcast,
-        final ConditionSet<Player> conditions, final boolean useSync) {
+        final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.allowFlight = allowFlight;
       this.flying = flying;
@@ -1155,7 +1087,7 @@ public class Actions {
     }
 
     public InvulnerableAction(final boolean invulnerable, final int durationTicks, final boolean broadcast,
-        final ConditionSet<Player> conditions) {
+        final Condition<Player> conditions) {
       super(conditions);
       this.invulnerable = invulnerable;
       this.durationTicks = durationTicks;
@@ -1163,7 +1095,7 @@ public class Actions {
     }
 
     public InvulnerableAction(final boolean invulnerable, final int durationTicks, final boolean broadcast,
-        final ConditionSet<Player> conditions, final boolean useSync) {
+        final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.invulnerable = invulnerable;
       this.durationTicks = durationTicks;
@@ -1209,7 +1141,7 @@ public class Actions {
     }
 
     public SummonAction(final EntityType type, final int amount, final Location location, final boolean atPlayer,
-        final Consumer<Entity> customizer, final ConditionSet<Player> conditions) {
+        final Consumer<Entity> customizer, final Condition<Player> conditions) {
       super(conditions);
       this.type = type;
       this.amount = Math.max(1, amount);
@@ -1219,7 +1151,7 @@ public class Actions {
     }
 
     public SummonAction(final EntityType type, final int amount, final Location location, final boolean atPlayer,
-        final Consumer<Entity> customizer, final ConditionSet<Player> conditions, final boolean useSync) {
+        final Consumer<Entity> customizer, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.type = type;
       this.amount = Math.max(1, amount);

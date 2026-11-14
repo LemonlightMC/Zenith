@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.utils;
+package com.lemonlightmc.zenith.utils.actions;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,9 +11,8 @@ import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.utils.Actions.Action;
-import com.lemonlightmc.zenith.utils.Actions.ActionContext;
-import com.lemonlightmc.zenith.utils.Actions.DelayAction;
+import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
+import com.lemonlightmc.zenith.utils.actions.Actions.DelayAction;
 
 public class ActionManager {
   private static final Logger LOGGER = Logger.getLogger(ActionManager.class.getName());

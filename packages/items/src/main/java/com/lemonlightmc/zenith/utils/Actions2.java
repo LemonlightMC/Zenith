@@ -7,9 +7,8 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.items.Firework;
 import com.lemonlightmc.zenith.items.Potion;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.unfinished.Conditions.ConditionSet;
-import com.lemonlightmc.zenith.utils.Actions.Action;
-import com.lemonlightmc.zenith.utils.Actions.ActionContext;
+import com.lemonlightmc.zenith.utils.actions.Action;
+import com.lemonlightmc.zenith.utils.actions.Condition.ConditionSet;
 
 public class Actions2 {
 

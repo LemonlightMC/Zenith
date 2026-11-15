@@ -18,7 +18,6 @@ import com.lemonlightmc.zenith.commands.argumentsbase.LocationType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.CommandSyntaxExceptionContainer;
-import com.lemonlightmc.zenith.math.Location2D;
 import com.lemonlightmc.zenith.math.Rotation;
 
 public class NumberArguments {
@@ -429,83 +428,6 @@ public class NumberArguments {
         throw OUTOFBOUNDS_LOCATION.createWithContext(reader, z);
       }
       return new Location(source.world(), x, y, z);
-    }
-
-    @Override
-    public int hashCode() {
-      final int result = 31 * super.hashCode() + ((type == null) ? 0 : type.hashCode());
-      return 31 * result + (centered ? 1231 : 1237);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      if (!super.equals(obj)) {
-        return false;
-      }
-      final LocationArgument other = (LocationArgument) obj;
-      return type == other.type && centered == other.centered;
-    }
-
-    @Override
-    public String toString() {
-      return toStringWithMore("type=" + type + ", centered=" + centered);
-    }
-  }
-
-  public static class Location2DArgument extends Argument<Location2D, Location2DArgument, CommandSender> {
-
-    public static final int MAX_COORDINATE = 30_000_000;
-    private static final CommandSyntaxExceptionContainer OUTOFBOUNDS_LOCATION = new CommandSyntaxExceptionContainer(
-        value -> "Location is out of bounds'" + value + "' (max " + MAX_COORDINATE + ")");
-    private final LocationType type;
-    private final boolean centered;
-
-    public Location2DArgument(final String nodeName) {
-      this(nodeName, LocationType.BLOCK_POSITION);
-    }
-
-    public Location2DArgument(final String nodeName, final LocationType type) {
-      this(nodeName, type, true);
-    }
-
-    public Location2DArgument(final String nodeName, final LocationType type, final boolean centerPosition) {
-      super(nodeName, Location2D.class, ArgumentType.LOCATION);
-      this.type = type;
-      this.centered = centerPosition;
-      withSuggestions("~", "~ ~");
-    }
-
-    @Override
-    public Location2DArgument getInstance() {
-      return this;
-    }
-
-    public LocationType getLocationType() {
-      return type;
-    }
-
-    public boolean getCentered() {
-      return centered;
-    }
-
-    private double centerPos(final double pos) {
-      return type == LocationType.BLOCK_POSITION ? Math.floor(pos)
-          : centered && Math.floor(pos) == pos ? pos + 0.5d : pos;
-    }
-
-    @Override
-    public Location2D parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
-        final String key)
-        throws CommandSyntaxException {
-      final double x = centerPos(reader.readDouble());
-      final double z = centerPos(reader.readDouble());
-      if (x > MAX_COORDINATE || x < -MAX_COORDINATE) {
-        throw OUTOFBOUNDS_LOCATION.createWithContext(reader, x);
-      }
-      if (z > MAX_COORDINATE || z < -MAX_COORDINATE) {
-        throw OUTOFBOUNDS_LOCATION.createWithContext(reader, z);
-      }
-      return new Location2D(source.world(), x, z);
     }
 
     @Override

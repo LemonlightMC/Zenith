@@ -36,6 +36,7 @@ public class BossBar implements Cloneable<BossBar> {
   private final KeyedBossBar bar;
   private Location location;
   private Set<BarFlag> flagCache = null;
+  @SuppressWarnings("unused")
   private BossBarTimer timer;
 
   public BossBar(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,

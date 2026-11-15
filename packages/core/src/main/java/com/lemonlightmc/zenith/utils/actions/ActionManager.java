@@ -1,5 +1,6 @@
 package com.lemonlightmc.zenith.utils.actions;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,10 @@ public class ActionManager {
   }
 
   public boolean execute(final String key, final ActionContext context) {
-    if (context == null || key == null || key.isEmpty()) {
+    if (key == null || key.isEmpty()) {
+      return false;
+    }
+    if (context == null || context.isStopped() || context.getTarget() == null) {
       return false;
     }
     final List<Action> snapshot = actionsMap.get(key);
@@ -42,7 +46,7 @@ public class ActionManager {
   private void runFrom(final ActionContext context, final List<Action> snapshot, final int startIndex) {
     final int len = snapshot.size();
     for (int i = startIndex; i < len; i++) {
-      if (context == null || context.isStopped()) {
+      if (context.isStopped()) {
         return;
       }
       final Action action = snapshot.get(i);
@@ -56,7 +60,7 @@ public class ActionManager {
         if (delay.shouldRun(context)) {
           final int next = i + 1;
           if (next < len) {
-            GlobalScheduler.runLater(() -> runSync(() -> runFrom(context, snapshot, next)), delay.getDelayTicks());
+            GlobalScheduler.runLater(() -> runFrom(context, snapshot, next), delay.getDelayTicks());
           }
           return;
         }
@@ -91,25 +95,21 @@ public class ActionManager {
     }
   }
 
-  private static void runSync(final Runnable runnable) {
-    if (GlobalScheduler.isGlobalThread()) {
-      runnable.run();
-    } else {
-      GlobalScheduler.run(runnable);
-    }
-  }
-
   public ActionManager addAction(final String key, final Action action) {
     if (key == null || key.isEmpty() || action == null) {
       return this;
     }
-    actionsMap.compute(key, (key2, snapshot) -> {
+    actionsMap.compute(key, (k, snapshot) -> {
       if (snapshot == null) {
-        snapshot = List.of(action);
-      } else if (!snapshot.contains(action)) {
-        snapshot.add(action);
+        return List.of(action);
       }
-      return snapshot;
+      if (snapshot.contains(action)) {
+        return snapshot;
+      }
+      final List<Action> next = new ArrayList<>(snapshot.size() + 1);
+      next.addAll(snapshot);
+      next.add(action);
+      return List.copyOf(next);
     });
     return this;
   }
@@ -119,9 +119,7 @@ public class ActionManager {
     if (key == null || key.isEmpty() || toAdd == null || toAdd.length == 0) {
       return this;
     }
-    for (final Action action : toAdd) {
-      addAction(key, action);
-    }
+    actionsMap.compute(key, (k, snapshot) -> mergeActions(snapshot, toAdd));
     return this;
   }
 
@@ -129,19 +127,54 @@ public class ActionManager {
     if (key == null || key.isEmpty() || toAdd == null || toAdd.isEmpty()) {
       return this;
     }
-    for (final Action action : toAdd) {
-      addAction(key, action);
-    }
+    actionsMap.compute(key, (k, snapshot) -> mergeActions(snapshot, toAdd.toArray(new Action[0])));
     return this;
+  }
+
+  private static List<Action> mergeActions(final List<Action> snapshot, final Action[] toAdd) {
+    if (toAdd == null || toAdd.length == 0) {
+      return snapshot;
+    }
+    List<Action> next = null;
+    for (final Action action : toAdd) {
+      if (action == null) {
+        continue;
+      }
+      final List<Action> base = next != null ? next : snapshot;
+      if (base != null && base.contains(action)) {
+        continue;
+      }
+      if (next == null) {
+        next = new ArrayList<>(base == null ? toAdd.length : base.size() + toAdd.length);
+        if (base != null) {
+          next.addAll(base);
+        }
+      }
+      if (!next.contains(action)) {
+        next.add(action);
+      }
+    }
+    return next == null ? snapshot : List.copyOf(next);
   }
 
   public ActionManager removeActions(final String key, final Action action) {
     if (key == null || key.isEmpty() || action == null) {
       return this;
     }
-    actionsMap.computeIfPresent(key, (key2, snapshot) -> {
-      snapshot.remove(action);
-      return snapshot;
+    actionsMap.computeIfPresent(key, (k, snapshot) -> {
+      if (!snapshot.contains(action)) {
+        return snapshot;
+      }
+      if (snapshot.size() == 1) {
+        return null;
+      }
+      final List<Action> next = new ArrayList<>(snapshot.size() - 1);
+      for (final Action a : snapshot) {
+        if (!action.equals(a)) {
+          next.add(a);
+        }
+      }
+      return next.isEmpty() ? null : List.copyOf(next);
     });
     return this;
   }
@@ -151,9 +184,7 @@ public class ActionManager {
     if (key == null || key.isEmpty() || actions == null || actions.length == 0) {
       return this;
     }
-    for (final Action action : actions) {
-      removeActions(key, action);
-    }
+    actionsMap.computeIfPresent(key, (k, snapshot) -> withoutActions(snapshot, actions));
     return this;
   }
 
@@ -161,14 +192,39 @@ public class ActionManager {
     if (key == null || key.isEmpty() || actions == null || actions.isEmpty()) {
       return this;
     }
-    for (final Action action : actions) {
-      removeActions(key, action);
-    }
+    actionsMap.computeIfPresent(key, (k, snapshot) -> withoutActions(snapshot, actions.toArray(new Action[0])));
     return this;
   }
 
+  private static List<Action> withoutActions(final List<Action> snapshot, final Action[] toRemove) {
+    if (snapshot == null || snapshot.isEmpty() || toRemove == null || toRemove.length == 0) {
+      return snapshot;
+    }
+    boolean changed = false;
+    for (final Action action : toRemove) {
+      if (action != null && snapshot.contains(action)) {
+        changed = true;
+        break;
+      }
+    }
+    if (!changed) {
+      return snapshot;
+    }
+    final List<Action> next = new ArrayList<>(snapshot.size());
+    outer: for (final Action a : snapshot) {
+      for (final Action r : toRemove) {
+        if (r != null && r.equals(a)) {
+          continue outer;
+        }
+      }
+      next.add(a);
+    }
+    return next.isEmpty() ? null : List.copyOf(next);
+  }
+
   public boolean hasActions(final String key) {
-    return key != null && !key.isEmpty() && actionsMap.containsKey(key);
+    final List<Action> snapshot = key == null || key.isEmpty() ? null : actionsMap.get(key);
+    return snapshot != null && !snapshot.isEmpty();
   }
 
   public boolean hasAction(final String key, final Action action) {
@@ -185,7 +241,9 @@ public class ActionManager {
   }
 
   public ActionManager clearActions(final String key) {
-    actionsMap.remove(key);
+    if (key != null) {
+      actionsMap.remove(key);
+    }
     return this;
   }
 
@@ -195,7 +253,7 @@ public class ActionManager {
 
   public List<Action> getActions(final String key) {
     final List<Action> snapshot = actionsMap.get(key);
-    return snapshot == null ? Collections.emptyList() : Collections.unmodifiableList(snapshot);
+    return snapshot == null ? Collections.emptyList() : snapshot;
   }
 
   public boolean isEmpty() {

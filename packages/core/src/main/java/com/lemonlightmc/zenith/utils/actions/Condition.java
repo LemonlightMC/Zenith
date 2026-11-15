@@ -14,20 +14,22 @@ public interface Condition<T> {
 
     boolean test(T value);
 
-    default boolean isEmpty() {
-        return false;
-    }
-
     default Condition<T> and(final Condition<T> other) {
-        return other == null ? this : AndCondition.of(this, other);
+        return other == null || other instanceof AlwaysCondition ? this : AndCondition.of(this, other);
     }
 
     default Condition<T> or(final Condition<T> other) {
-        return other == null ? this : OrCondition.of(this, other);
+        if (other == null || other instanceof NeverCondition) {
+            return this;
+        }
+        return other instanceof AlwaysCondition ? AlwaysCondition.of() : OrCondition.of(this, other);
     }
 
     default Condition<T> xor(final Condition<T> other) {
-        return other == null ? this : XorCondition.of(this, other);
+        if (other == null || other instanceof NeverCondition || other instanceof AlwaysCondition) {
+            return NotCondition.of(this);
+        }
+        return XorCondition.of(this, other);
     }
 
     default Condition<T> negate() {
@@ -40,15 +42,15 @@ public interface Condition<T> {
     final class ConditionSet<T> implements Condition<T> {
         private final List<Condition<T>> children = new ArrayList<>();
 
-        public ConditionSet() {
+        private ConditionSet() {
         }
 
-        public ConditionSet(final Collection<? extends Condition<T>> children) {
+        private ConditionSet(final Collection<? extends Condition<T>> children) {
             addAll(children);
         }
 
         @SafeVarargs
-        public ConditionSet(final Condition<T>... children) {
+        private ConditionSet(final Condition<T>... children) {
             addAll(children);
         }
 
@@ -62,7 +64,7 @@ public interface Condition<T> {
         }
 
         public ConditionSet<T> add(final Condition<T> condition) {
-            if (condition == null || condition.isEmpty()) {
+            if (condition == null) {
                 return this;
             }
             final Condition<T> cast = (Condition<T>) condition;
@@ -103,18 +105,13 @@ public interface Condition<T> {
             children.clear();
         }
 
-        public List<Condition<T>> getChildren() {
+        public List<Condition<T>> children() {
             return Collections.unmodifiableList(children);
         }
 
-        public Collection<Condition<T>> getConditions() {
-            return getChildren();
-        }
-
-        @Override
         public boolean isEmpty() {
             for (final Condition<T> child : children) {
-                if (child != null && !child.isEmpty()) {
+                if (child != null) {
                     return false;
                 }
             }
@@ -128,7 +125,7 @@ public interface Condition<T> {
             }
             boolean evaluated = false;
             for (final Condition<T> child : children) {
-                if (child == null || child.isEmpty()) {
+                if (child == null) {
                     continue;
                 }
                 evaluated = true;
@@ -192,11 +189,6 @@ public interface Condition<T> {
         }
 
         @Override
-        public boolean isEmpty() {
-            return (left == null || left.isEmpty()) && (right == null || right.isEmpty());
-        }
-
-        @Override
         public int hashCode() {
             return Objects.hash(getClass(), left, right);
         }
@@ -227,15 +219,13 @@ public interface Condition<T> {
         }
 
         public static <T> Condition<T> of(final Condition<T> left, final Condition<T> right) {
-            final boolean lEmpty = left == null || left.isEmpty();
-            final boolean rEmpty = right == null || right.isEmpty();
-            if (lEmpty && rEmpty) {
+            if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
-            if (lEmpty) {
+            if (left == null) {
                 return right;
             }
-            if (rEmpty) {
+            if (right == null) {
                 return left;
             }
             return new AndCondition<>(left, right);
@@ -258,15 +248,13 @@ public interface Condition<T> {
         }
 
         public static <T> Condition<T> of(final Condition<T> left, final Condition<T> right) {
-            final boolean lEmpty = left == null || left.isEmpty();
-            final boolean rEmpty = right == null || right.isEmpty();
-            if (lEmpty && rEmpty) {
+            if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
-            if (lEmpty) {
+            if (left == null) {
                 return right;
             }
-            if (rEmpty) {
+            if (right == null) {
                 return left;
             }
             return new OrCondition<>(left, right);
@@ -289,15 +277,13 @@ public interface Condition<T> {
         }
 
         public static <T> Condition<T> of(final Condition<T> left, final Condition<T> right) {
-            final boolean lEmpty = left == null || left.isEmpty();
-            final boolean rEmpty = right == null || right.isEmpty();
-            if (lEmpty && rEmpty) {
+            if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
-            if (lEmpty) {
+            if (left == null) {
                 return right;
             }
-            if (rEmpty) {
+            if (right == null) {
                 return left;
             }
             return new XorCondition<>(left, right);
@@ -321,7 +307,7 @@ public interface Condition<T> {
         }
 
         public static <T> Condition<T> of(final Condition<T> delegate) {
-            if (delegate == null || delegate.isEmpty()) {
+            if (delegate == null) {
                 return NeverCondition.of();
             }
             return new NotCondition<>(delegate);
@@ -329,11 +315,6 @@ public interface Condition<T> {
 
         public Condition<T> delegate() {
             return delegate;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return delegate.isEmpty();
         }
 
         @Override
@@ -434,12 +415,7 @@ public interface Condition<T> {
         }
 
         public static <T> Condition<T> of(final Predicate<T> predicate) {
-            return new PredicateCondition<>(predicate);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return predicate == null;
+            return predicate == null ? AlwaysCondition.of() : new PredicateCondition<>(predicate);
         }
 
         @Override

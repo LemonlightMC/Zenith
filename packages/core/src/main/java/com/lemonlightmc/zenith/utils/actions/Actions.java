@@ -1,7 +1,19 @@
 package com.lemonlightmc.zenith.utils.actions;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -12,6 +24,11 @@ import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.command.CommandSender;
@@ -20,9 +37,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import com.lemonlightmc.zenith.apis.ActionbarAPI;
@@ -32,8 +46,30 @@ import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
 import com.lemonlightmc.zenith.apis.bossbar.BossBar;
 import com.lemonlightmc.zenith.apis.bossbar.BossbarAPI;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
+import com.lemonlightmc.zenith.scheduler.ScheduledTask;
+import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
+import com.lemonlightmc.zenith.ZenithProvider;
 
 public class Actions {
+
+  private static final Map<String, Sound> SOUND_CACHE = new ConcurrentHashMap<>();
+  private static final Map<UUID, ScheduledTask> INVULNERABLE_REVERT_TASKS = new ConcurrentHashMap<>();
+
+  @SuppressWarnings("deprecation")
+  private static Sound resolveCachedSound(final String name) {
+    if (name == null || name.isEmpty()) {
+      return null;
+    }
+    return SOUND_CACHE.computeIfAbsent(name, n -> {
+      try {
+        return Sound.valueOf(n.toUpperCase().replace('.', '_'));
+      } catch (final Exception ignored) {
+      }
+      final NamespacedKey key = n.contains(":") ? NamespacedKey.fromString(n.toLowerCase())
+          : NamespacedKey.minecraft(n.toLowerCase());
+      return key == null ? null : Registry.SOUNDS.get(key);
+    });
+  }
 
   public static final class StopAction extends Action {
     public StopAction() {
@@ -79,7 +115,7 @@ public class Actions {
       final String parsed = sender instanceof Player
           ? command.replace("%player%", ((Player) sender).getName())
           : command;
-      GlobalScheduler.run(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed));
+      Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
       return true;
     }
   }
@@ -104,13 +140,10 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
-      if (player == null || command == null || command.isEmpty()) {
+      if (command == null || command.isEmpty() || !(context.getTarget() instanceof final Player player)) {
         return true;
       }
-      final String parsed = command.replace("%player%", player.getName());
-      GlobalScheduler.run(() -> player.performCommand(parsed));
-      return true;
+      return player.performCommand(command.replace("%player%", player.getName()));
     }
   }
 
@@ -142,11 +175,10 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final CommandSender player = context.getTarget();
       if (broadcast) {
         ChatAPI.broadcast(message);
       } else {
-        ChatAPI.send(player, message);
+        ChatAPI.send(context.getTarget(), message);
       }
       return true;
     }
@@ -180,14 +212,13 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (info == null) {
         return true;
       }
       if (broadcast) {
         TitleAPI.broadcast(info);
-      } else if (player != null) {
-        TitleAPI.send(player, info);
+      } else {
+        TitleAPI.send(context.getTarget(), info);
       }
       return true;
     }
@@ -222,11 +253,10 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final CommandSender player = context.getTarget();
       if (broadcast) {
         ActionbarAPI.broadcast(message);
-      } else if (player instanceof Player) {
-        ActionbarAPI.send((Player) player, message);
+      } else if (context.getTarget() instanceof final Player player) {
+        ActionbarAPI.send(player, message);
       }
       return true;
     }
@@ -260,7 +290,6 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (loc == null) {
         return true;
       }
@@ -268,7 +297,7 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           p.teleport(loc, TeleportCause.PLUGIN);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         player.teleport(loc, TeleportCause.PLUGIN);
       }
       return true;
@@ -278,6 +307,7 @@ public class Actions {
   public static class SoundAction extends Action {
 
     private final String sound;
+    private final Sound bukkitSound;
     private final float volume;
     private final float pitch;
     private final boolean broadcast;
@@ -294,6 +324,7 @@ public class Actions {
         final Condition<Player> conditions) {
       super(conditions);
       this.sound = sound;
+      this.bukkitSound = resolveCachedSound(sound);
       this.volume = volume;
       this.pitch = pitch;
       this.broadcast = broadcast;
@@ -303,6 +334,7 @@ public class Actions {
         final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
+      this.bukkitSound = resolveCachedSound(sound);
       this.volume = volume;
       this.pitch = pitch;
       this.broadcast = broadcast;
@@ -310,7 +342,6 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (sound == null) {
         return true;
       }
@@ -318,29 +349,18 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           play(p);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         play(player);
       }
       return true;
     }
 
     private void play(final Player target) {
-      final Sound bukkitSound = resolveSound(sound);
       if (bukkitSound != null) {
         target.playSound(target.getLocation(), bukkitSound, SoundCategory.MASTER, volume, pitch);
       } else {
         target.playSound(target.getLocation(), sound, SoundCategory.MASTER, volume, pitch);
       }
-    }
-
-    private static Sound resolveSound(final String name) {
-      try {
-        return Sound.valueOf(name.toUpperCase().replace('.', '_'));
-      } catch (final Exception ignored) {
-      }
-      final NamespacedKey key = name.contains(":") ? NamespacedKey.fromString(name.toLowerCase())
-          : NamespacedKey.minecraft(name.toLowerCase());
-      return key == null ? null : Registry.SOUNDS.get(key);
     }
   }
 
@@ -387,7 +407,6 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       final NamespacedKey effectiveKey = key != null ? key
           : NamespacedKey.minecraft("zenith_action_" + Math.abs(title.hashCode()));
       BossbarAPI.removeBar(effectiveKey);
@@ -396,7 +415,7 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           BossbarAPI.addBar(p, bar);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         BossbarAPI.addBar(player, bar);
       }
       if (durationTicks > 0) {
@@ -448,7 +467,6 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (particle == null) {
         return true;
       }
@@ -456,7 +474,7 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           p.spawnParticle(particle, p.getLocation().add(0, 1, 0), count, offsetX, offsetY, offsetZ, speed);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         player.spawnParticle(particle, player.getLocation().add(0, 1, 0), count, offsetX, offsetY, offsetZ, speed);
       }
       return true;
@@ -483,9 +501,11 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
-      if (player == null || item == null) {
+      if (item == null) {
         return true;
+      }
+      if (!(context.getTarget() instanceof final Player player)) {
+        return false;
       }
       final Map<Integer, ItemStack> leftover = player.getInventory().addItem(item.clone());
       for (final ItemStack drop : leftover.values()) {
@@ -519,9 +539,11 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
-      if (player == null || material == null) {
+      if (material == null) {
         return true;
+      }
+      if (!(context.getTarget() instanceof final Player player)) {
+        return false;
       }
       int remaining = amount;
       final ItemStack[] contents = player.getInventory().getContents();
@@ -618,12 +640,12 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
-      if (player == null) {
-        return true;
+      if (!(context.getTarget() instanceof final Player player)) {
+        return false;
       }
-      final double max = player.getMaxHealth();
-      final double newHealth = Math.max(0.0, Math.min(max, player.getHealth() + amount));
+      final AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
+      final double newHealth = Math.max(0.0,
+          Math.min(attribute == null ? 20 : attribute.getValue(), player.getHealth() + amount));
       player.setHealth(newHealth);
       return true;
     }
@@ -653,93 +675,14 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
-      if (player == null) {
-        return true;
+      if (!(context.getTarget() instanceof final Player player)) {
+        return false;
       }
       player.setFoodLevel(Math.max(0, Math.min(20, player.getFoodLevel() + amount)));
       if (saturation != 0f) {
         player.setSaturation(Math.max(0f, Math.min(player.getFoodLevel(), player.getSaturation() + saturation)));
       }
       return true;
-    }
-  }
-
-  public abstract static class CurrencyAction extends Action {
-
-    private final double amount;
-
-    public CurrencyAction(final double amount) {
-      this(amount, null);
-    }
-
-    public CurrencyAction(final double amount, final Condition<Player> conditions) {
-      super(conditions);
-      this.amount = amount;
-    }
-
-    public CurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
-      super(conditions, useSync);
-      this.amount = amount;
-    }
-
-    public double getAmount() {
-      return amount;
-    }
-
-    @Override
-    protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
-      if (player == null) {
-        return true;
-      }
-      try {
-        final RegisteredServiceProvider<?> provider = Bukkit.getServicesManager()
-            .getRegistration(Class.forName("net.milkbowl.vault.economy.Economy"));
-        if (provider == null) {
-          return true;
-        }
-        final Object economy = provider.getProvider();
-        final Class<?> offlinePlayerClass = Class.forName("org.bukkit.OfflinePlayer");
-        if (this instanceof AddCurrencyAction) {
-          economy.getClass().getMethod("depositPlayer", offlinePlayerClass, double.class).invoke(economy, player,
-              amount);
-        } else if (this instanceof RemoveCurrencyAction) {
-          economy.getClass().getMethod("withdrawPlayer", offlinePlayerClass, double.class).invoke(economy, player,
-              amount);
-        }
-      } catch (final Exception ignored) {
-        // Vault economy is optional; silently ignore when unavailable.
-      }
-      return true;
-    }
-  }
-
-  public static class AddCurrencyAction extends CurrencyAction {
-    public AddCurrencyAction(final double amount) {
-      super(amount);
-    }
-
-    public AddCurrencyAction(final double amount, final Condition<Player> conditions) {
-      super(amount, conditions);
-    }
-
-    public AddCurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
-      super(amount, conditions, useSync);
-    }
-  }
-
-  public static class RemoveCurrencyAction extends CurrencyAction {
-    public RemoveCurrencyAction(final double amount) {
-      super(amount);
-    }
-
-    public RemoveCurrencyAction(final double amount, final Condition<Player> conditions) {
-      super(amount, conditions);
-    }
-
-    public RemoveCurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
-      super(amount, conditions, useSync);
     }
   }
 
@@ -763,97 +706,14 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player target = context.getTarget();
       return true;
-    }
-  }
-
-  public static class PotionEffectAction extends Action {
-
-    private final PotionEffectType type;
-    private final int durationTicks;
-    private final int amplifier;
-    private final boolean ambient;
-    private final boolean particles;
-    private final boolean icon;
-    private final boolean clear;
-    private final boolean broadcast;
-
-    public PotionEffectAction(final PotionEffectType type, final int durationTicks, final int amplifier) {
-      this(type, durationTicks, amplifier, false, true, true, false, false, null);
-    }
-
-    public PotionEffectAction(final PotionEffectType type, final int durationTicks, final int amplifier,
-        final boolean ambient, final boolean particles, final boolean icon, final boolean clear,
-        final boolean broadcast, final Condition<Player> conditions) {
-      super(conditions);
-      this.type = type;
-      this.durationTicks = durationTicks;
-      this.amplifier = amplifier;
-      this.ambient = ambient;
-      this.particles = particles;
-      this.icon = icon;
-      this.clear = clear;
-      this.broadcast = broadcast;
-    }
-
-    public PotionEffectAction(final PotionEffectType type, final int durationTicks, final int amplifier,
-        final boolean ambient, final boolean particles, final boolean icon, final boolean clear,
-        final boolean broadcast, final Condition<Player> conditions, final boolean useSync) {
-      super(conditions, useSync);
-      this.type = type;
-      this.durationTicks = durationTicks;
-      this.amplifier = amplifier;
-      this.ambient = ambient;
-      this.particles = particles;
-      this.icon = icon;
-      this.clear = clear;
-      this.broadcast = broadcast;
-    }
-
-    public static PotionEffectAction clear(final PotionEffectType type) {
-      return new PotionEffectAction(type, 0, 0, false, true, true, true, false, null);
-    }
-
-    public static PotionEffectAction clearAll() {
-      return new PotionEffectAction(null, 0, 0, false, true, true, true, false, null);
-    }
-
-    @Override
-    protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
-      if (broadcast) {
-        for (final Player p : Bukkit.getOnlinePlayers()) {
-          apply(p);
-        }
-      } else if (player != null) {
-        apply(player);
-      }
-      return true;
-    }
-
-    private void apply(final Player target) {
-      if (clear) {
-        if (type == null) {
-          for (final PotionEffect effect : target.getActivePotionEffects()) {
-            target.removePotionEffect(effect.getType());
-          }
-        } else {
-          target.removePotionEffect(type);
-        }
-        return;
-      }
-      if (type == null) {
-        return;
-      }
-      target.addPotionEffect(new PotionEffect(type, Math.max(1, durationTicks), Math.max(0, amplifier), ambient,
-          particles, icon));
     }
   }
 
   public static class StopSoundAction extends Action {
 
     private final String sound;
+    private final Sound bukkitSound;
     private final SoundCategory category;
     private final boolean broadcast;
 
@@ -869,6 +729,7 @@ public class Actions {
         final Condition<Player> conditions) {
       super(conditions);
       this.sound = sound;
+      this.bukkitSound = resolveCachedSound(sound);
       this.category = category;
       this.broadcast = broadcast;
     }
@@ -877,18 +738,18 @@ public class Actions {
         final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
+      this.bukkitSound = resolveCachedSound(sound);
       this.category = category;
       this.broadcast = broadcast;
     }
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           stop(p);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         stop(player);
       }
       return true;
@@ -903,7 +764,6 @@ public class Actions {
         }
         return;
       }
-      final Sound bukkitSound = resolveSound(sound);
       if (category != null) {
         if (bukkitSound != null) {
           target.stopSound(bukkitSound, category);
@@ -917,16 +777,6 @@ public class Actions {
           target.stopSound(sound);
         }
       }
-    }
-
-    private static Sound resolveSound(final String name) {
-      try {
-        return Sound.valueOf(name.toUpperCase().replace('.', '_'));
-      } catch (final Exception ignored) {
-      }
-      final NamespacedKey key = name.contains(":") ? NamespacedKey.fromString(name.toLowerCase())
-          : NamespacedKey.minecraft(name.toLowerCase());
-      return key == null ? null : Registry.SOUNDS.get(key);
     }
   }
 
@@ -961,12 +811,11 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         apply(player);
       }
       return true;
@@ -1010,7 +859,6 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (gameMode == null) {
         return true;
       }
@@ -1018,7 +866,7 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           p.setGameMode(gameMode);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         player.setGameMode(gameMode);
       }
       return true;
@@ -1053,12 +901,11 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         apply(player);
       }
       return true;
@@ -1104,26 +951,33 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
         }
-      } else if (player != null) {
+      } else if (context.getTarget() instanceof final Player player) {
         apply(player);
       }
       return true;
     }
 
     private void apply(final Player target) {
+      final UUID uuid = target.getUniqueId();
+      final ScheduledTask previous = INVULNERABLE_REVERT_TASKS.remove(uuid);
+      if (previous != null) {
+        previous.cancel();
+      }
       target.setInvulnerable(invulnerable);
       if (durationTicks > 0) {
         final boolean revert = !invulnerable;
-        GlobalScheduler.runLater(() -> {
+        final ScheduledTask[] holder = new ScheduledTask[1];
+        holder[0] = GlobalScheduler.runLater(() -> {
+          INVULNERABLE_REVERT_TASKS.remove(uuid, holder[0]);
           if (target.isOnline()) {
             target.setInvulnerable(revert);
           }
         }, durationTicks);
+        INVULNERABLE_REVERT_TASKS.put(uuid, holder[0]);
       }
     }
   }
@@ -1150,35 +1004,660 @@ public class Actions {
       this.customizer = customizer;
     }
 
-    public SummonAction(final EntityType type, final int amount, final Location location, final boolean atPlayer,
-        final Consumer<Entity> customizer, final Condition<Player> conditions, final boolean useSync) {
-      super(conditions, useSync);
-      this.type = type;
-      this.amount = Math.max(1, amount);
-      this.location = location == null ? null : location.clone();
-      this.atPlayer = atPlayer;
-      this.customizer = customizer;
-    }
-
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
       if (type == null) {
         return true;
       }
-      final Location base = atPlayer && player != null ? player.getLocation() : location;
+      final Location base;
+      if (atPlayer) {
+        if (!(context.getTarget() instanceof final Player player)) {
+          return false;
+        }
+        base = player.getLocation();
+      } else {
+        base = location;
+      }
       if (base == null || base.getWorld() == null) {
         return true;
       }
-      GlobalScheduler.run(() -> {
+
+      final Runnable task = () -> {
         for (int i = 0; i < amount; i++) {
           final Entity entity = base.getWorld().spawnEntity(base, type);
           if (customizer != null) {
             customizer.accept(entity);
           }
         }
-      });
+      };
+      GlobalScheduler.runAsync(task);
       return true;
     }
+  }
+
+  public static class WeatherAction extends Action {
+
+    public enum WeatherType {
+      CLEAR,
+      RAIN,
+      THUNDER
+    }
+
+    private final WeatherType type;
+    private final String worldName;
+    private final int durationTicks;
+
+    public WeatherAction(final WeatherType type) {
+      this(type, null, 0, null);
+    }
+
+    public WeatherAction(final WeatherType type, final String worldName) {
+      this(type, worldName, 0, null);
+    }
+
+    public WeatherAction(final WeatherType type, final String worldName, final int durationTicks,
+        final Condition<Player> conditions) {
+      super(conditions);
+      this.type = type == null ? WeatherType.CLEAR : type;
+      this.worldName = worldName;
+      this.durationTicks = Math.max(0, durationTicks);
+    }
+
+    public WeatherAction(final WeatherType type, final String worldName, final int durationTicks,
+        final Condition<Player> conditions, final boolean useSync) {
+      super(conditions, useSync);
+      this.type = type == null ? WeatherType.CLEAR : type;
+      this.worldName = worldName;
+      this.durationTicks = Math.max(0, durationTicks);
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      final World world = resolveWorld(context, worldName);
+      if (world == null) {
+        return true;
+      }
+      switch (type) {
+        case CLEAR:
+          world.setStorm(false);
+          world.setThundering(false);
+          break;
+        case RAIN:
+          world.setStorm(true);
+          world.setThundering(false);
+          break;
+        case THUNDER:
+          world.setStorm(true);
+          world.setThundering(true);
+          break;
+        default:
+          break;
+      }
+      if (durationTicks > 0) {
+        world.setWeatherDuration(durationTicks);
+        if (type == WeatherType.THUNDER) {
+          world.setThunderDuration(durationTicks);
+        }
+      }
+      return true;
+    }
+  }
+
+  public static class TimeAction extends Action {
+
+    private final long time;
+    private final boolean add;
+    private final String worldName;
+
+    public TimeAction(final long time) {
+      this(time, false, null, null);
+    }
+
+    public TimeAction(final long time, final boolean add, final String worldName) {
+      this(time, add, worldName, null);
+    }
+
+    public TimeAction(final long time, final boolean add, final String worldName,
+        final Condition<Player> conditions) {
+      super(conditions);
+      this.time = time;
+      this.add = add;
+      this.worldName = worldName;
+    }
+
+    public TimeAction(final long time, final boolean add, final String worldName,
+        final Condition<Player> conditions, final boolean useSync) {
+      super(conditions, useSync);
+      this.time = time;
+      this.add = add;
+      this.worldName = worldName;
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      final World world = resolveWorld(context, worldName);
+      if (world == null) {
+        return true;
+      }
+      if (add) {
+        world.setTime(world.getTime() + time);
+      } else {
+        world.setTime(time);
+      }
+      return true;
+    }
+  }
+
+  public static class BlockPlaceAction extends Action {
+
+    private final Location location;
+    private final boolean atPlayer;
+    private final Material material;
+    private final BlockData blockData;
+    private final boolean applyPhysics;
+
+    public BlockPlaceAction(final Location location, final Material material) {
+      this(location, false, material, null, true, null);
+    }
+
+    public BlockPlaceAction(final Material material, final boolean atPlayer) {
+      this(null, atPlayer, material, null, true, null);
+    }
+
+    public BlockPlaceAction(final Location location, final BlockData blockData) {
+      this(location, false, null, blockData, true, null);
+    }
+
+    public BlockPlaceAction(final Location location, final boolean atPlayer, final Material material,
+        final BlockData blockData, final boolean applyPhysics, final Condition<Player> conditions) {
+      super(conditions);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.material = material;
+      this.blockData = blockData;
+      this.applyPhysics = applyPhysics;
+    }
+
+    public BlockPlaceAction(final Location location, final boolean atPlayer, final Material material,
+        final BlockData blockData, final boolean applyPhysics, final Condition<Player> conditions,
+        final boolean useSync) {
+      super(conditions, useSync);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.material = material;
+      this.blockData = blockData;
+      this.applyPhysics = applyPhysics;
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      final Location base = resolveLocation(context, location, atPlayer);
+      if (base == null || base.getWorld() == null) {
+        return true;
+      }
+      final Block block = base.getBlock();
+      if (blockData != null) {
+        block.setBlockData(blockData.clone(), applyPhysics);
+      } else if (material != null) {
+        block.setType(material, applyPhysics);
+      }
+      return true;
+    }
+  }
+
+  public static class BlockBreakAction extends Action {
+
+    private final Location location;
+    private final boolean atPlayer;
+    private final boolean dropItems;
+    private final boolean applyPhysics;
+
+    public BlockBreakAction(final Location location) {
+      this(location, false, false, true, null);
+    }
+
+    public BlockBreakAction(final boolean atPlayer) {
+      this(null, atPlayer, false, true, null);
+    }
+
+    public BlockBreakAction(final Location location, final boolean atPlayer, final boolean dropItems,
+        final boolean applyPhysics, final Condition<Player> conditions) {
+      super(conditions);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.dropItems = dropItems;
+      this.applyPhysics = applyPhysics;
+    }
+
+    public BlockBreakAction(final Location location, final boolean atPlayer, final boolean dropItems,
+        final boolean applyPhysics, final Condition<Player> conditions, final boolean useSync) {
+      super(conditions, useSync);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.dropItems = dropItems;
+      this.applyPhysics = applyPhysics;
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      final Location base = resolveLocation(context, location, atPlayer);
+      if (base == null || base.getWorld() == null) {
+        return true;
+      }
+      final Block block = base.getBlock();
+      if (dropItems) {
+        block.breakNaturally();
+      } else {
+        block.setType(Material.AIR, applyPhysics);
+      }
+      return true;
+    }
+  }
+
+  public static class BlockReplaceAction extends Action {
+
+    private final Location location;
+    private final boolean atPlayer;
+    private final Material from;
+    private final Material to;
+    private final BlockData toData;
+    private final boolean applyPhysics;
+
+    public BlockReplaceAction(final Location location, final Material from, final Material to) {
+      this(location, false, from, to, null, true, null);
+    }
+
+    public BlockReplaceAction(final boolean atPlayer, final Material from, final Material to) {
+      this(null, atPlayer, from, to, null, true, null);
+    }
+
+    public BlockReplaceAction(final Location location, final boolean atPlayer, final Material from, final Material to,
+        final BlockData toData, final boolean applyPhysics, final Condition<Player> conditions) {
+      super(conditions);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.from = from;
+      this.to = to;
+      this.toData = toData;
+      this.applyPhysics = applyPhysics;
+    }
+
+    public BlockReplaceAction(final Location location, final boolean atPlayer, final Material from, final Material to,
+        final BlockData toData, final boolean applyPhysics, final Condition<Player> conditions,
+        final boolean useSync) {
+      super(conditions, useSync);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.from = from;
+      this.to = to;
+      this.toData = toData;
+      this.applyPhysics = applyPhysics;
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      final Location base = resolveLocation(context, location, atPlayer);
+      if (base == null || base.getWorld() == null) {
+        return true;
+      }
+      final Block block = base.getBlock();
+      if (from != null && block.getType() != from) {
+        return true;
+      }
+      if (toData != null) {
+        block.setBlockData(toData.clone(), applyPhysics);
+      } else if (to != null) {
+        block.setType(to, applyPhysics);
+      } else {
+        block.setType(Material.AIR, applyPhysics);
+      }
+      return true;
+    }
+  }
+
+  public static class ExplosionAction extends Action {
+
+    private final Location location;
+    private final boolean atPlayer;
+    private final float power;
+    private final boolean setFire;
+    private final boolean breakBlocks;
+
+    public ExplosionAction(final float power) {
+      this(null, true, power, false, true, null);
+    }
+
+    public ExplosionAction(final Location location, final float power) {
+      this(location, false, power, false, true, null);
+    }
+
+    public ExplosionAction(final Location location, final boolean atPlayer, final float power, final boolean setFire,
+        final boolean breakBlocks, final Condition<Player> conditions) {
+      super(conditions);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.power = Math.max(0f, power);
+      this.setFire = setFire;
+      this.breakBlocks = breakBlocks;
+    }
+
+    public ExplosionAction(final Location location, final boolean atPlayer, final float power, final boolean setFire,
+        final boolean breakBlocks, final Condition<Player> conditions, final boolean useSync) {
+      super(conditions, useSync);
+      this.location = location == null ? null : location.clone();
+      this.atPlayer = atPlayer;
+      this.power = Math.max(0f, power);
+      this.setFire = setFire;
+      this.breakBlocks = breakBlocks;
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      final Location base = resolveLocation(context, location, atPlayer);
+      if (base == null || base.getWorld() == null) {
+        return true;
+      }
+      base.getWorld().createExplosion(base.getX(), base.getY(), base.getZ(), power, setFire, breakBlocks);
+      return true;
+    }
+  }
+
+  public static class LogAction extends Action {
+
+    private static final Logger LOGGER = Logger.getLogger(LogAction.class.getName());
+    private final String message;
+    private final Level level;
+    private final String loggerName;
+
+    public LogAction(final String message) {
+      this(message, Level.INFO, null, null);
+    }
+
+    public LogAction(final String message, final Level level) {
+      this(message, level, null, null);
+    }
+
+    public LogAction(final String message, final Level level, final String loggerName) {
+      this(message, level, loggerName, null);
+    }
+
+    public LogAction(final String message, final Level level, final String loggerName,
+        final Condition<Player> conditions) {
+      super(conditions, true);
+      this.message = message == null ? "" : message;
+      this.level = level == null ? Level.INFO : level;
+      this.loggerName = loggerName;
+    }
+
+    public LogAction(final String message, final Level level, final String loggerName,
+        final Condition<Player> conditions, final boolean useSync) {
+      super(conditions, useSync);
+      this.message = message == null ? "" : message;
+      this.level = level == null ? Level.INFO : level;
+      this.loggerName = loggerName;
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      String out = message;
+      if (context.getTarget() instanceof final Player player) {
+        out = out.replace("%player%", player.getName())
+            .replace("%uuid%", player.getUniqueId().toString())
+            .replace("%world%", player.getWorld() == null ? "" : player.getWorld().getName());
+      }
+      final Logger logger = (loggerName == null || loggerName.isEmpty()) ? LOGGER : Logger.getLogger(loggerName);
+      logger.log(level, out);
+      return true;
+    }
+  }
+
+  public static class RandomAction extends Action {
+
+    private final List<Action> actions;
+
+    public RandomAction(final Action... actions) {
+      this(actions == null ? Collections.emptyList() : Arrays.asList(actions), null);
+    }
+
+    public RandomAction(final Collection<? extends Action> actions) {
+      this(actions, null);
+    }
+
+    public RandomAction(final Collection<? extends Action> actions, final Condition<Player> conditions) {
+      super(conditions);
+      this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
+    }
+
+    public RandomAction(final Collection<? extends Action> actions, final Condition<Player> conditions,
+        final boolean useSync) {
+      super(conditions, useSync);
+      this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      final List<Action> candidates = new ArrayList<>();
+      for (final Action action : actions) {
+        if (action != null) {
+          candidates.add(action);
+        }
+      }
+      if (candidates.isEmpty()) {
+        return true;
+      }
+      final Action chosen = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+      return chosen.execute(context);
+    }
+  }
+
+  public static class WeightedRandomAction extends Action {
+
+    private final List<Entry> entries = new ArrayList<>();
+
+    public static final class Entry {
+      private final Action action;
+      private final double weight;
+
+      public Entry(final Action action, final double weight) {
+        this.action = action;
+        this.weight = weight;
+      }
+
+      public Action getAction() {
+        return action;
+      }
+
+      public double getWeight() {
+        return weight;
+      }
+    }
+
+    public WeightedRandomAction(final Map<Action, ? extends Number> weightedActions) {
+      this(toEntries(weightedActions), null);
+    }
+
+    public WeightedRandomAction(final Map<Action, ? extends Number> weightedActions,
+        final Condition<Player> conditions) {
+      this(toEntries(weightedActions), conditions);
+    }
+
+    public WeightedRandomAction(final Collection<Entry> weightedEntries) {
+      this(weightedEntries, null);
+    }
+
+    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition<Player> conditions) {
+      super(conditions);
+      addEntries(weightedEntries);
+    }
+
+    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition<Player> conditions,
+        final boolean useSync) {
+      super(conditions, useSync);
+      addEntries(weightedEntries);
+    }
+
+    private static Collection<Entry> toEntries(final Map<Action, ? extends Number> weightedActions) {
+      if (weightedActions == null || weightedActions.isEmpty()) {
+        return Collections.emptyList();
+      }
+      final List<Entry> list = new ArrayList<>();
+      for (final Map.Entry<Action, ? extends Number> e : weightedActions.entrySet()) {
+        if (e.getKey() != null && e.getValue() != null) {
+          list.add(new Entry(e.getKey(), Math.max(0.0, e.getValue().doubleValue())));
+        }
+      }
+      return list;
+    }
+
+    private void addEntries(final Collection<Entry> weightedEntries) {
+      if (weightedEntries == null) {
+        return;
+      }
+      for (final Entry e : weightedEntries) {
+        if (e != null && e.getAction() != null) {
+          entries.add(new Entry(e.getAction(), Math.max(0.0, e.getWeight())));
+        }
+      }
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      if (entries.isEmpty()) {
+        return true;
+      }
+      double total = 0.0;
+      for (final Entry entry : entries) {
+        total += entry.getWeight();
+      }
+      if (total <= 0.0) {
+        return true;
+      }
+      double r = ThreadLocalRandom.current().nextDouble(total);
+      for (final Entry entry : entries) {
+        r -= entry.getWeight();
+        if (r <= 0.0) {
+          return entry.getAction() == null ? true : entry.getAction().execute(context);
+        }
+      }
+      final Entry last = entries.get(entries.size() - 1);
+      return last.getAction() == null ? true : last.getAction().execute(context);
+    }
+  }
+
+  public static class RepeatAction extends Action {
+
+    private final List<Action> actions;
+    private final int times;
+    private final long intervalTicks;
+    private final long initialDelayTicks;
+
+    public RepeatAction(final Action action, final int times) {
+      this(action == null ? Collections.emptyList() : Collections.singletonList(action), times, 0L, 0L, null);
+    }
+
+    public RepeatAction(final int times, final Action... actions) {
+      this(actions == null ? Collections.emptyList() : Arrays.asList(actions), times, 0L, 0L, null);
+    }
+
+    public RepeatAction(final Collection<? extends Action> actions, final int times) {
+      this(actions, times, 0L, 0L, null);
+    }
+
+    public RepeatAction(final Collection<? extends Action> actions, final int times, final long intervalTicks,
+        final long initialDelayTicks, final Condition<Player> conditions) {
+      super(conditions);
+      this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
+      this.times = Math.max(0, times);
+      this.intervalTicks = Math.max(0L, intervalTicks);
+      this.initialDelayTicks = Math.max(0L, initialDelayTicks);
+    }
+
+    public RepeatAction(final Collection<? extends Action> actions, final int times, final long intervalTicks,
+        final long initialDelayTicks, final Condition<Player> conditions, final boolean useSync) {
+      super(conditions, useSync);
+      this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
+      this.times = Math.max(0, times);
+      this.intervalTicks = Math.max(0L, intervalTicks);
+      this.initialDelayTicks = Math.max(0L, initialDelayTicks);
+    }
+
+    @Override
+    protected boolean run(final ActionContext context) {
+      if (times <= 0 || actions.isEmpty() || context == null) {
+        return true;
+      }
+
+      if (intervalTicks <= 0L && initialDelayTicks <= 0L) {
+        for (int i = 0; i < times; i++) {
+          if (context.isStopped()) {
+            return false;
+          }
+          if (!runOnce(context)) {
+            return false;
+          }
+        }
+        return !context.isStopped();
+      }
+
+      if (intervalTicks <= 0L) {
+        GlobalScheduler.runLater(() -> {
+          for (int i = 0; i < times; i++) {
+            if (context.isStopped()) {
+              return;
+            }
+            if (!runOnce(context)) {
+              return;
+            }
+          }
+        }, initialDelayTicks);
+        return true;
+      }
+
+      final int[] remaining = new int[] { times };
+      final Runnable[] holder = new Runnable[1];
+      holder[0] = () -> {
+        if (context.isStopped() || remaining[0] <= 0) {
+          return;
+        }
+        remaining[0]--;
+        if (!runOnce(context) || context.isStopped() || remaining[0] <= 0) {
+          return;
+        }
+        GlobalScheduler.runLater(holder[0], intervalTicks);
+      };
+      GlobalScheduler.runLater(holder[0], initialDelayTicks);
+      return true;
+    }
+
+    private boolean runOnce(final ActionContext context) {
+      for (final Action action : actions) {
+        if (context.isStopped()) {
+          return false;
+        }
+        if (action == null) {
+          continue;
+        }
+        final boolean ok = action.execute(context);
+        if (!ok || context.isStopped()) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  private static World resolveWorld(final ActionContext context, final String worldName) {
+    if (worldName != null && !worldName.isEmpty()) {
+      return Bukkit.getWorld(worldName);
+    }
+    return context.getTarget().getWorld();
+  }
+
+  private static Location resolveLocation(final ActionContext context, final Location location,
+      final boolean atPlayer) {
+    if (atPlayer) {
+      return context.getTarget().getLocation().clone();
+    }
+    return location == null ? null : location.clone();
   }
 }

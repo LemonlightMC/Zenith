@@ -4,20 +4,20 @@ import org.bukkit.entity.Player;
 
 public abstract class Action {
 
-    private final Condition<Player> conditions;
+    private final Condition<Player> condition;
     private final boolean useSync;
 
     public Action(final Condition<Player> conditions) {
         this(conditions, true);
     }
 
-    public Action(final Condition<Player> conditions, final boolean useSync) {
-        this.conditions = conditions;
+    public Action(final Condition<Player> condition, final boolean useSync) {
+        this.condition = condition;
         this.useSync = useSync;
     }
 
-    public Condition<Player> getConditions() {
-        return conditions;
+    public Condition<Player> condition() {
+        return condition;
     }
 
     public boolean isUseSync() {
@@ -32,14 +32,14 @@ public abstract class Action {
         if (context == null || context.isStopped()) {
             return false;
         }
-        return conditions != null && !conditions.test(context.getTarget());
+        return condition == null || condition.test(context.getTarget());
     }
 
     public boolean execute(final ActionContext context) {
         if (context == null || context.isStopped()) {
             return false;
         }
-        if (conditions != null && !conditions.test(context.getTarget())) {
+        if (condition != null && !condition.test(context.getTarget())) {
             return true;
         }
         return run(context);

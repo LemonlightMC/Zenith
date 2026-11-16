@@ -23,6 +23,10 @@ import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
 import com.lemonlightmc.zenith.apis.bossbar.BossBar;
 import com.lemonlightmc.zenith.apis.bossbar.BossBarBuilder;
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
+import com.lemonlightmc.zenith.utils.actions.Action;
+import com.lemonlightmc.zenith.utils.actions.Actions;
+import com.lemonlightmc.zenith.utils.actions.Condition;
+import com.lemonlightmc.zenith.utils.actions.Conditions;
 
 import io.leangen.geantyref.TypeToken;
 
@@ -99,6 +103,39 @@ public class ZenithConfig {
                 .register(TypeToken.get(Locale.class), new LocaleSerializer())
                 .register(TypeToken.get(BossBar.class), BossBarBuilder.SERIALIZER)
                 .register(TypeToken.get(TitleAPI.TitleInfo.class), TitleInfo.SERIALIZER)
+                .register(TypeToken.get(Action.class), Actions.SERIALIZER)
+                .register(new TypeToken<Condition<org.bukkit.entity.Player>>() {
+                }, Conditions.SERIALIZER)
+                .register(TypeToken.get(com.lemonlightmc.zenith.math.MathOperation.class),
+                    com.lemonlightmc.zenith.math.MathOperation.MathOperationSerializer.INSTANCE)
+                .register(TypeToken.get(java.time.Duration.class),
+                    com.lemonlightmc.zenith.time.DurationSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.math.Position.class),
+                    com.lemonlightmc.zenith.math.Position.PositionSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.math.Rotation.class),
+                    com.lemonlightmc.zenith.math.Rotation.RotationSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.math.Region.class),
+                    com.lemonlightmc.zenith.math.Region.RegionSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.version.Version.class),
+                    com.lemonlightmc.zenith.version.VersionSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.Range.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.IntegerRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.LongRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.DoubleRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.FloatRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.ShortRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.ByteRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.BigIntegerRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
+                .register(TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.BigDecimalRange.class),
+                    com.lemonlightmc.zenith.math.RangeSerializer.INSTANCE)
                 .registerAnnotatedObjects(customFactory)))
         .build();
     final CommentedConfigurationNode root;

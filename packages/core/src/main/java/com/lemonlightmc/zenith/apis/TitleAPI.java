@@ -318,17 +318,20 @@ public class TitleAPI {
 
       @Override
       public TitleInfo deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
-        if (node.virtual() || node.isNull()) {
+        if (node == null || node.virtual() || node.isNull()) {
+          return null;
+        }
+        final ConfigurationNode titleNode = node.node("title");
+        if (!titleNode.virtual() && !titleNode.isMap()) {
           return null;
         }
 
-        final String title = node.node(TITLE).getString();
         final String subtitle = node.node(SUBTITLE).getString();
         final int fadeIn = node.node(FADE_IN).getInt(TitleAPI.DEFAULT_FADEIN);
         final int stay = node.node(STAY).getInt(TitleAPI.DEFAULT_STAY);
         final int fadeOut = node.node(FADE_OUT).getInt(TitleAPI.DEFAULT_FADEOUT);
 
-        return new TitleInfo(title, subtitle, null, fadeIn, stay, fadeOut);
+        return new TitleInfo(titleNode.getString(), subtitle, null, fadeIn, stay, fadeOut);
       }
 
       @Override

@@ -47,71 +47,31 @@ public class NumberConversions {
   }
 
   public static Integer toInt(final String str, final int radix) {
-    try {
-      return parseInt(str, radix);
-    } catch (final NumberFormatException e) {
-    } catch (final NullPointerException e) {
-    }
-    return 0;
-  }
-
-  public static Long toLong(final String str, final int radix) {
-    if (str == null) {
-      return 0l;
-    }
-    try {
-      return parseLong(str, radix);
-    } catch (final Exception e) {
-    }
-    return 0l;
-  }
-
-  public static Short toShort(final String str) {
-    if (str == null) {
-      return (short) 0;
-    }
-    try {
-      return parseShort(str);
-    } catch (final Exception e) {
-    }
-    return (short) 0;
-  }
-
-  public static Float toFloat(final String str) {
-    if (str == null || str.isEmpty()) {
-      return 0f;
-    }
-    try {
-      return Float.valueOf(str);
-    } catch (final Exception e) {
-    }
-    return 0f;
-  }
-
-  public static Double toDouble(final String str) {
-    if (str == null || str.isEmpty()) {
-      return 0d;
-    }
-    try {
-      return Double.valueOf(str);
-    } catch (final Exception e) {
-    }
-    return 0d;
+    return parseInt(str, radix);
   }
 
   public static Long toLong(final String str) {
     return toLong(str, 10);
   }
 
+  public static Long toLong(final String str, final int radix) {
+    return Long.valueOf(parseLong(str, radix));
+  }
+
+  public static Short toShort(final String str) {
+    return Short.valueOf(parseShort(str));
+  }
+
+  public static Float toFloat(final String str) {
+    return Float.valueOf(parseFloat(str));
+  }
+
+  public static Double toDouble(final String str) {
+    return Double.valueOf(parseDouble(str));
+  }
+
   public static Byte toByte(final String str) {
-    if (str == null) {
-      return (short) 0;
-    }
-    try {
-      return Byte.valueOf(str);
-    } catch (final Exception e) {
-    }
-    return (short) 0;
+    return Byte.valueOf(parseByte(str));
   }
 
   public static int parseInt(final String str) {

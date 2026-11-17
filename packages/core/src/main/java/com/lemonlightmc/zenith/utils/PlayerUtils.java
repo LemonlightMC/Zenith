@@ -98,10 +98,6 @@ public class PlayerUtils {
     return UUIDUtils.isUUID(uuidStr);
   }
 
-  public static boolean isValidPlayerUUID(final UUID uuid) {
-    return UUIDUtils.isUUID(uuid);
-  }
-
   public static Locale getPlayerLocale(final Player player) {
     if (player == null) {
       return null;

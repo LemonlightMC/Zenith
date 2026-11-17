@@ -42,6 +42,34 @@ public class NumberConversions {
     }
   }
 
+  public static boolean isDecimal(final String s) {
+    return s != null && (s.indexOf('.') >= 0 || s.indexOf('e') >= 0 || s.indexOf('E') >= 0);
+  }
+
+  public static boolean fitsInt(final String s) {
+    if (s == null || s.isBlank()) {
+      return false;
+    }
+    try {
+      final long v = Long.parseLong(s);
+      return v >= Integer.MIN_VALUE && v <= Integer.MAX_VALUE;
+    } catch (final Exception e) {
+      return false;
+    }
+  }
+
+  public static boolean fitsLong(final String s) {
+    if (s == null || s.isBlank()) {
+      return false;
+    }
+    try {
+      final long v = parseLong(s, 10);
+      return v >= Long.MIN_VALUE && v <= Long.MAX_VALUE;
+    } catch (final Exception e) {
+      return false;
+    }
+  }
+
   public static Integer toInt(final String str) {
     return toInt(str, 10);
   }

@@ -108,6 +108,38 @@ public abstract class Range<R extends Range<R, V>, V extends Comparable<V>> impl
     return ByteRange.from(str);
   }
 
+  public static <R extends Range<R, T>, T extends Comparable<T>> Range<R, T> fromString(final String str) {
+    return fromString(parseStr(str));
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <R extends Range<R, T>, T extends Comparable<T>> Range<R, T> fromString(
+      final RangeStringParsed parsed) {
+    if (NumberConversions.isDecimal(parsed.minStr()) || NumberConversions.isDecimal(parsed.maxStr())) {
+      final Double min = (parsed.minStr() == null) ? null : NumberConversions.parseDouble(parsed.minStr());
+      final Double max = (parsed.maxStr() == null) ? null : NumberConversions.parseDouble(parsed.maxStr());
+      return (Range<R, T>) new DoubleRange(min, max);
+    }
+
+    if ((parsed.minStr() == null || NumberConversions.fitsInt(parsed.minStr()))
+        && (parsed.maxStr() == null || NumberConversions.fitsInt(parsed.maxStr()))) {
+      final Integer min = (parsed.minStr() == null) ? null : NumberConversions.parseInt(parsed.minStr());
+      final Integer max = (parsed.maxStr() == null) ? null : NumberConversions.parseInt(parsed.maxStr());
+      return (Range<R, T>) new IntegerRange(min, max);
+    }
+
+    if ((parsed.minStr() == null || NumberConversions.fitsLong(parsed.minStr()))
+        && (parsed.maxStr() == null || NumberConversions.fitsLong(parsed.maxStr()))) {
+      final Long min = (parsed.minStr() == null) ? null : Long.parseLong(parsed.minStr());
+      final Long max = (parsed.maxStr() == null) ? null : Long.parseLong(parsed.maxStr());
+      return (Range<R, T>) new LongRange(min, max);
+    }
+
+    final BigInteger min = (parsed.minStr() == null) ? null : new BigInteger(parsed.minStr());
+    final BigInteger max = (parsed.maxStr() == null) ? null : new BigInteger(parsed.maxStr());
+    return (Range<R, T>) new BigIntegerRange(min, max);
+  }
+
   public static BigDecimalRange encompassing(final BigDecimalRange a, final BigDecimalRange b) {
     return BigDecimalRange.encompassing(a, b);
   }
@@ -140,22 +172,54 @@ public abstract class Range<R extends Range<R, V>, V extends Comparable<V>> impl
     return ByteRange.encompassing(a, b);
   }
 
-  protected static String[] parseStr(String str) {
-    if (str == null || str.length() == 0) {
-      return new String[] { "", "" };
+  protected static RangeStringParsed parseStr(String str) {
+    if (str == null || str.isBlank()) {
+      return new RangeStringParsed(null, null, true, true);
     }
     if (str.charAt(0) == '[') {
       str = str.substring(1);
     }
+    boolean minInclusive = true;
+    if (str.charAt(0) == '(') {
+      str = str.substring(1);
+      minInclusive = true;
+    }
+    boolean maxInclusive = false;
     if (str.charAt(str.length() - 1) == ']') {
       str = str.substring(0, str.length() - 1);
     }
-    final String[] parts = str.split("[,\\.\\s]+");
-    if (parts == null || parts.length != 2) {
-      return new String[] { "", "" };
+    if (str.charAt(str.length() - 1) == ')') {
+      str = str.substring(0, str.length() - 1);
+      maxInclusive = false;
     }
 
-    return new String[] { parts[0].strip(), parts[1].strip() };
+    final String[] parts = str.split("[,\\.\\s]+");
+    if (parts == null || parts.length < 2) {
+      return new RangeStringParsed(null, null, true, true);
+    }
+    return RangeStringParsed.from(parts[0], parts[1], minInclusive, maxInclusive);
+  }
+
+  public static final record RangeStringParsed(String minStr, String maxStr, boolean minInclusive,
+      boolean maxInclusive) {
+
+    public static RangeStringParsed from(String minStr, String maxStr, final boolean minInclusive,
+        final boolean maxInclusive) {
+      if (minStr != null) {
+        minStr = minStr.trim();
+        minStr = minStr.isEmpty() ? null : minStr;
+      }
+      if (maxStr != null) {
+        maxStr = maxStr.trim();
+        maxStr = maxStr.isEmpty() ? null : maxStr;
+      }
+      return new RangeStringParsed(minStr, maxStr, minInclusive, maxInclusive);
+    }
+
+    public String toString() {
+      return (minInclusive ? "[" : "(") + (minStr == null ? "" : minStr) + ".." + (maxStr == null ? "" : maxStr)
+          + (maxInclusive ? "]" : ")");
+    }
   }
 
   private V min;
@@ -425,5 +489,4 @@ public abstract class Range<R extends Range<R, V>, V extends Comparable<V>> impl
     return minInclusive == other.minInclusive && maxInclusive == other.maxInclusive && min.equals(other.min)
         && max.equals(other.max);
   }
-
 }

@@ -17,52 +17,22 @@ public class UUIDUtils {
   private static HashMap<String, String> cache = new HashMap<>();
 
   public static boolean isUUID(final String uuid) {
-    if (uuid == null || uuid.length() == 0) {
-      return false;
-    }
-    try {
-      UUID.fromString(uuid);
-      return true;
-    } catch (final IllegalArgumentException e) {
-      return isUndashedUUID(uuid);
-    }
-  }
-
-  public static boolean isUUID(final UUID uuid) {
-    return uuid != null;
+    return parseUUID(uuid) != null;
   }
 
   public static boolean isDashedUUID(final String uuid) {
-    if (uuid == null || uuid.length() == 0) {
-      return false;
-    }
-    try {
-      UUID.fromString(uuid);
-      return true;
-    } catch (final IllegalArgumentException e) {
-      return false;
-    }
+    return parseDashedUUID(uuid) != null;
   }
 
   public static boolean isUndashedUUID(final String uuid) {
-    if (uuid == null || uuid.length() == 0) {
-      return false;
-    }
-    try {
-      return parseUndashedUUID(uuid) != null;
-    } catch (final IllegalArgumentException e) {
-      return false;
-    }
+    return parseUndashedUUID(uuid) != null;
   }
 
-  public static UUID parseUUID(final UUID uuid) {
-    return uuid;
-  }
-
-  public static UUID parseUUID(final String uuid) {
+  public static UUID parseUUID(String uuid) {
     if (uuid == null || uuid.length() == 0) {
       return null;
     }
+    uuid = uuid.trim();
     try {
       return UUID.fromString(uuid);
     } catch (final IllegalArgumentException e) {
@@ -70,10 +40,11 @@ public class UUIDUtils {
     }
   }
 
-  public static UUID parseDashedUUID(final String uuid) {
+  public static UUID parseDashedUUID(String uuid) {
     if (uuid == null || uuid.length() == 0) {
       return null;
     }
+    uuid = uuid.trim();
     try {
       return UUID.fromString(uuid);
     } catch (final IllegalArgumentException e) {
@@ -81,7 +52,11 @@ public class UUIDUtils {
     }
   }
 
-  public static UUID parseUndashedUUID(final String uuid) {
+  public static UUID parseUndashedUUID(String uuid) {
+    if (uuid == null) {
+      return null;
+    }
+    uuid = uuid.trim();
     if (uuid.length() != 32) {
       return null;
     }
@@ -94,8 +69,15 @@ public class UUIDUtils {
     }
   }
 
-  public static UUID toUUID(final UUID uuid) {
-    return uuid;
+  public static String toUndashedUUID(final UUID uuid) {
+    if (uuid == null) {
+      return null;
+    }
+    return (digits(uuid.getMostSignificantBits() >> 32, 8) +
+        digits(uuid.getMostSignificantBits() >> 16, 4) +
+        digits(uuid.getMostSignificantBits(), 4) +
+        digits(uuid.getLeastSignificantBits() >> 48, 4) +
+        digits(uuid.getLeastSignificantBits(), 12));
   }
 
   public static UUID toUUID(final String name) {
@@ -131,17 +113,6 @@ public class UUIDUtils {
     return toUndashedUUID(toUUID(uuid));
   }
 
-  public static String toUndashedUUID(final UUID uuid) {
-    if (uuid == null) {
-      return null;
-    }
-    return (digits(uuid.getMostSignificantBits() >> 32, 8) +
-        digits(uuid.getMostSignificantBits() >> 16, 4) +
-        digits(uuid.getMostSignificantBits(), 4) +
-        digits(uuid.getLeastSignificantBits() >> 48, 4) +
-        digits(uuid.getLeastSignificantBits(), 12));
-  }
-
   public static String fetchName(final String name) {
     if (name == null || name.length() == 0) {
       return null;
@@ -160,7 +131,7 @@ public class UUIDUtils {
     if (name == null || name.length() == 0) {
       return null;
     }
-    return toUUID(fetch(name.toLowerCase(), "id"));
+    return parseUUID(fetch(name.toLowerCase(), "id"));
   }
 
   public static String fetch(final String value, final String key) {

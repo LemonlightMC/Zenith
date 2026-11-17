@@ -7,10 +7,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import com.lemonlightmc.zenith.internal.ConditionSerializer;
+
 /**
  * A composable condition tree.
  */
 public interface Condition<T> {
+
+    @SuppressWarnings("rawtypes")
+    static ConditionSerializer serializer() {
+        return ConditionSerializer.INSTANCE;
+    }
 
     boolean test(T value);
 

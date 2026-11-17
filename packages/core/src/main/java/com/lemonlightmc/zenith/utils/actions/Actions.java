@@ -1,7 +1,5 @@
 package com.lemonlightmc.zenith.utils.actions;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,12 +43,15 @@ import com.lemonlightmc.zenith.apis.TitleAPI;
 import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
 import com.lemonlightmc.zenith.apis.bossbar.BossBar;
 import com.lemonlightmc.zenith.apis.bossbar.BossbarAPI;
+import com.lemonlightmc.zenith.internal.ActionSerializer;
+import com.lemonlightmc.zenith.math.MathOperation;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.scheduler.ScheduledTask;
 import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
-import com.lemonlightmc.zenith.ZenithProvider;
 
 public class Actions {
+
+  public static final ActionSerializer SERIALIZER = ActionSerializer.INSTANCE;
 
   private static final Map<String, Sound> SOUND_CACHE = new ConcurrentHashMap<>();
   private static final Map<UUID, ScheduledTask> INVULNERABLE_REVERT_TASKS = new ConcurrentHashMap<>();
@@ -783,29 +784,29 @@ public class Actions {
   public static class MovementAction extends Action {
 
     private final Vector velocity;
-    private final boolean add;
-    private final boolean relativeToLook;
+    private final MathOperation operation;
+    private final boolean useLookDirection;
     private final boolean broadcast;
 
     public MovementAction(final Vector velocity) {
-      this(velocity, false, false, false, null);
+      this(velocity, MathOperation.ADD, false, false, null);
     }
 
-    public MovementAction(final Vector velocity, final boolean add, final boolean relativeToLook,
+    public MovementAction(final Vector velocity, final MathOperation operation, final boolean useLookDirection,
         final boolean broadcast, final Condition<Player> conditions) {
       super(conditions);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
-      this.add = add;
-      this.relativeToLook = relativeToLook;
+      this.operation = operation;
+      this.useLookDirection = useLookDirection;
       this.broadcast = broadcast;
     }
 
-    public MovementAction(final Vector velocity, final boolean add, final boolean relativeToLook,
+    public MovementAction(final Vector velocity, final MathOperation operation, final boolean useLookDirection,
         final boolean broadcast, final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
-      this.add = add;
-      this.relativeToLook = relativeToLook;
+      this.operation = operation;
+      this.useLookDirection = useLookDirection;
       this.broadcast = broadcast;
     }
 
@@ -823,15 +824,14 @@ public class Actions {
 
     private void apply(final Player target) {
       Vector v = velocity.clone();
-      if (relativeToLook) {
+      if (useLookDirection) {
         final Vector dir = target.getLocation().getDirection().normalize();
         v = dir.multiply(v.length() == 0 ? 1 : v.length()).setY(velocity.getY());
       }
-      if (add) {
-        target.setVelocity(target.getVelocity().add(v));
-      } else {
-        target.setVelocity(v);
-      }
+      final Vector result = new Vector(operation.apply(target.getVelocity().getX(), v.getX()),
+          operation.apply(target.getVelocity().getY(), v.getY()),
+          operation.apply(target.getVelocity().getZ(), v.getZ()));
+      target.setVelocity(result);
     }
   }
 

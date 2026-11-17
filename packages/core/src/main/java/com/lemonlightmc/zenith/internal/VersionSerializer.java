@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.version;
+package com.lemonlightmc.zenith.internal;
 
 import java.lang.reflect.Type;
 

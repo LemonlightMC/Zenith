@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.time;
+package com.lemonlightmc.zenith.internal;
 
 import java.lang.reflect.Type;
 import java.time.Duration;
@@ -28,27 +28,27 @@ public final class DurationSerializer implements TypeSerializer<Duration> {
       return Duration.ofMillis(((Number) raw).longValue());
     }
 
-    final String value = node.getString();
+    String value = node.getString();
     if (value == null || value.trim().isEmpty()) {
       return null;
     }
+    value = value.trim();
 
-    final String s = value.trim();
     try {
-      return Duration.parse(s);
+      return Duration.parse(value);
     } catch (final Exception ignored) {
     }
 
     try {
-      final long millis = DurationParser.parse(s);
-      if (millis != 0L || s.equals("0") || s.equalsIgnoreCase("0ms") || s.equalsIgnoreCase("0s")) {
+      final long millis = DurationParser.parse(value);
+      if (millis != 0L || value.equals("0") || value.equalsIgnoreCase("0ms") || value.equalsIgnoreCase("0s")) {
         return Duration.ofMillis(millis);
       }
     } catch (final Exception ignored) {
     }
 
     try {
-      return Duration.ofMillis(Long.parseLong(s));
+      return Duration.ofMillis(Long.parseLong(value));
     } catch (final Exception ex) {
       throw new SerializationException(node, Duration.class, "Invalid duration: " + value, ex);
     }

@@ -42,11 +42,14 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.time.TimeRange;
+import com.lemonlightmc.zenith.internal.ConditionSerializer;
 import com.lemonlightmc.zenith.math.Region;
 import com.lemonlightmc.zenith.utils.CooldownStore;
 import com.lemonlightmc.zenith.utils.Plugins;
 
 public class Conditions {
+
+  public static final ConditionSerializer SERIALIZER = ConditionSerializer.INSTANCE;
 
   public static enum ConditionListType {
     WHITELIST(false),

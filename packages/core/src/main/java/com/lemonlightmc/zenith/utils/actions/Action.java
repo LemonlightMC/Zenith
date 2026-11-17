@@ -2,7 +2,11 @@ package com.lemonlightmc.zenith.utils.actions;
 
 import org.bukkit.entity.Player;
 
+import com.lemonlightmc.zenith.internal.ActionSerializer;
+
 public abstract class Action {
+
+    public static final ActionSerializer SERIALIZER = ActionSerializer.INSTANCE;
 
     private final Condition<Player> condition;
     private final boolean useSync;

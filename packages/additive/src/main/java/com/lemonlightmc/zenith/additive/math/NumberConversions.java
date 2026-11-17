@@ -42,8 +42,24 @@ public class NumberConversions {
     }
   }
 
-  public static boolean isDecimal(final String s) {
-    return s != null && (s.indexOf('.') >= 0 || s.indexOf('e') >= 0 || s.indexOf('E') >= 0);
+  public static boolean isDecimal(final String str) {
+    return str != null && (str.indexOf('.') >= 0 || str.indexOf('e') >= 0 || str.indexOf('E') >= 0);
+  }
+
+  public static boolean isNumeric(String str) {
+    if (str == null || str.isEmpty()) {
+      return false;
+    }
+    str = str.trim();
+    if (str.isEmpty()) {
+      return false;
+    }
+    try {
+      Double.parseDouble(str);
+      return true;
+    } catch (final NumberFormatException ex) {
+      return false;
+    }
   }
 
   public static boolean fitsInt(final String s) {

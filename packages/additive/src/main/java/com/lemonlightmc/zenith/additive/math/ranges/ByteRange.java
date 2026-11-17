@@ -2,6 +2,7 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
+import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 public class ByteRange extends Range<ByteRange, Byte> {
   public static ByteRange ALL = new ByteRange();
@@ -40,12 +41,13 @@ public class ByteRange extends Range<ByteRange, Byte> {
   }
 
   public static ByteRange from(final String str) {
-    if (str == null || str.length() == 0) {
+    if (str == null || str.isBlank()) {
       return ALL;
     }
-    final String[] arr = Range.parseStr(str);
-    return new ByteRange(arr[0].length() == 0 ? Byte.MIN_VALUE : NumberConversions.parseByte(arr[0]),
-        arr[1].length() == 0 ? Byte.MAX_VALUE : NumberConversions.parseByte(arr[1]));
+    final RangeStringParsed parsed = Range.parseStr(str);
+    final Byte min = parsed.minStr() == null ? Byte.MIN_VALUE : NumberConversions.parseByte(parsed.minStr());
+    final Byte max = parsed.maxStr() == null ? Byte.MAX_VALUE : NumberConversions.parseByte(parsed.maxStr());
+    return new ByteRange(min, parsed.minInclusive(), max, parsed.maxInclusive());
   }
 
   public static ByteRange encompassing(final ByteRange a, final ByteRange b) {

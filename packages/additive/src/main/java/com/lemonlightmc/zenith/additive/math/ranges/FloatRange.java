@@ -2,6 +2,7 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
+import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 public class FloatRange extends Range<FloatRange, Float> {
   public static final FloatRange ALL = new FloatRange();
@@ -40,12 +41,13 @@ public class FloatRange extends Range<FloatRange, Float> {
   }
 
   public static FloatRange from(final String str) {
-    if (str == null || str.length() == 0) {
+    if (str == null || str.isBlank()) {
       return ALL;
     }
-    final String[] arr = Range.parseStr(str);
-    return new FloatRange(arr[0].length() == 0 ? Float.MIN_VALUE : NumberConversions.parseFloat(arr[0]),
-        arr[1].length() == 0 ? Float.MAX_VALUE : NumberConversions.parseFloat(arr[1]));
+    final RangeStringParsed parsed = Range.parseStr(str);
+    final Float min = parsed.minStr() == null ? Float.MIN_VALUE : NumberConversions.parseFloat(parsed.minStr());
+    final Float max = parsed.maxStr() == null ? Float.MAX_VALUE : NumberConversions.parseFloat(parsed.maxStr());
+    return new FloatRange(min, parsed.minInclusive(), max, parsed.maxInclusive());
   }
 
   public static FloatRange encompassing(final FloatRange a, final FloatRange b) {

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
+import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 public class BigDecimalRange extends Range<BigDecimalRange, BigDecimal> {
   public static BigDecimalRange ALL = new BigDecimalRange();
@@ -43,12 +44,13 @@ public class BigDecimalRange extends Range<BigDecimalRange, BigDecimal> {
   }
 
   public static BigDecimalRange from(final String str) {
-    if (str == null || str.length() == 0) {
+    if (str == null || str.isBlank()) {
       return ALL;
     }
-    final String[] arr = Range.parseStr(str);
-    return new BigDecimalRange(arr[0].length() == 0 ? MIN_VALUE : NumberConversions.parseBigDecimal(arr[0]),
-        arr[1].length() == 0 ? MAX_VALUE : NumberConversions.parseBigDecimal(arr[1]));
+    final RangeStringParsed parsed = Range.parseStr(str);
+    final BigDecimal min = parsed.minStr() == null ? MIN_VALUE : NumberConversions.parseBigDecimal(parsed.minStr());
+    final BigDecimal max = parsed.maxStr() == null ? MAX_VALUE : NumberConversions.parseBigDecimal(parsed.maxStr());
+    return new BigDecimalRange(min, parsed.minInclusive(), max, parsed.maxInclusive());
   }
 
   public static BigDecimalRange encompassing(final BigDecimalRange a, final BigDecimalRange b) {

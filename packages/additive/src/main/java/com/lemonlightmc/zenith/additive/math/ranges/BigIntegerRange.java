@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
+import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 public class BigIntegerRange extends Range<BigIntegerRange, BigInteger> {
   public static BigIntegerRange ALL = new BigIntegerRange();
@@ -43,12 +44,13 @@ public class BigIntegerRange extends Range<BigIntegerRange, BigInteger> {
   }
 
   public static BigIntegerRange from(final String str) {
-    if (str == null || str.length() == 0) {
+    if (str == null || str.isBlank()) {
       return ALL;
     }
-    final String[] arr = Range.parseStr(str);
-    return new BigIntegerRange(arr[0].length() == 0 ? MIN_VALUE : NumberConversions.parseBigInteger(arr[0]),
-        arr[1].length() == 0 ? MAX_VALUE : NumberConversions.parseBigInteger(arr[1]));
+    final RangeStringParsed parsed = Range.parseStr(str);
+    final BigInteger min = parsed.minStr() == null ? MIN_VALUE : NumberConversions.parseBigInteger(parsed.minStr());
+    final BigInteger max = parsed.maxStr() == null ? MAX_VALUE : NumberConversions.parseBigInteger(parsed.maxStr());
+    return new BigIntegerRange(min, parsed.minInclusive(), max, parsed.maxInclusive());
   }
 
   public static BigIntegerRange encompassing(final BigIntegerRange a, final BigIntegerRange b) {

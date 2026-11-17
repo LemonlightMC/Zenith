@@ -2,6 +2,7 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
+import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 public class DoubleRange extends Range<DoubleRange, Double> {
   public static DoubleRange ALL = new DoubleRange();
@@ -40,12 +41,13 @@ public class DoubleRange extends Range<DoubleRange, Double> {
   }
 
   public static DoubleRange from(final String str) {
-    if (str == null || str.length() == 0) {
+    if (str == null || str.isBlank()) {
       return ALL;
     }
-    final String[] arr = Range.parseStr(str);
-    return new DoubleRange(arr[0].length() == 0 ? Double.MIN_VALUE : NumberConversions.parseDouble(arr[0]),
-        arr[1].length() == 0 ? Double.MAX_VALUE : NumberConversions.parseDouble(arr[1]));
+    final RangeStringParsed parsed = Range.parseStr(str);
+    final Double min = parsed.minStr() == null ? Double.MIN_VALUE : NumberConversions.parseDouble(parsed.minStr());
+    final Double max = parsed.maxStr() == null ? Double.MAX_VALUE : NumberConversions.parseDouble(parsed.maxStr());
+    return new DoubleRange(min, parsed.minInclusive(), max, parsed.maxInclusive());
   }
 
   public static DoubleRange encompassing(final DoubleRange a, final DoubleRange b) {

@@ -12,17 +12,9 @@ import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.TildeCo
 import com.lemonlightmc.zenith.additive.version.VersionConstraintsHolder.VersionConstraintParser;
 
 /**
- * Represents a version constraint that can evaluate whether specific versions
- * satisfy
- * its defined rules and conditions.
+ * Represents a version constraint that can evaluate whether specific versions satisfy its defined rules and conditions.
  * <p>
- * This interface allows diverse implementations for different types
- * of version constraints, such as ranges, exact matches, or semantic versioning
- * rules.
- * <p>
- * The constraints may define minimum and/or maximum boundary conditions,
- * equality rules,
- * or complex logical combinations of multiple constraints.
+ * Implementations may represent exact matches, ranges, semantic-version operators, or composite constraints.
  */
 public interface VersionConstraint2 {
   /**

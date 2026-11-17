@@ -11,32 +11,62 @@ import com.lemonlightmc.zenith.sound.Sound;
 import com.lemonlightmc.zenith.sound.mode.ChannelMode;
 import com.lemonlightmc.zenith.sound.mode.MonoMode;
 
+/**
+ * Provides utility methods for playing, parsing, and resolving sounds for Bukkit players.
+ *
+ * <p>The API includes convenience overloads for common playback scenarios and helpers for resolving sounds from the
+ * Bukkit sound registry.
+ */
 public class SoundAPI {
+  /** The default playback volume. */
   public static final float DEFAULT_VOLUME = 1f;
+  /** The minimum supported playback volume. */
   public static final float MINIMUM_VOLUME = 0f;
+  /** The maximum supported playback volume. */
   public static final float MAXIMUM_VOLUME = 1f;
 
+  /** The default playback pitch. */
   public static final float DEFAULT_PITCH = 1f;
+  /** The minimum supported playback pitch. */
   public static final float MINIMUM_PITCH = 0f;
+  /** The maximum supported playback pitch. */
   public static final float MAXIMUM_PITCH = 1f;
 
+  /** The default stereo panning value. */
   public static final int DEFAULT_PANNING = 0;
+  /** The minimum stereo panning value. */
   public static final int MINIMUM_PANNING = 0;
+  /** The maximum stereo panning value. */
   public static final int MAXIMUM_PANNING = 100;
 
+  /** The default sound seed value. */
   public static final long DEFAULT_SEED = 0;
+  /** The minimum sound seed value. */
   public static final long MINIMUM_SEED = Long.MIN_VALUE;
+  /** The maximum sound seed value. */
   public static final long MAXIMUM_SEED = Long.MAX_VALUE;
-  // Assumes that most common tempo is close to 10 tps
+  /** The assumed common server tempo in ticks per second. */
   public static final double COMMON_TEMPO = 10d;
+  /** The default sound category used for playback. */
   public static final SoundCategory DEFAULT_SOURCE = SoundCategory.MASTER;
 
+  /** The active channel mode used for sound playback behavior. */
   private static ChannelMode channel = new MonoMode();
 
+  /**
+   * Returns the active sound channel mode.
+   *
+   * @return the current channel mode
+   */
   public static ChannelMode getMode() {
     return channel;
   }
 
+  /**
+   * Sets the active sound channel mode.
+   *
+   * @param mode the channel mode to use
+   */
   public static void setMode(final ChannelMode mode) {
     SoundAPI.channel = mode;
   }

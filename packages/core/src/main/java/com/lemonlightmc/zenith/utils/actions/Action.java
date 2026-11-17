@@ -4,6 +4,9 @@ import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.internal.ActionSerializer;
 
+/**
+ * Represents an executable action that can be conditionally run for a player context.
+ */
 public abstract class Action {
 
     public static final ActionSerializer SERIALIZER = ActionSerializer.INSTANCE;
@@ -51,7 +54,10 @@ public abstract class Action {
 
     protected abstract boolean run(ActionContext context);
 
-    public static class ActionContext {
+    /**
+   * Holds execution context for a running action chain.
+   */
+  public static class ActionContext {
         private final Player target;
         private volatile boolean stopped;
 

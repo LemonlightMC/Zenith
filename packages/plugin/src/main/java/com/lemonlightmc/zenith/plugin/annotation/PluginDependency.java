@@ -3,22 +3,22 @@ package com.lemonlightmc.zenith.plugin.annotation;
 import javax.annotation.Nonnull;
 
 /**
- * Represents a plugin dependency
+ * Declares a dependency on another plugin.
  */
 public @interface PluginDependency {
 
   /**
-   * The name of the plugin
+   * Returns the name of the required plugin.
    *
-   * @return the name of the plugin
+   * @return the plugin name
    */
   @Nonnull
   String value();
 
   /**
-   * If this is a "soft" dependency
+   * Returns whether this dependency is optional.
    *
-   * @return true if this is a "soft" dependency
+   * @return {@code true} if this is a soft dependency; {@code false} otherwise
    */
   boolean soft() default false;
 

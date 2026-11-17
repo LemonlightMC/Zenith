@@ -10,25 +10,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * An object which can be serialized to JSON.
+ * Represents an object that can be serialized to and deserialized from JSON.
  *
- * <p>
- * Classes which implement this interface should also implement a static
- * "deserialize" method,
- * accepting {@link JsonElement} as the only parameter.
- * </p>
+ * <p>Implementations should provide a {@code public static} {@code deserialize(JsonElement)} method so helper methods
+ * on this interface can reflectively construct instances.
  */
 public interface GsonSerializable {
 
   /**
-   * Deserializes a JsonElement to a GsonSerializable object.
+   * Deserializes a JSON element into a {@link GsonSerializable} instance.
    *
-   * @param clazz   the GsonSerializable class
-   * @param element the json element to deserialize
-   * @param <T>     the GsonSerializable type
-   * @return the deserialized object
-   * @throws IllegalStateException if the clazz does not have a deserialization
-   *                               method
+   * @param <T> the serializable type
+   * @param clazz the class to deserialize into
+   * @param element the JSON element to deserialize
+   * @return the deserialized instance
+   * @throws IllegalStateException if the class does not expose an accessible deserialization method
    */
   @SuppressWarnings("unchecked")
   @Nonnull
@@ -46,13 +42,12 @@ public interface GsonSerializable {
   }
 
   /**
-   * Deserializes a JsonElement to a GsonSerializable object.
+   * Deserializes a JSON element into a raw {@link GsonSerializable} instance.
    *
-   * @param clazz   the GsonSerializable class
-   * @param element the json element to deserialize
-   * @return the deserialized object
-   * @throws IllegalStateException if the clazz does not have a deserialization
-   *                               method
+   * @param clazz the class to deserialize into
+   * @param element the JSON element to deserialize
+   * @return the deserialized instance
+   * @throws IllegalStateException if the class does not expose an accessible deserialization method
    */
   @Nonnull
   static GsonSerializable deserializeRaw(@Nonnull Class<?> clazz, @Nonnull JsonElement element) {
@@ -61,10 +56,10 @@ public interface GsonSerializable {
   }
 
   /**
-   * Gets the deserialization method for a given class.
+   * Returns the static deserialization method declared by a serializable class, if available.
    *
-   * @param clazz the class
-   * @return the deserialization method, if the class has one
+   * @param clazz the class to inspect
+   * @return the deserialization method, or {@code null} if none is available
    */
   @Nullable
   static Method getDeserializeMethod(@Nonnull Class<?> clazz) {
@@ -89,9 +84,9 @@ public interface GsonSerializable {
   }
 
   /**
-   * Serializes the object to JSON
+   * Serializes this object into a JSON element.
    *
-   * @return a json form of this object
+   * @return the serialized JSON representation
    */
   @Nonnull
   JsonElement serialize();

@@ -8,6 +8,9 @@ import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.scheduler.ScheduledTask;
 
+/**
+ * Runs a timed countdown and invokes callbacks during its lifecycle.
+ */
 public class Countdown {
 
   public static final long DEFAULT_TIME = 100l;
@@ -154,6 +157,9 @@ public class Countdown {
     return "Countdown [startTime=" + startTime + ", durationTime=" + durationTime + "]";
   }
 
+  /**
+   * Builder for creating {@link Countdown} instances.
+   */
   public static class CountdownBuilder implements Builder<Countdown> {
     private Consumer<CountdownInfo> count;
     private Consumer<CountdownInfo> done;
@@ -235,6 +241,13 @@ public class Countdown {
     }
   }
 
+  /**
+   * Provides timing information for a countdown callback.
+   *
+   * @param startTime countdown start time in milliseconds
+   * @param endTime countdown end time in milliseconds
+   * @param duration countdown duration in milliseconds
+   */
   public static record CountdownInfo(long startTime, long endTime, long duration) {
     public long getTimeLeft() {
       return startTime + duration - System.currentTimeMillis();

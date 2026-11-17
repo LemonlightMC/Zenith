@@ -16,7 +16,7 @@ import com.lemonlightmc.zenith.additive.exceptions.HttpException;
 import com.lemonlightmc.zenith.additive.files.FileUtils;
 
 /**
- * Minimal HTTP client using HttpClient.
+ * Utility methods for building and executing HTTP requests.
  */
 public final class HttpUtil {
 
@@ -32,6 +32,15 @@ public final class HttpUtil {
   private HttpUtil() {
   }
 
+  /**
+   * Creates a configured HTTP request builder for the given URL and method.
+   *
+   * @param url the target URL
+   * @param method the HTTP method name
+   * @return a configured {@link HttpRequest.Builder}
+   * @throws IllegalArgumentException if {@code url} or {@code method} is null or empty, or if the
+   *     method is unsupported
+   */
   public static HttpRequest.Builder requestBuilder(final String url, final String method) {
     if (url == null || url.isEmpty()) {
       throw new IllegalArgumentException("HTTP URL cannot be null or empty");
@@ -57,6 +66,15 @@ public final class HttpUtil {
     return builder;
   }
 
+  /**
+   * Creates a configured HTTP request builder with header pairs from a list.
+   *
+   * @param url the target URL
+   * @param method the HTTP method name
+   * @param headers alternating header names and values
+   * @return a configured {@link HttpRequest.Builder}
+   * @throws IllegalArgumentException if the headers list does not contain key-value pairs
+   */
   public static HttpRequest.Builder requestBuilder(final String url, final String method, final List<String> headers) {
     final HttpRequest.Builder builder = requestBuilder(url, method);
     if (headers == null || headers.isEmpty()) {
@@ -71,6 +89,15 @@ public final class HttpUtil {
     return builder;
   }
 
+  /**
+   * Creates a configured HTTP request builder with headers from a map.
+   *
+   * @param url the target URL
+   * @param method the HTTP method name
+   * @param headers header names mapped to values
+   * @return a configured {@link HttpRequest.Builder}
+   * @throws IllegalArgumentException if the headers map size is invalid for key-value processing
+   */
   public static HttpRequest.Builder requestBuilder(final String url, final String method,
       final Map<String, String> headers) {
     final HttpRequest.Builder builder = requestBuilder(url, method);
@@ -86,34 +113,90 @@ public final class HttpUtil {
     return builder;
   }
 
+  /**
+   * Sends an HTTP GET request to the given URL.
+   *
+   * @param url the target URL
+   * @return the response body
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String get(final String url) {
     return get(requestBuilder(url, "GET").build());
   }
 
+  /**
+   * Sends an HTTP PUT request to the given URL.
+   *
+   * @param url the target URL
+   * @return the response body
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String put(final String url) {
     return put(requestBuilder(url, "PUT").build());
   }
 
+  /**
+   * Sends an HTTP POST request to the given URL.
+   *
+   * @param url the target URL
+   * @return the response body
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String post(final String url) {
     return post(requestBuilder(url, "POST").build());
   }
 
+  /**
+   * Sends an HTTP PATCH request to the given URL.
+   *
+   * @param url the target URL
+   * @return the response body
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String patch(final String url) {
     return patch(requestBuilder(url, "PATCH").build());
   }
 
+  /**
+   * Sends an HTTP DELETE request to the given URL.
+   *
+   * @param url the target URL
+   * @return the response body
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String delete(final String url) {
     return delete(requestBuilder(url, "DELETE").build());
   }
 
+  /**
+   * Sends an HTTP HEAD request to the given URL.
+   *
+   * @param url the target URL
+   * @return the response body
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String head(final String url) {
     return head(requestBuilder(url, "HEAD").build());
   }
 
+  /**
+   * Downloads the content at the given URL to the specified target path.
+   *
+   * @param url the source URL
+   * @param target the destination path
+   * @throws HttpException if the download fails or returns an error status
+   */
   public static void download(final String url, final Path target) {
     download(requestBuilder(url, "GET").build(), target);
   }
 
+  /**
+   * Sends the given HTTP request and returns the response body as a string.
+   *
+   * @param request the request to send
+   * @return the response body, or {@code null} if {@code request} is {@code null}
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String get(final HttpRequest request) {
     if (request == null) {
       return null;
@@ -130,6 +213,13 @@ public final class HttpUtil {
     }
   }
 
+  /**
+   * Sends the given HTTP request and returns the response body as a string.
+   *
+   * @param request the request to send
+   * @return the response body, or {@code null} if {@code request} is {@code null}
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String put(final HttpRequest request) {
     if (request == null) {
       return null;
@@ -146,6 +236,13 @@ public final class HttpUtil {
     }
   }
 
+  /**
+   * Sends the given HTTP request and returns the response body as a string.
+   *
+   * @param request the request to send
+   * @return the response body, or {@code null} if {@code request} is {@code null}
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String post(final HttpRequest request) {
     if (request == null) {
       return null;
@@ -162,6 +259,13 @@ public final class HttpUtil {
     }
   }
 
+  /**
+   * Sends the given HTTP request and returns the response body as a string.
+   *
+   * @param request the request to send
+   * @return the response body, or {@code null} if {@code request} is {@code null}
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String patch(final HttpRequest request) {
     if (request == null) {
       return null;
@@ -178,6 +282,13 @@ public final class HttpUtil {
     }
   }
 
+  /**
+   * Sends the given HTTP request and returns the response body as a string.
+   *
+   * @param request the request to send
+   * @return the response body, or {@code null} if {@code request} is {@code null}
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String delete(final HttpRequest request) {
     if (request == null) {
       return null;
@@ -194,6 +305,13 @@ public final class HttpUtil {
     }
   }
 
+  /**
+   * Sends the given HTTP request and returns the response body as a string.
+   *
+   * @param request the request to send
+   * @return the response body, or {@code null} if {@code request} is {@code null}
+   * @throws HttpException if the request fails or returns an error status
+   */
   public static String head(final HttpRequest request) {
     if (request == null) {
       return null;
@@ -210,6 +328,13 @@ public final class HttpUtil {
     }
   }
 
+  /**
+   * Downloads the response content for the given request to the specified target path.
+   *
+   * @param request the request to send
+   * @param target the destination path
+   * @throws HttpException if the download fails or returns an error status
+   */
   public static void download(final HttpRequest request, final Path target) {
     if (request == null) {
       return;
@@ -237,10 +362,10 @@ public final class HttpUtil {
   }
 
   /**
-   * Check if a URL is accessible (returns 2xx status).
+   * Checks whether a URL is accessible by performing a HEAD request.
    *
    * @param url the URL to check
-   * @return true if accessible
+   * @return {@code true} if the request succeeds with a 2xx status code
    */
   public static boolean isAccessible(final String url) {
     try {

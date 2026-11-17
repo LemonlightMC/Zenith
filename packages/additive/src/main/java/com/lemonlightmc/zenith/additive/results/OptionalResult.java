@@ -336,20 +336,14 @@ public sealed interface OptionalResult<T, E> {
   <N> Result<N, E> map(Function<Optional<T>, ? extends N> function);
 
   /**
-   * If in success state, returns a {@code Result} containing the result of
-   * the given supplier, otherwise returns a {@code Result} containing the
-   * error value of this {@code OptionalResult}.
+   * If in success state, returns a {@code Result} containing the value provided by the given supplier, otherwise returns a {@code Result} containing the error value of this {@code OptionalResult}.
    *
-   * @param function the supplier to apply, if success state
-   * @param <N>      the type of the value returned from the mapping function
-   * @return a {@code Result} containing the result of the supplier, if
-   *         in success state, otherwise a {@code Result} containing the error
-   *         value
-   *         of this {@code OptionalResult}
-   * @throws NullPointerException if the given mapping function is
-   *                              {@code null} or returns {@code null}
+   * @param supplier the supplier providing the mapped success value
+   * @param <N>      the type of the mapped success value
+   * @return a {@code Result} containing the supplied value if in success state, otherwise a {@code Result} containing the error value of this {@code OptionalResult}
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
    */
-  <N> Result<N, E> map(final Supplier<? extends N> supplier);
+  <N> Result<N, E> map(Supplier<? extends N> supplier);
 
   /**
    * If in success state, returns a {@code OptionalResult} containing the
@@ -389,7 +383,14 @@ public sealed interface OptionalResult<T, E> {
    */
   BooleanResult<E> mapToBoolean(Function<Optional<T>, Boolean> function);
 
-  /** Replaces the optional success value without reading it. */
+  /**
+   * Replaces the optional success value with a value provided by the given supplier without reading the original value.
+   *
+   * @param supplier the supplier providing the replacement success value
+   * @param <N>      the type of the replacement success value
+   * @return a {@code Result} containing the supplied value if in success state, otherwise a {@code Result} containing the error value
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
+   */
   default <N> Result<N, E> replace(final Supplier<? extends N> supplier) {
     Objects.requireNonNull(supplier);
     return map(ignored -> supplier.get());
@@ -483,7 +484,16 @@ public sealed interface OptionalResult<T, E> {
   <N> Result<N, E> flatMap(
       Function<Optional<T>, Result<? extends N, ? extends E>> function);
 
-  /** Flat-maps a successful result with an additional argument. */
+  /**
+   * Flat-maps a successful result using the given function and an additional argument.
+   *
+   * @param function the mapping function to apply to the optional success value and argument
+   * @param argument the additional argument passed to the mapping function
+   * @param <N>      the type of the success value in the returned result
+   * @param <U>      the type of the additional argument
+   * @return the result returned by the mapping function if in success state, otherwise a result containing the error value
+   * @throws NullPointerException if the given function is {@code null} or returns {@code null}
+   */
   default <N, U> Result<N, E> flatMap(
       final BiFunction<Optional<T>, ? super U, Result<? extends N, ? extends E>> function,
       final U argument) {
@@ -491,7 +501,14 @@ public sealed interface OptionalResult<T, E> {
     return flatMap(value -> function.apply(value, argument));
   }
 
-  /** Flat-maps a successful result to a supplied result. */
+  /**
+   * Flat-maps a successful result to a result provided by the given supplier.
+   *
+   * @param supplier the supplier providing the replacement result
+   * @param <N>      the type of the success value in the returned result
+   * @return the result returned by the supplier if in success state, otherwise a result containing the error value
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
+   */
   default <N> Result<N, E> flatMap(
       final Supplier<? extends Result<? extends N, ? extends E>> supplier) {
     Objects.requireNonNull(supplier);
@@ -621,7 +638,14 @@ public sealed interface OptionalResult<T, E> {
   OptionalResult<Boolean, E> flatMapValueWithBooleanResult(
       Function<? super T, BooleanResult<? extends E>> function);
 
-  /** Replaces this result with a supplied result when in success state. */
+  /**
+   * Replaces a successful result with a result provided by the given supplier.
+   *
+   * @param supplier the supplier providing the replacement result
+   * @param <N>      the type of the success value in the returned result
+   * @return the result returned by the supplier if in success state, otherwise a result containing the error value
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
+   */
   default <N> Result<N, E> flatReplace(
       final Supplier<Result<? extends N, ? extends E>> supplier) {
     Objects.requireNonNull(supplier);
@@ -1095,18 +1119,34 @@ public sealed interface OptionalResult<T, E> {
    */
   Optional<T> orElseGet(Function<? super E, ? extends Optional<T>> function);
 
-  /** Returns the optional success value or a supplied fallback. */
+  /**
+   * Returns the optional success value or a fallback provided by the given supplier.
+   *
+   * @param supplier the supplier providing the fallback optional value
+   * @return the optional success value if in success state, otherwise the supplied fallback value
+   * @throws NullPointerException if the given supplier is {@code null}
+   */
   default Optional<T> orElse(final Supplier<? extends Optional<T>> supplier) {
     Objects.requireNonNull(supplier);
     return orElseGet(ignored -> supplier.get());
   }
 
-  /** Returns the optional success value or maps the error to a fallback. */
+  /**
+   * Returns the optional success value or a fallback mapped from the error value.
+   *
+   * @param function the mapping function applied to the error value
+   * @return the optional success value if in success state, otherwise the mapped fallback value
+   * @throws NullPointerException if the given function is {@code null}
+   */
   default Optional<T> orElse(final Function<? super E, ? extends Optional<T>> function) {
     return orElseGet(function);
   }
 
-  /** Returns the optional success value, or an empty optional on error. */
+  /**
+   * Returns the optional success value, or an empty optional if this result is in error state.
+   *
+   * @return the optional success value if in success state, otherwise an empty optional
+   */
   default Optional<T> get() {
     return orElse(Optional.empty());
   }
@@ -1139,29 +1179,56 @@ public sealed interface OptionalResult<T, E> {
   <X extends Throwable> Optional<T> orElseThrow(
       Function<? super E, ? extends X> function) throws X;
 
-  /** Returns the optional success value or throws the mapped exception. */
+  /**
+   * Returns the optional success value or throws an exception mapped from the error value.
+   *
+   * @param function the mapping function producing the exception to throw
+   * @param <X>      the type of the exception to be thrown
+   * @return the optional success value if in success state
+   * @throws X                    if this result is in error state
+   * @throws NullPointerException if the given function is {@code null} or returns {@code null}
+   */
   default <X extends Throwable> Optional<T> getOrThrow(
       final Function<? super E, ? extends X> function) throws X {
     return orElseThrow(function);
   }
 
-  /** Returns the optional success value or throws an IllegalStateException. */
+  /**
+   * Returns the optional success value or throws an {@link IllegalStateException} with the given message.
+   *
+   * @param message the detail message prefix for the thrown exception
+   * @return the optional success value if in success state
+   * @throws IllegalStateException if this result is in error state
+   * @throws NullPointerException  if the given message is {@code null}
+   */
   default Optional<T> getOrThrow(final String message) {
     Objects.requireNonNull(message);
     return orElseThrow(error -> new IllegalStateException(message + ": " + error));
   }
 
-  /** Returns whether this result is in success state, including empty state. */
+  /**
+   * Returns whether this result is in success state, including empty state.
+   *
+   * @return {@code true} if this result is in success or empty state, otherwise {@code false}
+   */
   default boolean isSuccess() {
     return fold(value -> true, error -> false);
   }
 
-  /** Returns whether this result is in error state. */
+  /**
+   * Returns whether this result is in error state.
+   *
+   * @return {@code true} if this result is in error state, otherwise {@code false}
+   */
   default boolean isError() {
     return !isSuccess();
   }
 
-  /** Returns a stream containing the success value, if present. */
+  /**
+   * Returns a stream containing the success value, if present.
+   *
+   * @return a stream containing the success value if present, otherwise an empty stream
+   */
   default Stream<T> stream() {
     return fold(Optional::stream, error -> Stream.empty());
   }
@@ -1213,8 +1280,21 @@ public sealed interface OptionalResult<T, E> {
    */
   VoidResult<E> toVoidResult();
 
+  /**
+   * An {@link OptionalResult} implementation representing a non-empty success state.
+   *
+   * @param value the success value
+   * @param <S>   the type of the success value
+   * @param <ERR> the type of the error value
+   */
   record Value<S, ERR>(S value) implements OptionalResult<S, ERR> {
 
+    /**
+     * Creates a new non-empty success result.
+     *
+     * @param value the success value, which must be non-{@code null}
+     * @throws NullPointerException if the given value is {@code null}
+     */
     public Value(final S value) {
       this.value = Objects.requireNonNull(value);
     }
@@ -1579,6 +1659,12 @@ public sealed interface OptionalResult<T, E> {
     }
   }
 
+  /**
+   * An {@link OptionalResult} implementation representing an empty success state.
+   *
+   * @param <S>   the type of the success value
+   * @param <ERR> the type of the error value
+   */
   record Empty<S, ERR>() implements OptionalResult<S, ERR> {
 
     @Override
@@ -1932,6 +2018,13 @@ public sealed interface OptionalResult<T, E> {
     }
   }
 
+  /**
+   * An {@link OptionalResult} implementation representing an error state.
+   *
+   * @param error the error value
+   * @param <S>   the type of the success value
+   * @param <ERR> the type of the error value
+   */
   record Error<S, ERR>(ERR error) implements OptionalResult<S, ERR> {
 
     @Override

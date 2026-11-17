@@ -6,6 +6,9 @@ import com.lemonlightmc.zenith.additive.interfaces.Builder;
 import com.lemonlightmc.zenith.additive.math.MathUtils;
 import com.lemonlightmc.zenith.apis.SoundAPI;;
 
+/**
+ * Base type for playable sound content with common playback properties.
+ */
 public abstract class Playable implements Cloneable {
 
   protected SoundCategory source = SoundAPI.DEFAULT_SOURCE;
@@ -136,6 +139,9 @@ public abstract class Playable implements Cloneable {
         + panning + ", isStereo=" + isStereo + "]";
   }
 
+  /**
+   * Base builder for configuring {@link Playable} instances.
+   */
   public static abstract class PlayableBuilder implements Builder<Playable> {
     protected SoundCategory source = SoundAPI.DEFAULT_SOURCE;
     protected double volume = SoundAPI.DEFAULT_VOLUME;

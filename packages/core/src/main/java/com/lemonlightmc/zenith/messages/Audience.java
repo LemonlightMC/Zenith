@@ -15,6 +15,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * Bukkit command-sender audience with lazy permission and requirement filtering.
+ */
 public class Audience implements IAudience<CommandSender> {
 
   private final Set<CommandSender> viewers;
@@ -22,35 +25,70 @@ public class Audience implements IAudience<CommandSender> {
   private final Set<Predicate<CommandSender>> requirements = new HashSet<>();
   private boolean isFiltered = false;
 
+  /**
+   * Creates an empty audience.
+   */
   public Audience() {
     this.viewers = Collections.newSetFromMap(new ConcurrentHashMap<>());
   }
 
+  /**
+   * Creates an audience containing the given viewers.
+   *
+   * @param viewers initial viewers
+   */
   public Audience(final Collection<CommandSender> viewers) {
     this.viewers = Collections.newSetFromMap(new ConcurrentHashMap<>());
     this.viewers.addAll(viewers);
   }
 
+  /**
+   * Creates an audience containing the given viewers.
+   *
+   * @param viewers initial viewers
+   */
   public Audience(final CommandSender[] viewers) {
     this.viewers = Collections.newSetFromMap(new ConcurrentHashMap<>());
     this.viewers.addAll(List.of(viewers));
   }
 
+  /**
+   * Creates an audience containing a single viewer.
+   *
+   * @param viewer initial viewer
+   */
   public Audience(final CommandSender viewer) {
     this.viewers = Collections.newSetFromMap(new ConcurrentHashMap<>());
     this.viewers.add(viewer);
   }
 
+  /**
+   * Creates an audience containing all currently online players.
+   *
+   * @return an audience of online players
+   */
   public static Audience onlinePlayers() {
     Audience a = new Audience();
     a.addViewers(Bukkit.getOnlinePlayers().toArray(CommandSender[]::new));
     return a;
   }
 
+  /**
+   * Creates an audience for a single player.
+   *
+   * @param p player to include
+   * @return an audience containing the player
+   */
   public static Audience player(Player p) {
     return new Audience(p);
   }
 
+  /**
+   * Creates an audience for a single command sender.
+   *
+   * @param p sender to include
+   * @return an audience containing the sender
+   */
   public static Audience sender(CommandSender p) {
     return new Audience(p);
   }

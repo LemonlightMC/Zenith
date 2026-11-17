@@ -5,121 +5,112 @@ import org.bukkit.scheduler.BukkitTask;
 
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler.ThreadContext;
 
+/**
+ * Represents a task scheduled through the Zenith scheduler abstraction.
+ */
 public interface ScheduledTask {
 
   /**
-   * Returns the Bukkit task ID of this task, or -1 if the task is not currently
-   * scheduled.
+   * Gets the Bukkit task id for this task.
    *
-   * @return the Bukkit task ID of this task, or -1 if the task is not currently
-   *         scheduled
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return the Bukkit task id, or {@code -1} if the task is not currently scheduled
    */
-  public int getTaskId();
+  int getTaskId();
 
   /**
-   * Returns the owning plugin of this task.
+   * Gets the plugin that owns this task.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return the owning plugin
    */
-  public Plugin getOwner();
+  Plugin getOwner();
 
   /**
-   * Returns the initial delay of this task, or 0 if the task is not currently
-   * scheduled or has no initial delay.
-   * 
-   * @throws IllegalStateException if the task is not currently scheduled
-   */
-  public long getDelay();
-
-  /**
-   * Returns the repeating interval of this task, or -1 if the task is not
-   * repeating.
+   * Gets the initial delay configured for this task.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return the delay in ticks, or {@code 0} if no delay was configured
    */
-  public long getInterval();
+  long getDelay();
 
   /**
-   * Returns the underlying BukkitTask backing this task.
+   * Gets the repeating interval configured for this task.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return the interval in ticks, or {@code -1} if the task is not repeating
    */
-  public BukkitTask getBacking();
+  long getInterval();
 
   /**
-   * Returns the thread context of this task.
+   * Gets the underlying Bukkit task backing this scheduled task.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return the backing Bukkit task
    */
-  public ThreadContext getThreadContext();
+  BukkitTask getBacking();
 
   /**
-   * Returns the number of times this task has been executed. For repeating tasks
-   * this will be incremented each time the task is executed, for non-repeating
-   * tasks this will be either 0 (not yet executed) or 1 (already executed).
+   * Gets the thread context in which this task executes.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return the thread context
    */
-  public int getTimesRan();
+  ThreadContext getThreadContext();
 
   /**
-   * Returns true if this task is currently running.
+   * Gets the number of times this task has been executed.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return the execution count
    */
-  public boolean isCancelled();
+  int getTimesRan();
 
   /**
-   * Cancels this task if it is currently scheduled. If the task is not currently
-   * scheduled, this method does nothing.
-   */
-  public void cancel();
-
-  /**
-   * Returns true if this task is currently scheduled and has not yet been
-   * cancelled.
-   */
-  public boolean isRunning();
-
-  /**
-   * Returns true if this task is currently scheduled and is waiting to be
-   * executed
-   * (i.e. it has not yet started executing).
-   */
-  public boolean isQueued();
-
-  /**
-   * Returns true if this task is currently scheduled and is executing on the main
-   * server thread.
+   * Checks whether this task has been cancelled.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return {@code true} if the task is cancelled; {@code false} otherwise
    */
-  public boolean isSync();
+  boolean isCancelled();
 
   /**
-   * Returns true if this task is currently scheduled and is executing
-   * asynchronously
-   * off the main server thread.
-   *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * Cancels this task if it is currently scheduled.
    */
-  public boolean isAsync();
+  void cancel();
 
   /**
-   * Returns true if this task is currently scheduled and has a non-zero initial
-   * delay.
+   * Checks whether this task is currently running.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return {@code true} if the task is running; {@code false} otherwise
    */
-  public boolean isDelayed();
+  boolean isRunning();
 
   /**
-   * Returns true if this task is currently scheduled and has a repeating
-   * interval.
+   * Checks whether this task is currently queued for execution.
    *
-   * @throws IllegalStateException if the task is not currently scheduled
+   * @return {@code true} if the task is queued; {@code false} otherwise
    */
-  public boolean isRepeating();
+  boolean isQueued();
+
+  /**
+   * Checks whether this task executes on the main server thread.
+   *
+   * @return {@code true} if the task is synchronous; {@code false} otherwise
+   */
+  boolean isSync();
+
+  /**
+   * Checks whether this task executes asynchronously off the main server thread.
+   *
+   * @return {@code true} if the task is asynchronous; {@code false} otherwise
+   */
+  boolean isAsync();
+
+  /**
+   * Checks whether this task was scheduled with an initial delay.
+   *
+   * @return {@code true} if the task has a non-zero delay; {@code false} otherwise
+   */
+  boolean isDelayed();
+
+  /**
+   * Checks whether this task is scheduled to repeat.
+   *
+   * @return {@code true} if the task repeats; {@code false} otherwise
+   */
+  boolean isRepeating();
 
 }

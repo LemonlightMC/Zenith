@@ -15,6 +15,9 @@ import java.util.List;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 
+/**
+ * Provides file reading, writing, copying, moving, and stream-creation operations.
+ */
 class FileOperations extends FileDatas {
 
   public static String readString(final Path path) {

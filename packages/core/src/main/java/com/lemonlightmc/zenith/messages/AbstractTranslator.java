@@ -5,11 +5,23 @@ import java.util.Locale;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.version.Version;
 
+/**
+ * Base implementation of {@link Translator} with shared locale, version, and author metadata.
+ */
 public abstract class AbstractTranslator implements Translator {
   protected Locale locale;
   protected Version version;
   protected String author;
 
+  /**
+   * Creates a translator with parsed locale, version, and author metadata.
+   *
+   * @param locale locale identifier to parse
+   * @param defaultLocale fallback locale when parsing fails
+   * @param version translation bundle version
+   * @param author translation author, or {@code null} if unavailable
+   * @throws IllegalArgumentException if the locale or version cannot be resolved
+   */
   public AbstractTranslator(final String locale, final Locale defaultLocale, final String version,
       final String author) {
     if (locale == null || locale.isBlank()) {
@@ -29,6 +41,12 @@ public abstract class AbstractTranslator implements Translator {
     this.author = author == null || author.isBlank() ? null : author;
   }
 
+  /**
+   * Creates a translator by copying metadata from another translator.
+   *
+   * @param translator source translator
+   * @throws IllegalArgumentException if the source translator is {@code null}
+   */
   public AbstractTranslator(final Translator translator) {
     if (translator == null) {
       throw new IllegalArgumentException("Translator cannot be null when cloning!");
@@ -38,20 +56,35 @@ public abstract class AbstractTranslator implements Translator {
     this.author = translator.author();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public abstract String translate(final String key);
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public abstract boolean canTranslate(final String key);
 
+  /**
+   * {@inheritDoc}
+   */
   public String author() {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Locale locale() {
     return locale;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Version version() {
     return version;
   }

@@ -22,22 +22,40 @@ import org.spongepowered.configurate.serialize.SerializationException;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
+/**
+ * Builder for creating and configuring {@link BossBar} instances.
+ *
+ * <p>The builder supports static boss bar properties as well as optional timed update behavior.
+ */
 public class BossBarBuilder implements Builder<BossBar>, Cloneable<BossBarBuilder> {
 
+    /** Serializer for boss bar configuration nodes. */
     public static final BossBarSerializer SERIALIZER = new BossBarSerializer();
 
+    /** The namespaced key for the built boss bar. */
     private NamespacedKey key;
+    /** The title displayed by the built boss bar. */
     private String title;
+    /** The color applied to the built boss bar. */
     private BarColor color = BossBar.DEFAULT_COLOR;
+    /** The style applied to the built boss bar. */
     private BarStyle style = BossBar.DEFAULT_STYLE;
+    /** The visibility state of the built boss bar. */
     private boolean visible = BossBar.DEFAULT_VISIBILITY;
+    /** The progress value of the built boss bar. */
     private double progress = BossBar.DEFAULT_PROGRESS;
+    /** The flags applied to the built boss bar. */
     private Set<BarFlag> flags = new HashSet<>();
+    /** The initial players associated with the built boss bar. */
     private List<Player> players = new ArrayList<>();
 
+    /** The update interval used by an attached timer, if configured. */
     private long interval = -1;
+    /** The total duration used by an attached timer, if configured. */
     private long duration = -1;
+    /** The update callback invoked by an attached timer, if configured. */
     private Consumer<BossBar> consumer;
+    /** The initial delay used by an attached timer, if configured. */
     private long delay = 0;
 
     public BossBarBuilder(final NamespacedKey key) {

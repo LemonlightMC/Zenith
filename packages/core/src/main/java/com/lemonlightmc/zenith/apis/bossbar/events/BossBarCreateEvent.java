@@ -9,17 +9,31 @@ import com.lemonlightmc.zenith.apis.bossbar.BossBar;
  */
 public class BossBarCreateEvent extends BossBarChangedEvent {
 
+  /** The Bukkit handler list for this event type. */
   private static final HandlerList handlers = new HandlerList();
 
+  /**
+   * Creates a new boss bar create event.
+   *
+   * @param bossBar the created boss bar
+   */
   public BossBarCreateEvent(final BossBar bossBar) {
     super(bossBar);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public HandlerList getHandlers() {
     return handlers;
   }
 
+  /**
+   * Returns the Bukkit handler list for this event type.
+   *
+   * @return the handler list
+   */
   public static HandlerList getHandlerList() {
     return handlers;
   }

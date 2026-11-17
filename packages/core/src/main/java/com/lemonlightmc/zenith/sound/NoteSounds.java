@@ -8,6 +8,9 @@ import org.bukkit.NamespacedKey;
 
 import com.lemonlightmc.zenith.apis.SoundAPI;
 
+/**
+ * Registry-backed note block sound definitions for built-in instruments.
+ */
 public class NoteSounds extends Sound {
 
   public static NoteSounds NOTE_PIANO = new NoteSounds(0, "NOTE_PIANO", "minecraft:block.note_block.harp", "NOTE_PIANO",

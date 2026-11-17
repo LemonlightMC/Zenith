@@ -11,6 +11,9 @@ import org.bukkit.ChatColor;
 
 import com.lemonlightmc.zenith.additive.Lazy;
 
+/**
+ * Provides access to server tick-per-second averages when available.
+ */
 public class Tps {
 
   private static final Lazy<Supplier<double[]>> SUPPLIER = Lazy.of(() -> {

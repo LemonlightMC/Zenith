@@ -18,7 +18,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /**
- * Builder utilities for creating GSON Objects/Arrays.
+ * Builder utilities for creating Gson {@link JsonObject} and {@link JsonArray} instances.
+ *
+ * <p>The class provides fluent builders, primitive helpers, and collectors for common JSON construction patterns.
  */
 public final class JsonBuilder {
 

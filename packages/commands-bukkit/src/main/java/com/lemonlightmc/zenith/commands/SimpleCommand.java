@@ -19,30 +19,61 @@ import com.lemonlightmc.zenith.commands.executors.RootCommand;
 import com.lemonlightmc.zenith.exceptions.PlatformException;
 import com.lemonlightmc.zenith.utils.ServerPlatform;
 
+/**
+ * Bukkit-backed root command implementation for building, registering, and executing Zenith commands.
+ */
 public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 
   private NamespacedKey key = null;
   private String[] usageDescription;
   private String helpMessage;
 
+  /**
+   * Creates a new command with the given namespaced key.
+   *
+   * @param key the command key
+   * @throws InvalidCommandNameException if the provided key is invalid
+   */
   public SimpleCommand(final NamespacedKey key) {
     super();
     setName(key);
   }
 
+  /**
+   * Returns this command instance.
+   *
+   * @return this command
+   */
   @Override
   public SimpleCommand getInstance() {
     return this;
   }
 
+  /**
+   * Creates a new simple command with the given namespaced key.
+   *
+   * @param key the command key
+   * @return a new simple command
+   */
   public static SimpleCommand create(final NamespacedKey key) {
     return new SimpleCommand(key);
   }
 
+  /**
+   * Creates a new subcommand with the given aliases.
+   *
+   * @param aliases the subcommand aliases
+   * @return a new subcommand builder
+   */
   public static SimpleSubCommand<CommandSender> subCommand(final String... aliases) {
     return new SimpleSubCommand<CommandSender>(aliases);
   }
 
+  /**
+   * Builds and registers this command with the server.
+   *
+   * @return this command
+   */
   @Override
   public SimpleCommand register() {
     build();
@@ -50,32 +81,65 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return this;
   }
 
+  /**
+   * Unregisters this command from the server.
+   *
+   * @return this command
+   */
   @Override
   public SimpleCommand unregister() {
     CommandAPI.unregister(this);
     return this;
   }
 
+  /**
+   * Checks whether this command is currently registered.
+   *
+   * @return {@code true} if the command is registered; {@code false} otherwise
+   */
   @Override
   public boolean isRegistered() {
     return CommandAPI.isRegistered(key.toString());
   }
 
+  /**
+   * Returns the namespace of this command.
+   *
+   * @return the command namespace
+   */
   @Override
   public String getNamespace() {
     return key.getNamespace();
   }
 
+  /**
+   * Returns the key portion of this command's name.
+   *
+   * @return the command key
+   */
   @Override
   public String getKey() {
     return key.getKey();
   }
 
+  /**
+   * Returns the namespaced key identifying this command.
+   *
+   * @return the command name
+   */
   @Override
   public NamespacedKey getName() {
     return key;
   }
 
+  /**
+   * Sets the namespaced key for this command.
+   *
+   * @param key the new command key
+   * @return this command
+   * @throws InvalidCommandNameException if the key is invalid
+   * @throws IllegalStateException if the command is already registered
+   */
   @Override
   public SimpleCommand setName(final NamespacedKey key) {
     if (this.key != null && this.key.equals(key)) {
@@ -96,41 +160,83 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return this;
   }
 
+  /**
+   * Updates the key portion of this command's namespaced name.
+   *
+   * @param key the new command key
+   * @return this command
+   */
   @Override
   public SimpleCommand setKey(final String key) {
     setName(new NamespacedKey(getNamespace(), key));
     return this;
   }
 
+  /**
+   * Updates the namespace portion of this command's namespaced name.
+   *
+   * @param namespace the new command namespace
+   * @return this command
+   */
   @Override
   public SimpleCommand setNamespacey(final String namespace) {
     setName(new NamespacedKey(namespace, getKey()));
     return this;
   }
 
+  /**
+   * Sets the usage description from a newline-separated string.
+   *
+   * @param usage the usage description
+   * @return this command
+   */
   @Override
   public SimpleCommand withUsage(final String usage) {
     this.usageDescription = usage.split("\n");
     return this;
   }
 
+  /**
+   * Sets the usage description lines for this command.
+   *
+   * @param usage the usage description lines
+   * @return this command
+   */
   @Override
   public SimpleCommand withUsage(final String... usage) {
     this.usageDescription = usage;
     return this;
   }
 
+  /**
+   * Sets the usage description lines for this command.
+   *
+   * @param usage the usage description lines
+   * @return this command
+   */
   @Override
   public SimpleCommand withUsage(final List<String> usage) {
     this.usageDescription = usage.toArray(String[]::new);
     return this;
   }
 
+  /**
+   * Returns the configured usage description lines.
+   *
+   * @return the usage description lines, or {@code null} if not set
+   */
   @Override
   public String[] getUsage() {
     return usageDescription;
   }
 
+  /**
+   * Sets the short and full help descriptions for this command.
+   *
+   * @param shortDesc the short description
+   * @param fullDesc the full description
+   * @return this command
+   */
   @Override
   public SimpleCommand withHelp(
       final String shortDesc,
@@ -140,101 +246,201 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return this;
   }
 
+  /**
+   * Sets the help message from multiple lines.
+   *
+   * @param help the help message lines
+   * @return this command
+   */
   @Override
   public SimpleCommand withHelp(final List<String> help) {
     this.helpMessage = String.join("\n", help);
     return this;
   }
 
+  /**
+   * Sets the help message for this command.
+   *
+   * @param help the help message
+   * @return this command
+   */
   @Override
   public SimpleCommand withHelp(final String help) {
     this.helpMessage = help;
     return this;
   }
 
+  /**
+   * Returns the configured help message as individual lines.
+   *
+   * @return the help message lines, or {@code null} if not set
+   */
   @Override
   public List<String> getHelp() {
     return helpMessage == null ? null : List.of(helpMessage.split("\n"));
   }
 
-  // Player command executor
+  /**
+   * Registers an executor for player senders.
+   *
+   * @param executor the player command executor
+   * @return this command
+   */
   public SimpleCommand executesPlayer(final PlayerCommandExecutor executor) {
     addExecutor(ExecutorType.PLAYER, executor);
     return getInstance();
   }
 
+  /**
+   * Registers an execution info handler for player senders.
+   *
+   * @param info the player execution info handler
+   * @return this command
+   */
   public SimpleCommand executesPlayer(final PlayerExecutionInfo info) {
     addExecutor(ExecutorType.PLAYER, info);
     return getInstance();
   }
 
-  // Entity command executor
+  /**
+   * Registers an executor for entity senders.
+   *
+   * @param executor the entity command executor
+   * @return this command
+   */
   public SimpleCommand executesEntity(final EntityCommandExecutor executor) {
     addExecutor(ExecutorType.ENTITY, executor);
     return getInstance();
   }
 
+  /**
+   * Registers an execution info handler for entity senders.
+   *
+   * @param info the entity execution info handler
+   * @return this command
+   */
   public SimpleCommand executesEntity(final EntityExecutionInfo info) {
     addExecutor(ExecutorType.ENTITY, info);
     return getInstance();
   }
 
-  // Command block command executor
+  /**
+   * Registers an executor for command block senders.
+   *
+   * @param executor the command block executor
+   * @return this command
+   */
   public SimpleCommand executesCommandBlock(final CommandBlockExecutor executor) {
     addExecutor(ExecutorType.BLOCK, executor);
     return getInstance();
   }
 
+  /**
+   * Registers an execution info handler for command block senders.
+   *
+   * @param info the command block execution info handler
+   * @return this command
+   */
   public SimpleCommand executesCommandBlock(final CommandBlockExecutionInfo info) {
     addExecutor(ExecutorType.BLOCK, info);
     return getInstance();
   }
 
-  // Console command executor
+  /**
+   * Registers an executor for console senders.
+   *
+   * @param executor the console command executor
+   * @return this command
+   */
   public SimpleCommand executesConsole(final ConsoleCommandExecutor executor) {
     addExecutor(ExecutorType.CONSOLE, executor);
     return getInstance();
   }
 
+  /**
+   * Registers an execution info handler for console senders.
+   *
+   * @param info the console execution info handler
+   * @return this command
+   */
   public SimpleCommand executesConsole(final ConsoleExecutionInfo info) {
     addExecutor(ExecutorType.CONSOLE, info);
     return getInstance();
   }
 
-  // RemoteConsole command executor
+  /**
+   * Registers an executor for remote console senders.
+   *
+   * @param executor the remote console command executor
+   * @return this command
+   */
   public SimpleCommand executesRemoteConsole(final RemoteConsoleCommandExecutor executor) {
     addExecutor(ExecutorType.REMOTE, executor);
     return getInstance();
   }
 
+  /**
+   * Registers an execution info handler for remote console senders.
+   *
+   * @param info the remote console execution info handler
+   * @return this command
+   */
   public SimpleCommand executesRemoteConsole(final RemoteConsoleExecutionInfo info) {
     addExecutor(ExecutorType.REMOTE, info);
     return getInstance();
   }
 
-  // Native command executor
+  /**
+   * Registers an executor for native senders.
+   *
+   * @param executor the native command executor
+   * @return this command
+   */
   public SimpleCommand executesNative(final NativeCommandExecutor executor) {
     addExecutor(ExecutorType.NATIVE, executor);
     return getInstance();
   }
 
+  /**
+   * Registers an execution info handler for native senders.
+   *
+   * @param info the native execution info handler
+   * @return this command
+   */
   public SimpleCommand executesNative(final NativeExecutionInfo info) {
     addExecutor(ExecutorType.NATIVE, info);
     return getInstance();
   }
 
-  // Proxy command executor
+  /**
+   * Registers an executor for proxied senders.
+   *
+   * @param executor the proxy command executor
+   * @return this command
+   */
   public SimpleCommand executesNative(final ProxyCommandExecutor executor) {
     addExecutor(ExecutorType.PROXY, executor);
     return getInstance();
   }
 
+  /**
+   * Registers an execution info handler for proxied senders.
+   *
+   * @param info the proxy execution info handler
+   * @return this command
+   */
   public SimpleCommand executesNative(final ProxyExecutionInfo info) {
     addExecutor(ExecutorType.PROXY, info);
     return getInstance();
   }
 
-  // Feedback-forwarding command executor
+  /**
+   * Registers a feedback-forwarding executor for Paper platforms.
+   *
+   * @param executor the feedback-forwarding executor
+   * @return this command
+   * @throws PlatformException if called on a non-Paper platform
+   */
   public SimpleCommand executesFeedbackForwarding(final FeedbackForwardingExecutor executor) {
     if (!ServerPlatform.isPaper()) {
       throw new PlatformException(
@@ -245,6 +451,13 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return getInstance();
   }
 
+  /**
+   * Registers a feedback-forwarding execution info handler for Paper platforms.
+   *
+   * @param info the feedback-forwarding execution info handler
+   * @return this command
+   * @throws PlatformException if called on a non-Paper platform
+   */
   public SimpleCommand executesFeedbackForwarding(final FeedbackForwardingExecutionInfo info) {
     if (!ServerPlatform.isPaper()) {
       throw new PlatformException(
@@ -255,6 +468,11 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     return getInstance();
   }
 
+  /**
+   * Prepares this command for registration by validating executors and populating default metadata.
+   *
+   * @throws MissingCommandExecutorException if no executors are configured
+   */
   void build() {
     if (!hasAnyExecutors()) {
       throw new MissingCommandExecutorException(getName().toString());

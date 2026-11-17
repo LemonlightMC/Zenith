@@ -8,8 +8,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Internal holder for version constraint implementations and parsing utilities.
+ */
 class VersionConstraintsHolder {
 
+  /**
+   * Represents a tilde version constraint.
+   *
+   * @param baseVersion the base version of the constraint
+   * @param original the original constraint string
+   */
   public static record TildeConstraint(Version baseVersion, String original) implements VersionConstraint2 {
 
     public TildeConstraint(final String versionStr) {
@@ -47,6 +56,12 @@ class VersionConstraintsHolder {
     }
   }
 
+  /**
+   * Represents a caret version constraint.
+   *
+   * @param baseVersion the base version of the constraint
+   * @param original the original constraint string
+   */
   public static record CaretConstraint(Version baseVersion, String original) implements VersionConstraint2 {
 
     public CaretConstraint(final String versionStr) {
@@ -80,6 +95,12 @@ class VersionConstraintsHolder {
     }
   }
 
+  /**
+   * Represents an exact version constraint.
+   *
+   * @param targetVersion the version that must be matched exactly
+   * @param original the original constraint string
+   */
   public static record ExactVersionConstraint(Version targetVersion, String original)
       implements VersionConstraint2 {
 

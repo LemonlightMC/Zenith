@@ -11,19 +11,38 @@ import org.bukkit.inventory.meta.FireworkMeta;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
+/**
+ * Mutable representation of a firework and its configured effects.
+ */
 public class Firework implements Cloneable<Firework>, ConfigurationSerializable {
   private List<FireworkEffect> effects;
   private int power;
 
+  /**
+   * Creates a firework with the given effects and power.
+   *
+   * @param effects the firework effects to include
+   * @param power the firework flight power
+   */
   public Firework(final List<FireworkEffect> effects, final int power) {
     this.effects = effects == null ? new ArrayList<>() : effects;
     this.power = power < 0 ? 1 : power;
   }
 
+  /**
+   * Creates a firework with the given effects and a default power of 1.
+   *
+   * @param effects the firework effects to include
+   */
   public Firework(final List<FireworkEffect> effects) {
     this(effects, 1);
   }
 
+  /**
+   * Creates a copy of another firework.
+   *
+   * @param firework the firework to copy
+   */
   public Firework(final Firework firework) {
     if (firework == null) {
       this.effects = new ArrayList<>();
@@ -34,6 +53,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     this.power = firework.power < 0 ? 1 : power;
   }
 
+  /**
+   * Spawns a firework entity at the given location.
+   *
+   * @param loc the location at which to spawn the firework
+   * @return the spawned firework entity, or {@code null} if the location is {@code null}
+   */
   public org.bukkit.entity.Firework spawnEntity(final Location loc) {
     if (loc == null) {
       return null;
@@ -48,6 +73,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return entity;
   }
 
+  /**
+   * Creates, but does not spawn, a firework entity at the given location.
+   *
+   * @param loc the location for the created firework entity
+   * @return the created firework entity, or {@code null} if the location is {@code null}
+   */
   public org.bukkit.entity.Firework toEntity(final Location loc) {
     if (loc == null) {
       return null;
@@ -62,14 +93,29 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return entity;
   }
 
+  /**
+   * Gets the configured firework effects.
+   *
+   * @return the firework effects
+   */
   public List<FireworkEffect> getEffects() {
     return effects;
   }
 
+  /**
+   * Checks whether this firework has any effects.
+   *
+   * @return {@code true} if at least one effect is configured
+   */
   public boolean hasEffects() {
     return effects != null && !effects.isEmpty();
   }
 
+  /**
+   * Removes all configured firework effects.
+   *
+   * @return this firework
+   */
   public Firework clearEffects() {
     if (effects != null) {
       effects.clear();
@@ -77,6 +123,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return this;
   }
 
+  /**
+   * Removes the specified firework effects.
+   *
+   * @param effects the effects to remove
+   * @return this firework
+   */
   public Firework removeEffects(final FireworkEffect... effects) {
     if (effects == null || effects.length == 0 || this.effects == null || this.effects.isEmpty()) {
       return this;
@@ -84,6 +136,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return removeEffects(List.of(effects));
   }
 
+  /**
+   * Removes the specified firework effects.
+   *
+   * @param effects the effects to remove
+   * @return this firework
+   */
   public Firework removeEffects(final List<FireworkEffect> effects) {
     if (effects == null || effects.isEmpty() || this.effects == null || this.effects.isEmpty()) {
       return this;
@@ -96,6 +154,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return this;
   }
 
+  /**
+   * Adds the specified firework effects.
+   *
+   * @param effects the effects to add
+   * @return this firework
+   */
   public Firework addEffects(final FireworkEffect... effects) {
     if (effects == null || effects.length == 0) {
       return this;
@@ -103,6 +167,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return addEffects(List.of(effects));
   }
 
+  /**
+   * Adds the specified firework effects.
+   *
+   * @param effects the effects to add
+   * @return this firework
+   */
   public Firework addEffects(final List<FireworkEffect> effects) {
     if (effects == null || effects.isEmpty()) {
       return this;
@@ -115,6 +185,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return this;
   }
 
+  /**
+   * Replaces the configured firework effects.
+   *
+   * @param effects the effects to set
+   * @return this firework
+   */
   public Firework setEffects(final FireworkEffect... effects) {
     if (effects != null && effects.length != 0) {
       this.effects = List.of(effects);
@@ -122,6 +198,12 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return this;
   }
 
+  /**
+   * Replaces the configured firework effects.
+   *
+   * @param effects the effects to set
+   * @return this firework
+   */
   public Firework setEffects(final List<FireworkEffect> effects) {
     if (effects == null || effects.isEmpty()) {
       return this;
@@ -130,19 +212,41 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return this;
   }
 
+  /**
+   * Gets the number of configured effects.
+   *
+   * @return the configured effect count
+   */
   public int effectCount() {
     return this.effects.size();
   }
 
+  /**
+   * Gets the firework flight power.
+   *
+   * @return the firework power
+   */
   public int getPower() {
     return this.power;
   }
 
+  /**
+   * Sets the firework flight power.
+   *
+   * @param power the firework power
+   * @return this firework
+   */
   public Firework setPower(final int power) {
     this.power = power;
     return this;
   }
 
+  /**
+   * Deserializes a firework from a configuration map.
+   *
+   * @param map the serialized firework data
+   * @return the deserialized firework
+   */
   public static Firework deserialize(final Map<String, Object> map) {
     return new Firework(deserializeEffectList(map.get("effects")), (int) map.get("power"));
   }
@@ -161,11 +265,21 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
     return effects;
   }
 
+  /**
+   * Serializes this firework into a configuration map.
+   *
+   * @return a serialized representation of this firework
+   */
   @Override
   public Map<String, Object> serialize() {
     return Map.<String, Object>of("effects", effects, "power", power);
   }
 
+  /**
+   * Creates a copy of this firework.
+   *
+   * @return a cloned firework
+   */
   @Override
   public Firework clone() {
     return new Firework(this);

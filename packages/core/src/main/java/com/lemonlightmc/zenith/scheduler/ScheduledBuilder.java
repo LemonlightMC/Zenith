@@ -8,13 +8,11 @@ import com.lemonlightmc.zenith.additive.interfaces.ParameterizedBuilder;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler.ThreadContext;
 
 /**
- * Builder utility for constructing and scheduling tasks with the
- * {@link Scheduler} implementations.
+ * Builder for configuring and scheduling tasks through a {@link Scheduler} implementation.
  *
- * <p>
- * Use the builder to select synchronous or asynchronous execution,
- * configure an initial delay and a repeating interval, and then call
- * {@link #run(Runnable)} or {@link #build(Runnable)} to schedule the task.
+ * <p>Use this builder to choose synchronous or asynchronous execution, configure an initial
+ * delay and a repeating interval, and then schedule the task with {@link #run(Runnable)} or
+ * {@link #build(Runnable)}.</p>
  */
 public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable<ScheduledTask>> {
   private ThreadContext context = ThreadContext.SYNC;
@@ -22,6 +20,12 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   private long interval = 0;
   private final Scheduler scheduler;
 
+  /**
+   * Creates a new scheduled task builder backed by the given scheduler.
+   *
+   * @param scheduler the scheduler used to schedule built tasks
+   * @throws IllegalArgumentException if {@code scheduler} is {@code null}
+   */
   ScheduledBuilder(final Scheduler scheduler) {
     if (scheduler == null) {
       throw new IllegalArgumentException("No Scheduler for the Builder was provided!");
@@ -30,8 +34,9 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Sets the execution context of the task to asynchronous. By default, tasks are
-   * scheduled to run synchronously.
+   * Configures the task to run asynchronously.
+   *
+   * @return this builder instance
    */
   public ScheduledBuilder async() {
     this.context = ThreadContext.ASYNC;
@@ -39,8 +44,9 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Sets the execution context of the task to synchronous. By default, tasks are
-   * scheduled to run synchronously.
+   * Configures the task to run synchronously.
+   *
+   * @return this builder instance
    */
   public ScheduledBuilder sync() {
     this.context = ThreadContext.SYNC;
@@ -48,11 +54,10 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Sets the initial delay before the task is first executed. By default, there
-   * is no initial delay.
-   * 
-   * @param ticks the initial delay before the task is first executed
-   * @return this builder instance for chaining
+   * Sets the initial delay before the task is first executed.
+   *
+   * @param ticks the initial delay in ticks
+   * @return this builder instance
    */
   public ScheduledBuilder delay(final long ticks) {
     this.delay = ticks;
@@ -60,13 +65,11 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Sets the initial delay before the task is first executed. By default, there
-   * is no initial delay.
-   * 
-   * @param delay the initial delay before the task is first executed
-   * 
-   * @param unit  the time unit of the delay parameter
-   * @return this builder instance for chaining
+   * Sets the initial delay before the task is first executed.
+   *
+   * @param delay the initial delay value
+   * @param unit the time unit of the delay value
+   * @return this builder instance
    */
   public ScheduledBuilder delay(final long delay, final TimeUnit unit) {
     this.delay = unit.toMillis(delay);
@@ -74,11 +77,10 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Sets the repeating interval between subsequent executions of the task. By
-   * default, tasks are not repeating.
-   * 
-   * @param ticks the repeating interval between subsequent executions of the task
-   * @return this builder instance for chaining
+   * Sets the repeating interval between subsequent task executions.
+   *
+   * @param ticks the repeating interval in ticks
+   * @return this builder instance
    */
   public ScheduledBuilder every(final long ticks) {
     this.interval = ticks;
@@ -86,13 +88,11 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Sets the repeating interval between subsequent executions of the task. By
-   * default, tasks are not repeating.
-   * 
-   * @param interval the repeating interval between subsequent executions of the
-   *                 task
-   * @param unit     the time unit of the interval parameter
-   * @return this builder instance for chaining
+   * Sets the repeating interval between subsequent task executions.
+   *
+   * @param interval the repeating interval value
+   * @param unit the time unit of the interval value
+   * @return this builder instance
    */
   public ScheduledBuilder every(final long interval, final TimeUnit unit) {
     this.interval = unit.toMillis(interval);
@@ -100,12 +100,10 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Runs the task with the provided Runnable. The returned ScheduledTask can be
-   * used to query the task's metadata and cancel it if necessary.
-   * 
-   * @param runnable the Runnable representing the task to be scheduled
-   * @return a ScheduledTask representing the scheduled task, or null if the
-   *         provided Runnable was null
+   * Schedules the provided runnable using the current builder configuration.
+   *
+   * @param runnable the task to schedule
+   * @return the scheduled task, or {@code null} if the scheduler cannot create one
    */
   public ScheduledTask run(final Runnable runnable) {
     if (this.context == ThreadContext.ASYNC) {
@@ -116,14 +114,11 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Runs the task with the provided consumer, which accepts the scheduled task as
-   * a parameter. This allows the consumer to query the task's metadata and
-   * cancel it if necessary.
-   * 
-   * @param consumer the Consumer representing the task to be scheduled, which
-   *                 accepts the scheduled task as a parameter
-   * @return a ScheduledTask representing the scheduled task, or null if the
-   *         provided Consumer was null
+   * Schedules a consumer-based task using the current builder configuration.
+   *
+   * <p>The scheduled task is passed to the consumer when it executes.</p>
+   *
+   * @param consumer the consumer to schedule
    */
   public void run(final Consumer<ScheduledTask> consumer) {
     if (this.context == ThreadContext.ASYNC) {
@@ -134,13 +129,10 @@ public class ScheduledBuilder implements ParameterizedBuilder<Runnable, Callable
   }
 
   /**
-   * Builds a Callable that can be used to schedule the task with the provided
-   * Runnable. The Callable will return the ScheduledTask instance representing
-   * the scheduled task when called.
-   * 
-   * @param runnable the Runnable representing the task to be scheduled
-   * @return a Callable that can be used to schedule the task, or null if the
-   *         provided Runnable was null
+   * Builds a callable that schedules the provided runnable when invoked.
+   *
+   * @param runnable the task to schedule
+   * @return a callable that produces the scheduled task
    */
   @Override
   public Callable<ScheduledTask> build(final Runnable runnable) {

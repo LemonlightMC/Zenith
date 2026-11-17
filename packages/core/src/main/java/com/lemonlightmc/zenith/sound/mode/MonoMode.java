@@ -7,6 +7,9 @@ import com.lemonlightmc.zenith.sound.Instrument;
 import com.lemonlightmc.zenith.sound.Note;
 import com.lemonlightmc.zenith.sound.Sound;
 
+/**
+ * Plays sounds in a single mono channel.
+ */
 public class MonoMode extends ChannelMode {
 
   @Override

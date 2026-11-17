@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.lemonlightmc.zenith.apis.SoundAPI;
 
+/**
+ * Represents a sequence of notes that can be played over time.
+ */
 public class Song extends Playable {
   protected PlayableMetadata meta;
   protected long length;

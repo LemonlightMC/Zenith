@@ -5,6 +5,9 @@ import org.bukkit.plugin.Plugin;
 
 import com.lemonlightmc.zenith.additive.Reflect;
 
+/**
+ * Utility methods for detecting common optional plugin integrations.
+ */
 public class Plugins {
 
   public static final String VAULT = "Vault";

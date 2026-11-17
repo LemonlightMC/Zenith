@@ -8,6 +8,9 @@ import com.google.gson.JsonObject;
 import com.lemonlightmc.zenith.additive.JsonUtil;
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
+/**
+ * Represents profile data retrieved from Mojang profile APIs.
+ */
 public class MojangProfile implements Cloneable<MojangProfile> {
   private final UUID uuid;
   private final String username;

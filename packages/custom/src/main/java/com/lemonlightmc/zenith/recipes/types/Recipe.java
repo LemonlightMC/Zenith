@@ -15,18 +15,36 @@ import com.lemonlightmc.zenith.recipes.Ingredients.ItemIngredient;
 import com.lemonlightmc.zenith.recipes.Ingredients.MaterialIngredient;
 import com.lemonlightmc.zenith.recipes.Ingredients.StrictItemIngredient;
 
+/**
+ * Base implementation for custom recipe definitions.
+ */
 public abstract class Recipe implements IRecipe {
 
+  /** The internal recipe name. */
   protected final String name;
+  /** The recipe type. */
   protected final RecipeType type;
+  /** The recipe result ingredient. */
   protected Ingredient output;
+  /** The recipe ingredients. */
   protected List<Ingredient> ingredients;
 
+  /**
+   * Creates a recipe with the given name and type.
+   *
+   * @param recipeName the internal recipe name
+   * @param type the recipe type
+   */
   public Recipe(final String recipeName, final RecipeType type) {
     this.name = recipeName;
     this.type = type;
   }
 
+  /**
+   * Returns the namespaced key for this recipe.
+   *
+   * @return the recipe key
+   */
   @Override
   public NamespacedKey getKey() {
     return type.getNamespacedKey(name);
@@ -135,6 +153,11 @@ public abstract class Recipe implements IRecipe {
     return this;
   }
 
+  /**
+   * Returns cloned item stacks for all recipe ingredients.
+   *
+   * @return the ingredient item stacks
+   */
   public List<ItemStack> getItemList() {
     final ArrayList<ItemStack> result = new ArrayList<ItemStack>(ingredients.size());
     for (final Ingredient ingredient : ingredients) {
@@ -143,6 +166,11 @@ public abstract class Recipe implements IRecipe {
     return result;
   }
 
+  /**
+   * Returns recipe choices for all recipe ingredients.
+   *
+   * @return the ingredient recipe choices
+   */
   public List<RecipeChoice> getChoiceList() {
     final List<RecipeChoice> result = new ArrayList<>(ingredients.size());
     for (final Ingredient ingredient : ingredients) {

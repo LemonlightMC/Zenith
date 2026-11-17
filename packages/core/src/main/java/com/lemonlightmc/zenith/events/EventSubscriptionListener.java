@@ -14,6 +14,11 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
 
+/**
+ * Runtime listener that executes a configured event subscription.
+ *
+ * @param <T> the event type handled by this subscription
+ */
 public class EventSubscriptionListener<T extends Event> implements EventExecutor, Listener {
 
   private final Class<T> eventClass;
@@ -50,6 +55,12 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
     EventsAPI.register(this.eventClass, this, this.priority, this, false);
   }
 
+  /**
+   * Executes this subscription for an incoming Bukkit event.
+   *
+   * @param listener the Bukkit listener instance
+   * @param event the incoming event
+   */
   @Override
   public void execute(final Listener listener, final Event event) {
     // check we actually want this event
@@ -120,22 +131,47 @@ public class EventSubscriptionListener<T extends Event> implements EventExecutor
     }
   }
 
+  /**
+   * Returns the event class handled by this subscription.
+   *
+   * @return the handled event class
+   */
   public Class<T> getEventClass() {
     return this.eventClass;
   }
 
+  /**
+   * Returns whether this subscription is currently active.
+   *
+   * @return {@code true} if active; {@code false} otherwise
+   */
   public boolean isActive() {
     return this.active.get();
   }
 
+  /**
+   * Returns whether this subscription has been closed.
+   *
+   * @return {@code true} if closed; {@code false} otherwise
+   */
   public boolean isClosed() {
     return !this.active.get();
   }
 
+  /**
+   * Returns the number of times handlers were successfully invoked.
+   *
+   * @return the handled call count
+   */
   public long getCallCounter() {
     return this.callCount.get();
   }
 
+  /**
+   * Unregisters this subscription listener.
+   *
+   * @return {@code true} if the subscription was active and is now unregistered; {@code false} if already inactive
+   */
   public boolean unregister() {
     if (!this.active.getAndSet(false)) {
       return false;

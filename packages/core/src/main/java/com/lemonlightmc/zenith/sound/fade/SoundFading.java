@@ -3,6 +3,9 @@ package com.lemonlightmc.zenith.sound.fade;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.apis.SoundAPI;
 
+/**
+ * Defines how a sound's volume transitions over time.
+ */
 public abstract class SoundFading {
 
   protected double duration;
@@ -50,6 +53,9 @@ public abstract class SoundFading {
     return v;
   }
 
+  /**
+   * Available sound fading implementations.
+   */
   public static enum SoundFadingType {
     NON(NoSoundFade.class),
     LINEAR(LinearSoundFade.class),

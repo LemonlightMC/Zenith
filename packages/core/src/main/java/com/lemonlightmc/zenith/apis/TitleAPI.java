@@ -17,11 +17,20 @@ import com.lemonlightmc.zenith.additive.math.MathUtils;
 import com.lemonlightmc.zenith.additive.time.Ticks;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 
+/**
+ * Provides utility methods for building and sending titles and subtitles to players.
+ *
+ * <p>The API supports direct send/broadcast helpers as well as builder and value types for reusable title
+ * configurations.
+ */
 // TODO: Rework Title API for V1.1
 public class TitleAPI {
 
+  /** The default title fade-in duration in ticks. */
   public static final int DEFAULT_FADEIN = 10;
+  /** The default title stay duration in ticks. */
   public static final int DEFAULT_STAY = 70;
+  /** The default title fade-out duration in ticks. */
   public static final int DEFAULT_FADEOUT = 20;
 
   public static TitleBuilder builder() {
@@ -136,11 +145,19 @@ public class TitleAPI {
     TitleInfo.subtitle(msg, fadeIn, stay, fadeOut, replaceables).send(p);
   }
 
+  /**
+   * Immutable-style container for title content and timing information.
+   */
   public static class TitleInfo {
+    /** The fade-in duration in ticks. */
     private int fadeIn;
+    /** The stay duration in ticks. */
     private int stay;
+    /** The fade-out duration in ticks. */
     private int fadeOut;
+    /** The formatted main title text. */
     private String title;
+    /** The formatted subtitle text. */
     private String subtitle;
 
     public TitleInfo(final TitleBuilder builder) {
@@ -352,12 +369,21 @@ public class TitleAPI {
 
   }
 
+  /**
+   * Builder for constructing {@link TitleInfo} instances with configurable content and timing.
+   */
   public static class TitleBuilder {
+    /** The fade-in duration in ticks. */
     private int fadeIn;
+    /** The stay duration in ticks. */
     private int stay;
+    /** The fade-out duration in ticks. */
     private int fadeOut;
+    /** The main title text. */
     private String title;
+    /** The subtitle text. */
     private String subtitle;
+    /** Replacement values applied when building the title. */
     private Replaceable[] replaceables;
 
     public TitleBuilder() {

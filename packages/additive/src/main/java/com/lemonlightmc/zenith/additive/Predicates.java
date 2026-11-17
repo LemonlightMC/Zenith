@@ -12,11 +12,12 @@ public final class Predicates {
    * Returns a predicate which takes the input, passes it through the given
    * function, and then obtains a result from the delegate predicate.
    *
-   * @param function  the function to map the input
+   * @param function the function to map the input
    * @param predicate the predicate to test the result of the mapping
-   * @param <A>       the input type
-   * @param <B>       the tested type
+   * @param <A> the input type
+   * @param <B> the tested type
    * @return a composed predicate
+   * @throws IllegalArgumentException if {@code function} or {@code predicate} is {@code null}
    */
   public static <A, B> Predicate<A> compose(Function<A, ? extends B> function, Predicate<B> predicate) {
     if (function == null) {
@@ -29,31 +30,31 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate which always returns true
+   * Returns a predicate which always returns {@code true}.
    *
    * @param <T> the type
-   * @return a predicate
+   * @return a predicate that always evaluates to {@code true}
    */
   public static <T> Predicate<T> alwaysTrue() {
     return ObjectPredicate.ALWAYS_TRUE.cast();
   }
 
   /**
-   * Returns a predicate which always returns false
+   * Returns a predicate which always returns {@code false}.
    *
    * @param <T> the type
-   * @return a predicate
+   * @return a predicate that always evaluates to {@code false}
    */
   public static <T> Predicate<T> alwaysFalse() {
     return ObjectPredicate.ALWAYS_FALSE.cast();
   }
 
   /**
-   * Returns a predicate which returns true if the input is null,
-   * false otherwise.
+   * Returns a predicate which returns {@code true} if the input is {@code null},
+   * {@code false} otherwise.
    *
    * @param <T> the type
-   * @return a predicate
+   * @return a predicate that tests for {@code null}
    */
   public static <T> Predicate<T> isNull() {
     return ObjectPredicate.IS_NULL.cast();
@@ -64,20 +65,20 @@ public final class Predicates {
    * function, and then evaluates the result against {@link #isNull()}.
    *
    * @param composeFunction the function to map the input
-   * @param <A>             the input type
-   * @param <B>             the tested type
-   * @return a predicate
+   * @param <A> the input type
+   * @param <B> the tested type
+   * @return a predicate that tests whether the mapped result is {@code null}
    */
   public static <A, B> Predicate<A> isNull(Function<A, ? extends B> composeFunction) {
     return compose(composeFunction, isNull());
   }
 
   /**
-   * Returns a predicate which returns false if the input is null,
-   * true otherwise.
+   * Returns a predicate which returns {@code false} if the input is {@code null},
+   * {@code true} otherwise.
    *
    * @param <T> the type
-   * @return a predicate
+   * @return a predicate that tests for non-{@code null}
    */
   public static <T> Predicate<T> notNull() {
     return ObjectPredicate.NOT_NULL.cast();
@@ -88,22 +89,22 @@ public final class Predicates {
    * function, and then evaluates the result against {@link #notNull()}.
    *
    * @param composeFunction the function to map the input
-   * @param <A>             the input type
-   * @param <B>             the tested type
-   * @return a predicate
+   * @param <A> the input type
+   * @param <B> the tested type
+   * @return a predicate that tests whether the mapped result is non-{@code null}
    */
   public static <A, B> Predicate<A> notNull(Function<A, ? extends B> composeFunction) {
     return compose(composeFunction, notNull());
   }
 
   /**
-   * Returns a predicate which returns true if the target is
-   * {@link Object#equals(Object)} to the input. If the target is null,
-   * the predicate returns true if the input is also null, false otherwise.
+   * Returns a predicate which returns {@code true} if the target is
+   * {@link Object#equals(Object)} to the input. If the target is {@code null},
+   * the predicate returns {@code true} if the input is also {@code null}, {@code false} otherwise.
    *
    * @param target the target object to compare against
-   * @param <T>    the type
-   * @return a predicate
+   * @param <T> the type
+   * @return a predicate that tests equality against the target
    */
   public static <T> Predicate<T> equalTo(Object target) {
     return target == null ? (o) -> o == null : target::equals;
@@ -114,22 +115,22 @@ public final class Predicates {
    * function, and then evaluates the result against {@link #equalTo(Object)}.
    *
    * @param composeFunction the function to map the input
-   * @param target          the target object to compare against
-   * @param <A>             the input type
-   * @param <B>             the tested type
-   * @return a predicate
+   * @param target the target object to compare against
+   * @param <A> the input type
+   * @param <B> the tested type
+   * @return a predicate that tests whether the mapped result equals the target
    */
   public static <A, B> Predicate<A> equalTo(Function<A, ? extends B> composeFunction, Object target) {
     return compose(composeFunction, equalTo(target));
   }
 
   /**
-   * Returns a predicate which returns true if the input is contained within
+   * Returns a predicate which returns {@code true} if the input is contained within
    * the given collection.
    *
    * @param collection the collection to query
-   * @param <T>        the type
-   * @return a predicate
+   * @param <T> the type
+   * @return a predicate that tests membership in the collection
    */
   public static <T> Predicate<T> in(Collection<? extends T> collection) {
     return collection::contains;
@@ -140,22 +141,22 @@ public final class Predicates {
    * function, and then evaluates the result against {@link #in(Collection)}.
    *
    * @param composeFunction the function to map the input
-   * @param collection      the collection to query
-   * @param <A>             the input type
-   * @param <B>             the tested type
-   * @return a predicate
+   * @param collection the collection to query
+   * @param <A> the input type
+   * @param <B> the tested type
+   * @return a predicate that tests whether the mapped result is contained in the collection
    */
   public static <A, B> Predicate<A> in(Function<A, ? extends B> composeFunction, Collection<? extends B> collection) {
     return compose(composeFunction, in(collection));
   }
 
   /**
-   * Returns a predicate which returns true if the input is contained within
+   * Returns a predicate which returns {@code true} if the input is contained within
    * the given var args.
    *
    * @param args the array to query
-   * @param <T>  the type
-   * @return a predicate
+   * @param <T> the type
+   * @return a predicate that tests membership in the provided values
    */
   @SafeVarargs
   public static <T> Predicate<T> in(T... args) {
@@ -182,10 +183,10 @@ public final class Predicates {
    * function, and then evaluates the result against {@link #in(Object[])}.
    *
    * @param composeFunction the function to map the input
-   * @param args            the array to query
-   * @param <A>             the input type
-   * @param <B>             the tested type
-   * @return a predicate
+   * @param args the array to query
+   * @param <A> the input type
+   * @param <B> the tested type
+   * @return a predicate that tests whether the mapped result is contained in the provided values
    */
   @SafeVarargs
   public static <A, B> Predicate<A> in(Function<A, ? extends B> composeFunction, B... args) {
@@ -193,12 +194,12 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate which returns true if the input is an instance of the
+   * Returns a predicate which returns {@code true} if the input is an instance of the
    * given class.
    *
    * @param clazz the class
-   * @param <T>   the type
-   * @return a predicate
+   * @param <T> the type
+   * @return a predicate that tests instance compatibility
    */
   public static <T> Predicate<T> instanceOf(Class<?> clazz) {
     return clazz::isInstance;
@@ -209,16 +210,22 @@ public final class Predicates {
    * function, and then evaluates the result against {@link #instanceOf(Class)}.
    *
    * @param composeFunction the function to map the input
-   * @param clazz           the class
-   * @param <A>             the input type
-   * @param <B>             the tested type
-   * @return a predicate
+   * @param clazz the class
+   * @param <A> the input type
+   * @param <B> the tested type
+   * @return a predicate that tests whether the mapped result is an instance of the class
    */
   public static <A, B> Predicate<A> instanceOf(Function<A, ? extends B> composeFunction, Class<?> clazz) {
     return compose(composeFunction, instanceOf(clazz));
   }
 
+  /**
+   * Predefined object predicates with optimized composition behavior.
+   */
   private enum ObjectPredicate implements Predicate<Object> {
+    /**
+     * Predicate that always evaluates to {@code true}.
+     */
     ALWAYS_TRUE {
       @Override
       public boolean test(Object o) {
@@ -240,6 +247,9 @@ public final class Predicates {
         return ALWAYS_FALSE;
       }
     },
+    /**
+     * Predicate that always evaluates to {@code false}.
+     */
     ALWAYS_FALSE {
       @Override
       public boolean test(Object o) {
@@ -261,7 +271,9 @@ public final class Predicates {
         return ALWAYS_TRUE;
       }
     },
-
+    /**
+     * Predicate that evaluates to {@code true} for {@code null} inputs.
+     */
     IS_NULL {
       @Override
       public boolean test(Object o) {
@@ -273,6 +285,9 @@ public final class Predicates {
         return NOT_NULL;
       }
     },
+    /**
+     * Predicate that evaluates to {@code true} for non-{@code null} inputs.
+     */
     NOT_NULL {
       @Override
       public boolean test(Object o) {
@@ -285,6 +300,12 @@ public final class Predicates {
       }
     };
 
+    /**
+     * Returns this predicate cast to the requested predicate type.
+     *
+     * @param <T> target predicate input type
+     * @return this predicate as a {@code Predicate<T>}
+     */
     @SuppressWarnings("unchecked")
     <T> Predicate<T> cast() {
       // noinspection unchecked
@@ -292,6 +313,9 @@ public final class Predicates {
     }
   }
 
+  /**
+   * Prevents instantiation of this utility class.
+   */
   private Predicates() {
     throw new UnsupportedOperationException("This class cannot be instantiated");
   }

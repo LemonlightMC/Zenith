@@ -5,6 +5,9 @@ import java.util.regex.Pattern;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
+/**
+ * Represents a semantic-style version with optional prefix, qualifier, and build components.
+ */
 public class SemverVersion extends Version {
 
   private static final Pattern PATTERN = Pattern.compile("^([a-zA-Z]*[-]?)?((?:[0-9]|[._])+)(([-.]+)([a-zA-Z0-9]+))?");
@@ -17,6 +20,7 @@ public class SemverVersion extends Version {
   private final String qualifier;
   private final String prefix;
 
+  /** The first semantic version value. */
   public static final SemverVersion FIRST_VERSION = new SemverVersion(1, 0, 0, 0, null, null);
 
   public SemverVersion(

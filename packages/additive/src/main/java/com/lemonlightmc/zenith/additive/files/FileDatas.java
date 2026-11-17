@@ -9,16 +9,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Provides utility operations for inspecting file metadata and listing directory contents.
+ */
 class FileDatas {
 
+  /**
+   * Returns the file extension of the given path.
+   *
+   * @param path the path to inspect
+   * @return the file extension without the leading dot, or an empty string if none is present
+   */
   public static String getFileExtension(final Path path) {
     return path == null ? "" : getFileExtension(path.getFileName().toString());
   }
 
+  /**
+   * Returns the file extension of the given file.
+   *
+   * @param file the file to inspect
+   * @return the file extension without the leading dot, or an empty string if none is present
+   */
   public static String getFileExtension(final File file) {
     return file == null ? "" : getFileExtension(file.getName());
   }
 
+  /**
+   * Returns the file extension of the given path string.
+   *
+   * @param str the path or file name to inspect
+   * @return the file extension without the leading dot, an empty string if none is present, or {@code null} if the input is {@code null}
+   */
   public static String getFileExtension(final String str) {
     if (str == null) {
       return null;
@@ -31,7 +52,12 @@ class FileDatas {
     return str.substring(index + 1);
   }
 
-  // exists
+  /**
+   * Checks whether the given path exists.
+   *
+   * @param path the path to check
+   * @return {@code true} if the path exists
+   */
   public static boolean exists(final Path path) {
     try {
       return Files.exists(path);
@@ -40,6 +66,12 @@ class FileDatas {
     }
   }
 
+  /**
+   * Checks whether the given file exists.
+   *
+   * @param file the file to check
+   * @return {@code true} if the file exists
+   */
   public static boolean exists(final File file) {
     try {
       return Files.exists(file.toPath());
@@ -48,6 +80,12 @@ class FileDatas {
     }
   }
 
+  /**
+   * Checks whether the given path does not exist.
+   *
+   * @param path the path to check
+   * @return {@code true} if the path does not exist
+   */
   public static boolean notExists(final Path path) {
     try {
       return Files.notExists(path);
@@ -56,6 +94,12 @@ class FileDatas {
     }
   }
 
+  /**
+   * Checks whether the given file does not exist.
+   *
+   * @param file the file to check
+   * @return {@code true} if the file does not exist
+   */
   public static boolean notExists(final File file) {
     try {
       return Files.notExists(file.toPath());

@@ -2,6 +2,9 @@ package com.lemonlightmc.zenith.utils;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
+/**
+ * Tracks a time-based cooldown window.
+ */
 public class CooldownHolder implements Cloneable<CooldownHolder> {
 
   private long startTime;

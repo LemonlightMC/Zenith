@@ -21,6 +21,12 @@ import com.lemonlightmc.zenith.additive.StringFormatter;
  */
 public final class LoggerAdapter implements LocationAwareLogger {
 
+    /**
+     * Holds source location information for a log event caller.
+     *
+     * @param sourceClassName the fully qualified class name of the caller
+     * @param sourceMethodName the method name of the caller
+     */
     private record CallerLocation(
             String sourceClassName, String sourceMethodName) {
     }
@@ -71,6 +77,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
     private org.slf4j.event.Level level;
     private Function<String, String> messageTransformer;
 
+    /**
+     * Creates a new logger adapter backed by a JUL logger.
+     *
+     * @param logger the underlying {@link java.util.logging.Logger} to delegate to
+     * @param name the logger name
+     * @param level the initial SLF4J logging level
+     * @throws IllegalArgumentException if {@code logger}, {@code name}, or {@code level} is {@code null}
+     */
     public LoggerAdapter(final java.util.logging.Logger logger, final String name, final org.slf4j.event.Level level) {
         if (logger == null) {
             throw new IllegalArgumentException("Logger must not be null");
@@ -104,20 +118,40 @@ public final class LoggerAdapter implements LocationAwareLogger {
         };
     }
 
+    /**
+     * Sets a transformer applied to log messages before formatting.
+     *
+     * @param messageTransformer the transformer function, or {@code null} to disable transformation
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter setTransformer(final Function<String, String> messageTransformer) {
         this.messageTransformer = messageTransformer;
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Returns the current SLF4J logging level for this logger.
+     *
+     * @return the current logging level
+     */
     public org.slf4j.event.Level getLevel() {
         return this.level;
     }
 
+    /**
+     * Sets the logging level for this logger.
+     *
+     * @param level the new SLF4J logging level, ignored if {@code null}
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter setLevel(final org.slf4j.event.Level level) {
         if (level == null) {
             return this;
@@ -135,15 +169,26 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Returns the fully qualified class name used as the logger boundary for caller inference.
+     *
+     * @return the fully qualified caller name
+     */
     public String getFullyQualifiedCallerName() {
         return FQCN;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return 31 * (31 + logger.hashCode()) + name.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -156,17 +201,19 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return logger.equals(other.logger) && name.equals(other.name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "LoggerAdapter [name=" + name + ", level=" + logger.getLevel().getName() + "]";
     }
 
     /**
-     * Sets the parent logger for this logger.
-     * If the parent logger is already set, this method does nothing.
-     * 
-     * @param parent The parent logger to set.
-     * @throws NullPointerException if the parent logger is null.
+     * Sets the parent logger for the underlying JUL logger if none is currently set.
+     *
+     * @param parent the parent JUL logger to set
+     * @return this logger adapter for chaining
      */
     public LoggerAdapter setParent(final java.util.logging.Logger parent) {
         if (parent != null && logger.getParent() == null) {
@@ -176,11 +223,10 @@ public final class LoggerAdapter implements LocationAwareLogger {
     }
 
     /**
-     * Sets the parent logger for this logger.
-     * If the parent logger is already set, this method does nothing.
-     * 
-     * @param parent The parent logger to set.
-     * @throws NullPointerException if the parent logger is null.
+     * Sets the parent logger for the underlying JUL logger if none is currently set.
+     *
+     * @param parent the parent SLF4J logger to set when it is a {@link LoggerAdapter}
+     * @return this logger adapter for chaining
      */
     public LoggerAdapter setParent(final Logger parent) {
         if (parent != null && logger.getParent() == null && parent instanceof final LoggerAdapter adapter) {
@@ -189,100 +235,198 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Checks whether logging is enabled for the specified SLF4J level.
+     *
+     * @param level the SLF4J logging level to check
+     * @return {@code true} if the level is enabled; {@code false} otherwise
+     */
     public boolean isEnabled(final org.slf4j.event.Level level) {
         return logger.isLoggable(julLevel(level));
     }
 
+    /**
+     * Checks whether logging is enabled for the specified SLF4J level and marker.
+     *
+     * @param level the SLF4J logging level to check
+     * @param marker the marker associated with the check
+     * @return {@code true} if the level is enabled; {@code false} otherwise
+     */
     public boolean isEnabled(final org.slf4j.event.Level level, final Marker marker) {
         return logger.isLoggable(julLevel(level));
     }
 
+    /**
+     * Checks whether logging is enabled for the specified JUL level.
+     *
+     * @param level the JUL logging level to check
+     * @return {@code true} if the level is enabled; {@code false} otherwise
+     */
     public boolean isEnabled(final Level level) {
         return logger.isLoggable(level);
     }
 
+    /**
+     * Checks whether logging is enabled for the specified JUL level and marker.
+     *
+     * @param level the JUL logging level to check
+     * @param marker the marker associated with the check
+     * @return {@code true} if the level is enabled; {@code false} otherwise
+     */
     public boolean isEnabled(final Level level, final Marker marker) {
         return logger.isLoggable(level);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isTraceEnabled() {
         return logger.isLoggable(Level.FINEST);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isTraceEnabled(final Marker marker) {
         return logger.isLoggable(Level.FINEST);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isDebugEnabled() {
         return logger.isLoggable(Level.FINE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isDebugEnabled(final Marker marker) {
         return logger.isLoggable(Level.FINE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isInfoEnabled() {
         return logger.isLoggable(Level.INFO);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isInfoEnabled(final Marker marker) {
         return logger.isLoggable(Level.INFO);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isWarnEnabled() {
         return logger.isLoggable(Level.WARNING);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isWarnEnabled(final Marker marker) {
         return logger.isLoggable(Level.WARNING);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isErrorEnabled() {
         return logger.isLoggable(Level.SEVERE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isErrorEnabled(final Marker marker) {
         return logger.isLoggable(Level.SEVERE);
     }
 
+    /**
+     * Checks whether fatal-level logging is enabled.
+     *
+     * @return {@code true} if fatal logging is enabled; {@code false} otherwise
+     */
     public boolean isFatalEnabled() {
         return logger.isLoggable(Level.SEVERE);
     }
 
+    /**
+     * Checks whether fatal-level logging is enabled for the specified marker.
+     *
+     * @param marker the marker associated with the check
+     * @return {@code true} if fatal logging is enabled; {@code false} otherwise
+     */
     public boolean isFatalEnabled(final Marker marker) {
         return logger.isLoggable(Level.SEVERE);
     }
 
+    /**
+     * Logs a throwing event at the specified SLF4J level and returns the throwable.
+     *
+     * @param <T> the throwable type
+     * @param level the SLF4J logging level to use
+     * @param throwable the throwable being thrown
+     * @return the supplied throwable
+     */
     public <T extends Throwable> T throwing(final org.slf4j.event.Level level, final T throwable) {
         handleLogging(julLevel(level), THROWING_MARKER, "throwing", null, throwable);
         return throwable;
     }
 
+    /**
+     * Logs a throwing event at error level and returns the throwable.
+     *
+     * @param <T> the throwable type
+     * @param throwable the throwable being thrown
+     * @return the supplied throwable
+     */
     public <T extends Throwable> T throwing(final T throwable) {
         handleLogging(Level.SEVERE, THROWING_MARKER, "throwing", null, throwable);
         return throwable;
     }
 
+    /**
+     * Logs a catching event at the specified SLF4J level.
+     *
+     * @param level the SLF4J logging level to use
+     * @param throwable the throwable being caught
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter catching(final org.slf4j.event.Level level, final Throwable throwable) {
         handleLogging(julLevel(level), CATCHING_MARKER, "catching", null, throwable);
         return this;
     }
 
+    /**
+     * Logs a catching event at error level.
+     *
+     * @param throwable the throwable being caught
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter catching(final Throwable throwable) {
         handleLogging(Level.SEVERE, CATCHING_MARKER, "catching", null, throwable);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final String msg) {
         if (isTraceEnabled()) {
@@ -290,6 +434,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final String msg, final Object arg) {
         if (isTraceEnabled()) {
@@ -297,6 +444,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final String msg, final Object arg1, final Object arg2) {
         if (isTraceEnabled()) {
@@ -304,6 +454,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final String msg, final Object... arguments) {
         if (isTraceEnabled()) {
@@ -311,6 +464,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final String msg, final Throwable t) {
         if (isTraceEnabled()) {
@@ -318,6 +474,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * Logs a trace-level message with lazily supplied parameters.
+     *
+     * @param msg the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final String msg, final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled()) {
             handleArgArray(Level.FINEST, null, msg, paramSuppliers);
@@ -325,6 +488,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level message supplied lazily.
+     *
+     * @param msgSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Supplier<?> msgSupplier) {
         if (isTraceEnabled()) {
             handleLogging(Level.FINEST, null, String.valueOf(msgSupplier.get()), null, null);
@@ -332,6 +501,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final Marker marker, final String msg) {
         if (isTraceEnabled(marker)) {
@@ -339,6 +511,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final Marker marker, final String msg, final Object arg) {
         if (isTraceEnabled(marker)) {
@@ -346,6 +521,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final Marker marker, final String msg, final Object arg1, final Object arg2) {
         if (isTraceEnabled(marker)) {
@@ -353,6 +531,9 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void trace(final Marker marker, final String msg, final Object... argArray) {
         if (isTraceEnabled(marker)) {
@@ -360,6 +541,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * Logs a trace-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void trace(final Marker marker, final String msg, final Throwable t) {
         if (isTraceEnabled(marker)) {
             handleArgArray(Level.FINEST, marker, msg, t);
@@ -409,6 +597,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final Object message) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(message), null, null);
@@ -416,6 +611,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final Object message, final Throwable throwable) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(message), null, throwable);
@@ -423,6 +626,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level formatted message with a marker and lazily supplied parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled(marker)) {
             handleArgArray(Level.FINER, marker, message, paramSuppliers);
@@ -430,6 +641,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final Supplier<?> messageSupplier) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(messageSupplier.get()), null, null);
@@ -437,6 +655,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level formatted message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled(marker)) {
@@ -445,6 +671,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level message with a marker supplied lazily and a throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isTraceEnabled(marker)) {
             handleLogging(Level.FINER, marker, String.valueOf(messageSupplier.get()), null, throwable);
@@ -452,6 +686,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level formatted message with a marker and three parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2) {
         if (isTraceEnabled(marker)) {
@@ -460,6 +704,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace-level formatted message with a marker and four parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter trace(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2,
             final Object p3) {
@@ -469,66 +724,138 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message.
+     *
+     * @param msg the message to log
+     */
     public void debug(final String msg) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, msg, null, null);
         }
     }
 
+    /**
+     * Logs a debug-level formatted message with one argument.
+     *
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void debug(final String msg, final Object arg) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, msg, arg);
         }
     }
 
+    /**
+     * Logs a debug-level formatted message with two arguments.
+     *
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void debug(final String msg, final Object arg1, final Object arg2) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs a debug-level formatted message with arguments.
+     *
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void debug(final String msg, final Object... arguments) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, msg, arguments);
         }
     }
 
+    /**
+     * Logs a debug-level message with a throwable.
+     *
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void debug(final String msg, final Throwable t) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, msg, t);
         }
     }
 
+    /**
+     * Logs a debug-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     */
     public void debug(final Marker marker, final String msg) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, msg, null, null);
         }
     }
 
+    /**
+     * Logs a debug-level formatted message with a marker and one argument.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void debug(final Marker marker, final String msg, final Object arg) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, msg, arg);
         }
     }
 
+    /**
+     * Logs a debug-level formatted message with a marker and two arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void debug(final Marker marker, final String msg, final Object arg1, final Object arg2) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs a debug-level formatted message with a marker and arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void debug(final Marker marker, final String msg, final Object... arguments) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, msg, arguments);
         }
     }
 
+    /**
+     * Logs a debug-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void debug(final Marker marker, final String msg, final Throwable t) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, msg, t);
         }
     }
 
+    /**
+     * Logs a debug-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final Object message) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(message), null, null);
@@ -536,6 +863,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final Object message, final Throwable throwable) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(message), null, throwable);
@@ -543,6 +878,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message with a marker and lazily supplied parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled(marker)) {
             handleArgArray(Level.FINE, marker, message, paramSuppliers);
@@ -550,6 +893,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final Supplier<?> messageSupplier) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(messageSupplier.get()), null, null);
@@ -557,6 +907,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled(marker)) {
@@ -565,6 +923,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message with a marker supplied lazily and a throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isDebugEnabled(marker)) {
             handleLogging(Level.FINE, marker, String.valueOf(messageSupplier.get()), null, throwable);
@@ -572,6 +938,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message.
+     *
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Object message) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(message), null, null);
@@ -579,6 +951,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message with a throwable.
+     *
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Object message, final Throwable throwable) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(message), null, throwable);
@@ -586,6 +965,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message with lazily supplied parameters.
+     *
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final String message, final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, message, paramSuppliers);
@@ -593,6 +979,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Supplier<?> messageSupplier) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(messageSupplier.get()), null, null);
@@ -600,6 +992,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, String.valueOf(messageSupplier.get()), paramSuppliers);
@@ -607,6 +1006,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level message supplied lazily with a throwable.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isDebugEnabled()) {
             handleLogging(Level.FINE, null, String.valueOf(messageSupplier.get()), null, throwable);
@@ -614,6 +1020,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message with a marker and three parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2) {
         if (isDebugEnabled(marker)) {
@@ -622,6 +1038,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message with a marker and four parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2,
             final Object p3) {
@@ -631,6 +1058,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message with three parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final String message, final Object p0, final Object p1, final Object p2) {
         if (isDebugEnabled()) {
             handleArgArray(Level.FINE, null, message, p0, p1, p2);
@@ -638,6 +1074,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a debug-level formatted message with four parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter debug(final String message, final Object p0, final Object p1, final Object p2,
             final Object p3) {
         if (isDebugEnabled()) {
@@ -646,72 +1092,151 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level message.
+     *
+     * @param msg the message to log
+     */
     public void info(final String msg) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, msg, null, null);
         }
     }
 
+    /**
+     * Logs an info-level formatted message with one argument.
+     *
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void info(final String msg, final Object arg) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, msg, arg);
         }
     }
 
+    /**
+     * Logs an info-level formatted message with two arguments.
+     *
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void info(final String msg, final Object arg1, final Object arg2) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs an info-level formatted message with arguments.
+     *
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void info(final String msg, final Object... arguments) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, msg, arguments);
         }
     }
 
+    /**
+     * Logs an info-level message with a throwable.
+     *
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void info(final String msg, final Throwable t) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, msg, t);
         }
     }
 
+    /**
+     * Logs an info-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     */
     public void info(final Marker marker, final String msg) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, msg, null, null);
         }
     }
 
+    /**
+     * Logs an info-level formatted message with a marker and one argument.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void info(final Marker marker, final String msg, final Object arg) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, msg, arg);
         }
     }
 
+    /**
+     * Logs an info-level formatted message with a marker and two arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void info(final Marker marker, final String msg, final Object arg1, final Object arg2) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs an info-level formatted message with a marker and arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void info(final Marker marker, final String msg, final Object... arguments) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, msg, arguments);
         }
     }
 
+    /**
+     * Logs an info-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void info(final Marker marker, final String msg, final Throwable t) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, msg, t);
         }
     }
 
+    /**
+     * Logs an info-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     */
     public void info(final Marker marker, final Object message) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, String.valueOf(message), null, null);
         }
     }
 
+    /**
+     * Logs an info-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Marker marker, final Object message, final Throwable throwable) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, String.valueOf(message), null, throwable);
@@ -719,6 +1244,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message with a marker and lazily supplied parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled(marker)) {
             handleArgArray(Level.INFO, marker, message, paramSuppliers);
@@ -726,6 +1259,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Marker marker, final Supplier<?> messageSupplier) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, String.valueOf(messageSupplier.get()), null, null);
@@ -733,6 +1273,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled(marker)) {
@@ -741,6 +1289,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level message with a marker supplied lazily and a throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isInfoEnabled(marker)) {
             handleLogging(Level.INFO, marker, String.valueOf(messageSupplier.get()), null, throwable);
@@ -748,6 +1304,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level message.
+     *
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Object message) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(message), null, null);
@@ -755,6 +1317,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level message with a throwable.
+     *
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Object message, final Throwable throwable) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(message), null, throwable);
@@ -762,6 +1331,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message with lazily supplied parameters.
+     *
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final String message, final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, message, paramSuppliers);
@@ -769,6 +1345,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Supplier<?> messageSupplier) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(messageSupplier.get()), null, null);
@@ -776,6 +1358,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, String.valueOf(messageSupplier.get()), paramSuppliers);
@@ -783,6 +1372,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level message supplied lazily with a throwable.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isInfoEnabled()) {
             handleLogging(Level.INFO, null, String.valueOf(messageSupplier.get()), null, throwable);
@@ -790,6 +1386,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message with a marker and three parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2) {
         if (isInfoEnabled(marker)) {
@@ -798,6 +1404,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message with a marker and four parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2,
             final Object p3) {
@@ -807,6 +1424,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message with three parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final String message, final Object p0, final Object p1, final Object p2) {
         if (isInfoEnabled()) {
             handleArgArray(Level.INFO, null, message, p0, p1, p2);
@@ -814,6 +1440,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an info-level formatted message with four parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter info(final String message, final Object p0, final Object p1, final Object p2,
             final Object p3) {
         if (isInfoEnabled()) {
@@ -822,66 +1458,138 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message.
+     *
+     * @param msg the message to log
+     */
     public void warn(final String msg) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, msg, null, null);
         }
     }
 
+    /**
+     * Logs a warn-level formatted message with one argument.
+     *
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void warn(final String msg, final Object arg) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, msg, arg);
         }
     }
 
+    /**
+     * Logs a warn-level formatted message with two arguments.
+     *
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void warn(final String msg, final Object arg1, final Object arg2) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs a warn-level formatted message with arguments.
+     *
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void warn(final String msg, final Object... arguments) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, msg, arguments);
         }
     }
 
+    /**
+     * Logs a warn-level message with a throwable.
+     *
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void warn(final String msg, final Throwable t) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, msg, t);
         }
     }
 
+    /**
+     * Logs a warn-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     */
     public void warn(final Marker marker, final String msg) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, msg, null, null);
         }
     }
 
+    /**
+     * Logs a warn-level formatted message with a marker and one argument.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void warn(final Marker marker, final String msg, final Object arg) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, msg, arg);
         }
     }
 
+    /**
+     * Logs a warn-level formatted message with a marker and two arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void warn(final Marker marker, final String msg, final Object arg1, final Object arg2) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs a warn-level formatted message with a marker and arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void warn(final Marker marker, final String msg, final Object... arguments) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, msg, arguments);
         }
     }
 
+    /**
+     * Logs a warn-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void warn(final Marker marker, final String msg, final Throwable t) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, msg, t);
         }
     }
 
+    /**
+     * Logs a warn-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final Object message) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(message), null, null);
@@ -889,6 +1597,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final Object message, final Throwable throwable) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(message), null, throwable);
@@ -896,6 +1612,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message with a marker and lazily supplied parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled(marker)) {
             handleArgArray(Level.WARNING, marker, message, paramSuppliers);
@@ -903,6 +1627,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final Supplier<?> messageSupplier) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(messageSupplier.get()), null, null);
@@ -910,6 +1641,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled(marker)) {
@@ -918,6 +1657,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message with a marker supplied lazily and a throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isWarnEnabled(marker)) {
             handleLogging(Level.WARNING, marker, String.valueOf(messageSupplier.get()), null, throwable);
@@ -925,6 +1672,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message.
+     *
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Object message) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(message), null, null);
@@ -932,6 +1685,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message with a throwable.
+     *
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Object message, final Throwable throwable) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(message), null, throwable);
@@ -939,6 +1699,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message with lazily supplied parameters.
+     *
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final String message, final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, message, paramSuppliers);
@@ -946,6 +1713,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Supplier<?> messageSupplier) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(messageSupplier.get()), null, null);
@@ -953,6 +1726,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message supplied lazily.
+     *
+     * @param messageSupplie the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Supplier<?> messageSupplie, final Supplier<?>... paramSuppliers) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, String.valueOf(messageSupplie.get()), paramSuppliers);
@@ -960,6 +1740,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level message supplied lazily with a throwable.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isWarnEnabled()) {
             handleLogging(Level.WARNING, null, String.valueOf(messageSupplier.get()), null, throwable);
@@ -967,6 +1754,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message with a marker and three parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2) {
         if (isWarnEnabled(marker)) {
@@ -975,6 +1772,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message with a marker and four parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2,
             final Object p3) {
@@ -984,6 +1792,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message with three parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final String message, final Object p0, final Object p1, final Object p2) {
         if (isWarnEnabled()) {
             handleArgArray(Level.WARNING, null, message, p0, p1, p2);
@@ -991,6 +1808,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a warn-level formatted message with four parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter warn(final String message, final Object p0, final Object p1, final Object p2,
             final Object p3) {
         if (isWarnEnabled()) {
@@ -999,66 +1826,138 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message.
+     *
+     * @param msg the message to log
+     */
     public void error(final String msg) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, msg, null, null);
         }
     }
 
+    /**
+     * Logs an error-level formatted message with one argument.
+     *
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void error(final String msg, final Object arg) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, msg, arg);
         }
     }
 
+    /**
+     * Logs an error-level formatted message with two arguments.
+     *
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void error(final String msg, final Object arg1, final Object arg2) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs an error-level formatted message with arguments.
+     *
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void error(final String msg, final Object... arguments) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, msg, arguments);
         }
     }
 
+    /**
+     * Logs an error-level message with a throwable.
+     *
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void error(final String msg, final Throwable t) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, msg, t);
         }
     }
 
+    /**
+     * Logs an error-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     */
     public void error(final Marker marker, final String msg) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, msg, null, null);
         }
     }
 
+    /**
+     * Logs an error-level formatted message with a marker and one argument.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg the message argument
+     */
     public void error(final Marker marker, final String msg, final Object arg) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, msg, arg);
         }
     }
 
+    /**
+     * Logs an error-level formatted message with a marker and two arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arg1 the first message argument
+     * @param arg2 the second message argument
+     */
     public void error(final Marker marker, final String msg, final Object arg1, final Object arg2) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, msg, arg1, arg2);
         }
     }
 
+    /**
+     * Logs an error-level formatted message with a marker and arguments.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message format string
+     * @param arguments the message arguments
+     */
     public void error(final Marker marker, final String msg, final Object... arguments) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, msg, arguments);
         }
     }
 
+    /**
+     * Logs an error-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     * @param t the throwable to log
+     */
     public void error(final Marker marker, final String msg, final Throwable t) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, msg, t);
         }
     }
 
+    /**
+     * Logs an error-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final Object message) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, null);
@@ -1066,6 +1965,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final Object message, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, throwable);
@@ -1073,6 +1980,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message with a marker and lazily supplied parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, paramSuppliers);
@@ -1080,6 +1995,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final Supplier<?> messageSupplier) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, null);
@@ -1087,6 +2009,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
@@ -1095,6 +2025,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message with a marker supplied lazily and a throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, throwable);
@@ -1102,6 +2040,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message.
+     *
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Object message) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, null);
@@ -1109,6 +2053,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message with a throwable.
+     *
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Object message, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, throwable);
@@ -1116,6 +2067,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message with lazily supplied parameters.
+     *
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, paramSuppliers);
@@ -1123,6 +2081,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Supplier<?> messageSupplier) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, null);
@@ -1130,6 +2094,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, String.valueOf(messageSupplier.get()), paramSuppliers);
@@ -1137,6 +2108,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level message supplied lazily with a throwable.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, throwable);
@@ -1144,6 +2122,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message with a marker and three parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2) {
         if (isErrorEnabled(marker)) {
@@ -1152,6 +2140,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message with a marker and four parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2,
             final Object p3) {
@@ -1161,6 +2160,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message with three parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final String message, final Object p0, final Object p1, final Object p2) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1, p2);
@@ -1168,6 +2176,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs an error-level formatted message with four parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter error(final String message, final Object p0, final Object p1, final Object p2,
             final Object p3) {
         if (isErrorEnabled()) {
@@ -1176,6 +2194,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final Object message) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, null);
@@ -1183,6 +2208,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final Object message, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(message), null, throwable);
@@ -1190,6 +2223,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a marker.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, message, null, null);
@@ -1197,6 +2237,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with a marker and parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param params the message parameters
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message, final Object... params) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, params);
@@ -1204,6 +2252,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with a marker and lazily supplied parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, paramSuppliers);
@@ -1211,6 +2267,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a marker and throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, message, null, throwable);
@@ -1218,6 +2282,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final Supplier<?> messageSupplier) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, null);
@@ -1225,6 +2296,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with a marker supplied lazily.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled(marker)) {
@@ -1233,6 +2312,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a marker supplied lazily and a throwable.
+     *
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled(marker)) {
             handleLogging(Level.SEVERE, marker, String.valueOf(messageSupplier.get()), null, throwable);
@@ -1240,6 +2327,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message.
+     *
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Object message) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, null);
@@ -1247,6 +2340,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a throwable.
+     *
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Object message, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(message), null, throwable);
@@ -1254,6 +2354,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message.
+     *
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, message, null, null);
@@ -1261,6 +2367,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with parameters.
+     *
+     * @param message the message format string
+     * @param params the message parameters
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message, final Object... params) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, params);
@@ -1268,6 +2381,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with lazily supplied parameters.
+     *
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, paramSuppliers);
@@ -1275,6 +2395,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message with a throwable.
+     *
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, message, null, throwable);
@@ -1282,6 +2409,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Supplier<?> messageSupplier) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, null);
@@ -1289,6 +2422,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message supplied lazily.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Supplier<?> messageSupplier, final Supplier<?>... paramSuppliers) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, String.valueOf(messageSupplier.get()), paramSuppliers);
@@ -1296,6 +2436,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level message supplied lazily with a throwable.
+     *
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Supplier<?> messageSupplier, final Throwable throwable) {
         if (isErrorEnabled()) {
             handleLogging(Level.SEVERE, null, String.valueOf(messageSupplier.get()), null, throwable);
@@ -1303,6 +2450,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with a marker and one parameter.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message, final Object p0) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0);
@@ -1310,6 +2465,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with a marker and two parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message, final Object p0, final Object p1) {
         if (isErrorEnabled(marker)) {
             handleArgArray(Level.SEVERE, marker, message, p0, p1);
@@ -1317,6 +2481,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with a marker and three parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2) {
         if (isErrorEnabled(marker)) {
@@ -1325,6 +2499,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with a marker and four parameters.
+     *
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final Marker marker, final String message, final Object p0, final Object p1,
             final Object p2,
             final Object p3) {
@@ -1334,6 +2519,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with one parameter.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message, final Object p0) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0);
@@ -1341,6 +2533,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with two parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message, final Object p0, final Object p1) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1);
@@ -1348,6 +2548,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with three parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message, final Object p0, final Object p1, final Object p2) {
         if (isErrorEnabled()) {
             handleArgArray(Level.SEVERE, null, message, p0, p1, p2);
@@ -1355,6 +2564,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a fatal-level formatted message with four parameters.
+     *
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter fatal(final String message, final Object p0, final Object p1, final Object p2,
             final Object p3) {
         if (isErrorEnabled()) {
@@ -1363,6 +2582,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a marker.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Object message) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel, marker)) {
@@ -1371,6 +2598,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a marker and throwable.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Object message,
             final Throwable throwable) {
         final Level julLevel = julLevel(level);
@@ -1380,6 +2616,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a marker.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel, marker)) {
@@ -1388,6 +2632,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with a marker.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param params the message parameters
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object... params) {
         final Level julLevel = julLevel(level);
@@ -1397,6 +2650,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with a marker and lazily supplied parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Supplier<?>... paramSuppliers) {
         final Level julLevel = julLevel(level);
@@ -1406,6 +2668,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a marker and throwable.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Throwable throwable) {
         final Level julLevel = julLevel(level);
@@ -1415,6 +2686,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a marker supplied lazily.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker,
             final Supplier<?> messageSupplier) {
         final Level julLevel = julLevel(level);
@@ -1424,6 +2703,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with a marker supplied lazily.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         final Level julLevel = julLevel(level);
@@ -1433,6 +2721,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a marker supplied lazily and a throwable.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final Supplier<?> messageSupplier,
             final Throwable throwable) {
         final Level julLevel = julLevel(level);
@@ -1442,6 +2739,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Object message) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel)) {
@@ -1450,6 +2754,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a throwable.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Object message, final Throwable throwable) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel)) {
@@ -1458,6 +2770,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel)) {
@@ -1466,6 +2785,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message format string
+     * @param params the message parameters
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object... params) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel)) {
@@ -1474,6 +2801,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with lazily supplied parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message,
             final Supplier<?>... paramSuppliers) {
         final Level julLevel = julLevel(level);
@@ -1483,6 +2818,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message at the specified SLF4J level with a throwable.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message to log
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Throwable throwable) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel)) {
@@ -1491,6 +2834,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a lazily supplied message at the specified SLF4J level.
+     *
+     * @param level the SLF4J logging level
+     * @param messageSupplier the supplier providing the log message
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel)) {
@@ -1499,6 +2849,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a lazily supplied formatted message at the specified SLF4J level.
+     *
+     * @param level the SLF4J logging level
+     * @param messageSupplier the supplier providing the log message
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier,
             final Supplier<?>... paramSuppliers) {
         final Level julLevel = julLevel(level);
@@ -1508,6 +2866,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a lazily supplied message at the specified SLF4J level with a throwable.
+     *
+     * @param level the SLF4J logging level
+     * @param messageSupplier the supplier providing the log message
+     * @param throwable the throwable to log
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Supplier<?> messageSupplier,
             final Throwable throwable) {
         final Level julLevel = julLevel(level);
@@ -1517,6 +2883,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with a marker and one parameter.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object p0) {
         final Level julLevel = julLevel(level);
@@ -1526,6 +2901,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with a marker and two parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object p0,
             final Object p1) {
@@ -1536,6 +2921,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with a marker and three parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object p0,
             final Object p1, final Object p2) {
@@ -1546,6 +2942,18 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with a marker and four parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param marker the marker associated with the log event
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final Marker marker, final String message,
             final Object p0,
             final Object p1, final Object p2,
@@ -1557,6 +2965,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with one parameter.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0) {
         final Level julLevel = julLevel(level);
         if (isEnabled(julLevel)) {
@@ -1565,6 +2981,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with two parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0,
             final Object p1) {
         final Level julLevel = julLevel(level);
@@ -1574,6 +2999,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with three parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
             final Object p2) {
         final Level julLevel = julLevel(level);
@@ -1583,6 +3018,17 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a formatted message at the specified SLF4J level with four parameters.
+     *
+     * @param level the SLF4J logging level
+     * @param message the message format string
+     * @param p0 the first message parameter
+     * @param p1 the second message parameter
+     * @param p2 the third message parameter
+     * @param p3 the fourth message parameter
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter log(final org.slf4j.event.Level level, final String message, final Object p0, final Object p1,
             final Object p2, final Object p3) {
         final Level julLevel = julLevel(level);
@@ -1592,6 +3038,16 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a message using a location-aware logging call.
+     *
+     * @param marker the marker associated with the log event
+     * @param fqcn the fully qualified class name of the logger caller boundary
+     * @param level the integer log level value
+     * @param message the message to log
+     * @param argArray the message arguments
+     * @param t the throwable to log
+     */
     public void log(final Marker marker, final String fqcn, final int level, final String message,
             final Object[] argArray, final Throwable t) {
         final Level julLevel = Level.parse(String.valueOf(level));
@@ -1600,6 +3056,11 @@ public final class LoggerAdapter implements LocationAwareLogger {
         }
     }
 
+    /**
+     * Logs a trace entry event.
+     *
+     * @return the entry message, or {@code null} if trace logging is disabled
+     */
     public EntryMessage traceEntry() {
         if (isTraceEnabled(ENTRY_MARKER)) {
             return EntryMessage.of().log(this);
@@ -1607,6 +3068,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return null;
     }
 
+    /**
+     * Logs a trace entry event with formatted parameters.
+     *
+     * @param format the message format string
+     * @param params the message parameters
+     * @return the entry message, or {@code null} if trace logging is disabled
+     */
     public EntryMessage traceEntry(final String format, final Object... params) {
         if (isTraceEnabled(ENTRY_MARKER)) {
             return EntryMessage.of(format, params).log(this);
@@ -1614,6 +3082,12 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return null;
     }
 
+    /**
+     * Logs a trace entry event with lazily supplied parameters.
+     *
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return the entry message, or {@code null} if trace logging is disabled
+     */
     public EntryMessage traceEntry(final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled(ENTRY_MARKER)) {
             return EntryMessage.of(null, resolveArgSupplier(paramSuppliers)).log(this);
@@ -1621,6 +3095,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return null;
     }
 
+    /**
+     * Logs a trace entry event with a format and lazily supplied parameters.
+     *
+     * @param format the message format string
+     * @param paramSuppliers the suppliers providing parameter values
+     * @return the entry message, or {@code null} if trace logging is disabled
+     */
     public EntryMessage traceEntry(final String format, final Supplier<?>... paramSuppliers) {
         if (isTraceEnabled(ENTRY_MARKER)) {
             return EntryMessage.of(format, resolveArgSupplier(paramSuppliers)).log(this);
@@ -1628,6 +3109,11 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return null;
     }
 
+    /**
+     * Logs a trace exit event.
+     *
+     * @return this logger adapter for chaining
+     */
     public LoggerAdapter traceExit() {
         if (isTraceEnabled(ENTRY_MARKER)) {
             handleExit((String) null, (Object) null);
@@ -1635,6 +3121,13 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return this;
     }
 
+    /**
+     * Logs a trace exit event with a result value.
+     *
+     * @param <R> the result type
+     * @param result the result value to log
+     * @return the supplied result value
+     */
     public <R> R traceExit(final R result) {
         if (isTraceEnabled(ENTRY_MARKER)) {
             handleExit((String) null, (Object) result);
@@ -1642,6 +3135,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return result;
     }
 
+    /**
+     * Logs a trace exit event with a formatted result value.
+     *
+     * @param <R> the result type
+     * @param format the message format string
+     * @param result the result value to log
+     * @return the supplied result value
+     */
     public <R> R traceExit(final String format, final R result) {
         if (isTraceEnabled(ENTRY_MARKER)) {
             handleExit(format, result);
@@ -1649,6 +3150,14 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return result;
     }
 
+    /**
+     * Logs a trace exit event associated with an entry message.
+     *
+     * @param <R> the result type
+     * @param message the entry message associated with the exit event
+     * @param result the result value to log
+     * @return the supplied result value
+     */
     public <R> R traceExit(final EntryMessage message, final R result) {
         if (isTraceEnabled(ENTRY_MARKER)) {
             handleExit(message, result);
@@ -1656,6 +3165,11 @@ public final class LoggerAdapter implements LocationAwareLogger {
         return result;
     }
 
+    /**
+     * Logs an SLF4J {@link LoggingEvent}.
+     *
+     * @param event the logging event to process
+     */
     public void log(final LoggingEvent event) {
         // assumes that the invocation is made from a substitute logger
         // this assumption might change in the future with the advent of a fluent API
@@ -1678,6 +3192,15 @@ public final class LoggerAdapter implements LocationAwareLogger {
         logger.log(record);
     }
 
+    /**
+     * Handles logging of a message with optional marker, arguments, and throwable.
+     *
+     * @param level the JUL logging level
+     * @param marker the marker associated with the log event
+     * @param msg the message to log
+     * @param args the message arguments
+     * @param throwable the throwable to log
+     */
     protected void handleLogging(
             final Level level,
             final Marker marker,

@@ -15,8 +15,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * Example command demonstrating basic command registration and executor wiring.
+ */
 public class ExampleCommand extends SimpleCommand {
 
+  /**
+   * Creates and configures the example command.
+   */
   public ExampleCommand() {
     super(NamespacedKey.fromString("moreplugins:example"));
     withAliases("example2");
@@ -35,10 +41,24 @@ public class ExampleCommand extends SimpleCommand {
     executesConsole(ExampleCommand::executesConsole2);
   }
 
+  /**
+   * Handles command execution for player senders.
+   *
+   * @param sender the player command source
+   * @param args the parsed command arguments
+   * @throws CommandException if command execution fails
+   */
   public static void executes2(final CommandSource<Player> sender, final CommandArguments args)
       throws CommandException {
   }
 
+  /**
+   * Handles command execution for console senders.
+   *
+   * @param sender the console command source
+   * @param args the parsed command arguments
+   * @throws CommandException if command execution fails
+   */
   public static void executesConsole2(
       final CommandSource<ConsoleCommandSender> sender,
       final CommandArguments args) throws CommandException {

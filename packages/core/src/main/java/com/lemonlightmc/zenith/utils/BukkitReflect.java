@@ -5,6 +5,9 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.additive.Reflect;
 import com.lemonlightmc.zenith.version.MCVersion;
 
+/**
+ * Reflection helpers for accessing Bukkit and Minecraft internals.
+ */
 public class BukkitReflect {
 
   public static Class<?> getMinecraftClass(final String className) {

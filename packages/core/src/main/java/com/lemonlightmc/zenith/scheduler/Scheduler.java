@@ -15,55 +15,68 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 
+/**
+ * Abstraction over task scheduling for Bukkit-compatible and regionized server platforms.
+ *
+ * <p>Implementations provide synchronous and asynchronous scheduling helpers, including
+ * convenience methods for delayed, repeating, and conditional task execution.</p>
+ */
 public interface Scheduler {
 
+  /**
+   * The default repeating interval in ticks.
+   */
   static final long DEFAULT_INTERVAL = 1L;
+
+  /**
+   * The default initial delay in ticks.
+   */
   static final long DEFAULT_DELAY = 0L;
 
   /**
-   * Creates a new {@link ScheduledBuilder} for building and scheduling a task.
+   * Creates a new builder for configuring and scheduling tasks.
    *
-   * @return A new {@link ScheduledBuilder}
+   * @return a new task builder
    */
   ScheduledBuilder builder();
 
   /**
-   * Returns a list of currently executing async workers.
+   * Gets the currently active asynchronous workers.
    *
-   * @return The currently active workers
+   * @return the active workers
    */
   List<BukkitWorker> getWorkers();
 
   /**
-   * Returns a list of currently pending tasks.
+   * Gets the currently pending scheduled tasks.
    *
-   * @return The currently pending tasks
+   * @return the pending tasks
    */
   List<BukkitTask> getPendingTasks();
 
   /**
-   * Attempts to cancel all tasks scheduled by this plugin.
+   * Cancels all tasks scheduled by this plugin.
    */
   void cancelTasks();
 
   /**
-   * Attempts to cancel all tasks scheduled by the specified plugin.
+   * Cancels all tasks scheduled by the specified plugin.
    *
-   * @param plugin The plugin whose tasks should be cancelled
+   * @param plugin the plugin whose tasks should be cancelled
    */
   void cancelTasks(Plugin plugin);
 
   /**
-   * Attempts to cancel the specified tasks.
+   * Cancels the task with the specified id.
    *
-   * @param taskIds The ids of the tasks to cancel
+   * @param taskId the id of the task to cancel
    */
   void cancelTasks(final int taskId);
 
   /**
-   * Attempts to cancel the specified tasks.
+   * Cancels the tasks with the specified ids.
    *
-   * @param taskIds The ids of the tasks to cancel
+   * @param taskIds the ids of the tasks to cancel
    */
   default void cancelTasks(final int... taskIds) {
     if (taskIds == null || taskIds.length == 0) {
@@ -75,9 +88,9 @@ public interface Scheduler {
   }
 
   /**
-   * Attempts to cancel the specified tasks.
+   * Cancels the tasks with the specified ids.
    *
-   * @param taskIds The ids of the tasks to cancel
+   * @param taskIds the ids of the tasks to cancel
    */
   default void cancelTasks(final Collection<Integer> taskIds) {
     if (taskIds == null || taskIds.isEmpty()) {
@@ -89,66 +102,62 @@ public interface Scheduler {
   }
 
   /**
-   * Returns whether the specified task is currently running.
+   * Checks whether the specified task is currently running.
    *
-   * @param taskId The id of the task to check
-   * @return true if the task is currently running, otherwise false
+   * @param taskId the id of the task to check
+   * @return {@code true} if the task is running; {@code false} otherwise
    */
   boolean isRunning(int taskId);
 
   /**
-   * Returns whether the specified task is currently queued.
+   * Checks whether the specified task is currently queued.
    *
-   * @param taskId The id of the task to check
-   * @return true if the task is currently queued, otherwise false
+   * @param taskId the id of the task to check
+   * @return {@code true} if the task is queued; {@code false} otherwise
    */
   boolean isQueued(int taskId);
 
   /**
-   * Returns whether the current thread is the global server thread.
-   * <p>
-   * <b>Folia</b>: checks the global region thread.
-   * <br>
-   * <b>Paper and Bukkit</b>: delegates to
-   * {@link org.bukkit.Server#isPrimaryThread()}.
+   * Checks whether the current thread is the global server thread.
+   *
+   * <p><b>Folia</b>: checks the global region thread.<br>
+   * <b>Paper and Bukkit</b>: delegates to {@link org.bukkit.Server#isPrimaryThread()}.</p>
+   *
+   * @return {@code true} if the current thread is the global server thread; {@code false} otherwise
    */
   boolean isGlobalThread();
 
   /**
-   * Returns whether the current thread is Bukkit's primary tick thread.
+   * Checks whether the current thread is Bukkit's primary tick thread.
    *
-   * @return {@link org.bukkit.Server#isPrimaryThread()}
+   * @return {@code true} if the current thread is the primary tick thread; {@code false} otherwise
    */
   default boolean isTickThread() {
     return Bukkit.getServer().isPrimaryThread();
   }
 
   /**
-   * Returns whether the current thread owns the specified entity.
-   * <p>
-   * <b>Folia and Paper</b>: checks whether the current thread is ticking the
-   * region that owns the entity. This is the safe ownership check because reading
-   * an entity's location can be undefined unless the entity is owned by the
-   * current region.
-   * <br>
-   * <b>Bukkit</b>: delegates to {@link org.bukkit.Server#isPrimaryThread()}.
+   * Checks whether the current thread owns the specified entity.
    *
-   * @param entity The entity to check
-   * @return true if the current thread owns the entity
+   * <p><b>Folia and Paper</b>: checks whether the current thread is ticking the region that owns
+   * the entity. This is the safe ownership check because reading an entity's location can be
+   * undefined unless the entity is owned by the current region.<br>
+   * <b>Bukkit</b>: delegates to {@link org.bukkit.Server#isPrimaryThread()}.</p>
+   *
+   * @param entity the entity to check
+   * @return {@code true} if the current thread owns the entity; {@code false} otherwise
    */
   boolean isEntityThread(Entity entity);
 
   /**
-   * Returns whether the current thread owns the region containing the specified
-   * location.
-   * <p>
-   * <b>Folia and Paper</b>: checks whether the current thread is ticking the
-   * region that owns the chunk containing the location.
-   * <br>
-   * <b>Bukkit</b>: delegates to {@link org.bukkit.Server#isPrimaryThread()}.
+   * Checks whether the current thread owns the region containing the specified location.
    *
-   * @param location The location to check, must have a non-null world
-   * @return true if the current thread owns the location's region
+   * <p><b>Folia and Paper</b>: checks whether the current thread is ticking the region that owns
+   * the chunk containing the location.<br>
+   * <b>Bukkit</b>: delegates to {@link org.bukkit.Server#isPrimaryThread()}.</p>
+   *
+   * @param location the location to check, must have a non-null world
+   * @return {@code true} if the current thread owns the location's region; {@code false} otherwise
    */
   boolean isRegionThread(Location location);
 

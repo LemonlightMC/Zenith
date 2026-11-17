@@ -5,6 +5,9 @@ import org.bukkit.event.HandlerList;
 import com.lemonlightmc.zenith.events.BaseEventCancellable;
 import com.lemonlightmc.zenith.sound.player.SoundPlayer;
 
+/**
+ * Fired when a sound player advances to the next playable item.
+ */
 public class PlayableNextEvent extends BaseEventCancellable {
   private static final HandlerList handlers = new HandlerList();
   private final SoundPlayer songPlayer;

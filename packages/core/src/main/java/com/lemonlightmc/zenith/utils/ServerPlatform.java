@@ -2,6 +2,9 @@ package com.lemonlightmc.zenith.utils;
 
 import java.util.Locale;
 
+/**
+ * Enumerates supported server platforms and provides detection helpers.
+ */
 public enum ServerPlatform {
   /**
    * Folia - Paper fork with regionized multithreading

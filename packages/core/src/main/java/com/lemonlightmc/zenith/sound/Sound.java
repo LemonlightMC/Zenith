@@ -8,6 +8,9 @@ import org.bukkit.plugin.Plugin;
 import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.apis.SoundAPI;
 
+/**
+ * Represents a single Bukkit-backed sound with playback configuration.
+ */
 public class Sound extends Playable {
   protected NamespacedKey key;
   protected org.bukkit.Sound bukkitSound;

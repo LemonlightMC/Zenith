@@ -448,25 +448,27 @@ public sealed interface VoidResult<E> permits VoidResult.Success, VoidResult.Err
       Function<? super E, ? extends N> errorFunction);
 
   /**
-   * Returns whether this result is in the success state.
+   * Returns whether this result is in success state.
+   *
+   * @return {@code true} if this result is in success state, otherwise {@code false}
    */
   default boolean isSuccess() {
     return fold(() -> true, error -> false);
   }
 
   /**
-   * Returns whether this result is in the error state.
+   * Returns whether this result is in error state.
+   *
+   * @return {@code true} if this result is in error state, otherwise {@code false}
    */
   default boolean isError() {
     return !isSuccess();
   }
 
   /**
-   * Returns a sequential {@code Stream} containing the success value if this
-   * result is in success state, otherwise returns an empty {@code Stream}.
+   * Returns an empty stream because a void result has no success value.
    *
-   * @return a sequential {@code Stream} containing the success value if this
-   *         result is in success state, otherwise an empty {@code Stream}
+   * @return an empty stream
    */
   default Stream<Void> stream() {
     return Stream.empty();
@@ -487,6 +489,11 @@ public sealed interface VoidResult<E> permits VoidResult.Success, VoidResult.Err
    */
   <N> OptionalResult<N, E> toOptionalResult();
 
+  /**
+   * A {@link VoidResult} implementation representing a success state.
+   *
+   * @param <ERR> the type of the error value
+   */
   record Success<ERR>() implements VoidResult<ERR> {
 
     @Override
@@ -602,8 +609,20 @@ public sealed interface VoidResult<E> permits VoidResult.Success, VoidResult.Err
     }
   }
 
+  /**
+   * A {@link VoidResult} implementation representing an error state.
+   *
+   * @param error the error value
+   * @param <ERR> the type of the error value
+   */
   record Error<ERR>(ERR error) implements VoidResult<ERR> {
 
+    /**
+     * Creates a new error result.
+     *
+     * @param error the error value, which must be non-{@code null}
+     * @throws NullPointerException if the given error value is {@code null}
+     */
     public Error(final ERR error) {
       this.error = Objects.requireNonNull(error);
     }

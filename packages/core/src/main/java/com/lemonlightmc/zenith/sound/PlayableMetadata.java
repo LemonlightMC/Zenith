@@ -2,6 +2,9 @@ package com.lemonlightmc.zenith.sound;
 
 import java.io.File;
 
+/**
+ * Stores descriptive metadata for a playable item.
+ */
 public class PlayableMetadata {
 
   private String title = "";

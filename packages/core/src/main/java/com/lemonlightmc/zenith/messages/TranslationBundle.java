@@ -7,12 +7,27 @@ import java.util.Map;
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.version.Version;
 
+/**
+ * A loaded set of translation messages for a specific locale.
+ */
 public class TranslationBundle extends AbstractTranslator {
   protected Map<String, String> messages;
   protected long last_updated;
   protected long created_at;
   protected boolean uses_icu;
 
+  /**
+   * Creates a translation bundle from parsed metadata and message entries.
+   *
+   * @param locale locale identifier
+   * @param defaultLocale fallback locale when parsing fails
+   * @param version bundle version
+   * @param author bundle author
+   * @param uses_icu whether the bundle uses ICU message formatting
+   * @param last_updated last update timestamp
+   * @param created_at creation timestamp
+   * @param messages translation messages keyed by translation key
+   */
   public TranslationBundle(final String locale, final Locale defaultLocale, final String version,
       final String author, final String uses_icu, final String last_updated, final String created_at,
       final Map<String, String> messages) {
@@ -23,6 +38,11 @@ public class TranslationBundle extends AbstractTranslator {
     this.messages = messages == null || messages.isEmpty() ? null : messages;
   }
 
+  /**
+   * Creates a copy of an existing translation bundle.
+   *
+   * @param bundle source bundle
+   */
   public TranslationBundle(final TranslationBundle bundle) {
     super(bundle);
     this.messages = bundle.messages;
@@ -30,6 +50,9 @@ public class TranslationBundle extends AbstractTranslator {
     this.created_at = bundle.created_at;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String translate(final String key) {
     if (key == null || key.length() == 0) {
@@ -38,6 +61,9 @@ public class TranslationBundle extends AbstractTranslator {
     return messages.get(key);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean canTranslate(final String key) {
     return messages != null && messages.containsKey(key);

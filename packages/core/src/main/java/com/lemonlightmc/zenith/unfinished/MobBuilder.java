@@ -17,6 +17,9 @@ import org.bukkit.potion.PotionEffectType;
 import com.lemonlightmc.zenith.additive.interfaces.Builder;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 
+/**
+ * Builds and spawns configured living entities.
+ */
 public class MobBuilder implements Builder<LivingEntity> {
   private EntityType type;
   private Location location;

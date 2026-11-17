@@ -7,6 +7,9 @@ import com.lemonlightmc.zenith.sound.Instrument;
 import com.lemonlightmc.zenith.sound.Note;
 import com.lemonlightmc.zenith.sound.Sound;
 
+/**
+ * Plays sounds by emitting mirrored left and right channel positions.
+ */
 public class MonoStereoMode extends ChannelMode {
   private double distance = 2;
 

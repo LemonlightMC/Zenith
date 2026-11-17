@@ -27,6 +27,9 @@ import org.bukkit.util.Vector;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
+/**
+ * Utility methods for working with worlds, locations, and world generation helpers.
+ */
 public class WorldUtils {
   public static World[] getWorlds() {
     return Bukkit.getWorlds().toArray(World[]::new);
@@ -257,6 +260,9 @@ public class WorldUtils {
         && Math.abs(loc1.getBlockZ() - loc2.getBlockZ()) < 0.0001;
   }
 
+  /**
+   * Chunk generator that produces an empty void world.
+   */
   public static class VoidGenerator extends ChunkGenerator {
 
     private VoidGenerator() {
@@ -313,6 +319,9 @@ public class WorldUtils {
     }
   }
 
+  /**
+   * Biome provider that always returns {@link Biome#THE_VOID}.
+   */
   public static class VoidBiomeProvider extends BiomeProvider {
 
     public VoidBiomeProvider() {

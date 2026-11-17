@@ -15,6 +15,9 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.UUIDUtils;
 
+/**
+ * Utility methods for resolving and working with Bukkit players.
+ */
 public class PlayerUtils {
 
   public static OfflinePlayer getOfflinePlayer(final String name) {

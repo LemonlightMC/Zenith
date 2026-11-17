@@ -20,8 +20,16 @@ import org.bukkit.persistence.PersistentDataType;
 import com.lemonlightmc.zenith.apis.ChatAPI;
 import com.lemonlightmc.zenith.messages.Logger;
 
+/**
+ * Listener that dispatches Bukkit item and player events to registered custom item handlers.
+ */
 public class CustomItemListener implements Listener {
 
+  /**
+   * Handles player interaction events and forwards click actions to the matching custom item.
+   *
+   * @param event the player interaction event
+   */
   @EventHandler()
   public void clicks(PlayerInteractEvent event) {
     ItemStack item = event.getItem();
@@ -64,6 +72,11 @@ public class CustomItemListener implements Listener {
     }
   }
 
+  /**
+   * Handles held-item changes and notifies affected custom items of selection and switch events.
+   *
+   * @param event the held item change event
+   */
   @EventHandler
   public void onItemSwitch(PlayerItemHeldEvent event) {
     int newSlot = event.getNewSlot();
@@ -97,6 +110,11 @@ public class CustomItemListener implements Listener {
     event.setCancelled(switchEvent.isCancelled());
   }
 
+  /**
+   * Handles successful craft events for custom items and forwards them to the matching item handler.
+   *
+   * @param event the craft event
+   */
   @EventHandler
   public void onSuccessfullCraft(CraftItemEvent event) {
     if (event.getWhoClicked() == null || !(event.getWhoClicked() instanceof Player)) {
@@ -120,6 +138,11 @@ public class CustomItemListener implements Listener {
     }
   }
 
+  /**
+   * Handles entity damage caused by a player using a custom item.
+   *
+   * @param event the entity damage event
+   */
   @EventHandler()
   public void damage(EntityDamageByEntityEvent event) {
     if (event.getDamager() == null || !(event.getDamager() instanceof Player))
@@ -140,6 +163,11 @@ public class CustomItemListener implements Listener {
     }
   }
 
+  /**
+   * Handles player interactions with entities while holding a custom item.
+   *
+   * @param event the player interact entity event
+   */
   @EventHandler()
   public void onInteractionEventWithEntity(PlayerInteractEntityEvent event) {
     PersistentDataContainer pdc = getPDC(event.getPlayer().getInventory().getItemInMainHand());
@@ -155,6 +183,11 @@ public class CustomItemListener implements Listener {
     }
   }
 
+  /**
+   * Handles dropping of custom items and forwards the event to the matching item handler.
+   *
+   * @param event the item drop event
+   */
   @EventHandler
   private static void onDropItem(PlayerDropItemEvent event) {
     PersistentDataContainer pdc = getPDC(event.getItemDrop().getItemStack());
@@ -177,6 +210,12 @@ public class CustomItemListener implements Listener {
         pdc.get(BaseCustomItem.customKey, PersistentDataType.STRING));
   }
 
+  /**
+   * Returns the unique custom item instance identifier stored in the given persistent data container.
+   *
+   * @param pdc the persistent data container to read from
+   * @return the stored UUID, or {@code null} if none is present or valid
+   */
   public static UUID getUUID(PersistentDataContainer pdc) {
     if (pdc == null) {
       return null;
@@ -188,6 +227,12 @@ public class CustomItemListener implements Listener {
     }
   }
 
+  /**
+   * Returns the persistent data container for the given item stack.
+   *
+   * @param item the item stack to inspect
+   * @return the item's persistent data container, or {@code null} if unavailable
+   */
   public static PersistentDataContainer getPDC(ItemStack item) {
     if (item == null) {
       return null;

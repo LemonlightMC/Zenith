@@ -7,6 +7,9 @@ import org.slf4j.helpers.BasicMarkerFactory;
 import org.slf4j.spi.MDCAdapter;
 import org.slf4j.spi.SLF4JServiceProvider;
 
+/**
+ * SLF4J service provider backed by the JUL-based logger implementation.
+ */
 public class JULServiceProvider implements SLF4JServiceProvider {
 
   /**
@@ -24,30 +27,56 @@ public class JULServiceProvider implements SLF4JServiceProvider {
   // as early as possible, preferably at construction time.
   private final MDCAdapter mdcAdapter;
 
+  /**
+   * Creates a new service provider instance.
+   */
   public JULServiceProvider() {
     markerFactory = new BasicMarkerFactory();
     mdcAdapter = new BasicMDCAdapter();
   }
 
+  /**
+   * Returns the logger factory provided by this service.
+   *
+   * @return the logger factory
+   */
   @Override
   public ILoggerFactory getLoggerFactory() {
     return loggerFactory;
   }
 
+  /**
+   * Returns the marker factory provided by this service.
+   *
+   * @return the marker factory
+   */
   @Override
   public IMarkerFactory getMarkerFactory() {
     return markerFactory;
   }
 
+  /**
+   * Returns the MDC adapter provided by this service.
+   *
+   * @return the MDC adapter
+   */
   public MDCAdapter getMDCAdapter() {
     return mdcAdapter;
   }
 
+  /**
+   * Returns the requested SLF4J API version.
+   *
+   * @return the requested SLF4J API version
+   */
   @Override
   public String getRequestedApiVersion() {
     return REQUESTED_API_VERSION;
   }
 
+  /**
+   * Initializes the logger factory for this provider.
+   */
   @Override
   public void initialize() {
     loggerFactory = new LoggerFactory();

@@ -12,13 +12,24 @@ import com.google.common.collect.ImmutableList;
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 // TODO: Rework FireworkEffect for 1.1
+/**
+ * Mutable representation of a firework effect and its visual properties.
+ */
 public class FireworkEffect
     implements ConfigurationSerializable, Cloneable<FireworkEffect> {
+  /**
+   * Supported firework effect shape types.
+   */
   public enum FireworkEffectType {
+    /** A small ball explosion. */
     BALL(org.bukkit.FireworkEffect.Type.BALL),
+    /** A large ball explosion. */
     BALL_LARGE(org.bukkit.FireworkEffect.Type.BALL_LARGE),
+    /** A star-shaped explosion. */
     STAR(org.bukkit.FireworkEffect.Type.STAR),
+    /** A burst explosion. */
     BURST(org.bukkit.FireworkEffect.Type.BURST),
+    /** A creeper-shaped explosion. */
     CREEPER(org.bukkit.FireworkEffect.Type.CREEPER);
 
     org.bukkit.FireworkEffect.Type bukkitType;
@@ -27,6 +38,11 @@ public class FireworkEffect
       this.bukkitType = bukkitType;
     }
 
+    /**
+     * Converts this type to the corresponding Bukkit firework effect type.
+     *
+     * @return the Bukkit firework effect type
+     */
     public org.bukkit.FireworkEffect.Type toBukkit() {
       return bukkitType;
     }
@@ -44,6 +60,15 @@ public class FireworkEffect
   private List<Color> fadeColors;
   private FireworkEffectType type;
 
+  /**
+   * Creates a firework effect with the given properties.
+   *
+   * @param type the explosion shape type
+   * @param flicker whether the effect should flicker
+   * @param trail whether the effect should leave a trail
+   * @param colors the primary colors of the effect
+   * @param fadeColors the fade colors of the effect
+   */
   public FireworkEffect(final FireworkEffectType type, final boolean flicker, final boolean trail,
       final List<Color> colors,
       final List<Color> fadeColors) {
@@ -54,15 +79,34 @@ public class FireworkEffect
     this.type = type == null ? FireworkEffectType.BALL : type;
   }
 
+  /**
+   * Creates a firework effect without fade colors.
+   *
+   * @param type the explosion shape type
+   * @param flicker whether the effect should flicker
+   * @param trail whether the effect should leave a trail
+   * @param colors the primary colors of the effect
+   */
   public FireworkEffect(final FireworkEffectType type, final boolean flicker, final boolean trail,
       final List<Color> colors) {
     this(type, flicker, trail, colors, null);
   }
 
+  /**
+   * Creates a firework effect with default flicker and trail settings.
+   *
+   * @param type the explosion shape type
+   * @param colors the primary colors of the effect
+   */
   public FireworkEffect(final FireworkEffectType type, final List<Color> colors) {
     this(type, false, true, colors, null);
   }
 
+  /**
+   * Creates a copy of another firework effect.
+   *
+   * @param effect the firework effect to copy
+   */
   public FireworkEffect(final FireworkEffect effect) {
     if (effect == null) {
       return;
@@ -74,47 +118,111 @@ public class FireworkEffect
     this.type = effect.type == null ? FireworkEffectType.BALL : effect.type;
   }
 
+  /**
+   * Creates a firework effect with the given properties.
+   *
+   * @param type the explosion shape type
+   * @param flicker whether the effect should flicker
+   * @param trail whether the effect should leave a trail
+   * @param colors the primary colors of the effect
+   * @param fadeColors the fade colors of the effect
+   * @return a new firework effect
+   */
   public static FireworkEffect from(final FireworkEffectType type, final boolean flicker, final boolean trail,
       final List<Color> colors,
       final List<Color> fadeColors) {
     return new FireworkEffect(type, flicker, trail, colors, fadeColors);
   }
 
+  /**
+   * Creates a firework effect without fade colors.
+   *
+   * @param type the explosion shape type
+   * @param flicker whether the effect should flicker
+   * @param trail whether the effect should leave a trail
+   * @param colors the primary colors of the effect
+   * @return a new firework effect
+   */
   public static FireworkEffect from(final FireworkEffectType type, final boolean flicker, final boolean trail,
       final List<Color> colors) {
     return new FireworkEffect(type, flicker, trail, colors);
   }
 
+  /**
+   * Creates a firework effect with default flicker and trail settings.
+   *
+   * @param type the explosion shape type
+   * @param colors the primary colors of the effect
+   * @return a new firework effect
+   */
   public static FireworkEffect from(final FireworkEffectType type, final List<Color> colors) {
     return new FireworkEffect(type, colors);
   }
 
+  /**
+   * Checks whether this effect flickers.
+   *
+   * @return {@code true} if flicker is enabled
+   */
   public boolean hasFlicker() {
     return flicker;
   }
 
+  /**
+   * Sets whether this effect flickers.
+   *
+   * @param flicker {@code true} to enable flicker
+   * @return this firework effect
+   */
   public FireworkEffect setFlicker(final boolean flicker) {
     this.flicker = flicker;
     return this;
   }
 
+  /**
+   * Checks whether this effect leaves a trail.
+   *
+   * @return {@code true} if trail is enabled
+   */
   public boolean hasTrail() {
     return trail;
   }
 
+  /**
+   * Sets whether this effect leaves a trail.
+   *
+   * @param trail {@code true} to enable trail
+   * @return this firework effect
+   */
   public FireworkEffect setTrail(final boolean trail) {
     this.trail = trail;
     return this;
   }
 
+  /**
+   * Checks whether this effect has primary colors.
+   *
+   * @return {@code true} if at least one primary color is configured
+   */
   public boolean hasColors() {
     return colors != null && !colors.isEmpty();
   }
 
+  /**
+   * Gets the primary colors of this effect.
+   *
+   * @return the primary colors
+   */
   public List<Color> getColors() {
     return colors;
   }
 
+  /**
+   * Replaces the primary colors of this effect.
+   *
+   * @param colors the primary colors to set
+   * @return this firework effect
+   */
   public FireworkEffect setColors(final Color... colors) {
     if (colors != null) {
       this.colors = List.of(colors);
@@ -122,6 +230,12 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Replaces the primary colors of this effect.
+   *
+   * @param colors the primary colors to set
+   * @return this firework effect
+   */
   public FireworkEffect setColors(final Collection<Color> colors) {
     if (colors != null) {
       this.colors = List.copyOf(colors);
@@ -129,6 +243,12 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Adds primary colors to this effect.
+   *
+   * @param colors the colors to add
+   * @return this firework effect
+   */
   public FireworkEffect addColors(final Color... colors) {
     if (colors == null || colors.length == 0) {
       return this;
@@ -141,6 +261,12 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Adds primary colors to this effect.
+   *
+   * @param colors the colors to add
+   * @return this firework effect
+   */
   public FireworkEffect addColors(final Collection<Color> colors) {
     if (colors == null || colors.isEmpty()) {
       return this;
@@ -153,14 +279,30 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Gets the fade colors of this effect.
+   *
+   * @return the fade colors
+   */
   public List<Color> getFadeColors() {
     return fadeColors;
   }
 
+  /**
+   * Checks whether this effect has fade colors.
+   *
+   * @return {@code true} if at least one fade color is configured
+   */
   public boolean hasFadeColors() {
     return fadeColors != null && !fadeColors.isEmpty();
   }
 
+  /**
+   * Replaces the fade colors of this effect.
+   *
+   * @param colors the fade colors to set
+   * @return this firework effect
+   */
   public FireworkEffect setFadeColors(final Color... colors) {
     if (colors != null && colors.length != 0) {
       this.fadeColors = List.of(colors);
@@ -168,6 +310,12 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Replaces the fade colors of this effect.
+   *
+   * @param fadeColors the fade colors to set
+   * @return this firework effect
+   */
   public FireworkEffect setFadeColors(final Collection<Color> fadeColors) {
     if (colors != null && !colors.isEmpty()) {
       this.fadeColors = List.copyOf(fadeColors);
@@ -175,6 +323,12 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Adds fade colors to this effect.
+   *
+   * @param colors the fade colors to add
+   * @return this firework effect
+   */
   public FireworkEffect addFadeColors(final Color... colors) {
     if (colors == null || colors.length == 0) {
       return this;
@@ -187,6 +341,12 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Adds fade colors to this effect.
+   *
+   * @param colors the fade colors to add
+   * @return this firework effect
+   */
   public FireworkEffect addFadeColors(final Collection<Color> colors) {
     if (colors == null || colors.isEmpty()) {
       return this;
@@ -199,10 +359,22 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Gets the explosion shape type of this effect.
+   *
+   * @return the firework effect type
+   */
   public FireworkEffectType getType() {
     return type;
   }
 
+  /**
+   * Sets the explosion shape type of this effect.
+   *
+   * @param type the firework effect type
+   * @return this firework effect
+   * @throws IllegalArgumentException if the type is {@code null}
+   */
   public FireworkEffect setType(final FireworkEffectType type) {
     if (type == null) {
       throw new IllegalArgumentException("Type cant be null");
@@ -211,6 +383,12 @@ public class FireworkEffect
     return this;
   }
 
+  /**
+   * Deserializes a firework effect from a configuration map.
+   *
+   * @param map the serialized firework effect data
+   * @return the deserialized firework effect
+   */
   public static FireworkEffect deserialize(final Map<String, Object> map) {
     return new FireworkEffect(FireworkEffectType.valueOf((String) map.get(TYPE)), (boolean) map.get(FLICKER),
         (boolean) map.get(TRAIL), deserializeColorList(map.get(COLORS)), deserializeColorList(map.get(FADE_COLORS)));
@@ -229,6 +407,11 @@ public class FireworkEffect
     return colors;
   }
 
+  /**
+   * Serializes this firework effect into a configuration map.
+   *
+   * @return a serialized representation of this firework effect
+   */
   @Override
   public Map<String, Object> serialize() {
     return Map.<String, Object>of(TYPE, type.name(),
@@ -238,11 +421,22 @@ public class FireworkEffect
         FADE_COLORS, fadeColors);
   }
 
+  /**
+   * Creates a copy of this firework effect.
+   *
+   * @return a cloned firework effect
+   */
   @Override
   public FireworkEffect clone() {
     return new FireworkEffect(this);
   }
 
+  /**
+   * Converts this effect into a Bukkit firework effect.
+   *
+   * @return the Bukkit firework effect, or {@code null} if conversion fails
+   * @throws IllegalStateException if no primary colors are configured
+   */
   public org.bukkit.FireworkEffect toBukkit() {
     if (colors == null || colors.isEmpty()) {
       throw new IllegalStateException("Cannot make FireworkEffect without any color");

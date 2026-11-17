@@ -67,16 +67,34 @@ public class ComplexVersion extends Version {
     this.buildMetadata = buildMetadata;
   }
 
+  /**
+   * Creates a version from major, minor, and patch components.
+   *
+   * @param major the major version component
+   * @param minor the minor version component
+   * @param patch the patch version component
+   */
   public ComplexVersion(final int major, final int minor, final int patch) {
     this(major + "." + minor + "." + patch, null, new int[] {
         major, minor, patch
     }, null, null, null);
   }
 
+  /**
+   * Creates a version from a raw string and explicit components.
+   *
+   * @param raw the original version string
+   * @param components the numeric version components
+   */
   public ComplexVersion(final String raw, final int[] components) {
     this(raw, null, components, null, null, null);
   }
 
+  /**
+   * Creates a version by parsing the given raw version string.
+   *
+   * @param raw the version string to parse
+   */
   public ComplexVersion(final String raw) {
     this(parse(raw));
   }

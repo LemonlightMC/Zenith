@@ -21,10 +21,18 @@ import com.lemonlightmc.zenith.config.FileHandler;
 import com.lemonlightmc.zenith.config.schema.SchemaPair;
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
 
+/**
+ * Handles YAML serialization and deserialization for configuration data.
+ */
 public class YamlHandler extends FileHandler {
 
   private final Yaml yaml;
 
+  /**
+   * Creates a new YAML handler with the given options.
+   *
+   * @param options the handler options to apply
+   */
   public YamlHandler(final ConfigOptions options) {
     super(options);
     final LoaderOptions loaderOptions = new LoaderOptions();
@@ -41,16 +49,30 @@ public class YamlHandler extends FileHandler {
         loaderOptions);
   }
 
+  /**
+   * Creates a new YAML handler from the given options.
+   *
+   * @param options the handler options to apply
+   * @return a new {@link YamlHandler} instance
+   */
   public static YamlHandler from(final ConfigOptions options) {
     return new YamlHandler(options);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String saveToString(final Map<String, SchemaPair<?>> data) {
     final Map<String, Object> nested = createNestedMap(data);
     return yaml.dump(nested);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @throws ConfigParsingException if the YAML content cannot be parsed or is not a map
+   */
   @SuppressWarnings("unchecked")
   @Override
   public Map<String, Object> loadFromString(final String raw) {
@@ -139,8 +161,16 @@ public class YamlHandler extends FileHandler {
     }
   }
 
+  /**
+   * Represents Bukkit configuration and serializable objects for YAML output.
+   */
   public static class YamlRepresenter extends Representer {
 
+    /**
+     * Creates a new representer with the given dumper options.
+     *
+     * @param dumperOptions the YAML dumper options to use
+     */
     public YamlRepresenter(DumperOptions dumperOptions) {
       super(dumperOptions);
       this.multiRepresenters.put(ConfigurationSection.class, new RepresentConfigurationSection());

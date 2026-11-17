@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Represents a constraint that can match and select compatible {@link Version} values.
+ */
 public abstract class VersionConstraint {
   private static final Pattern CONSTRAINT_PART = Pattern.compile(
       "([<>=!]+)?\\s*([^\\s<>=!]+)");

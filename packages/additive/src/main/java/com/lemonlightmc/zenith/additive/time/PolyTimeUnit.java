@@ -5,6 +5,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Represents supported time units and their duration conversions.
+ */
 public enum PolyTimeUnit {
   TICKS(TimeUnit.MILLISECONDS, 50, "t"),
   NANOSSECONDS(TimeUnit.NANOSECONDS, 1, "n"),

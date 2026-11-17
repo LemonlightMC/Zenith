@@ -3,12 +3,22 @@ package com.lemonlightmc.zenith.additive;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Formats messages using {@code {}} placeholders with support for escaped delimiters and arrays.
+ */
 public class StringFormatter {
   static final char DELIM_START = '{';
   static final char DELIM_STOP = '}';
   static final String DELIM_STR = "{}";
   private static final char ESCAPE_CHAR = '\\';
 
+  /**
+   * Formats a message by replacing {@code {}} placeholders with the provided arguments.
+   *
+   * @param message the message pattern to format
+   * @param argArray the arguments to insert into the message
+   * @return the formatted message
+   */
   public final static String format(final String message, final Object[] argArray) {
     int i = 0;
     int j;

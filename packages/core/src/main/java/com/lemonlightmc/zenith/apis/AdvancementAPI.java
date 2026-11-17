@@ -15,7 +15,24 @@ import com.lemonlightmc.zenith.exceptions.OutdatedVersionError;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.version.MCVersion;
 
+/**
+ * Internal helper for displaying toast-like notifications using temporary advancements.
+ *
+ * <p>The implementation selects the appropriate advancement JSON format based on the running Minecraft version.
+ */
 public class AdvancementAPI {
+
+  /**
+   * Displays a toast-style advancement popup to the specified players.
+   *
+   * @param players the players who should receive the toast
+   * @param icon the icon material identifier used for the toast
+   * @param message the formatted message content for the toast
+   * @param style the toast frame style
+   * @param modelData optional custom model data for the icon
+   * @param modelDataType optional custom model data type identifier
+   * @param glowing whether the icon should appear glowing
+   */
   @SuppressWarnings("deprecation")
   void showToast(Collection<? extends Player> players, String icon, String message, ToastType style, Object modelData,
       String modelDataType, boolean glowing) {
@@ -33,14 +50,14 @@ public class AdvancementAPI {
   }
 
   /**
-   * Show a popup (advancement toast) to all online players.
+   * Displays a toast-style advancement popup to all online players.
    *
-   * @param icon          the icon material name (minecraft id) used for the toast
-   * @param message       the message (already formatted as json component text)
-   * @param style         the toast frame style
-   * @param modelData     optional model data for the icon
-   * @param modelDataType optional model data type string
-   * @param glowing       whether the icon should glow
+   * @param icon the icon material identifier used for the toast
+   * @param message the formatted message content for the toast
+   * @param style the toast frame style
+   * @param modelData optional custom model data for the icon
+   * @param modelDataType optional custom model data type identifier
+   * @param glowing whether the icon should appear glowing
    */
   @SuppressWarnings("deprecation")
   void showToastToAll(String icon, String message, ToastType style, Object modelData, String modelDataType,

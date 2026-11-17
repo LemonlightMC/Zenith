@@ -7,16 +7,33 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import com.lemonlightmc.zenith.recipes.Ingredients.Ingredient;
 import com.lemonlightmc.zenith.recipes.RecipeType;
 
+/**
+ * Represents a custom smithing transform or trim recipe.
+ */
 public class SmithingRecipe extends Recipe {
   private Ingredient base;
   private Ingredient addition;
   private Ingredient template;
   private TrimPattern trimPattern;
 
+  /**
+   * Creates a smithing transform recipe with the given name.
+   *
+   * @param recipeName the internal recipe name
+   */
   public SmithingRecipe(final String recipeName) {
     super(recipeName, RecipeType.SMITHING_TRANSFORM);
   }
 
+  /**
+   * Creates a smithing transform recipe.
+   *
+   * @param recipeName the internal recipe name
+   * @param template the template ingredient
+   * @param base the base ingredient
+   * @param addition the addition ingredient
+   * @param trimPattern the trim pattern
+   */
   public SmithingRecipe(final String recipeName, final Ingredient template, final Ingredient base,
       final Ingredient addition,
       final TrimPattern trimPattern) {
@@ -28,6 +45,15 @@ public class SmithingRecipe extends Recipe {
     this.trimPattern = trimPattern;
   }
 
+  /**
+   * Creates a smithing trim recipe.
+   *
+   * @param recipeName the internal recipe name
+   * @param result the result item stack
+   * @param template the template ingredient
+   * @param base the base ingredient
+   * @param addition the addition ingredient
+   */
   public SmithingRecipe(final String recipeName, final ItemStack result, final Ingredient template,
       final Ingredient base,
       final Ingredient addition) {
@@ -53,26 +79,58 @@ public class SmithingRecipe extends Recipe {
     }
   }
 
+  /**
+   * Returns a copy of the template ingredient.
+   *
+   * @return the template ingredient, or {@code null} if not set
+   */
   public Ingredient getTemplate() {
     return (template != null) ? template.clone() : null;
   }
 
+  /**
+   * Returns a copy of the base ingredient.
+   *
+   * @return the base ingredient, or {@code null} if not set
+   */
   public Ingredient getBase() {
     return (base != null) ? base.clone() : null;
   }
 
+  /**
+   * Returns a copy of the addition ingredient.
+   *
+   * @return the addition ingredient, or {@code null} if not set
+   */
   public Ingredient getAddition() {
     return (addition != null) ? addition.clone() : null;
   }
 
+  /**
+   * Returns the trim pattern for this recipe.
+   *
+   * @return the trim pattern, or {@code null} if not set
+   */
   public TrimPattern getTrimPattern() {
     return trimPattern;
   }
 
+  /**
+   * Attempts to infer a trim pattern from the given template ingredient.
+   *
+   * @param template the template ingredient
+   * @return the inferred trim pattern
+   */
   public static TrimPattern guessPattern(final Ingredient template) {
     return guessPattern(template.item());
   }
 
+  /**
+   * Attempts to infer a trim pattern from the given template item.
+   *
+   * @param template the template item
+   * @return the inferred trim pattern
+   */
   @Deprecated(since = "1.21.5")
   public static TrimPattern guessPattern(final ItemStack template) {
     if (template == null) {

@@ -12,6 +12,9 @@ import com.lemonlightmc.zenith.additive.StringUtils.Replaceable;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
+/**
+ * Utility methods for formatting, translating, and styling chat messages.
+ */
 public class MessageFormatter {
 
   private static String prefix;
@@ -19,10 +22,17 @@ public class MessageFormatter {
   private static boolean hasPlaceholderAPI = false;
   private static List<Replaceable> globalPlaceholders = new ArrayList<>();
 
+  /**
+   * Supported message delivery targets.
+   */
   public static enum MessageTypes {
+    /** Standard chat message. */
     CHAT,
+    /** Action bar message. */
     ACTIONBAR,
+    /** Title message. */
     TITLE,
+    /** Subtitle message. */
     SUBTITLE,
   }
 

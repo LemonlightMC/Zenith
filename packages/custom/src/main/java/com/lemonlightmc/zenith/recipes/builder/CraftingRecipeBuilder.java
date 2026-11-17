@@ -12,10 +12,16 @@ import java.util.Arrays;
 
 import org.bukkit.inventory.recipe.CraftingBookCategory;
 
+/**
+ * Builder for creating shaped and shapeless crafting recipes.
+ */
 public class CraftingRecipeBuilder extends RecipeBuilder implements ICraftingRecipeBuilder {
 
+  /** The crafting recipe group. */
   protected String group = "";
+  /** The crafting recipe book category. */
   protected CraftingBookCategory category = CraftingBookCategory.MISC;
+  /** The shaped crafting pattern rows. */
   protected String[] pattern;
 
   @Override

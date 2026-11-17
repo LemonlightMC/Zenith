@@ -9,8 +9,19 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 
+/**
+ * Represents a string suggestion paired with an optional tooltip.
+ *
+ * @param message display text or suggestion value
+ * @param tooltip tooltip text shown on hover
+ */
 public record StringTooltip(String message, String tooltip) {
 
+  /**
+   * Resolves this tooltip into a clickable/hoverable text component.
+   *
+   * @return the resolved text component
+   */
   public TextComponent resolve() {
     TextComponent component = new TextComponent(message);
     component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(tooltip)));

@@ -8,16 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * Utility methods for matching and searching file paths using glob patterns.
+ */
 public class GlobUtils {
 
   /**
-   * Find files matching a glob pattern in a directory.
+   * Finds files in a directory that match the given glob pattern.
    *
    * @param directory the directory to search
-   * @param pattern   the glob pattern (e.g., "*.jar", "Plugin-*.jar")
-   * @return list of matching paths
+   * @param pattern the glob pattern (for example, {@code "*.jar"})
+   * @return a list of matching paths
    */
-
   public static List<Path> findFiles(Path directory, String pattern) {
     List<Path> results = new ArrayList<>();
 
@@ -43,24 +45,23 @@ public class GlobUtils {
   }
 
   /**
-   * Find a single file matching a glob pattern.
+   * Finds the first file in a directory that matches the given glob pattern.
    *
    * @param directory the directory to search
-   * @param pattern   the glob pattern
-   * @return the first matching file, or null if none found
+   * @param pattern the glob pattern
+   * @return the first matching file, or {@code null} if none is found
    */
-
   public static Path findFile(Path directory, String pattern) {
     List<Path> files = findFiles(directory, pattern);
     return files.isEmpty() ? null : files.get(0);
   }
 
   /**
-   * Check if a filename matches a glob pattern.
+   * Checks whether a file name matches the given glob pattern.
    *
-   * @param filename the filename to check
-   * @param pattern  the glob pattern
-   * @return true if matches
+   * @param filename the file name to check
+   * @param pattern the glob pattern
+   * @return {@code true} if the file name matches the pattern
    */
   public static boolean matches(String filename, String pattern) {
     String regex = globToRegex(pattern);
@@ -68,9 +69,11 @@ public class GlobUtils {
   }
 
   /**
-   * Convert a glob pattern to a regex pattern.
+   * Converts a glob pattern to an equivalent regular expression.
+   *
+   * @param glob the glob pattern to convert
+   * @return the converted regular expression
    */
-
   private static String globToRegex(String glob) {
     StringBuilder regex = new StringBuilder();
     regex.append("^");

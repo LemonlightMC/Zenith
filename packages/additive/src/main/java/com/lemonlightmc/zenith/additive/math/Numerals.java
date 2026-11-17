@@ -3,6 +3,9 @@ package com.lemonlightmc.zenith.additive.math;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Utility methods for numeral conversions.
+ */
 public class Numerals {
   private static final LinkedHashMap<String, Integer> roman_numerals = new LinkedHashMap<String, Integer>();
 
@@ -22,6 +25,12 @@ public class Numerals {
     roman_numerals.put("I", 1);
   }
 
+  /**
+   * Converts an integer value to its Roman numeral representation.
+   *
+   * @param arabNum the integer value to convert
+   * @return the Roman numeral representation of the given value
+   */
   public static String toRoman(int arabNum) {
     String res = arabNum < 0 ? "-" : "";
     arabNum = Math.abs(arabNum);

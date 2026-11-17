@@ -13,6 +13,9 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+/**
+ * Utility methods for parsing, converting, and transforming Minecraft text styling.
+ */
 public class TextStyling {
 
   private static boolean hasHexSupport = true;

@@ -21,9 +21,13 @@ public final class Checksum {
    * Supported checksum algorithms.
    */
   public static enum ChecksumType {
+    /** SHA-256 digest algorithm. */
     SHA256("SHA-256"),
+    /** SHA-512 digest algorithm. */
     SHA512("SHA-512"),
+    /** SHA-1 digest algorithm. */
     SHA1("SHA-1"),
+    /** MD5 digest algorithm. */
     MD5("MD5");
 
     private final String algorithm;
@@ -33,6 +37,8 @@ public final class Checksum {
     }
 
     /**
+     * Returns the Java Security algorithm name.
+     *
      * @return the Java Security algorithm name
      */
     public String algorithm() {
@@ -41,13 +47,13 @@ public final class Checksum {
   }
 
   /**
-   * Calculate checksum of a file using the specified algorithm.
+   * Calculates the checksum of a file using the specified algorithm.
    *
    * @param path the file path
    * @param type the checksum algorithm
-   * @return the checksum as a lowercase hex string
+   * @return the checksum as a lowercase hexadecimal string
+   * @throws RuntimeException if the checksum cannot be calculated
    */
-
   public static String hash(Path path, ChecksumType type) {
     try {
       MessageDigest digest = MessageDigest.getInstance(type.algorithm());
@@ -67,13 +73,13 @@ public final class Checksum {
   }
 
   /**
-   * Calculate checksum of bytes using the specified algorithm.
+   * Calculates the checksum of a byte array using the specified algorithm.
    *
-   * @param data the data
+   * @param data the data to hash
    * @param type the checksum algorithm
-   * @return the checksum as a lowercase hex string
+   * @return the checksum as a lowercase hexadecimal string
+   * @throws RuntimeException if the algorithm is not available
    */
-
   public static String hash(byte[] data, ChecksumType type) {
     try {
       MessageDigest digest = MessageDigest.getInstance(type.algorithm());
@@ -84,12 +90,12 @@ public final class Checksum {
   }
 
   /**
-   * Verify that a file matches an expected checksum.
+   * Verifies that a file matches an expected checksum.
    *
    * @param path     the file path
-   * @param expected the expected checksum (hex string)
-   * @param type     the checksum algorithm (null to skip verification)
-   * @return true if checksums match, or if no checksum/type provided
+   * @param expected the expected checksum as a hexadecimal string
+   * @param type     the checksum algorithm, or {@code null} to skip verification
+   * @return {@code true} if the checksums match or verification is skipped; otherwise {@code false}
    */
   public static boolean verify(Path path, String expected, ChecksumType type) {
     if (expected == null || expected.isEmpty() || type == null) {
@@ -105,42 +111,42 @@ public final class Checksum {
   }
 
   /**
-   * Calculate SHA-256 checksum of a file.
+   * Calculates the SHA-256 checksum of a file.
    *
    * @param path the file path
-   * @return the checksum as a lowercase hex string
+   * @return the checksum as a lowercase hexadecimal string
    */
-
   public static String sha256(Path path) {
     return hash(path, ChecksumType.SHA256);
   }
 
   /**
-   * Calculate SHA-256 checksum of bytes.
+   * Calculates the SHA-256 checksum of a byte array.
    *
-   * @param data the data
-   * @return the checksum as a lowercase hex string
+   * @param data the data to hash
+   * @return the checksum as a lowercase hexadecimal string
    */
-
   public static String sha256(byte[] data) {
     return hash(data, ChecksumType.SHA256);
   }
 
   /**
-   * Verify that a file matches an expected SHA-256 checksum.
+   * Verifies that a file matches an expected SHA-256 checksum.
    *
    * @param path     the file path
-   * @param expected the expected checksum (hex string)
-   * @return true if checksums match
+   * @param expected the expected checksum as a hexadecimal string
+   * @return {@code true} if the checksums match; otherwise {@code false}
    */
   public static boolean verify(Path path, String expected) {
     return verify(path, expected, ChecksumType.SHA256);
   }
 
   /**
-   * Convert bytes to lowercase hex string.
+   * Converts a byte array to a lowercase hexadecimal string.
+   *
+   * @param bytes the bytes to convert
+   * @return the hexadecimal representation of the given bytes
    */
-
   private static String bytesToHex(byte[] bytes) {
     char[] hex = new char[bytes.length * 2];
     for (int i = 0; i < bytes.length; i++) {
@@ -152,9 +158,11 @@ public final class Checksum {
   }
 
   /**
-   * Convert hex string to bytes.
+   * Converts a hexadecimal string to a byte array.
+   *
+   * @param hex the hexadecimal string to convert
+   * @return the decoded byte array
    */
-
   public static byte[] hexToBytes(String hex) {
     int len = hex.length();
     byte[] data = new byte[len / 2];

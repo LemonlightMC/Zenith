@@ -21,6 +21,9 @@ import net.luckperms.api.node.Node;
 import net.luckperms.api.platform.PlayerAdapter;
 import net.luckperms.api.util.Tristate;
 
+/**
+ * Utility methods for permission registration, lookup, and compatibility handling.
+ */
 public class PermissionUtils {
   private static PermissionHandler handler = null;
   private static PermissionOption currOption = null;
@@ -159,11 +162,28 @@ public class PermissionUtils {
     return handler;
   }
 
+  /**
+   * Describes an available permission handler option.
+   *
+   * @param name option name
+   * @param isActive supplier indicating whether the option can be used
+   * @param handler supplier creating the permission handler
+   */
   public static record PermissionOption(String name, Supplier<Boolean> isActive, Supplier<PermissionHandler> handler) {
   }
 
+  /**
+   * Strategy interface for checking permissions.
+   */
   public static interface PermissionHandler {
 
+    /**
+     * Checks whether a sender has the given permission.
+     *
+     * @param sender command sender to check
+     * @param permission permission node to test
+     * @return {@code true} if the sender has permission; otherwise {@code false}
+     */
     public boolean hasPermission(final CommandSender sender, final String permission);
   }
 

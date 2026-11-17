@@ -17,6 +17,9 @@ import java.util.ResourceBundle;
 
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 
+/**
+ * Utility methods for accessing and managing classpath resources and properties.
+ */
 public class ResourceUtils {
 
   public static URL getResourceURL(final String path) {

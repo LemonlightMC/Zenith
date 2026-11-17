@@ -5,11 +5,18 @@ import org.bukkit.inventory.recipe.CookingBookCategory;
 import com.lemonlightmc.zenith.recipes.builder.IRecipeBuilder.*;
 import com.lemonlightmc.zenith.recipes.types.*;
 
+/**
+ * Builder for creating smelting and cooking recipes.
+ */
 public class SmeltingRecipeBuilder extends RecipeBuilder implements ISmeltingRecipeBuilder {
 
+  /** The recipe group. */
   protected String group = "";
+  /** The cooking recipe book category. */
   protected CookingBookCategory category = CookingBookCategory.MISC;
+  /** The cooking time in ticks. */
   protected int cookingTime = 0;
+  /** The experience reward. */
   protected float experience = 0;
 
   @Override

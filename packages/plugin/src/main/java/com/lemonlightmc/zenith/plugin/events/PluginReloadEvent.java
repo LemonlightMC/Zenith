@@ -4,18 +4,34 @@ import org.bukkit.event.HandlerList;
 
 import com.lemonlightmc.zenith.plugin.IPlugin;
 
+/**
+ * Called when a plugin is reloaded.
+ */
 public class PluginReloadEvent extends PluginEvent {
   private static final HandlerList handlers = new HandlerList();
 
+  /**
+   * Creates a new plugin reload event.
+   *
+   * @param plugin the plugin being reloaded
+   */
   public PluginReloadEvent(final IPlugin plugin) {
     super(plugin);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public HandlerList getHandlers() {
     return handlers;
   }
 
+  /**
+   * Returns the handler list for this event type.
+   *
+   * @return the handler list
+   */
   public static HandlerList getHandlerList() {
     return handlers;
   }

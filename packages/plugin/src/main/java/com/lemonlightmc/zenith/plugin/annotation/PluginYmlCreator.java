@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 import javax.annotation.Nonnull;
 
 /**
- * Annotation to automatically generate plugin.yml files for helper projects
+ * Declares metadata used to generate a {@code plugin.yml} descriptor at compile time.
  */
 @Documented
 @Target(ElementType.TYPE)
@@ -19,94 +19,96 @@ import javax.annotation.Nonnull;
 public @interface PluginYmlCreator {
 
   /**
-   * The name of the plugin
+   * Returns the plugin name.
    *
-   * @return the name of the plugin
+   * @return the plugin name
    */
   @Nonnull
   String name();
 
   /**
-   * The plugin version
+   * Returns the plugin version.
    *
-   * @return the plugin version
+   * @return the plugin version, or an empty string to generate one automatically
    */
   @Nonnull
   String version() default "";
 
   /**
-   * A description of the plugin
+   * Returns the plugin description.
    *
-   * @return a description of the plugin
+   * @return the plugin description
    */
   @Nonnull
   String description() default "";
 
   /**
-   * The load order of the plugin
+   * Returns the plugin load order.
    *
-   * @return the load order of the plugin
+   * @return the plugin load order
    */
   @Nonnull
   PluginLoadOrder load() default PluginLoadOrder.POSTWORLD;
 
   /**
-   * The api version of the plugin
+   * Returns the target Bukkit API version.
    *
-   * @return the api version of the plugin
+   * @return the API version
    */
   String apiVersion() default "";
 
   /**
-   * The authors of the plugin
+   * Returns the plugin authors.
    *
-   * @return the author of the plugin
+   * @return the plugin authors
    */
   @Nonnull
   String[] authors() default {};
 
   /**
-   * A website for the plugin
+   * Returns the plugin website URL.
    *
-   * @return a website for the plugin
+   * @return the plugin website
    */
   @Nonnull
   String website() default "";
 
   /**
-   * A list of dependencies for the plugin
+   * Returns declared plugin dependencies.
    *
-   * @return a list of dependencies for the plugin
+   * @return the plugin dependencies
    */
   @Nonnull
   PluginDependency[] depends() default {};
 
   /**
-   * A list of hard dependencies for the plugin
+   * Returns hard plugin dependencies.
    *
-   * @return a list of hard dependencies for the plugin
+   * @return the hard dependency names
    */
   @Nonnull
   String[] hardDepends() default {};
 
   /**
-   * A list of soft dependencies for the plugin
+   * Returns soft plugin dependencies.
    *
-   * @return a list of soft dependencies for the plugin
+   * @return the soft dependency names
    */
   @Nonnull
   String[] softDepends() default {};
 
   /**
-   * A list of plugins which should be loaded after this plugin
+   * Returns plugins that should be loaded after this plugin.
    *
-   * @return a list of plugins which should be loaded after this plugin
+   * @return the plugin names to load after this plugin
    */
   @Nonnull
   String[] loadBefore() default {};
 
   /**
-   * Libraries from maven central which are loaded at runtime.
+   * Returns Maven Central libraries to load at runtime.
+   *
+   * @return the runtime library coordinates
    */
   @Nonnull
   String[] libraries() default {};

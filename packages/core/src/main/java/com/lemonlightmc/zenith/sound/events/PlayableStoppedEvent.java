@@ -5,6 +5,9 @@ import org.bukkit.event.HandlerList;
 import com.lemonlightmc.zenith.events.BaseEventCancellable;
 import com.lemonlightmc.zenith.sound.player.SoundPlayer;
 
+/**
+ * Fired when a sound player stops playback.
+ */
 public class PlayableStoppedEvent extends BaseEventCancellable {
 
   private static final HandlerList handlers = new HandlerList();

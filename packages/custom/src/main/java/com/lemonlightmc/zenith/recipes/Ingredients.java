@@ -16,18 +16,41 @@ import org.bukkit.persistence.PersistentDataType;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
 
+/**
+ * Utility methods and ingredient representations for custom recipe matching.
+ */
 public class Ingredients {
 
+  /** An empty material recipe choice representing air. */
   public static final RecipeChoice.MaterialChoice EMPTRY = new RecipeChoice.MaterialChoice(Material.AIR);
 
+  /**
+   * Converts an ingredient into an exact recipe choice.
+   *
+   * @param ingredient the ingredient to convert
+   * @return the exact recipe choice
+   */
   public static RecipeChoice toExactChoice(final Ingredient ingredient) {
     return new RecipeChoice.ExactChoice(ingredient.item());
   }
 
+  /**
+   * Converts a list of ingredients into an exact recipe choice.
+   *
+   * @param ingredients the ingredients to convert
+   * @return the exact recipe choice
+   */
   public static RecipeChoice toExactChoice(final List<Ingredient> ingredients) {
     return new RecipeChoice.ExactChoice(ingredients.stream().map((ingredient) -> ingredient.item()).toList());
   }
 
+  /**
+   * Converts a material ingredient into a material recipe choice.
+   *
+   * @param ingredient the ingredient to convert
+   * @return the material recipe choice
+   * @throws ClassCastException if the ingredient is not material-based
+   */
   public static RecipeChoice toMaterialChoice(final Ingredient ingredient) {
     if (ingredient instanceof final MaterialIngredient materialIngredient) {
       return new RecipeChoice.MaterialChoice(materialIngredient.getMaterial());
@@ -36,6 +59,13 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Converts a list of material ingredients into a material recipe choice.
+   *
+   * @param ingredients the ingredients to convert
+   * @return the material recipe choice
+   * @throws ClassCastException if any ingredient is not material-based
+   */
   public static RecipeChoice toMaterialChoice(final List<Ingredient> ingredients) {
     return new RecipeChoice.MaterialChoice(ingredients.stream().map((ingredient) -> {
       if (ingredient instanceof final MaterialIngredient materialIngredient) {
@@ -46,30 +76,76 @@ public class Ingredients {
     }).toList());
   }
 
+  /**
+   * Creates a material ingredient.
+   *
+   * @param material the ingredient material
+   * @return the material ingredient
+   */
   public static MaterialIngredient from(final Material material) {
     return new MaterialIngredient(material, null);
   }
 
+  /**
+   * Creates a material ingredient with a shaped recipe sign.
+   *
+   * @param material the ingredient material
+   * @param sign the shaped recipe sign
+   * @return the material ingredient
+   */
   public static MaterialIngredient from(final Material material, final Character sign) {
     return new MaterialIngredient(material, sign);
   }
 
+  /**
+   * Creates a tag ingredient.
+   *
+   * @param tag the material tag
+   * @return the tag ingredient
+   */
   public static TagIngredient from(final Tag<Material> tag) {
     return new TagIngredient(tag, null);
   }
 
+  /**
+   * Creates a tag ingredient with a shaped recipe sign.
+   *
+   * @param tag the material tag
+   * @param sign the shaped recipe sign
+   * @return the tag ingredient
+   */
   public static TagIngredient from(final Tag<Material> tag, final Character sign) {
     return new TagIngredient(tag, sign);
   }
 
+  /**
+   * Creates an item ingredient.
+   *
+   * @param item the ingredient item stack
+   * @return the item ingredient
+   */
   public static ItemIngredient from(final ItemStack item) {
     return new ItemIngredient(item, null);
   }
 
+  /**
+   * Creates an item ingredient with a shaped recipe sign.
+   *
+   * @param item the ingredient item stack
+   * @param sign the shaped recipe sign
+   * @return the item ingredient
+   */
   public static ItemIngredient from(final ItemStack item, final Character sign) {
     return new ItemIngredient(item, sign);
   }
 
+  /**
+   * Creates an item ingredient.
+   *
+   * @param item the ingredient item stack
+   * @param strict whether the ingredient should be matched strictly
+   * @return the item ingredient
+   */
   public static ItemIngredient from(final ItemStack item, final boolean strict) {
     if (strict) {
       return new StrictItemIngredient(item, null);
@@ -78,6 +154,14 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Creates an item ingredient with a shaped recipe sign.
+   *
+   * @param item the ingredient item stack
+   * @param sign the shaped recipe sign
+   * @param strict whether the ingredient should be matched strictly
+   * @return the item ingredient
+   */
   public static ItemIngredient from(final ItemStack item, final Character sign, final boolean strict) {
     if (strict) {
       return new StrictItemIngredient(item, sign);
@@ -86,50 +170,129 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Creates ingredients from a recipe choice.
+   *
+   * @param choice the recipe choice
+   * @return the converted ingredients
+   */
   public static List<Ingredient> from(final RecipeChoice choice) {
     return fromChoice(choice, null);
   }
 
+  /**
+   * Creates ingredients from a recipe choice with a shaped recipe sign.
+   *
+   * @param choice the recipe choice
+   * @param sign the shaped recipe sign
+   * @return the converted ingredients
+   */
   public static List<Ingredient> from(final RecipeChoice choice, final Character sign) {
     return fromChoice(choice, sign);
   }
 
+  /**
+   * Creates a material ingredient.
+   *
+   * @param material the ingredient material
+   * @return the material ingredient
+   */
   public static MaterialIngredient fromMaterial(final Material material) {
     return new MaterialIngredient(material, null);
   }
 
+  /**
+   * Creates a material ingredient with a shaped recipe sign.
+   *
+   * @param material the ingredient material
+   * @param sign the shaped recipe sign
+   * @return the material ingredient
+   */
   public static MaterialIngredient fromMaterial(final Material material, final Character sign) {
     return new MaterialIngredient(material, sign);
   }
 
+  /**
+   * Creates a tag ingredient.
+   *
+   * @param tag the material tag
+   * @return the tag ingredient
+   */
   public static TagIngredient fromTag(final Tag<Material> tag) {
     return new TagIngredient(tag, null);
   }
 
+  /**
+   * Creates a tag ingredient with a shaped recipe sign.
+   *
+   * @param tag the material tag
+   * @param sign the shaped recipe sign
+   * @return the tag ingredient
+   */
   public static TagIngredient fromTag(final Tag<Material> tag, final Character sign) {
     return new TagIngredient(tag, sign);
   }
 
+  /**
+   * Creates an item ingredient.
+   *
+   * @param item the ingredient item stack
+   * @return the item ingredient
+   */
   public static ItemIngredient fromItem(final ItemStack item) {
     return new ItemIngredient(item, null);
   }
 
+  /**
+   * Creates an item ingredient with a shaped recipe sign.
+   *
+   * @param item the ingredient item stack
+   * @param sign the shaped recipe sign
+   * @return the item ingredient
+   */
   public static ItemIngredient fromItem(final ItemStack item, final Character sign) {
     return new ItemIngredient(item, sign);
   }
 
+  /**
+   * Creates a strict item ingredient.
+   *
+   * @param item the ingredient item stack
+   * @return the strict item ingredient
+   */
   public static StrictItemIngredient fromStrictItem(final ItemStack item) {
     return new StrictItemIngredient(item, null);
   }
 
+  /**
+   * Creates a strict item ingredient with a shaped recipe sign.
+   *
+   * @param item the ingredient item stack
+   * @param sign the shaped recipe sign
+   * @return the strict item ingredient
+   */
   public static StrictItemIngredient fromStrictItem(final ItemStack item, final Character sign) {
     return new StrictItemIngredient(item, sign);
   }
 
+  /**
+   * Creates ingredients from a recipe choice.
+   *
+   * @param choice the recipe choice
+   * @return the converted ingredients
+   */
   public static List<Ingredient> fromChoice(final RecipeChoice choice) {
     return fromChoice(choice, null);
   }
 
+  /**
+   * Creates ingredients from a recipe choice with a shaped recipe sign.
+   *
+   * @param choice the recipe choice
+   * @param sign the shaped recipe sign
+   * @return the converted ingredients
+   * @throws IllegalArgumentException if the recipe choice is {@code null} or unsupported
+   */
   public static List<Ingredient> fromChoice(final RecipeChoice choice, final Character sign) {
     if (choice == null) {
       throw new IllegalArgumentException("RecipeChoice cannot be null");
@@ -151,32 +314,73 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Base representation of a recipe ingredient.
+   */
   public static abstract class Ingredient implements Cloneable {
 
+    /** The shaped recipe sign associated with this ingredient, if any. */
     protected final Character sign;
 
+    /**
+     * Creates an ingredient with an optional shaped recipe sign.
+     *
+     * @param sign the shaped recipe sign
+     */
     public Ingredient(final Character sign) {
       this.sign = sign;
     }
 
+    /**
+     * Returns the shaped recipe sign for this ingredient.
+     *
+     * @return the shaped recipe sign, or {@code null} if none
+     */
     public Character sign() {
       return this.sign;
     }
 
+    /**
+     * Checks whether the given item matches this ingredient.
+     *
+     * @param item the item to compare
+     * @return {@code true} if the item matches; {@code false} otherwise
+     */
     public abstract boolean isSimilar(ItemStack item);
 
+    /**
+     * Returns the Bukkit recipe choice representation of this ingredient.
+     *
+     * @return the recipe choice
+     */
     public abstract RecipeChoice choice();
 
+    /**
+     * Returns a representative item stack for this ingredient.
+     *
+     * @return the representative item stack
+     */
     public abstract ItemStack item();
 
     @Override
     public abstract Ingredient clone();
   }
 
+  /**
+   * Ingredient implementation backed by a material tag.
+   */
   public static class TagIngredient extends Ingredient {
 
+    /** The material tag defining accepted materials. */
     protected final Tag<Material> tag;
 
+    /**
+     * Creates a tag ingredient with an optional shaped recipe sign.
+     *
+     * @param tag the material tag
+     * @param sign the shaped recipe sign
+     * @throws IllegalArgumentException if the tag is {@code null} or empty
+     */
     public TagIngredient(final Tag<Material> tag, final Character sign) {
       super(sign);
       if (tag == null || tag.getValues() == null || tag.getValues().isEmpty()) {
@@ -185,10 +389,20 @@ public class Ingredients {
       this.tag = tag;
     }
 
+    /**
+     * Creates a tag ingredient.
+     *
+     * @param tag the material tag
+     */
     public TagIngredient(final Tag<Material> tag) {
       this(tag, null);
     }
 
+    /**
+     * Returns the backing material tag.
+     *
+     * @return the material tag
+     */
     public Tag<Material> getTag() {
       return tag;
     }
@@ -226,10 +440,21 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Ingredient implementation backed by a single material.
+   */
   public static class MaterialIngredient extends Ingredient {
 
+    /** The accepted material. */
     protected final Material material;
 
+    /**
+     * Creates a material ingredient with an optional shaped recipe sign.
+     *
+     * @param material the ingredient material
+     * @param sign the shaped recipe sign
+     * @throws IllegalArgumentException if the material is {@code null} or air
+     */
     public MaterialIngredient(final Material material, final Character sign) {
       super(sign);
       if (material == null) {
@@ -241,10 +466,20 @@ public class Ingredients {
       this.material = material;
     }
 
+    /**
+     * Creates a material ingredient.
+     *
+     * @param material the ingredient material
+     */
     public MaterialIngredient(final Material material) {
       this(material, null);
     }
 
+    /**
+     * Returns the accepted material.
+     *
+     * @return the material
+     */
     public Material getMaterial() {
       return material;
     }
@@ -275,10 +510,21 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Ingredient implementation that matches item stacks using partial metadata comparison.
+   */
   public static class ItemIngredient extends Ingredient {
 
+    /** The representative item stack for this ingredient. */
     protected final ItemStack item;
 
+    /**
+     * Creates an item ingredient with an optional shaped recipe sign.
+     *
+     * @param item the ingredient item stack
+     * @param sign the shaped recipe sign
+     * @throws IllegalArgumentException if the item is {@code null} or air
+     */
     public ItemIngredient(final ItemStack item, final Character sign) {
       super(sign);
       if (item == null) {
@@ -290,6 +536,11 @@ public class Ingredients {
       this.item = item;
     }
 
+    /**
+     * Creates an item ingredient.
+     *
+     * @param item the ingredient item stack
+     */
     public ItemIngredient(final ItemStack item) {
       this(item, null);
     }
@@ -343,12 +594,26 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Ingredient implementation that requires exact item stack similarity.
+   */
   public static class StrictItemIngredient extends ItemIngredient {
 
+    /**
+     * Creates a strict item ingredient with an optional shaped recipe sign.
+     *
+     * @param item the ingredient item stack
+     * @param sign the shaped recipe sign
+     */
     public StrictItemIngredient(final ItemStack item, final Character sign) {
       super(item, sign);
     }
 
+    /**
+     * Creates a strict item ingredient.
+     *
+     * @param item the ingredient item stack
+     */
     public StrictItemIngredient(final ItemStack item) {
       super(item, null);
     }
@@ -379,11 +644,21 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Ingredient implementation backed by an Oraxen custom item identifier.
+   */
   public static class OraxenIngredient extends Ingredient {
 
     private final ItemStack item;
     private final String id;
 
+    /**
+     * Creates an Oraxen ingredient with an optional shaped recipe sign.
+     *
+     * @param id the Oraxen item identifier
+     * @param sign the shaped recipe sign
+     * @throws IllegalArgumentException if the Oraxen item cannot be found
+     */
     public OraxenIngredient(final String id, final Character sign) {
       super(sign);
       final var builder = OraxenItems.getItemById(id);
@@ -394,6 +669,11 @@ public class Ingredients {
       this.id = id;
     }
 
+    /**
+     * Creates an Oraxen ingredient.
+     *
+     * @param id the Oraxen item identifier
+     */
     public OraxenIngredient(final String id) {
       this(id, null);
     }
@@ -416,6 +696,11 @@ public class Ingredients {
       return false;
     }
 
+    /**
+     * Returns the Oraxen item identifier.
+     *
+     * @return the Oraxen item identifier
+     */
     public String getId() {
       return id;
     }
@@ -441,15 +726,29 @@ public class Ingredients {
     }
   }
 
+  /**
+   * Ingredient implementation backed by an ItemsAdder custom item identifier.
+   */
   public static class ItemsAdderIngredient extends Ingredient {
 
     private final String data;
 
+    /**
+     * Creates an ItemsAdder ingredient with an optional shaped recipe sign.
+     *
+     * @param data the ItemsAdder item identifier
+     * @param sign the shaped recipe sign
+     */
     public ItemsAdderIngredient(final String data, final Character sign) {
       super(sign);
       this.data = data;
     }
 
+    /**
+     * Creates an ItemsAdder ingredient.
+     *
+     * @param data the ItemsAdder item identifier
+     */
     public ItemsAdderIngredient(final String data) {
       this(data, null);
     }

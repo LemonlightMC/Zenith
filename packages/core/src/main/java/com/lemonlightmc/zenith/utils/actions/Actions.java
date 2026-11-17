@@ -1,5 +1,6 @@
 package com.lemonlightmc.zenith.utils.actions;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,8 +28,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -41,14 +41,16 @@ import com.lemonlightmc.zenith.apis.ActionbarAPI;
 import com.lemonlightmc.zenith.apis.ChatAPI;
 import com.lemonlightmc.zenith.apis.TitleAPI;
 import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
-import com.lemonlightmc.zenith.apis.bossbar.BossBar;
-import com.lemonlightmc.zenith.apis.bossbar.BossbarAPI;
+
 import com.lemonlightmc.zenith.internal.ActionSerializer;
 import com.lemonlightmc.zenith.math.MathOperation;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.scheduler.ScheduledTask;
 import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
 
+/**
+ * Collection of built-in action implementations.
+ */
 public class Actions {
 
   public static final ActionSerializer SERIALIZER = ActionSerializer.INSTANCE;
@@ -365,67 +367,6 @@ public class Actions {
     }
   }
 
-  public static class BossBarAction extends Action {
-
-    private final NamespacedKey key;
-    private final String title;
-    private final BarColor color;
-    private final BarStyle style;
-    private final double progress;
-    private final int durationTicks;
-    private final boolean broadcast;
-
-    public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
-        final double progress, final int durationTicks) {
-      this(key, title, color, style, progress, durationTicks, false, null);
-    }
-
-    public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
-        final double progress, final int durationTicks, final boolean broadcast,
-        final Condition<Player> conditions) {
-      super(conditions);
-      this.key = key;
-      this.title = title == null ? "" : title;
-      this.color = color == null ? BarColor.PURPLE : color;
-      this.style = style == null ? BarStyle.SOLID : style;
-      this.progress = Math.max(0.0, Math.min(1.0, progress));
-      this.durationTicks = durationTicks;
-      this.broadcast = broadcast;
-    }
-
-    public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
-        final double progress, final int durationTicks, final boolean broadcast,
-        final Condition<Player> conditions, final boolean useSync) {
-      super(conditions, useSync);
-      this.key = key;
-      this.title = title == null ? "" : title;
-      this.color = color == null ? BarColor.PURPLE : color;
-      this.style = style == null ? BarStyle.SOLID : style;
-      this.progress = Math.max(0.0, Math.min(1.0, progress));
-      this.durationTicks = durationTicks;
-      this.broadcast = broadcast;
-    }
-
-    @Override
-    protected boolean run(final ActionContext context) {
-      final NamespacedKey effectiveKey = key != null ? key
-          : NamespacedKey.minecraft("zenith_action_" + Math.abs(title.hashCode()));
-      BossbarAPI.removeBar(effectiveKey);
-      final BossBar bar = new BossBar(effectiveKey, title, color, style).setProgress(progress).setVisible(true);
-      if (broadcast) {
-        for (final Player p : Bukkit.getOnlinePlayers()) {
-          BossbarAPI.addBar(p, bar);
-        }
-      } else if (context.getTarget() instanceof final Player player) {
-        BossbarAPI.addBar(player, bar);
-      }
-      if (durationTicks > 0) {
-        GlobalScheduler.runLater(() -> BossbarAPI.removeBar(effectiveKey), durationTicks);
-      }
-      return true;
-    }
-  }
-
   public static class ParticleAction extends Action {
 
     private final Particle particle;
@@ -691,14 +632,14 @@ public class Actions {
 
     private final long delayTicks;
 
-    public DelayAction(final long delayTicks) {
+    public DelayAction(final Duration duration) {
       super(null, true);
-      this.delayTicks = Math.max(0L, delayTicks);
+      this.delayTicks = Math.max(0L, duration.getSeconds() * 20);
     }
 
-    public DelayAction(final long delayTicks, final Condition<Player> conditions) {
+    public DelayAction(final Duration duration, final Condition<Player> conditions) {
       super(conditions, true);
-      this.delayTicks = Math.max(0L, delayTicks);
+      this.delayTicks = Math.max(0L, duration.getSeconds() * 20);
     }
 
     public long getDelayTicks() {
@@ -926,26 +867,26 @@ public class Actions {
   public static class InvulnerableAction extends Action {
 
     private final boolean invulnerable;
-    private final int durationTicks;
+    private final long durationTicks;
     private final boolean broadcast;
 
     public InvulnerableAction(final boolean invulnerable) {
-      this(invulnerable, -1, false, null);
+      this(invulnerable, null, false, null);
     }
 
-    public InvulnerableAction(final boolean invulnerable, final int durationTicks, final boolean broadcast,
+    public InvulnerableAction(final boolean invulnerable, final Duration duration, final boolean broadcast,
         final Condition<Player> conditions) {
       super(conditions);
       this.invulnerable = invulnerable;
-      this.durationTicks = durationTicks;
+      this.durationTicks = duration == null ? -1 : duration.getSeconds() * 20;
       this.broadcast = broadcast;
     }
 
-    public InvulnerableAction(final boolean invulnerable, final int durationTicks, final boolean broadcast,
+    public InvulnerableAction(final boolean invulnerable, final Duration duration, final boolean broadcast,
         final Condition<Player> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.invulnerable = invulnerable;
-      this.durationTicks = durationTicks;
+      this.durationTicks = duration == null ? -1 : duration.getSeconds() * 20;
       this.broadcast = broadcast;
     }
 

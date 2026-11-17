@@ -13,6 +13,11 @@ import org.bukkit.event.EventPriority;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Fluent builder for configuring and registering event subscriptions.
+ *
+ * @param <T> the event type handled by the subscription
+ */
 public class EventBuilder<T extends Event> {
   final Class<T> eventClass;
   final EventPriority priority;
@@ -27,6 +32,13 @@ public class EventBuilder<T extends Event> {
   final List<BiPredicate<EventSubscriptionListener<T>, T>> postExpiryTests = new ArrayList<>(0);
   private final List<BiConsumer<EventSubscriptionListener<T>, ? super T>> handlers = new ArrayList<>(1);
 
+  /**
+   * Creates a new event builder for the specified event type and priority.
+   *
+   * @param eventClass the event class to listen for
+   * @param priority the listener priority, or {@code null} for {@link EventPriority#NORMAL}
+   * @throws IllegalArgumentException if {@code eventClass} is {@code null}
+   */
   public EventBuilder(final Class<T> eventClass, final EventPriority priority) {
     if (eventClass == null) {
       throw new IllegalArgumentException("EventClass must be defined");
@@ -35,15 +47,36 @@ public class EventBuilder<T extends Event> {
     this.priority = priority == null ? EventPriority.NORMAL : priority;
   }
 
+  /**
+   * Creates a new event builder with normal priority.
+   *
+   * @param eventClass the event class to listen for
+   * @param <T> the event type
+   * @return a new event builder
+   */
   public static <T extends Event> EventBuilder<T> newBuilder(final Class<T> eventClass) {
     return new EventBuilder<T>(eventClass, EventPriority.NORMAL);
   }
 
+  /**
+   * Creates a new event builder with the specified priority.
+   *
+   * @param eventClass the event class to listen for
+   * @param priority the listener priority
+   * @param <T> the event type
+   * @return a new event builder
+   */
   public static <T extends Event> EventBuilder<T> newBuilder(final Class<T> eventClass,
       final EventPriority priority) {
     return new EventBuilder<T>(eventClass, priority);
   }
 
+  /**
+   * Adds a filter that must pass before handlers are invoked.
+   *
+   * @param predicate the filter predicate
+   * @return this builder for chaining
+   */
   public EventBuilder<T> filter(final Predicate<T> predicate) {
     if (predicate != null) {
       this.filters.add(predicate);
@@ -51,6 +84,12 @@ public class EventBuilder<T extends Event> {
     return this;
   }
 
+  /**
+   * Sets the consumer used to handle exceptions thrown by handlers.
+   *
+   * @param exceptionConsumer the exception consumer
+   * @return this builder for chaining
+   */
   public EventBuilder<T> exceptionConsumer(final BiConsumer<? super T, Throwable> exceptionConsumer) {
     if (exceptionConsumer != null) {
       this.exceptionConsumer = exceptionConsumer;
@@ -58,25 +97,53 @@ public class EventBuilder<T extends Event> {
     return this;
   }
 
+  /**
+   * Enables handling of subclasses of the configured event type.
+   *
+   * @return this builder for chaining
+   */
   public EventBuilder<T> handleSubclasses() {
     this.handleSubclasses = true;
     return this;
   }
 
+  /**
+   * Returns the handlers configured on this builder.
+   *
+   * @return the configured handlers
+   */
   public List<BiConsumer<EventSubscriptionListener<T>, ? super T>> handlers() {
     return handlers;
   }
 
+  /**
+   * Registers a handler for the event and creates the subscription.
+   *
+   * @param handler the event handler
+   * @return the registered event subscription listener
+   */
   public EventSubscriptionListener<T> handler(final Consumer<? super T> handler) {
     this.handlers.add(new ConsumerToBiConsumerSecond<>(handler));
     return register();
   }
 
+  /**
+   * Registers a handler that receives both the subscription and the event.
+   *
+   * @param handler the event handler
+   * @return the registered event subscription listener
+   */
   public EventSubscriptionListener<T> handler(final BiConsumer<EventSubscriptionListener<T>, ? super T> handler) {
     this.handlers.add(handler);
     return register();
   }
 
+  /**
+   * Registers the configured subscription with at least one handler.
+   *
+   * @return the registered event subscription listener
+   * @throws IllegalStateException if no handlers have been configured
+   */
   public EventSubscriptionListener<T> register() {
     if (this.handlers.isEmpty()) {
       throw new IllegalStateException("No handlers have been registered");
@@ -84,6 +151,13 @@ public class EventBuilder<T extends Event> {
     return new EventSubscriptionListener<>(this, handlers);
   }
 
+  /**
+   * Adds an expiry test evaluated at the specified stages.
+   *
+   * @param predicate the expiry predicate
+   * @param testPoints the stages at which to evaluate the predicate
+   * @return this builder for chaining
+   */
   public EventBuilder<T> expireIf(final BiPredicate<EventSubscriptionListener<T>, T> predicate,
       final ExpiryTestStage... testPoints) {
     if (predicate == null || testPoints == null || testPoints.length == 0) {
@@ -107,10 +181,23 @@ public class EventBuilder<T extends Event> {
     return this;
   }
 
+  /**
+   * Adds an expiry condition evaluated before filtering and after handling.
+   *
+   * @param predicate the expiry predicate
+   * @return this builder for chaining
+   */
   public EventBuilder<T> expireIf(final Predicate<T> predicate) {
     return expireIf(new PredicateToBiPredicate<>(predicate), ExpiryTestStage.PRE, ExpiryTestStage.POST_HANDLE);
   }
 
+  /**
+   * Expires the subscription after the specified duration.
+   *
+   * @param duration the duration amount
+   * @param unit the time unit of the duration
+   * @return this builder for chaining
+   */
   public EventBuilder<T> expireAfter(final long duration, final TimeUnit unit) {
     if (unit == null) {
       return this;
@@ -120,12 +207,24 @@ public class EventBuilder<T extends Event> {
     return expireIf((handler, event) -> System.currentTimeMillis() > expiry, ExpiryTestStage.PRE);
   }
 
+  /**
+   * Expires the subscription after the specified number of handled calls.
+   *
+   * @param maxCalls the maximum number of calls
+   * @return this builder for chaining
+   */
   public EventBuilder<T> expireAfter(final long maxCalls) {
     Preconditions.checkArgument(maxCalls >= 1, "maxCalls < 1");
     return expireIf((handler, event) -> handler.getCallCounter() >= maxCalls, ExpiryTestStage.PRE,
         ExpiryTestStage.POST_HANDLE);
   }
 
+  /**
+   * Adapts a single-argument predicate to a bi-predicate by ignoring the first argument.
+   *
+   * @param <T> the ignored first argument type
+   * @param <U> the tested argument type
+   */
   public static final class PredicateToBiPredicate<T, U>
       implements BiPredicate<T, U> {
     final Predicate<U> delegate;
@@ -154,21 +253,23 @@ public class EventBuilder<T extends Event> {
     }
   }
 
+  /**
+   * Stages at which expiry predicates may be evaluated.
+   */
   public enum ExpiryTestStage {
 
     /**
-     * The expiry predicate should be tested before the event is filtered or handled
+     * Evaluates the expiry predicate before filtering or handling.
      */
     PRE,
 
     /**
-     * The expiry predicate should be tested after the subscriptions filters have
-     * been evaluated
+     * Evaluates the expiry predicate after filters have been applied.
      */
     POST_FILTER,
 
     /**
-     * The expiry predicate should be tested after the event has been handled
+     * Evaluates the expiry predicate after handlers have been invoked.
      */
     POST_HANDLE
 

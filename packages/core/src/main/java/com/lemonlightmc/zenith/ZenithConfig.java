@@ -89,6 +89,16 @@ public class ZenithConfig {
     @Comment("Cache Flush Interval (seconds)\nHow often cached data is written to database\nLower = frequent saves, more CPU usage | Higher = better performance, slight crash risk\nRecommendations: <20 players: 30s | 20-50: 60s | 50-100: 120-180s | 100+: 300s")
     public int cacheInterval = 30;
 
+    /**
+     * Loads a Zenith configuration from the given YAML file path.
+     *
+     * <p>If the file does not exist, defaults are copied and saved. Missing values in existing files are merged with
+     * defaults according to the loader configuration.
+     *
+     * @param path the configuration file path to load
+     * @return the loaded configuration
+     * @throws ConfigParsingException if the configuration cannot be loaded or parsed
+     */
     public static ZenithConfig from(final Path path) {
         final ObjectMapper.Factory customFactory = ObjectMapper.factoryBuilder()
                 .addNodeResolver(NodeResolver.onlyWithSetting())
@@ -185,6 +195,9 @@ public class ZenithConfig {
      * serializer, so one is registered explicitly in {@link #from(Path)}.
      */
     private static final class LocaleSerializer implements TypeSerializer<Locale> {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Locale deserialize(final Type type, final ConfigurationNode node) {
             final String value = node.getString();
@@ -194,6 +207,9 @@ public class ZenithConfig {
             return StringUtils.parseLocale(value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void serialize(final Type type, final Locale obj, final ConfigurationNode node)
                 throws org.spongepowered.configurate.serialize.SerializationException {
@@ -282,12 +298,16 @@ public class ZenithConfig {
         /** The message formatting options. */
         @ConfigSerializable
         public static class Format {
+            /** Whether the logger name should be included in formatted output. */
             @Setting("showLoggerName")
             public boolean showLoggerName = true;
+            /** Whether thread context should be included in formatted output. */
             @Setting("showThreadContext")
             public boolean showThreadContext = true;
+            /** Whether date and time should be included in formatted output. */
             @Setting("showDateTime")
             public boolean showDateTime = true;
+            /** The date and time format pattern used for log timestamps. */
             @Setting("dateTimeFormat")
             public String dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         }
@@ -433,18 +453,23 @@ public class ZenithConfig {
         /** The MySQL connection pool settings. */
         @ConfigSerializable
         public static class PoolSettings {
+            /** The maximum number of connections allowed in the pool. */
             @Setting("maximum-pool-size")
             @Comment("Sets the maximum size of the MySQL connection pool.\n- Basically this value will determine the maximum number of actual connections to the database backend.")
             public int maximumPoolSize = 10;
+            /** The minimum number of idle connections the pool attempts to maintain. */
             @Setting("minimum-idle")
             @Comment("Sets the minimum number of idle connections that the pool will try to maintain.\n- For maximum performance and responsiveness to spike demands, it is recommended to not set this value and instead allow the pool to act as a fixed size connection pool.")
             public int minimumIdle = 10;
+            /** The maximum lifetime of a pooled connection in milliseconds. */
             @Setting("maximum-lifetime")
             @Comment("This setting controls the maximum lifetime of a connection in the pool in milliseconds.\n- The value should be at least 30 seconds less than any database or infrastructure imposed connection time limit.\n- Default: 1800000 (30 minutes)")
             public int maximumLifetime = 1800000;
+            /** The keepalive interval for pooled connections in milliseconds. */
             @Setting("keepalive-time")
             @Comment("This setting controls how frequently the pool will 'ping' a connection in order to prevent it from being timed out, measured in milliseconds.\n- The value should be less than maximum-lifetime and greater than 30000 (30 seconds).\n- Setting the value to zero will disable the keepalive functionality.")
             public int keepaliveTime = 0;
+            /** The maximum wait time for acquiring a pooled connection in milliseconds. */
             @Setting("connection-timeout")
             @Comment("This setting controls the maximum number of milliseconds that the plugin will wait for a connection from the pool, before timing out.\n- Default: 5000 (5 seconds)")
             public int connectionTimeout = 5000;

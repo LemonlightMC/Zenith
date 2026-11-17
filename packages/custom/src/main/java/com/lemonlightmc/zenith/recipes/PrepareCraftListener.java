@@ -18,8 +18,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Listener that validates custom recipe interactions against Bukkit prepare and cook events.
+ */
 public class PrepareCraftListener implements Listener {
 
+  /**
+   * Creates a prepare craft listener.
+   */
   public PrepareCraftListener() {
   }
 
@@ -27,6 +33,11 @@ public class PrepareCraftListener implements Listener {
     return itemIngredient.isSimilar(item);
   }
 
+  /**
+   * Validates custom smelting recipes during block cook events.
+   *
+   * @param event the block cook event
+   */
   @EventHandler
   public void onSmelt(final BlockCookEvent event) {
     if (event.isCancelled()) {
@@ -51,6 +62,11 @@ public class PrepareCraftListener implements Listener {
     }
   }
 
+  /**
+   * Validates custom smithing transform recipes before the result is produced.
+   *
+   * @param event the prepare smithing event
+   */
   @EventHandler
   public void onSmithingTransform(final PrepareSmithingEvent event) {
     if (event.getInventory().getRecipe() == null) {
@@ -88,6 +104,11 @@ public class PrepareCraftListener implements Listener {
     }
   }
 
+  /**
+   * Validates custom crafting recipes before the crafting result is finalized.
+   *
+   * @param event the prepare item craft event
+   */
   @EventHandler
   public void onPrepareCraft(final PrepareItemCraftEvent event) {
     final org.bukkit.inventory.Recipe recipe = event.getRecipe();

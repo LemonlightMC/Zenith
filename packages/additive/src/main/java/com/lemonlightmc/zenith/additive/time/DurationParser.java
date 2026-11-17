@@ -4,6 +4,9 @@ import java.util.regex.Pattern;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
+/**
+ * Parses duration strings into millisecond values.
+ */
 public class DurationParser {
   private static final Pattern pattern1 = Pattern
       .compile(
@@ -12,6 +15,12 @@ public class DurationParser {
       .compile(
           "([1-9]+(?:\\.\\w+)?\\s*)(tick|ticks|sec|second|seconds|min|minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years|[tsmhdwy])");
 
+  /**
+   * Parses a duration string into milliseconds.
+   *
+   * @param str the duration string to parse
+   * @return the parsed duration in milliseconds, or {@code 0} if parsing fails
+   */
   public static long parse(final String str) {
     if (str == null || str.length() == 0) {
       return 0l;
@@ -34,6 +43,13 @@ public class DurationParser {
     return time;
   }
 
+  /**
+   * Parses a numeric duration string using the specified unit.
+   *
+   * @param str the numeric duration string to parse
+   * @param unit the unit to apply to the parsed value
+   * @return the parsed duration in milliseconds, or {@code 0} if parsing fails
+   */
   public static long parse(final String str, final PolyTimeUnit unit) {
     if (str == null || str.length() == 0) {
       return 0l;

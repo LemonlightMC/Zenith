@@ -16,26 +16,62 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.apis.bossbar.events.BossBarAddEvent;
 import com.lemonlightmc.zenith.apis.bossbar.events.BossBarRemoveEvent;
 
+/**
+ * Provides registry and management utilities for Zenith {@link BossBar} instances.
+ *
+ * <p>The API tracks boss bars globally and per player, and dispatches related boss bar events when bars are added or
+ * removed.
+ */
 public class BossbarAPI {
+  /** Registered boss bars indexed by their namespaced key. */
   private static final Map<NamespacedKey, BossBar> registry = new ConcurrentHashMap<>();
+  /** Boss bars currently associated with each player. */
   private static final Map<UUID, Collection<BossBar>> barMap = new ConcurrentHashMap<>();
 
+  /**
+   * Creates a new boss bar builder for the given key.
+   *
+   * @param key the namespaced key for the boss bar
+   * @return a new boss bar builder
+   */
   public static BossBarBuilder builder(final NamespacedKey key) {
     return new BossBarBuilder(key);
   }
 
+  /**
+   * Creates a new boss bar builder without a preconfigured key.
+   *
+   * @return a new boss bar builder
+   */
   public static BossBarBuilder builder() {
     return new BossBarBuilder();
   }
 
+  /**
+   * Returns an iterator over Bukkit's registered keyed boss bars.
+   *
+   * @return an iterator over registered keyed boss bars
+   */
   public static Iterator<KeyedBossBar> getBossBars() {
     return Bukkit.getBossBars();
   }
 
+  /**
+   * Returns the registered Zenith boss bar for the given key.
+   *
+   * @param key the boss bar key
+   * @return the registered boss bar, or {@code null} if none is registered
+   */
   public static BossBar getBossBar(final NamespacedKey key) {
     return registry.get(key);
   }
 
+  /**
+   * Returns the boss bars currently associated with a player.
+   *
+   * @param player the player to inspect
+   * @return the player's associated boss bars, or an empty collection if none are tracked
+   */
   public static Collection<BossBar> getBossBars(final Player player) {
     if (player == null) {
       return List.of();
@@ -43,10 +79,23 @@ public class BossbarAPI {
     return barMap.get(player.getUniqueId());
   }
 
+  /**
+   * Returns whether a boss bar is registered for the given key.
+   *
+   * @param key the boss bar key
+   * @return {@code true} if a boss bar is registered; {@code false} otherwise
+   */
   public static boolean hasBar(final NamespacedKey key) {
     return registry.containsKey(key);
   }
 
+  /**
+   * Returns the boss bar associated with a player for the given key, if present.
+   *
+   * @param player the player to inspect
+   * @param key the boss bar key
+   * @return the matching boss bar, or {@code null} if not found
+   */
   public static BossBar hasBar(final Player player, final NamespacedKey key) {
     if (player == null || key == null) {
       return null;
@@ -63,6 +112,12 @@ public class BossbarAPI {
     return null;
   }
 
+  /**
+   * Returns whether a player has any tracked boss bars.
+   *
+   * @param player the player to inspect
+   * @return {@code true} if the player has tracked boss bars; {@code false} otherwise
+   */
   public static boolean hasBars(final Player player) {
     if (player == null) {
       return false;
@@ -71,6 +126,11 @@ public class BossbarAPI {
     return list != null && !list.isEmpty();
   }
 
+  /**
+   * Removes a registered boss bar globally by key.
+   *
+   * @param key the boss bar key to remove
+   */
   public static void removeBar(final NamespacedKey key) {
     if (key == null) {
       return;
@@ -88,6 +148,12 @@ public class BossbarAPI {
     }
   }
 
+  /**
+   * Removes a registered boss bar association for a specific player.
+   *
+   * @param player the player to remove the bar from
+   * @param key the boss bar key to remove
+   */
   public static void removeBar(final Player player, final NamespacedKey key) {
     if (key == null) {
       return;
@@ -101,6 +167,11 @@ public class BossbarAPI {
     new BossBarRemoveEvent(bar, player).call();
   }
 
+  /**
+   * Removes all tracked boss bars from a player.
+   *
+   * @param player the player whose tracked boss bars should be removed
+   */
   public static void removeAllBars(final Player player) {
     if (player == null) {
       return;
@@ -115,6 +186,12 @@ public class BossbarAPI {
     }
   }
 
+  /**
+   * Adds a boss bar to a player and tracks the association.
+   *
+   * @param player the player to receive the boss bar
+   * @param bossBar the boss bar to add
+   */
   public static void addBar(final Player player, final BossBar bossBar) {
     if (bossBar == null || player == null) {
       return;
@@ -123,6 +200,12 @@ public class BossbarAPI {
     new BossBarAddEvent(bossBar, player).call();
   }
 
+  /**
+   * Sets the progress of a registered boss bar.
+   *
+   * @param key the boss bar key
+   * @param percentage the new progress value
+   */
   public static void setProgress(final NamespacedKey key, final float percentage) {
     final BossBar bar = getBossBar(key);
     if (bar == null) {
@@ -132,8 +215,10 @@ public class BossbarAPI {
   }
 
   /**
-   * @param player {@link Player}
-   * @return The progress of the player's bar
+   * Returns the progress of a registered boss bar.
+   *
+   * @param key the boss bar key
+   * @return the boss bar progress, or {@code -1} if no matching bar is registered
    */
   public static double getProgress(final NamespacedKey key) {
     final BossBar bar = getBossBar(key);
@@ -143,6 +228,12 @@ public class BossbarAPI {
     return bar.getProgress();
   }
 
+  /**
+   * Adds a boss bar to a player's tracked collection.
+   *
+   * @param player the player receiving the boss bar
+   * @param bossBar the boss bar to track
+   */
   private static void addBarForPlayer(final Player player, final BossBar bossBar) {
     bossBar.addPlayers(player);
     barMap.compute(player.getUniqueId(), (uuid, collection) -> {
@@ -154,6 +245,12 @@ public class BossbarAPI {
     });
   }
 
+  /**
+   * Removes a boss bar from a player's tracked collection.
+   *
+   * @param player the player to update
+   * @param bossBar the boss bar to remove
+   */
   private static void removeBarForPlayer(final Player player, final BossBar bossBar) {
     bossBar.removePlayers(player);
 

@@ -3,6 +3,9 @@ package com.lemonlightmc.zenith.sound;
 import com.lemonlightmc.zenith.additive.interfaces.Builder;
 import com.lemonlightmc.zenith.additive.math.MathUtils;
 
+/**
+ * Represents an instrument used by playable notes.
+ */
 public class Instrument {
 
   public static final int DEFAULT_INSTRUMENT = NoteInstrument.HARP.getKey();
@@ -94,6 +97,9 @@ public class Instrument {
 
   /**
    * Enumeration of Minecraft non-custom instruments
+   */
+  /**
+   * Built-in note block instrument definition.
    */
   public static class NoteInstrument extends Instrument {
     /**
@@ -188,6 +194,9 @@ public class Instrument {
     }
   }
 
+  /**
+   * Represents a custom instrument backed by a named sound resource.
+   */
   public static class CustomInstrument extends Instrument {
     private final String name;
     private final String fileName;
@@ -273,6 +282,9 @@ public class Instrument {
     }
   }
 
+  /**
+   * Builder for creating {@link CustomInstrument} instances.
+   */
   public static class CustomInstrumentBuilder implements Builder<CustomInstrument> {
 
     private String name = "";

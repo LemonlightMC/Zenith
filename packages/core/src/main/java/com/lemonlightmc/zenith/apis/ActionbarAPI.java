@@ -17,8 +17,22 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+/**
+ * Utility methods for sending formatted action bar messages to players.
+ *
+ * <p>Messages are formatted with {@link MessageFormatter} and delivered through the Spigot action bar channel.
+ */
 public class ActionbarAPI {
 
+  /** Tracks repeating action bar tasks per player. */
+  private static final Map<UUID, BukkitTask> PENDING_MESSAGES = new HashMap<>();
+
+  /**
+   * Broadcasts a formatted action bar message to all online players.
+   *
+   * @param msg the message to format and send
+   * @param replaceables values to substitute into the message
+   */
   public static void broadcast(
       final String msg,
       final Replaceable... replaceables) {
@@ -27,6 +41,13 @@ public class ActionbarAPI {
     }
   }
 
+  /**
+   * Sends a formatted action bar message to a player.
+   *
+   * @param p the player to receive the message
+   * @param msg the message to format and send
+   * @param replaceables values to substitute into the message
+   */
   public static void send(
       final Player p,
       final String msg,
@@ -36,8 +57,16 @@ public class ActionbarAPI {
         TextComponent.fromLegacy(MessageFormatter.format(msg, false, true, replaceables)));
   }
 
-  private final static Map<UUID, BukkitTask> PENDING_MESSAGES = new HashMap<>();
-
+  /**
+   * Sends a formatted action bar message to a player for a specified duration.
+   *
+   * <p>If a previous timed action bar task exists for the player, it is cancelled before scheduling a new one.
+   *
+   * @param p the player to receive the message
+   * @param msg the message to format and send
+   * @param duration the display duration control used by this implementation
+   * @param replaceables values to substitute into the message
+   */
   public static void send(
       final Player p,
       String msg,

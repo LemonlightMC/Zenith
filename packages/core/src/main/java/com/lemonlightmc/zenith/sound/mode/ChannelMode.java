@@ -7,6 +7,9 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.sound.Note;
 import com.lemonlightmc.zenith.sound.Sound;
 
+/**
+ * Defines how playable sounds are emitted to players across audio channels.
+ */
 public abstract class ChannelMode {
 
     public abstract void play(Player player, Location location, Note note, double volume, double pitch);

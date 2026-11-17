@@ -10,13 +10,27 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
+/**
+ * Configurate serializer for {@link ItemStack} values.
+ */
 public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
 
+  /**
+   * Shared serializer instance.
+   */
   public static final ItemStackSerializer INSTANCE = new ItemStackSerializer();
 
   private ItemStackSerializer() {
   }
 
+  /**
+   * Deserializes an {@link ItemStack} from a configuration node.
+   *
+   * @param type the target type being deserialized
+   * @param node the configuration node to read from
+   * @return the deserialized item stack, or {@code null} if the node is null or empty
+   * @throws SerializationException if the node cannot be converted into an item stack
+   */
   @Override
   public ItemStack deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -35,6 +49,14 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  /**
+   * Serializes an {@link ItemStack} into a configuration node.
+   *
+   * @param type the source type being serialized
+   * @param obj the item stack to serialize
+   * @param node the configuration node to write to
+   * @throws SerializationException if the item stack cannot be serialized
+   */
   @Override
   public void serialize(final Type type, final ItemStack obj, final ConfigurationNode node)
       throws SerializationException {

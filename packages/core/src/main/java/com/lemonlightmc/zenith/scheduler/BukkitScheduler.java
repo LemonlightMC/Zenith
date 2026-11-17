@@ -13,21 +13,49 @@ import org.bukkit.scheduler.BukkitWorker;
 
 import com.lemonlightmc.zenith.ZenithProvider;
 
+/**
+ * {@link Scheduler} implementation backed by the standard Bukkit scheduler.
+ */
 public class BukkitScheduler implements Scheduler {
   private static final int NO_REPEATING = -1;
 
+  /**
+   * Represents the thread context in which a scheduled task executes.
+   */
   public static enum ThreadContext {
+    /**
+     * Executes on the main server thread.
+     */
     SYNC,
+    /**
+     * Executes asynchronously off the main server thread.
+     */
     ASYNC;
-    
+
+    /**
+     * Checks whether the current thread is Bukkit's primary server thread.
+     *
+     * @return {@code true} if the current thread is primary; {@code false} otherwise
+     */
     public static boolean isPrimary() {
       return Bukkit.getServer().isPrimaryThread();
     }
 
+    /**
+     * Gets the thread context for the current thread.
+     *
+     * @return {@link #SYNC} if on the primary thread, otherwise {@link #ASYNC}
+     */
     public static ThreadContext forCurrentThread() {
       return Bukkit.getServer().isPrimaryThread() ? SYNC : ASYNC;
     }
 
+    /**
+     * Gets the thread context for the specified thread.
+     *
+     * @param thread the thread to evaluate
+     * @return {@link #SYNC} if the thread matches the primary thread, otherwise {@link #ASYNC}
+     */
     public static ThreadContext forThread(final Thread thread) {
       return (Bukkit.getServer().isPrimaryThread() && thread == Thread.currentThread())
           ? SYNC

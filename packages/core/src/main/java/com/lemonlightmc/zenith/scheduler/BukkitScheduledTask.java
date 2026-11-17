@@ -10,16 +10,35 @@ import org.bukkit.scheduler.BukkitTask;
 import com.lemonlightmc.zenith.exceptions.SchedulerException;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler.ThreadContext;
 
+/**
+ * {@link ScheduledTask} implementation backed by a Bukkit {@link BukkitTask}.
+ */
 public class BukkitScheduledTask implements ScheduledTask {
 
+  /** The underlying Bukkit task. */
   protected final BukkitTask backing;
+  /** Tracks the number of times the task has run. */
   protected final AtomicInteger counter = new AtomicInteger(0);
+  /** Tracks whether the task has been cancelled. */
   protected final AtomicBoolean cancelled = new AtomicBoolean(false);
+  /** The Bukkit task id. */
   protected final int taskId;
+  /** The execution thread context. */
   protected final ThreadContext ctx;
+  /** The initial delay in ticks. */
   protected final long delay;
+  /** The repeating interval in ticks, or {@code -1} if non-repeating. */
   protected final long interval;
 
+  /**
+   * Creates a new scheduled task wrapper around a Bukkit task.
+   *
+   * @param backing the backing Bukkit task
+   * @param ctx the execution thread context
+   * @param delay the initial delay in ticks
+   * @param interval the repeating interval in ticks, or {@code -1} if non-repeating
+   * @throws SchedulerException if the backing task is invalid
+   */
   public BukkitScheduledTask(final BukkitTask backing, final ThreadContext ctx,
       final long delay, final long interval) {
     this.backing = backing;

@@ -5,6 +5,9 @@ import org.bukkit.Note.Tone;
 import com.google.common.base.Preconditions;
 import com.lemonlightmc.zenith.additive.math.MathUtils;
 
+/**
+ * Represents a single playable note with pitch, instrument, and playback properties.
+ */
 public class Note extends Playable {
   public static final int MINIMUM_NOTE = 0;
   public static final int MAXIMUM_NOTE = 87;
@@ -159,6 +162,9 @@ public class Note extends Playable {
     return note == other.note && Double.doubleToLongBits(pitch) == Double.doubleToLongBits(other.pitch);
   }
 
+  /**
+   * Builder for creating {@link Note} instances.
+   */
   public static class NoteBuilder extends PlayableBuilder {
     private Instrument instrument = Instrument.NoteInstrument.HARP;
     private byte note = 45;

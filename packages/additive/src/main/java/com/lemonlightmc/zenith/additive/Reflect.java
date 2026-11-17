@@ -15,11 +15,22 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+/**
+ * Reflection helpers for accessing classes, constructors, methods, fields, and caller metadata.
+ */
 public class Reflect {
+  /** Cached {@link VarHandle} for accessing field modifiers when available. */
   public static VarHandle modifiersVarHandle;
+  /** Cached reflective {@link Field} for the {@code modifiers} field when available. */
   public static Field modifiersField;
+  /** Cached reflective access to {@code Class#getDeclaredFields0(boolean)} when available. */
   public static Method getDeclaredFields0;
 
+  /**
+   * Returns a {@link VarHandle} for the {@code modifiers} field of {@link Field} when supported by the runtime.
+   *
+   * @return the modifiers {@link VarHandle}, or {@code null} if unavailable
+   */
   public static VarHandle modifiersVarHandle() {
     if (modifiersVarHandle != null) {
       return modifiersVarHandle;
@@ -34,6 +45,11 @@ public class Reflect {
     return modifiersVarHandle;
   }
 
+  /**
+   * Returns the reflective {@link Field} representing {@link Field#modifiers} when accessible.
+   *
+   * @return the modifiers field, or {@code null} if unavailable
+   */
   public static Field modifiersField() {
     if (modifiersField != null) {
       return modifiersField;
@@ -46,6 +62,12 @@ public class Reflect {
     return modifiersField;
   }
 
+  /**
+   * Returns the declared fields of the given class using reflective access to internal APIs when available.
+   *
+   * @param cls class whose declared fields should be retrieved
+   * @return the declared fields, or {@code null} if they cannot be retrieved
+   */
   public static Field[] declaredFields(final Class<?> cls) {
     if (getDeclaredFields0 == null) {
       try {
@@ -63,6 +85,12 @@ public class Reflect {
     }
   }
 
+  /**
+   * Checks whether a class with the given name can be loaded.
+   *
+   * @param className fully qualified class name to check
+   * @return {@code true} if the class exists and can be loaded; otherwise {@code false}
+   */
   public static boolean hasClass(final String className) {
     if (className == null || className.isEmpty()) {
       return false;
@@ -75,6 +103,12 @@ public class Reflect {
     }
   }
 
+  /**
+   * Loads and returns the class with the given name.
+   *
+   * @param className fully qualified class name to load
+   * @return the loaded {@link Class}, or {@code null} if it cannot be found
+   */
   public static Class<?> getClass(final String className) {
     if (className == null || className.isEmpty()) {
       return null;
@@ -86,6 +120,14 @@ public class Reflect {
     }
   }
 
+  /**
+   * Finds the first class in the given JAR file that is assignable to the specified type.
+   *
+   * @param file jar file to scan
+   * @param clazz target type to search for
+   * @param <T> target type parameter
+   * @return the first matching class, or {@code null} if none is found
+   */
   public static <T> Class<? extends T> findClass(final File file, final Class<T> clazz) {
     if (!file.exists()) {
       return null;
@@ -124,6 +166,14 @@ public class Reflect {
     }
   }
 
+  /**
+   * Returns an accessible constructor for the given class and parameter types.
+   *
+   * @param clazz class whose constructor should be retrieved
+   * @param args constructor parameter types
+   * @param <T> class type parameter
+   * @return the accessible constructor, or {@code null} if it cannot be found
+   */
   public static <T> Constructor<T> getConstructor(final Class<T> clazz, final Class<?>... args) {
     if (clazz == null) {
       return null;
@@ -138,6 +188,14 @@ public class Reflect {
     }
   }
 
+  /**
+   * Returns an accessible constructor for the given class matching the runtime types of the provided arguments.
+   *
+   * @param clazz class whose constructor should be retrieved
+   * @param args constructor arguments whose runtime types are used for lookup
+   * @param <T> class type parameter
+   * @return the accessible constructor, or {@code null} if it cannot be found
+   */
   public static <T> Constructor<T> getConstructor(final Class<T> clazz, final Object... args) {
     if (clazz == null) {
       return null;
@@ -151,6 +209,14 @@ public class Reflect {
     return getConstructor(clazz, (Class<?>) null);
   }
 
+  /**
+   * Creates a new instance of the given class using constructor arguments matched by their runtime types.
+   *
+   * @param clazz class to instantiate
+   * @param args constructor arguments
+   * @param <T> class type parameter
+   * @return the new instance, or {@code null} if instantiation fails
+   */
   public static <T> T newInstance(final Class<T> clazz, final Object... args) {
     if (clazz == null) {
       return null;
@@ -163,6 +229,15 @@ public class Reflect {
     }
   }
 
+  /**
+   * Creates a new instance of the given class using the specified constructor parameter types.
+   *
+   * @param clazz class to instantiate
+   * @param argTypes constructor parameter types
+   * @param args constructor arguments
+   * @param <T> class type parameter
+   * @return the new instance, or {@code null} if instantiation fails
+   */
   public static <T> T newInstance(final Class<T> clazz, final Class<?>[] argTypes, final Object... args) {
     if (clazz == null) {
       return null;
@@ -175,6 +250,13 @@ public class Reflect {
     }
   }
 
+  /**
+   * Returns the enum constant with the given name from the specified enum class, ignoring case.
+   *
+   * @param clazz enum class to search
+   * @param constant enum constant name
+   * @return the matching enum constant, or {@code null} if not found
+   */
   public static Enum<?> getEnum(final Class<?> clazz, final String constant) {
     if (clazz == null || constant == null || constant.isEmpty()) {
       return null;
@@ -190,6 +272,15 @@ public class Reflect {
     return null;
   }
 
+  /**
+   * Returns the enum constant with the given name from a nested enum type of the specified class.
+   *
+   * @param clazz outer class containing the nested enum type
+   * @param enumname nested enum type name
+   * @param constant enum constant name
+   * @return the matching enum constant, or {@code null} if not found
+   * @throws ClassNotFoundException if the nested enum type cannot be resolved
+   */
   public static Enum<?> getEnum(final Class<?> clazz, final String enumname, final String constant)
       throws ClassNotFoundException {
     if (clazz == null || enumname == null || enumname.isEmpty() || constant == null || constant.isEmpty()) {
@@ -203,6 +294,13 @@ public class Reflect {
     }
   }
 
+  /**
+   * Returns an accessible declared field with the given name from the specified class.
+   *
+   * @param clazz class declaring the field
+   * @param fieldName name of the field to retrieve
+   * @return the accessible field, or {@code null} if it cannot be found
+   */
   public static Field getField(final Class<?> clazz, final String fieldName) {
     if (clazz == null || fieldName == null || fieldName.isEmpty()) {
       return null;
@@ -216,6 +314,14 @@ public class Reflect {
     }
   }
 
+  /**
+   * Returns an accessible declared method with the given name and parameter types from the specified class.
+   *
+   * @param clazz class declaring the method
+   * @param methodName name of the method to retrieve
+   * @param args method parameter types
+   * @return the accessible method, or {@code null} if it cannot be found
+   */
   public static Method getMethod(final Class<?> clazz, final String methodName, final Class<?>... args) {
     if (clazz == null || methodName == null || methodName.isEmpty()) {
       return null;
@@ -229,6 +335,13 @@ public class Reflect {
     }
   }
 
+  /**
+   * Invokes a no-argument method on the given object.
+   *
+   * @param obj object on which to invoke the method
+   * @param methodName name of the method to invoke
+   * @return the invocation result, or {@code null} if invocation fails
+   */
   public static Object invokeMethod(final Object obj, final String methodName) {
     if (obj == null) {
       return null;
@@ -236,6 +349,14 @@ public class Reflect {
     return invokeMethod(obj.getClass(), obj, methodName, (Class<?>[]) null, (Object[]) null);
   }
 
+  /**
+   * Invokes a method on the given object using argument runtime types for lookup.
+   *
+   * @param obj object on which to invoke the method
+   * @param methodName name of the method to invoke
+   * @param args method arguments
+   * @return the invocation result, or {@code null} if invocation fails
+   */
   public static Object invokeMethod(final Object obj, final String methodName, final Object[] args) {
     if (obj == null) {
       return null;
@@ -243,6 +364,15 @@ public class Reflect {
     return invokeMethod(obj.getClass(), obj, methodName, args);
   }
 
+  /**
+   * Invokes a method on the given object using explicit parameter types.
+   *
+   * @param obj object on which to invoke the method
+   * @param methodName name of the method to invoke
+   * @param argTypes method parameter types
+   * @param args method arguments
+   * @return the invocation result, or {@code null} if invocation fails
+   */
   public static Object invokeMethod(final Object obj, final String methodName, final Class<?>[] argTypes,
       final Object[] args) {
     if (obj == null) {
@@ -251,6 +381,15 @@ public class Reflect {
     return invokeMethod(obj.getClass(), obj, methodName, argTypes, args);
   }
 
+  /**
+   * Invokes a method declared by the given class using argument runtime types for lookup.
+   *
+   * @param clazz class declaring the method
+   * @param obj object on which to invoke the method
+   * @param methodName name of the method to invoke
+   * @param args method arguments
+   * @return the invocation result, or {@code null} if invocation fails
+   */
   public static Object invokeMethod(final Class<?> clazz, final Object obj, final String methodName,
       final Object... args) {
     if (args == null || args.length == 0) {
@@ -264,6 +403,16 @@ public class Reflect {
     return invokeMethod(clazz, obj, methodName, argTypes, args);
   }
 
+  /**
+   * Invokes a method declared by the given class using explicit parameter types.
+   *
+   * @param clazz class declaring the method
+   * @param obj object on which to invoke the method
+   * @param methodName name of the method to invoke
+   * @param argTypes method parameter types
+   * @param args method arguments
+   * @return the invocation result, or {@code null} if invocation fails
+   */
   public static Object invokeMethod(final Class<?> clazz, final Object obj, final String methodName,
       final Class<?>[] argTypes, final Object[] args) {
     if (clazz == null || methodName == null || methodName.isEmpty()) {
@@ -281,6 +430,13 @@ public class Reflect {
     }
   }
 
+  /**
+   * Invokes the given method on the provided object with no arguments.
+   *
+   * @param method method to invoke
+   * @param obj object on which to invoke the method
+   * @return the invocation result, or {@code null} if invocation fails
+   */
   public static Object invokeMethod(final Method method, final Object obj) {
     if (method == null) {
       return null;
@@ -292,6 +448,14 @@ public class Reflect {
     }
   }
 
+  /**
+   * Invokes the given method on the provided object with the specified arguments.
+   *
+   * @param method method to invoke
+   * @param obj object on which to invoke the method
+   * @param args method arguments
+   * @return the invocation result, or {@code null} if invocation fails
+   */
   public static Object invokeMethod(final Method method, final Object obj, final Object[] args) {
     if (method == null) {
       return null;
@@ -303,6 +467,13 @@ public class Reflect {
     }
   }
 
+  /**
+   * Gets the value of a field from the given object.
+   *
+   * @param obj object containing the field
+   * @param name name of the field to read
+   * @return the field value, or {@code null} if it cannot be read
+   */
   public static Object getObject(final Object obj, final String name) {
     if (obj == null) {
       return null;
@@ -310,6 +481,14 @@ public class Reflect {
     return getObject(obj.getClass(), obj, name);
   }
 
+  /**
+   * Gets the value of a field declared by the given class from the provided object.
+   *
+   * @param clazz class declaring the field
+   * @param obj object containing the field
+   * @param name name of the field to read
+   * @return the field value, or {@code null} if it cannot be read
+   */
   public static Object getObject(final Class<?> clazz, final Object obj, final String name) {
     try {
       final Field f = getField(clazz, name);
@@ -320,12 +499,11 @@ public class Reflect {
   }
 
   /**
-   * Sets the field accessible and removes final modifiers
+   * Makes the given field accessible.
    *
-   * @param field Field to set accessible
-   * @return the Field
+   * @param field field to make accessible
+   * @return the provided field
    */
-
   public static Field setAccessible(final Field field) {
     try {
       field.setAccessible(true);
@@ -335,11 +513,11 @@ public class Reflect {
   }
 
   /**
-   * Sets the method accessible
+   * Makes the given method accessible.
    *
-   * @param method Method to set accessible
-   * @return the Method
-   * @throws ReflectiveOperationException (usually never)
+   * @param method method to make accessible
+   * @return the provided method
+   * @throws ReflectiveOperationException if reflective access fails in an unexpected way
    */
   public static Method setAccessible(final Method method) throws ReflectiveOperationException {
     try {
@@ -350,11 +528,12 @@ public class Reflect {
   }
 
   /**
-   * Sets the constructor accessible
+   * Makes the given constructor accessible.
    *
-   * @param constructor Constructor to set accessible
-   * @return the Constructor
-   * @throws ReflectiveOperationException (usually never)
+   * @param constructor constructor to make accessible
+   * @param <T> constructor type parameter
+   * @return the provided constructor
+   * @throws ReflectiveOperationException if reflective access fails in an unexpected way
    */
   public static <T> Constructor<T> setAccessible(final Constructor<T> constructor) throws ReflectiveOperationException {
     try {
@@ -364,6 +543,11 @@ public class Reflect {
     return constructor;
   }
 
+  /**
+   * Attempts to remove the {@code final} modifier from the given field.
+   *
+   * @param field field whose final modifier should be removed
+   */
   public static void removeFinal(final Field field) {
     final int modifiers = field.getModifiers();
     if (!Modifier.isFinal(modifiers)) {
@@ -396,6 +580,12 @@ public class Reflect {
     }
   }
 
+  /**
+   * Returns the caller class at the specified stack depth, skipping reflection-related frames.
+   *
+   * @param depth caller depth relative to the direct caller of this method
+   * @return the caller class, or {@code null} if it cannot be resolved
+   */
   public static Class<?> getCallerClass(final int depth) {
     try {
       final StackTraceElement element = getCallerElement(depth + 1);
@@ -405,6 +595,13 @@ public class Reflect {
     }
   }
 
+  /**
+   * Returns the stack trace element for the caller at the specified depth, skipping reflection-related frames.
+   *
+   * @param depth caller depth relative to the direct caller of this method
+   * @return the caller stack trace element
+   * @throws IndexOutOfBoundsException if the requested depth is outside the available stack
+   */
   // from org.apache.logging.log4j.util.StackLocatorUtil
   private static StackTraceElement getCallerElement(final int depth) {
     final StackTraceElement[] stack = new Throwable().getStackTrace();

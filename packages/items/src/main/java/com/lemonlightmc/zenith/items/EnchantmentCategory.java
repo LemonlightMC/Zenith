@@ -8,6 +8,9 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * Categorizes enchantments and determines which materials they can be applied to.
+ */
 public enum EnchantmentCategory implements Iterable<Enchantment> {
 
   ANY() {
@@ -563,13 +566,35 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
   private static List<Enchantment> axeEnchantments = merge(Arrays.asList(
       Enchantment.SMITE, Enchantment.BANE_OF_ARTHROPODS, Enchantment.SHARPNESS), toolsEnchantments);
 
+  /**
+   * Gets the enchantments associated with this category.
+   *
+   * @return the enchantments in this category
+   */
   public abstract List<Enchantment> get();
 
+  /**
+   * Returns an iterator over the enchantments in this category.
+   *
+   * @return an iterator over the category's enchantments
+   */
   @Override
   public abstract Iterator<Enchantment> iterator();
 
+  /**
+   * Checks whether this category applies to the given material.
+   *
+   * @param material the material to test
+   * @return {@code true} if the material is applicable to this category
+   */
   public abstract boolean applicable(Material material);
 
+  /**
+   * Resolves the most specific enchantment category for the given material.
+   *
+   * @param material the material to resolve
+   * @return the matching enchantment category, or {@code null} if the material is {@code null}
+   */
   public static EnchantmentCategory getByMaterial(final Material material) {
     if (material == null) {
       return null;
@@ -610,6 +635,12 @@ public enum EnchantmentCategory implements Iterable<Enchantment> {
     return EnchantmentCategory.ANY;
   }
 
+  /**
+   * Resolves the most specific enchantment category for the given item stack.
+   *
+   * @param itemStack the item stack to resolve
+   * @return the matching enchantment category, or {@code null} if the item stack is {@code null}
+   */
   public static EnchantmentCategory getByItemStack(final ItemStack itemStack) {
     if (itemStack == null) {
       return null;

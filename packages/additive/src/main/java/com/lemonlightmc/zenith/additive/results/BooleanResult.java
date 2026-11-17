@@ -74,17 +74,37 @@ public sealed interface BooleanResult<E> {
     return new Error<>(Objects.requireNonNull(value));
   }
 
-  /** Returns a boolean result in success state. */
+  /**
+   * Returns a {@code BooleanResult} in success state containing the given boolean value.
+   *
+   * @param value the boolean success value
+   * @param <E>   the type of the error value
+   * @return a {@code BooleanResult} in success state containing the given boolean success value
+   */
   static <E> BooleanResult<E> of(final boolean value) {
     return success(value);
   }
 
-  /** Executes the callable and captures a thrown exception as an error. */
+  /**
+   * Executes the given callable and captures any thrown exception as an error.
+   *
+   * @param callable the callable returning a boolean value
+   * @return a {@code BooleanResult} containing the callable result, or an error containing the thrown exception
+   * @throws NullPointerException if the given callable is {@code null} or returns {@code null}
+   */
   static BooleanResult<Exception> of(final Callable<Boolean> callable) {
     return handle(callable);
   }
 
-  /** Executes the callable and maps a thrown exception to an error value. */
+  /**
+   * Executes the given callable and maps any thrown exception to an error value.
+   *
+   * @param callable        the callable returning a boolean value
+   * @param exceptionMapper the function mapping a thrown exception to an error value
+   * @param <E>             the type of the mapped error value
+   * @return a {@code BooleanResult} containing the callable result, or an error containing the mapped exception
+   * @throws NullPointerException if the given callable is {@code null} or returns {@code null}, or if the exception mapper is {@code null} or returns {@code null}
+   */
   static <E> BooleanResult<E> of(final Callable<Boolean> callable,
       final Function<Exception, E> exceptionMapper) {
     return handle(callable, exceptionMapper);
@@ -110,7 +130,14 @@ public sealed interface BooleanResult<E> {
    */
   <N> Result<N, E> map(Function<Boolean, ? extends N> function);
 
-  /** Maps a successful result to a supplied value. */
+  /**
+   * Maps a successful result to a value provided by the given supplier.
+   *
+   * @param supplier the supplier providing the mapped success value
+   * @param <N>      the type of the mapped success value
+   * @return a {@code Result} containing the supplied value if in success state, otherwise a {@code Result} containing the error value
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
+   */
   default <N> Result<N, E> map(final Supplier<? extends N> supplier) {
     Objects.requireNonNull(supplier);
     return map(ignored -> supplier.get());
@@ -154,7 +181,14 @@ public sealed interface BooleanResult<E> {
   BooleanResult<E> mapToBoolean(
       Function<Boolean, Boolean> function);
 
-  /** Replaces the success value without reading it. */
+  /**
+   * Replaces the success value with a value provided by the given supplier without reading the original value.
+   *
+   * @param supplier the supplier providing the replacement success value
+   * @param <N>      the type of the replacement success value
+   * @return a {@code Result} containing the supplied value if in success state, otherwise a {@code Result} containing the error value
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
+   */
   default <N> Result<N, E> replace(final Supplier<? extends N> supplier) {
     Objects.requireNonNull(supplier);
     return map(ignored -> supplier.get());
@@ -196,7 +230,16 @@ public sealed interface BooleanResult<E> {
   <N> Result<N, E> flatMap(
       Function<Boolean, Result<? extends N, ? extends E>> function);
 
-  /** Flat-maps a successful result with an additional argument. */
+  /**
+   * Flat-maps a successful result using the given function and an additional argument.
+   *
+   * @param function the mapping function to apply to the success value and argument
+   * @param argument the additional argument passed to the mapping function
+   * @param <N>      the type of the success value in the returned result
+   * @param <U>      the type of the additional argument
+   * @return the result returned by the mapping function if in success state, otherwise a result containing the error value
+   * @throws NullPointerException if the given function is {@code null} or returns {@code null}
+   */
   default <N, U> Result<N, E> flatMap(
       final BiFunction<Boolean, ? super U, Result<? extends N, ? extends E>> function,
       final U argument) {
@@ -204,14 +247,28 @@ public sealed interface BooleanResult<E> {
     return flatMap(value -> function.apply(value, argument));
   }
 
-  /** Flat-maps a successful result to a supplied result. */
+  /**
+   * Flat-maps a successful result to a result provided by the given supplier.
+   *
+   * @param supplier the supplier providing the replacement result
+   * @param <N>      the type of the success value in the returned result
+   * @return the result returned by the supplier if in success state, otherwise a result containing the error value
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
+   */
   default <N> Result<N, E> flatMap(
       final Supplier<? extends Result<? extends N, ? extends E>> supplier) {
     Objects.requireNonNull(supplier);
     return flatMap(ignored -> supplier.get());
   }
 
-  /** Replaces this result with a supplied result when in success state. */
+  /**
+   * Replaces a successful result with a result provided by the given supplier.
+   *
+   * @param supplier the supplier providing the replacement result
+   * @param <N>      the type of the success value in the returned result
+   * @return the result returned by the supplier if in success state, otherwise a result containing the error value
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
+   */
   default <N> Result<N, E> flatReplace(
       final Supplier<Result<? extends N, ? extends E>> supplier) {
     Objects.requireNonNull(supplier);
@@ -601,18 +658,34 @@ public sealed interface BooleanResult<E> {
    */
   Boolean orElseGet(Function<? super E, Boolean> function);
 
-  /** Returns the success value or a supplied fallback. */
+  /**
+   * Returns the success value or a fallback provided by the given supplier.
+   *
+   * @param supplier the supplier providing the fallback value
+   * @return the success value if in success state, otherwise the supplied fallback value
+   * @throws NullPointerException if the given supplier is {@code null}
+   */
   default Boolean orElse(final Supplier<Boolean> supplier) {
     Objects.requireNonNull(supplier);
     return orElseGet(ignored -> supplier.get());
   }
 
-  /** Returns the success value or maps the error to a fallback. */
+  /**
+   * Returns the success value or a fallback mapped from the error value.
+   *
+   * @param function the mapping function applied to the error value
+   * @return the success value if in success state, otherwise the mapped fallback value
+   * @throws NullPointerException if the given function is {@code null}
+   */
   default Boolean orElse(final Function<? super E, Boolean> function) {
     return orElseGet(function);
   }
 
-  /** Returns the success value, or {@code null} when in error state. */
+  /**
+   * Returns the success value, or {@code null} if this result is in error state.
+   *
+   * @return the success value if in success state, otherwise {@code null}
+   */
   default Boolean get() {
     return orElse((Boolean) null);
   }
@@ -632,29 +705,56 @@ public sealed interface BooleanResult<E> {
   <X extends Throwable> Boolean orElseThrow(
       Function<? super E, ? extends X> function) throws X;
 
-  /** Returns the success value or throws the mapped exception. */
+  /**
+   * Returns the success value or throws an exception mapped from the error value.
+   *
+   * @param function the mapping function producing the exception to throw
+   * @param <X>      the type of the exception to be thrown
+   * @return the success value if in success state
+   * @throws X                    if this result is in error state
+   * @throws NullPointerException if the given function is {@code null} or returns {@code null}
+   */
   default <X extends Throwable> Boolean getOrThrow(
       final Function<? super E, ? extends X> function) throws X {
     return orElseThrow(function);
   }
 
-  /** Returns the success value or throws an IllegalStateException. */
+  /**
+   * Returns the success value or throws an {@link IllegalStateException} with the given message.
+   *
+   * @param message the detail message prefix for the thrown exception
+   * @return the success value if in success state
+   * @throws IllegalStateException if this result is in error state
+   * @throws NullPointerException  if the given message is {@code null}
+   */
   default Boolean getOrThrow(final String message) {
     Objects.requireNonNull(message);
     return orElseThrow(error -> new IllegalStateException(message + ": " + error));
   }
 
-  /** Returns whether this result is in success state. */
+  /**
+   * Returns whether this result is in success state.
+   *
+   * @return {@code true} if this result is in success state, otherwise {@code false}
+   */
   default boolean isSuccess() {
     return fold(value -> true, error -> false);
   }
 
-  /** Returns whether this result is in error state. */
+  /**
+   * Returns whether this result is in error state.
+   *
+   * @return {@code true} if this result is in error state, otherwise {@code false}
+   */
   default boolean isError() {
     return !isSuccess();
   }
 
-  /** Returns a stream containing the success value, if present. */
+  /**
+   * Returns a stream containing the success value, if present.
+   *
+   * @return a stream containing the success value if in success state, otherwise an empty stream
+   */
   default Stream<Boolean> stream() {
     return fold(Stream::of, error -> Stream.empty());
   }
@@ -735,6 +835,12 @@ public sealed interface BooleanResult<E> {
     return handle(callable).mapError(exceptionMapper);
   }
 
+  /**
+   * A {@link BooleanResult} implementation representing a success state with a boolean value.
+   *
+   * @param value the boolean success value
+   * @param <ERR> the type of the error value
+   */
   record Success<ERR>(boolean value) implements BooleanResult<ERR> {
 
     @Override
@@ -982,6 +1088,12 @@ public sealed interface BooleanResult<E> {
     }
   }
 
+  /**
+   * A {@link BooleanResult} implementation representing an error state.
+   *
+   * @param error the error value
+   * @param <ERR> the type of the error value
+   */
   record Error<ERR>(ERR error) implements BooleanResult<ERR> {
 
     @Override

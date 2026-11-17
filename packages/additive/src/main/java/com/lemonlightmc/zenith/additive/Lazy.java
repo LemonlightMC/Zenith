@@ -7,11 +7,25 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * A lazily initialized supplier that computes and caches its value on first access.
+ *
+ * @param <T> the type of the lazily supplied value
+ */
 public class Lazy<T> implements Supplier<T> {
 
+  /** The supplier used to compute the value. */
   protected volatile Supplier<T> supplier;
+
+  /** The cached value once initialized. */
   protected volatile T value;
 
+  /**
+   * Creates a new lazy value.
+   *
+   * @param supplier the supplier providing the value
+   * @throws IllegalArgumentException if {@code supplier} is {@code null}
+   */
   public Lazy(final Supplier<T> supplier) {
     if (supplier == null) {
       throw new IllegalArgumentException("Lazy Supplier cant be null");
@@ -20,14 +34,12 @@ public class Lazy<T> implements Supplier<T> {
   }
 
   /**
-   * Creates a {@code Lazy} instance that obtains its value from the given
-   * {@code Supplier}.
-   * The supplier is invoked at most once, and the result is cached for subsequent
-   * calls.
+   * Creates a {@code Lazy} instance that obtains its value from the given supplier.
    *
-   * @param <T>      the type of the lazy value
+   * @param <T> the type of the lazy value
    * @param supplier the supplier providing the value
-   * @return a new {@code Lazy} instance
+   * @return a lazy supplier for the given value source
+   * @throws IllegalArgumentException if {@code supplier} is {@code null}
    */
   public static <T> Lazy<T> of(final Supplier<T> supplier) {
     if (supplier == null) {
@@ -41,14 +53,14 @@ public class Lazy<T> implements Supplier<T> {
   }
 
   /**
-   * Creates a true <em>lazy value</em> of type {@code T}, implemented using a
-   * {@linkplain java.lang.reflect.Proxy}
-   * that delegates to a {@code Lazy} instance.
+   * Creates a lazily evaluated proxy value backed by a {@code Lazy} instance.
    *
    * @param supplier the supplier providing the value when needed
-   * @param type     the interface class that the proxy should implement
-   * @param <T>      the type of the lazy value
-   * @return a new proxy instance of type {@code T} that evaluates lazily
+   * @param type the interface class that the proxy should implement
+   * @param <T> the type of the lazy value
+   * @return a proxy instance of type {@code T} that evaluates lazily
+   * @throws IllegalArgumentException if {@code supplier} or {@code type} is {@code null}, or if
+   *     {@code type} is not an interface
    */
   @SuppressWarnings("unchecked")
   public static <T> T val(final Supplier<T> supplier, final Class<T> type) {
@@ -66,6 +78,11 @@ public class Lazy<T> implements Supplier<T> {
     return (T) Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] { type }, handler);
   }
 
+  /**
+   * Returns the lazily computed value, initializing it on first access.
+   *
+   * @return the lazily computed value
+   */
   @Override
   public T get() {
     Supplier<T> current = supplier;
@@ -81,22 +98,49 @@ public class Lazy<T> implements Supplier<T> {
     return value;
   }
 
+  /**
+   * Returns the currently cached value as an {@link Optional} without forcing initialization.
+   *
+   * @return an {@link Optional} containing the cached value, or empty if no value is cached
+   */
   public Optional<T> asOptional() {
     return Optional.ofNullable(this.value);
   }
 
+  /**
+   * Returns whether the lazy value has already been evaluated.
+   *
+   * @return {@code true} if the value has been computed
+   */
   public boolean isEvaluated() {
     return supplier == null;
   }
 
+  /**
+   * Returns whether a cached value is currently present.
+   *
+   * @return {@code true} if the cached value is non-{@code null}
+   */
   public boolean isPresent() {
     return value != null;
   }
 
+  /**
+   * Returns whether no cached value is currently present.
+   *
+   * @return {@code true} if the cached value is {@code null}
+   */
   public boolean isEmpty() {
     return value == null;
   }
 
+  /**
+   * Applies the given action to the resolved value and returns this lazy instance.
+   *
+   * @param action the action to perform on the resolved value
+   * @return this lazy instance
+   * @throws NullPointerException if {@code action} is {@code null}
+   */
   public Lazy<T> consume(final Consumer<? super T> action) {
     Objects.requireNonNull(action, "action is null");
     action.accept(get());

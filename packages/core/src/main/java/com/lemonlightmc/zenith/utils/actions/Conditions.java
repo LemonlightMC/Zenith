@@ -47,10 +47,16 @@ import com.lemonlightmc.zenith.math.Region;
 import com.lemonlightmc.zenith.utils.CooldownStore;
 import com.lemonlightmc.zenith.utils.Plugins;
 
+/**
+ * Collection of built-in condition implementations and helpers.
+ */
 public class Conditions {
 
   public static final ConditionSerializer SERIALIZER = ConditionSerializer.INSTANCE;
 
+  /**
+   * Defines whether a condition list acts as a whitelist or blacklist.
+   */
   public static enum ConditionListType {
     WHITELIST(false),
     BLACKLIST(true);

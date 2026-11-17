@@ -27,13 +27,21 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 /**
- * Processes the {@link Plugin} annotation and generates a plugin.yml file.
+ * Processes {@link PluginYmlCreator} annotations and generates a {@code plugin.yml} resource.
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes({ "com.lemonlightmc.zenith.base.annotation.PluginYmlCreator",
     "com.lemonlightmc.zenith.base.annotation.PluginDependency" })
 public class PluginProcessor extends AbstractProcessor {
 
+  /**
+   * Generates a {@code plugin.yml} file for the annotated plugin type.
+   *
+   * @param annotations the annotation types requested to be processed
+   * @param env the environment for information about the current and prior round
+   * @return {@code true} if a descriptor was generated; {@code false} otherwise
+   * @throws RuntimeException if the generated descriptor cannot be written
+   */
   @Override
   public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment env) {
     final Set<? extends Element> annotatedElements = env.getElementsAnnotatedWith(PluginYmlCreator.class);

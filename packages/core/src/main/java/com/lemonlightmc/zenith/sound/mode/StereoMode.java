@@ -8,6 +8,9 @@ import com.lemonlightmc.zenith.sound.Instrument;
 import com.lemonlightmc.zenith.sound.Note;
 import com.lemonlightmc.zenith.sound.Sound;
 
+/**
+ * Plays sounds using stereo panning with an optional fallback channel mode.
+ */
 public class StereoMode extends ChannelMode {
 
   private double maxDistance = 2;

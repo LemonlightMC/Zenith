@@ -6,6 +6,9 @@ import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.interfaces.Builder;
 import com.lemonlightmc.zenith.scheduler.ScheduledTask;
 
+/**
+ * Represents a time-limited confirmation request for a command sender.
+ */
 public class ConfirmRequest {
   CommandSender sender;
   String message;
@@ -74,6 +77,9 @@ public class ConfirmRequest {
     return onExpired;
   }
 
+  /**
+   * Builder for creating {@link ConfirmRequest} instances.
+   */
   public static class ConfirmableBuilder implements Builder<ConfirmRequest> {
     ConfirmRequest request;
 

@@ -2,6 +2,9 @@ package com.lemonlightmc.zenith.additive.version;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
+/**
+ * Represents a comparable software version with common version component accessors.
+ */
 public abstract class Version implements Cloneable<Version>, Comparable<Version> {
 
   public static final SemverVersion FIRST_VERSION = new SemverVersion(1, 0, 0, 0, null, null);

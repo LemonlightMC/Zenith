@@ -8,6 +8,11 @@ import com.lemonlightmc.zenith.additive.Lazy;
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 
+/**
+ * Stores and manages cooldowns keyed by arbitrary values.
+ *
+ * @param <T> key type used to identify cooldown entries
+ */
 public class CooldownStore<T> implements Cloneable<CooldownStore<T>>, Iterable<T> {
   private final HashMap<T, CooldownHolder> cooldowns;
   public long defaultDuration;

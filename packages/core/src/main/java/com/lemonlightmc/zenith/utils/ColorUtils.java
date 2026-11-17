@@ -6,7 +6,9 @@ import org.bukkit.Color;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
-// TODO: improve ColorUtils
+/**
+ * Utility methods for parsing and converting color values.
+ */
 public class ColorUtils {
   public static Color colorFromString(final String color) {
     if (color == null) {

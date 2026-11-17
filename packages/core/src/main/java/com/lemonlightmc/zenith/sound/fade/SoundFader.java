@@ -3,6 +3,9 @@ package com.lemonlightmc.zenith.sound.fade;
 import com.lemonlightmc.zenith.apis.SoundAPI;
 import com.lemonlightmc.zenith.sound.fade.SoundFading.SoundFadingType;
 
+/**
+ * Tracks and applies a sound fading curve over playback time.
+ */
 public class SoundFader {
 
   private SoundFading fade;

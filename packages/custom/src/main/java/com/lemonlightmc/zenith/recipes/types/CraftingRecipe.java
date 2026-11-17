@@ -4,18 +4,41 @@ import org.bukkit.inventory.recipe.CraftingBookCategory;
 
 import com.lemonlightmc.zenith.recipes.RecipeType;
 
+/**
+ * Base implementation for crafting recipes.
+ */
 public abstract class CraftingRecipe extends Recipe {
+  /** The crafting recipe group. */
   protected String group = "";
+  /** The crafting recipe book category. */
   protected CraftingBookCategory category = CraftingBookCategory.MISC;
 
+  /**
+   * Creates a crafting recipe with the given name and type.
+   *
+   * @param recipeName the internal recipe name
+   * @param type the recipe type
+   */
   public CraftingRecipe(final String recipeName, final RecipeType type) {
     super(recipeName, type);
   }
 
+  /**
+   * Returns the crafting recipe group.
+   *
+   * @return the recipe group
+   */
   public String getGroup() {
     return group;
   }
 
+  /**
+   * Sets the crafting recipe group.
+   *
+   * @param group the recipe group
+   * @return this recipe instance
+   * @throws IllegalArgumentException if {@code group} is {@code null}
+   */
   public CraftingRecipe setGroup(final String group) {
     if (group == null) {
       throw new IllegalArgumentException("Group cannot be null");
@@ -24,10 +47,22 @@ public abstract class CraftingRecipe extends Recipe {
     return this;
   }
 
+  /**
+   * Returns the crafting recipe book category.
+   *
+   * @return the recipe category
+   */
   public CraftingBookCategory getCategory() {
     return category;
   }
 
+  /**
+   * Sets the crafting recipe book category.
+   *
+   * @param category the recipe category
+   * @return this recipe instance
+   * @throws IllegalArgumentException if {@code category} is {@code null}
+   */
   public CraftingRecipe setCategory(final CraftingBookCategory category) {
     if (category == null) {
       throw new IllegalArgumentException("Category cannot be null");

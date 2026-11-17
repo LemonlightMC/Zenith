@@ -24,6 +24,9 @@ import com.lemonlightmc.zenith.plugin.events.PluginReloadEvent;
 import com.lemonlightmc.zenith.scheduler.BukkitScheduler;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 
+/**
+ * Base implementation of {@link IPlugin} providing common lifecycle, metadata, and integration behavior.
+ */
 public abstract class PluginBase implements IPlugin {
 
   private final PluginLoader loader;
@@ -40,6 +43,14 @@ public abstract class PluginBase implements IPlugin {
 
   private static PluginBase instance = null;
 
+  /**
+   * Creates a new plugin base instance.
+   *
+   * @param loader the plugin loader used for this plugin
+   * @param info the Bukkit plugin description
+   * @param dataFolder the plugin data folder
+   * @param file the plugin file
+   */
   protected PluginBase(
       final JavaPluginLoader loader,
       final PluginDescriptionFile info,
@@ -54,10 +65,22 @@ public abstract class PluginBase implements IPlugin {
     PluginBase.instance = this;
   }
 
+  /**
+   * Returns whether a plugin instance has been initialized.
+   *
+   * @return {@code true} if an instance is available; {@code false} otherwise
+   */
   public static boolean hasInstance() {
     return instance != null;
   }
 
+  /**
+   * Returns the current plugin instance.
+   *
+   * @param <I> the expected plugin type
+   * @return the current plugin instance
+   * @throws RuntimeException if the plugin instance is not available
+   */
   @SuppressWarnings("unchecked")
   public static <I extends PluginBase> I getInstance() {
     if (instance == null) {
@@ -67,27 +90,47 @@ public abstract class PluginBase implements IPlugin {
     return (I) instance;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onLoad() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onDisable() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onEnable() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onReload() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isEnabled() {
     return isEnabled;
   }
 
+  /**
+   * Updates the enabled state of this plugin and triggers the corresponding lifecycle transition.
+   *
+   * @param enabled {@code true} to enable the plugin; {@code false} to disable it
+   */
   public void setEnabled(final boolean enabled) {
     if (isEnabled != enabled) {
       isEnabled = enabled;
@@ -100,6 +143,9 @@ public abstract class PluginBase implements IPlugin {
     }
   }
 
+  /**
+   * Performs plugin load initialization and emits the load event.
+   */
   public void load() {
     MessageFormatter.setPlaceholdersSupport(server.getPluginManager().isPluginEnabled("PlaceholderAPI"));
     if (messageAPI == null) {
@@ -112,12 +158,18 @@ public abstract class PluginBase implements IPlugin {
     getPluginManager().callEvent(new PluginLoadEvent(this));
   }
 
+  /**
+   * Enables the plugin and emits the enable event.
+   */
   public void enable() {
     isEnabled = true;
     onEnable();
     getPluginManager().callEvent(new PluginEnableEvent(this));
   }
 
+  /**
+   * Reloads plugin-managed state and emits the reload event.
+   */
   public void reload() {
     MessageFormatter.setPlaceholdersSupport(server.getPluginManager().isPluginEnabled("PlaceholderAPI"));
     ZenithProvider.reloadZenithConfig();
@@ -125,51 +177,86 @@ public abstract class PluginBase implements IPlugin {
     getPluginManager().callEvent(new PluginReloadEvent(this));
   }
 
+  /**
+   * Disables the plugin and emits the disable event.
+   */
   public void disable() {
     getPluginManager().callEvent(new PluginDisableEvent(this));
     onDisable();
     isEnabled = false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public PluginInfo getInfo() {
     return info;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getKey() {
     return info.getKey();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getName() {
     return info.getName();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getFullName() {
     return info.getFullName();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getPrefix() {
     return info.getPrefix();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Version getVersion() {
     return info.getVersion();
   }
 
+  /**
+   * Returns the plugin file backing this plugin.
+   *
+   * @return the plugin file
+   */
   protected File getFile() {
     return file;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Path getDataFolder() {
     return dataFolder.toPath();
   }
 
+  /**
+   * Resolves a file within the plugin data folder.
+   *
+   * @param path path segments relative to the data folder
+   * @return the resolved file, or the data folder itself if no segments are provided
+   */
   public File getDataFile(final String... path) {
     if (path == null || path.length == 0) {
       return dataFolder;
@@ -177,50 +264,82 @@ public abstract class PluginBase implements IPlugin {
     return new File(dataFolder, StringUtils.join(File.separator, path));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Server getServer() {
     return server;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public PluginLoader getPluginLoader() {
     return loader;
   }
 
+  /**
+   * Returns the class loader associated with this plugin.
+   *
+   * @return the plugin class loader
+   */
   public ClassLoader getClassLoader() {
     return classLoader;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public PluginManager getPluginManager() {
     return server.getPluginManager();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ServicesManager getServicesManager() {
     return server.getServicesManager();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Scheduler getScheduler() {
     return scheduler;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public java.util.logging.Logger getLogger() {
     return server.getLogger();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public MessageAPI messageAPI() {
     return messageAPI;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isNaggable() {
     return naggable;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setNaggable(final boolean canNag) {
     this.naggable = canNag;

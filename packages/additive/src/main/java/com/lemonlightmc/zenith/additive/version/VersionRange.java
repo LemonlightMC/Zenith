@@ -2,23 +2,50 @@ package com.lemonlightmc.zenith.additive.version;
 
 import com.lemonlightmc.zenith.additive.math.Range;
 
+/**
+ * Represents an inclusive or exclusive range of {@link Version} values.
+ */
 public class VersionRange extends Range<VersionRange, Version> {
   public static VersionRange ALL = new VersionRange();
+  /** The minimum representable version for a range bound. */
   public static final Version MIN_VALUE = Version.MIN_VALUE;
+  /** The maximum representable version for a range bound. */
   public static final Version MAX_VALUE = Version.MAX_VALUE;
 
+  /**
+   * Creates a range covering all supported versions.
+   */
   public VersionRange() {
     super(Version.MIN_VALUE, Version.MAX_VALUE);
   }
 
+  /**
+   * Creates a range starting at the given minimum version.
+   *
+   * @param min the minimum version bound
+   */
   public VersionRange(final Version min) {
     super(min, Version.MAX_VALUE);
   }
 
+  /**
+   * Creates a range between the given bounds.
+   *
+   * @param min the minimum version bound
+   * @param max the maximum version bound
+   */
   public VersionRange(final Version min, final Version max) {
     super(min, true, max, false);
   }
 
+  /**
+   * Creates a range between the given bounds.
+   *
+   * @param min the minimum version bound
+   * @param minInclusive whether the minimum bound is inclusive
+   * @param max the maximum version bound
+   * @param maxInclusive whether the maximum bound is inclusive
+   */
   public VersionRange(final Version min, final boolean minInclusive, final Version max, final boolean maxInclusive) {
     super(min, minInclusive, max, maxInclusive);
   }

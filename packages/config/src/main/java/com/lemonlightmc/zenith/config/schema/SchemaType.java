@@ -4,7 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Describes a supported configuration value type and how to parse it.
+ *
+ * @param <T> the Java type represented by this schema type
+ */
 public class SchemaType<T> {
+  /** Boolean schema type. */
   public static final SchemaType<Boolean> BOOL = new SchemaType<>("boolean", obj -> {
     if (obj instanceof Boolean) {
       return (Boolean) obj;
@@ -18,6 +24,7 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** Integer schema type. */
   public static final SchemaType<Integer> INT = new SchemaType<>("int", obj -> {
     if (obj instanceof Integer) {
       return (Integer) obj;
@@ -34,6 +41,7 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** Long schema type. */
   public static final SchemaType<Long> LONG = new SchemaType<>("long", obj -> {
     if (obj instanceof Long) {
       return (Long) obj;
@@ -50,6 +58,7 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** Float schema type. */
   public static final SchemaType<Float> FLOAT = new SchemaType<>("float", obj -> {
     if (obj instanceof Float) {
       return (Float) obj;
@@ -66,6 +75,7 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** Double schema type. */
   public static final SchemaType<Double> DOUBLE = new SchemaType<>("double", obj -> {
     if (obj instanceof Double) {
       return (Double) obj;
@@ -82,6 +92,7 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** Byte schema type. */
   public static final SchemaType<Byte> BYTE = new SchemaType<>("byte", obj -> {
     if (obj instanceof Byte) {
       return (Byte) obj;
@@ -98,6 +109,7 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** Character schema type. */
   public static final SchemaType<Character> CHAR = new SchemaType<>("char", obj -> {
     if (obj instanceof Character) {
       return (Character) obj;
@@ -113,6 +125,7 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** Short schema type. */
   public static final SchemaType<Short> SHORT = new SchemaType<>("short", obj -> {
     if (obj instanceof Short) {
       return (Short) obj;
@@ -129,22 +142,28 @@ public class SchemaType<T> {
     return null;
   });
 
+  /** String schema type. */
   public static final SchemaType<String> STRING = new SchemaType<>("string",
       obj -> (obj instanceof String) || isPrimitiveWrapper(obj) ? String.valueOf(obj) : null);
 
+  /** List schema type. */
   public static final SchemaType<List<?>> LIST = new SchemaType<>("list", obj -> {
     return obj instanceof final List<?> list ? list : null;
   });
 
+  /** Map schema type. */
   public static final SchemaType<Map<?, ?>> MAP = new SchemaType<>("map", obj -> {
     return obj instanceof final Map<?, ?> map ? map : null;
   });
 
+  /** Section schema type placeholder. */
   public static final SchemaType<List<SchemaNode>> SECTION = new SchemaType<>("section", obj -> List.of());
 
+  /** Custom schema type that accepts any value. */
   public static final SchemaType<?> CUSTOM = new SchemaType<>("custom", obj -> obj);
 
   private final String name;
+  /** The parser function used to convert raw values into this type. */
   public final Function<Object, T> parser;
 
   private SchemaType(final String name, final Function<Object, T> parser) {
@@ -158,27 +177,57 @@ public class SchemaType<T> {
     this.parser = parser;
   }
 
+  /**
+   * Creates a new schema type with the given name and parser.
+   *
+   * @param <T> the Java type represented by the schema type
+   * @param name the schema type name
+   * @param parser the parser used to convert raw values
+   * @return a new {@link SchemaType} instance
+   */
   public static <T> SchemaType<T> create(final String name, final Function<Object, T> parser) {
     return new SchemaType<>(name, parser);
   }
 
+  /**
+   * Returns the name of this schema type.
+   *
+   * @return the schema type name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Parses the given object into this schema type.
+   *
+   * @param obj the object to parse
+   * @return the parsed value, or {@code null} if parsing fails
+   */
   public T parse(final Object obj) {
     return parser.apply(obj);
   }
 
+  /**
+   * Returns the parser function used by this schema type.
+   *
+   * @return the parser function
+   */
   public Function<Object, T> getParser() {
     return parser;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     return 31 * (31 + name.hashCode()) + parser.hashCode();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -191,6 +240,12 @@ public class SchemaType<T> {
     return name.equals(other.name) && parser.equals(other.parser);
   }
 
+  /**
+   * Detects a built-in schema type matching the given value.
+   *
+   * @param value the value to inspect
+   * @return the detected schema type, or {@code null} if no built-in type matches
+   */
   public static SchemaType<?> detect(final Object value) {
     if (value instanceof Boolean) {
       return BOOL;
@@ -226,6 +281,12 @@ public class SchemaType<T> {
         || input instanceof Long || input instanceof Float;
   }
 
+  /**
+   * Resolves a built-in schema type by name.
+   *
+   * @param name the schema type name
+   * @return the matching built-in schema type, or {@link #CUSTOM} if none matches
+   */
   public static SchemaType<?> valueOf(String name) {
     if (name == null || name.isEmpty()) {
       return SchemaType.CUSTOM;

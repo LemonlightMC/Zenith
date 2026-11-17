@@ -29,6 +29,9 @@ import com.lemonlightmc.zenith.sound.fade.SoundFader;
 import com.lemonlightmc.zenith.sound.fade.SoundFading;
 import com.lemonlightmc.zenith.sound.fade.SoundFading.SoundFadingType;
 
+/**
+ * Base player for scheduled playback of songs and playlists.
+ */
 public abstract class SoundPlayer {
   protected Song song;
 

@@ -243,20 +243,14 @@ public sealed interface Result<T, E> {
   <N> Result<N, E> map(Function<? super T, ? extends N> function);
 
   /**
-   * If in success state, returns a {@code Result} containing the result of
-   * the given supplier, otherwise returns the unaltered {@code Result}
-   * in error state.
+   * If in success state, returns a {@code Result} containing the value provided by the given supplier, otherwise returns the unaltered {@code Result} in error state.
    *
-   * @param supplier the supplier of the success value, if
-   *                 success state
-   * @param <N>      the type of the value returned from the supplier
-   * @return a {@code Result} containing the result of applying the mapping
-   *         function to the success value of this {@code Result}, if in success
-   *         state, otherwise the unaltered {@code Result} in error state
-   * @throws NullPointerException if the given supplier is
-   *                              {@code null} or returns {@code null}
+   * @param supplier the supplier providing the mapped success value
+   * @param <N>      the type of the mapped success value
+   * @return a {@code Result} containing the supplied value if in success state, otherwise the unaltered {@code Result} in error state
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
    */
-  <N> Result<N, E> map(final Supplier<? extends N> supplier);
+  <N> Result<N, E> map(Supplier<? extends N> supplier);
 
   /**
    * If in success state, returns a {@code OptionalResult} containing the
@@ -348,19 +342,14 @@ public sealed interface Result<T, E> {
       final U argument);
 
   /**
-   * If in success state, returns the {@code Result} from the given supplier,
-   * otherwise returns the unaltered {@code Result} in error state.
+   * If in success state, returns the {@code Result} provided by the given supplier, otherwise returns the unaltered {@code Result} in error state.
    *
-   * @param supplier the supplier to provide the {@code Result}, if success
-   *                 state
-   * @param <N>      the type of success value which may be present in the
-   *                 {@code Result} provided by the supplier
-   * @return the {@code Result} provided by the supplier, if in success state,
-   *         otherwise the unaltered {@code Result} in error state
-   * @throws NullPointerException if the given supplier is {@code null} or
-   *                              returns {@code null}
+   * @param supplier the supplier providing the replacement result
+   * @param <N>      the type of the success value in the returned result
+   * @return the result provided by the supplier if in success state, otherwise the unaltered {@code Result} in error state
+   * @throws NullPointerException if the given supplier is {@code null} or returns {@code null}
    */
-  <N> Result<N, E> flatMap(final Supplier<? extends Result<? extends N, ? extends E>> supplier);
+  <N> Result<N, E> flatMap(Supplier<? extends Result<? extends N, ? extends E>> supplier);
 
   /**
    * If in success state, returns the {@code OptionalResult} from applying
@@ -748,32 +737,27 @@ public sealed interface Result<T, E> {
   T orElse(T other);
 
   /**
-   * If in success state, returns the success value, otherwise returns the
-   * value returned from the given supplier.
+   * If in success state, returns the success value, otherwise returns a value provided by the given supplier.
    *
-   * @param function the mapping function to apply to the error value, if not
-   *                 in success state, it may return {@code null}
-   * @return the success value, if success state, otherwise the result
-   *         returned from the given function
-   * @throws NullPointerException if the given function is {@code null}
+   * @param supplier the supplier providing the fallback value
+   * @return the success value if in success state, otherwise the supplied fallback value
+   * @throws NullPointerException if the given supplier is {@code null}
    */
-  T orElse(final Supplier<? extends T> supplier);
+  T orElse(Supplier<? extends T> supplier);
 
   /**
-   * If in success state, returns the success value, otherwise returns the
-   * value returned from the given function.
+   * If in success state, returns the success value, otherwise returns a value mapped from the error value.
    *
-   * @param function the mapping function to apply to the error value, if not
-   *                 in success state, it may return {@code null}
-   * @return the success value, if success state, otherwise the result
-   *         returned from the given function
+   * @param function the mapping function applied to the error value
+   * @return the success value if in success state, otherwise the mapped fallback value
    * @throws NullPointerException if the given function is {@code null}
    */
   T orElse(Function<? super E, ? extends T> function);
 
   /**
-   * If in success state, returns the success value, otherwise returns
-   * {@code null}.
+   * If in success state, returns the success value, otherwise returns {@code null}.
+   *
+   * @return the success value if in success state, otherwise {@code null}
    */
   T get();
 
@@ -805,12 +789,16 @@ public sealed interface Result<T, E> {
   T getOrThrow(final String message) throws IllegalStateException;
 
   /**
-   * Returns whether this result is in the success state.
+   * Returns whether this result is in success state.
+   *
+   * @return {@code true} if this result is in success state, otherwise {@code false}
    */
   boolean isSuccess();
 
   /**
-   * Returns whether this result is in the error state.
+   * Returns whether this result is in error state.
+   *
+   * @return {@code true} if this result is in error state, otherwise {@code false}
    */
   boolean isError();
 
@@ -849,7 +837,20 @@ public sealed interface Result<T, E> {
    */
   VoidResult<E> toVoidResult();
 
+  /**
+   * A {@link Result} implementation representing a success state.
+   *
+   * @param value the success value
+   * @param <S>   the type of the success value
+   * @param <ERR> the type of the error value
+   */
   record Success<S, ERR>(S value) implements Result<S, ERR> {
+    /**
+     * Creates a new success result.
+     *
+     * @param value the success value, which must be non-{@code null}
+     * @throws NullPointerException if the given value is {@code null}
+     */
     public Success(final S value) {
       this.value = Objects.requireNonNull(value);
     }
@@ -1138,7 +1139,20 @@ public sealed interface Result<T, E> {
     }
   }
 
+  /**
+   * A {@link Result} implementation representing an error state.
+   *
+   * @param error the error value
+   * @param <S>   the type of the success value
+   * @param <ERR> the type of the error value
+   */
   record Error<S, ERR>(ERR error) implements Result<S, ERR> {
+    /**
+     * Creates a new error result.
+     *
+     * @param error the error value, which must be non-{@code null}
+     * @throws NullPointerException if the given error value is {@code null}
+     */
     public Error(final ERR error) {
       this.error = Objects.requireNonNull(error);
     }

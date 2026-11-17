@@ -18,11 +18,23 @@ import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.files.FileUtils;
 import com.lemonlightmc.zenith.exceptions.TranslationException;
 
-// TODO: Add support for YAML files and other formats if needed
+/**
+ * Provides access to translation data that can be loaded into a translator.
+ */
 public interface TranslationSource {
 
+  /**
+   * Loads and returns the translator represented by this source.
+   *
+   * @return the loaded translator
+   */
   public Translator retrieve();
 
+  /**
+   * Gets the locale associated with this source.
+   *
+   * @return the source locale
+   */
   public Locale locale();
 
   public static TranslationBundleSource<Properties> from(final Locale locale, final Properties props) {

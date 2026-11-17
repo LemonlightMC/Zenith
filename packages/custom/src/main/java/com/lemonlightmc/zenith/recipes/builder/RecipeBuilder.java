@@ -16,12 +16,20 @@ import com.lemonlightmc.zenith.recipes.Ingredients.TagIngredient;
 import com.lemonlightmc.zenith.recipes.RecipeType;
 import com.lemonlightmc.zenith.recipes.types.Recipe;
 
+/**
+ * Base builder for creating custom recipes.
+ */
 public class RecipeBuilder implements IRecipeBuilder {
 
+  /** The ingredients configured for the recipe. */
   protected final List<Ingredient> ingredientList = new ArrayList<>();
+  /** The internal recipe name. */
   protected String name;
+  /** The recipe result item. */
   protected ItemStack result;
+  /** The result amount. */
   protected int amount = 1;
+  /** The recipe type. */
   protected RecipeType type;
 
   @Override
@@ -86,7 +94,7 @@ public class RecipeBuilder implements IRecipeBuilder {
    * if (pattern.length > 3) {
    * throw new IllegalArgumentException("Pattern is too long");
    * }
-   * 
+   *
    * final boolean areLengthsValid = Arrays.stream(pattern)
    * .map(String::length)
    * .allMatch(len -> len >= 1 && len <= 3) &&
@@ -94,15 +102,15 @@ public class RecipeBuilder implements IRecipeBuilder {
    * .map(String::length)
    * .distinct()
    * .count() == 1;
-   * 
+   *
    * if (!areLengthsValid) {
    * throw new IllegalArgumentException("Pattern is not valid");
    * }
-   * 
+   *
    * this.pattern = pattern;
    * return this;
    * }
-   * 
+   *
    * @Override
    * public String[] pattern() {
    * return pattern;

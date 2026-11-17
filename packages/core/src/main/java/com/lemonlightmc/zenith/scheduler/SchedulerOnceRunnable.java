@@ -8,13 +8,13 @@ import org.bukkit.plugin.Plugin;
 import com.lemonlightmc.zenith.ZenithProvider;
 
 /**
- * Task that can be asked to run repeatedly, but once scheduled, will
- * not schedule a second time. This allows a task to run one tick delayed,
- * no matter how many times it is asked to run during a single tick.
- * Once executed, it can be started again for another execution in the
- * future.<br>
- * <br>
- * This class is thread-safe.
+ * A task that coalesces repeated run requests into a single scheduled execution.
+ *
+ * <p>Once scheduled, additional run requests do not schedule a second task until the
+ * current execution completes. This is useful for deferring work to the next tick while
+ * avoiding duplicate scheduling within the same tick.</p>
+ *
+ * <p>This class is thread-safe.</p>
  */
 public abstract class SchedulerOnceRunnable implements Runnable {
   private static final int TASK_NOT_SCHEDULED = -1;
@@ -23,6 +23,9 @@ public abstract class SchedulerOnceRunnable implements Runnable {
   private final Runnable _logicProxy;
   private final AtomicInteger _scheduledId;
 
+  /**
+   * Creates a new once-scheduled runnable.
+   */
   public SchedulerOnceRunnable() {
     this._scheduledId = new AtomicInteger(TASK_NOT_SCHEDULED);
     this._logicProxy = () -> {
@@ -39,6 +42,12 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     };
   }
 
+  /**
+   * Creates a {@link SchedulerOnceRunnable} that delegates execution to the given runnable.
+   *
+   * @param runnable the runnable to execute
+   * @return a new once-scheduled runnable wrapper
+   */
   public static SchedulerOnceRunnable create(final Runnable runnable) {
     return new SchedulerOnceRunnable() {
       @Override
@@ -48,14 +57,29 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     };
   }
 
+  /**
+   * Gets the plugin that owns scheduled executions of this task.
+   *
+   * @return the owning plugin instance
+   */
   public Plugin getPlugin() {
     return ZenithProvider.instance();
   }
 
+  /**
+   * Checks whether this task is currently scheduled.
+   *
+   * @return {@code true} if the task is scheduled; {@code false} otherwise
+   */
   public boolean isScheduled() {
     return this._scheduledId.get() != TASK_NOT_SCHEDULED;
   }
 
+  /**
+   * Schedules this task to run after the specified delay, replacing any existing schedule.
+   *
+   * @param delay the delay in ticks before execution
+   */
   public void rerun(final long delay) {
     final int newTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ZenithProvider.instance(), this._logicProxy,
         delay);
@@ -65,6 +89,11 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     }
   }
 
+  /**
+   * Schedules this task to run after the specified delay if it is not already scheduled.
+   *
+   * @param delay the delay in ticks before execution
+   */
   public void runLater(final long delay) {
     if (this._scheduledId.compareAndSet(TASK_NOT_SCHEDULED, TASK_SCHEDULED_SOON)) {
       final int taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ZenithProvider.instance(), this._logicProxy,
@@ -75,11 +104,17 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     }
   }
 
+  /**
+   * Requests execution of this task on the next tick if it is not already scheduled.
+   */
   @Override
   public void run() {
     runLater(1);
   }
 
+  /**
+   * Executes this task immediately if it is currently scheduled, cancelling the pending schedule.
+   */
   public void runNowIfScheduled() {
     int oldTaskId;
     do {
@@ -92,6 +127,9 @@ public abstract class SchedulerOnceRunnable implements Runnable {
     }
   }
 
+  /**
+   * Cancels any pending scheduled execution of this task.
+   */
   public void cancel() {
     int oldTaskId;
     do {

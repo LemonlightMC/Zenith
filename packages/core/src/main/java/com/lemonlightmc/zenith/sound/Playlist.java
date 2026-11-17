@@ -3,6 +3,9 @@ package com.lemonlightmc.zenith.sound;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an ordered collection of songs.
+ */
 public class Playlist {
 
   private List<Song> songs;

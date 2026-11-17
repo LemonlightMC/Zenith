@@ -10,24 +10,48 @@ import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 
+/**
+ * Argument types for parsing string-based command inputs.
+ */
 public class StringArguments {
 
+  /**
+   * Defines how string arguments are parsed from command input.
+   */
   public enum StringType {
+    /** Parses a single unquoted word. */
     SINGLE_WORD(),
+    /** Parses a single word or a quoted phrase. */
     QUOTABLE_PHRASE(),
+    /** Parses the remainder of the input as a single string. */
     GREEDY_PHRASE();
 
     StringType() {
     }
   }
 
+  /**
+   * Argument that parses string values using a configurable {@link StringType}.
+   */
   public static class StringArgument extends Argument<String, StringArgument, CommandSender> {
     private final StringType type;
 
+    /**
+     * Creates a single-word string argument.
+     *
+     * @param name the argument name
+     */
     public StringArgument(final String name) {
       this(name, StringType.SINGLE_WORD);
     }
 
+    /**
+     * Creates a string argument with the specified parsing type.
+     *
+     * @param name the argument name
+     * @param type the string parsing type
+     * @throws IllegalArgumentException if {@code type} is {@code null}
+     */
     public StringArgument(final String name, final StringType type) {
       super(name, String.class, ArgumentType.STRING);
       this.type = type;
@@ -36,23 +60,51 @@ public class StringArguments {
       }
     }
 
+    /**
+     * Creates a single-word string argument.
+     *
+     * @param name the argument name
+     * @return a new string argument
+     */
     public static StringArgument word(final String name) {
       return new StringArgument(name, StringType.SINGLE_WORD);
     }
 
+    /**
+     * Creates a quotable string argument.
+     *
+     * @param name the argument name
+     * @return a new string argument
+     */
     public static StringArgument string(final String name) {
       return new StringArgument(name, StringType.QUOTABLE_PHRASE);
     }
 
+    /**
+     * Creates a greedy string argument.
+     *
+     * @param name the argument name
+     * @return a new string argument
+     */
     public static StringArgument greedyString(final String name) {
       return new StringArgument(name, StringType.GREEDY_PHRASE);
     }
 
+    /**
+     * Returns this argument instance.
+     *
+     * @return this argument
+     */
     @Override
     public StringArgument getInstance() {
       return this;
     }
 
+    /**
+     * Returns the configured string parsing type.
+     *
+     * @return the string type
+     */
     public StringType getStringType() {
       return type;
     }
@@ -113,17 +165,39 @@ public class StringArguments {
     }
   }
 
+  /**
+   * Argument that parses a text string value.
+   */
   public static class TextArgument extends Argument<String, TextArgument, CommandSender> {
 
+    /**
+     * Creates a new text argument.
+     *
+     * @param name the argument name
+     */
     public TextArgument(final String name) {
       super(name, String.class, ArgumentType.TEXT);
     }
 
+    /**
+     * Returns this argument instance.
+     *
+     * @return this argument
+     */
     @Override
     public TextArgument getInstance() {
       return this;
     }
 
+    /**
+     * Parses the argument value as text.
+     *
+     * @param source the command source
+     * @param reader the string reader
+     * @param key the argument key
+     * @return the parsed text value
+     * @throws CommandSyntaxException if parsing fails
+     */
     @Override
     public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
@@ -131,17 +205,39 @@ public class StringArguments {
     }
   }
 
+  /**
+   * Argument that consumes the remainder of the input as a string.
+   */
   public static class GreedyStringArgument extends Argument<String, GreedyStringArgument, CommandSender> {
 
+    /**
+     * Creates a new greedy string argument.
+     *
+     * @param name the argument name
+     */
     public GreedyStringArgument(final String name) {
       super(name, String.class, ArgumentType.STRING_GREEDY);
     }
 
+    /**
+     * Returns this argument instance.
+     *
+     * @return this argument
+     */
     @Override
     public GreedyStringArgument getInstance() {
       return this;
     }
 
+    /**
+     * Parses the remaining input as a string value.
+     *
+     * @param source the command source
+     * @param reader the string reader
+     * @param key the argument key
+     * @return the remaining input
+     * @throws CommandSyntaxException if parsing fails
+     */
     @Override
     public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
@@ -151,8 +247,16 @@ public class StringArguments {
     }
   }
 
+  /**
+   * Argument that parses a Bukkit {@link ChatColor} value.
+   */
   public static class ChatColorArgument extends Argument<ChatColor, ChatColorArgument, CommandSender> {
 
+    /**
+     * Creates a new chat color argument.
+     *
+     * @param name the argument name
+     */
     public ChatColorArgument(final String name) {
       super(name, ChatColor.class, ArgumentType.CHATCOLOR);
       final ArrayList<String> list = new ArrayList<>();
@@ -162,11 +266,25 @@ public class StringArguments {
       withSuggestions(list);
     }
 
+    /**
+     * Returns this argument instance.
+     *
+     * @return this argument
+     */
     @Override
     public ChatColorArgument getInstance() {
       return this;
     }
 
+    /**
+     * Parses the argument value as a chat color.
+     *
+     * @param source the command source
+     * @param reader the string reader
+     * @param key the argument key
+     * @return the parsed chat color
+     * @throws CommandSyntaxException if parsing fails
+     */
     @Override
     public ChatColor parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
         final String key)
@@ -175,17 +293,39 @@ public class StringArguments {
     }
   }
 
+  /**
+   * Argument that consumes the remainder of the input as chat text.
+   */
   public static class ChatArgument extends Argument<String, ChatArgument, CommandSender> {
 
+    /**
+     * Creates a new chat argument.
+     *
+     * @param name the argument name
+     */
     public ChatArgument(final String name) {
       super(name, String.class, ArgumentType.CHAT);
     }
 
+    /**
+     * Returns this argument instance.
+     *
+     * @return this argument
+     */
     @Override
     public ChatArgument getInstance() {
       return this;
     }
 
+    /**
+     * Parses the remaining input as chat text.
+     *
+     * @param source the command source
+     * @param reader the string reader
+     * @param key the argument key
+     * @return the remaining chat text
+     * @throws CommandSyntaxException if parsing fails
+     */
     @Override
     public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {

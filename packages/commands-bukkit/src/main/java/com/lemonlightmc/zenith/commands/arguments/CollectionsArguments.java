@@ -17,20 +17,40 @@ import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.CommandSyntaxExceptionContainer;
 
+/**
+ * Argument types for parsing delimited list values.
+ */
 public class CollectionsArguments {
   private static final CommandSyntaxExceptionContainer DUPLICATE_ARGUMENTS = new CommandSyntaxExceptionContainer(
       "Duplicate arguments are not allowed");
   private static final CommandSyntaxExceptionContainer INVALID_ENTRY = new CommandSyntaxExceptionContainer(
       (value) -> "Item '" + value + "'' is not allowed in list");
 
+  /**
+   * Base argument type for list-based command arguments.
+   *
+   * @param <I> the concrete argument type
+   */
   @SuppressWarnings("rawtypes")
   public static abstract class ListArgument<I extends ListArgument<I>> extends Argument<List, I, CommandSender> {
 
+    /**
+     * Creates a new list argument.
+     *
+     * @param name the argument name
+     * @param primitiveType the list class type
+     * @param rawType the raw argument type
+     */
     protected ListArgument(final String name, final Class<List> primitiveType, final ArgumentType rawType) {
       super(name, primitiveType, rawType);
     }
   }
 
+  /**
+   * List argument backed by a dynamically supplied set of allowed values.
+   *
+   * @param <T> the list element type
+   */
   @SuppressWarnings("rawtypes")
   public static class DynamicListArgument<T> extends ListArgument<DynamicListArgument<T>> {
     private final char delimiter;
@@ -38,6 +58,16 @@ public class CollectionsArguments {
     private final Supplier<List<T>> supplier;
     private final Function<T, String> mapper;
 
+    /**
+     * Creates a new dynamic list argument.
+     *
+     * @param nodeName the argument name
+     * @param delimiter the delimiter separating list entries
+     * @param allowDuplicates {@code true} to allow duplicate entries
+     * @param supplier the supplier of allowed values
+     * @param suggestionsMapper the mapper used to convert values to suggestion strings
+     * @param type the raw argument type
+     */
     public DynamicListArgument(final String nodeName, final char delimiter, final boolean allowDuplicates,
         final Supplier<List<T>> supplier,
         final Function<T, String> suggestionsMapper, final ArgumentType type) {
@@ -52,6 +82,11 @@ public class CollectionsArguments {
       });
     }
 
+    /**
+     * Returns this argument instance.
+     *
+     * @return this argument
+     */
     @Override
     public DynamicListArgument<T> getInstance() {
       return this;
@@ -128,6 +163,11 @@ public class CollectionsArguments {
     }
   }
 
+  /**
+   * List argument backed by a fixed set of allowed values.
+   *
+   * @param <T> the list element type
+   */
   @SuppressWarnings("rawtypes")
   public static class StaticListArgument<T> extends ListArgument<StaticListArgument<T>> {
     private final char delimiter;
@@ -135,6 +175,16 @@ public class CollectionsArguments {
     private final List<T> values;
     private final HashMap<String, T> mapping;
 
+    /**
+     * Creates a new static list argument.
+     *
+     * @param nodeName the argument name
+     * @param delimiter the delimiter separating list entries
+     * @param allowDuplicates {@code true} to allow duplicate entries
+     * @param values the allowed values
+     * @param mapper the mapper used to convert values to suggestion strings
+     * @param type the raw argument type
+     */
     public StaticListArgument(final String nodeName, final char delimiter, final boolean allowDuplicates,
         final List<T> values, final Function<T, String> mapper, final ArgumentType type) {
       super(nodeName, List.class, type);
@@ -151,11 +201,23 @@ public class CollectionsArguments {
       });
     }
 
+    /**
+     * Returns this argument instance.
+     *
+     * @return this argument
+     */
     @Override
     public StaticListArgument<T> getInstance() {
       return this;
     }
 
+    /**
+     * Creates a syntax exception for an invalid list value.
+     *
+     * @param reader the string reader providing parse context
+     * @param value the invalid value
+     * @return the created syntax exception
+     */
     @Override
     public CommandSyntaxException createError(final StringReader reader, final String value) {
       return new CommandSyntaxException(reader, "Invalid List '" + value);
@@ -218,10 +280,18 @@ public class CollectionsArguments {
     }
   }
 
+  /**
+   * Builder for creating list-based command arguments.
+   *
+   * @param <T> the list element type
+   */
   public static class ListArgumentBuilder<T> {
 
+    /** Raw argument type used for greedy list parsing. */
     public static final ArgumentType LIST_GREEDY = ArgumentType.LIST_GREEDY;
+    /** Raw argument type used for non-greedy list parsing. */
     public static final ArgumentType LIST_TEXT = ArgumentType.LIST_TEXT;
+    /** Default delimiter used to separate list entries. */
     public static final char DEFAULT_DELIMITER = ',';
 
     private final String name;
@@ -232,20 +302,44 @@ public class CollectionsArguments {
     private Supplier<List<T>> supplier;
     private Function<T, String> mapper = t -> String.valueOf(t);
 
+    /**
+     * Creates a new list argument builder using the default delimiter.
+     *
+     * @param name the argument name
+     */
     public ListArgumentBuilder(final String name) {
       this(name, DEFAULT_DELIMITER);
     }
 
+    /**
+     * Creates a new list argument builder.
+     *
+     * @param name the argument name
+     * @param delimiter the delimiter separating list entries
+     */
     public ListArgumentBuilder(final String name, final char delimiter) {
       this.name = name;
       this.delimiter = delimiter;
     }
 
+    /**
+     * Sets whether duplicate list entries are allowed.
+     *
+     * @param allowDuplicates {@code true} to allow duplicate entries
+     * @return this builder
+     */
     public ListArgumentBuilder<T> allowDuplicates(final boolean allowDuplicates) {
       this.allowDuplicates = allowDuplicates;
       return this;
     }
 
+    /**
+     * Sets the supplier providing the allowed list values.
+     *
+     * @param list the supplier of allowed values
+     * @return this builder
+     * @throws IllegalArgumentException if {@code list} is {@code null}
+     */
     public ListArgumentBuilder<T> withList(final Supplier<List<T>> list) {
       if (list == null) {
         throw new IllegalArgumentException("List in ListArgument cant be empty!");
@@ -254,6 +348,13 @@ public class CollectionsArguments {
       return this;
     }
 
+    /**
+     * Sets the allowed list values.
+     *
+     * @param list the allowed values
+     * @return this builder
+     * @throws IllegalArgumentException if {@code list} is {@code null} or empty
+     */
     public ListArgumentBuilder<T> withList(final List<T> list) {
       if (list == null || list.size() == 0) {
         throw new IllegalArgumentException("List in ListArgument cant be empty!");
@@ -263,6 +364,13 @@ public class CollectionsArguments {
 
     }
 
+    /**
+     * Sets the allowed list values.
+     *
+     * @param list the allowed values
+     * @return this builder
+     * @throws IllegalArgumentException if {@code list} is {@code null} or empty
+     */
     @SafeVarargs
     public final ListArgumentBuilder<T> withList(final T... list) {
       if (list == null || list.length == 0) {
@@ -273,15 +381,33 @@ public class CollectionsArguments {
 
     }
 
+    /**
+     * Configures value-to-string mapping using {@link String#valueOf(Object)}.
+     *
+     * @return this builder
+     */
     public ListArgumentBuilder<T> withStringMapper() {
       this.mapper = t -> String.valueOf(t);
       return this;
     }
 
+    /**
+     * Sets the mapper used to convert values to suggestion strings.
+     *
+     * @param mapper the value mapper
+     * @return this builder
+     */
     public ListArgumentBuilder<T> withMapper(final Function<T, String> mapper) {
       return withStringTooltipMapper(t -> mapper.apply(t));
     }
 
+    /**
+     * Sets the mapper used to convert values to suggestion strings.
+     *
+     * @param mapper the value mapper
+     * @return this builder
+     * @throws IllegalArgumentException if {@code mapper} is {@code null}
+     */
     public ListArgumentBuilder<T> withStringTooltipMapper(final Function<T, String> mapper) {
       if (mapper == null) {
         throw new IllegalArgumentException("Mapper in ListArgument cant be empty!");
@@ -290,6 +416,11 @@ public class CollectionsArguments {
       return this;
     }
 
+    /**
+     * Builds the configured list argument.
+     *
+     * @return the built list argument
+     */
     public ListArgument<?> build() {
       if (isDynamic) {
         return new DynamicListArgument<>(name, delimiter, allowDuplicates, supplier, mapper,

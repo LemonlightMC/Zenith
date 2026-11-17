@@ -15,6 +15,9 @@ import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
 import com.lemonlightmc.zenith.utils.actions.Actions.DelayAction;
 
+/**
+ * Manages and executes named action chains for player contexts.
+ */
 public class ActionManager {
   private static final Logger LOGGER = Logger.getLogger(ActionManager.class.getName());
 

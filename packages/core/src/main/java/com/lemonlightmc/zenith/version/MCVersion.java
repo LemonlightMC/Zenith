@@ -7,6 +7,11 @@ import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.exceptions.PlatformException;
 import com.lemonlightmc.zenith.utils.ServerPlatform;
 
+/**
+ * Represents a Minecraft server version and provides helpers for comparing the running server version.
+ *
+ * <p>The class exposes known version constants and static comparison methods against the detected current version.
+ */
 public class MCVersion extends SemverVersion {
 
   public static final MCVersion v1_8_0 = new MCVersion(8, 0);
@@ -107,46 +112,108 @@ public class MCVersion extends SemverVersion {
     currentVersion = new MCVersion(versionStr);
   }
 
+  /**
+   * Creates a Minecraft version with the legacy {@code 1.minor.patch} scheme.
+   *
+   * @param minor the minor version component
+   * @param patch the patch version component
+   */
   public MCVersion(final int minor, final int patch) {
     super(1, minor, patch);
   }
 
+  /**
+   * Creates a Minecraft version from a version string.
+   *
+   * @param str the version string to parse
+   */
   public MCVersion(final String str) {
     super(str);
   }
 
+  /**
+   * Returns the detected current Minecraft server version.
+   *
+   * @return the current server version
+   */
   public static MCVersion current() {
     return currentVersion;
   }
 
+  /**
+   * Returns whether the current server uses the new {@code 26.x} versioning scheme.
+   *
+   * @return {@code true} if the current major version is {@code 26}
+   */
   public static boolean isNew() {
     return currentVersion.major() == 26;
   }
 
+  /**
+   * Returns whether the current server uses the legacy {@code 1.x} versioning scheme.
+   *
+   * @return {@code true} if the current major version is {@code 1}
+   */
   public static boolean isOld() {
     return currentVersion.major() == 1;
   }
 
+  /**
+   * Returns whether the current server is considered legacy for pre-Flattening APIs.
+   *
+   * @return {@code true} if the current version is older than {@code 1.13}
+   */
   public static boolean isLegacy() {
     return currentVersion.major() == 1 && currentVersion.minor() < 13;
   }
 
+  /**
+   * Returns whether the current server version is newer than the given version.
+   *
+   * @param version the version to compare against
+   * @return {@code true} if the current version is newer
+   */
   public static boolean isNewerThan(final MCVersion version) {
     return currentVersion.isNewerThan((Version) version);
   }
 
+  /**
+   * Returns whether the current server version is older than the given version.
+   *
+   * @param version the version to compare against
+   * @return {@code true} if the current version is older
+   */
   public static boolean isOlderThan(final MCVersion version) {
     return currentVersion.isOlderThan((Version) version);
   }
 
+  /**
+   * Returns whether the current server version is at least the given version.
+   *
+   * @param version the minimum required version
+   * @return {@code true} if the current version is greater than or equal to the given version
+   */
   public static boolean isAtLeast(final MCVersion version) {
     return currentVersion.isAtLeast((Version) version);
   }
 
+  /**
+   * Returns whether the current server version is strictly between two versions.
+   *
+   * @param version1 the lower bound version
+   * @param version2 the upper bound version
+   * @return {@code true} if the current version is newer than {@code version1} and older than {@code version2}
+   */
   public static boolean isBetween(final MCVersion version1, final MCVersion version2) {
     return currentVersion.isNewerThan((Version) version1) && currentVersion.isOlderThan((Version) version2);
   }
 
+  /**
+   * Returns the CraftBukkit package version segment, if available.
+   *
+   * @return the CraftBukkit package version segment, or {@code null} if unavailable
+   * @deprecated internal package versioning is unreliable on modern server platforms
+   */
   @Deprecated
   public static String getCraftBukkitVersion() {
     final String[] pckg = Bukkit

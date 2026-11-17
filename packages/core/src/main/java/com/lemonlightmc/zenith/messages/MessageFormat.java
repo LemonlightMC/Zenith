@@ -19,8 +19,9 @@ import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
-// TODO: Rewrite completely 
-// (https://github.com/PlaceholderAPI/PlaceholderAPI/blob/master/src/main/java/me/clip/placeholderapi/util/Format.java)
+/**
+ * Defines formatting options and placeholder handling for message rendering.
+ */
 public record MessageFormat(String prefix, boolean prefixEachLine,
     String suffix, boolean suffixEachLine, boolean withColors, boolean withPlaceholders, int maxWidth,
     boolean wrapLines,
@@ -192,8 +193,14 @@ public record MessageFormat(String prefix, boolean prefixEachLine,
     return out.toString();
   }
 
+  /**
+   * Supported text alignment options for formatted output.
+   */
   public static enum TextAlign {
-    LEFT, RIGHT
+    /** Align text to the left. */
+    LEFT,
+    /** Align text to the right. */
+    RIGHT
   }
 
   public Map<String, Object> serialize() {
@@ -252,6 +259,9 @@ public record MessageFormat(String prefix, boolean prefixEachLine,
     return b.build();
   }
 
+  /**
+   * Builder for creating {@link MessageFormat} instances.
+   */
   public static class MessageFormatBuilder {
 
     private String prefix = "";

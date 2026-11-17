@@ -2,6 +2,9 @@ package com.lemonlightmc.zenith.additive.files;
 
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * Utility methods for converting glob patterns into regular expressions.
+ */
 public class Globs {
   private Globs() {
   }
@@ -28,7 +31,10 @@ public class Globs {
   /**
    * Creates a regex pattern from the given glob expression.
    *
-   * @throws PatternSyntaxException
+   * @param globPattern the glob expression to convert
+   * @param isDos whether to use DOS-style path separators
+   * @return the generated regular expression pattern
+   * @throws PatternSyntaxException if the glob expression is malformed
    */
   public static String toRegexPattern(final String globPattern, final boolean isDos) {
     boolean inGroup = false;

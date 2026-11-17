@@ -11,6 +11,9 @@ import org.slf4j.event.Level;
 import com.lemonlightmc.zenith.additive.Lazy;
 import com.lemonlightmc.zenith.additive.Reflect;
 
+/**
+ * Central access point for creating and using shared logger instances.
+ */
 public final class GlobalLogger {
   private static final ConcurrentMap<String, LoggerAdapter> loggerRegistry;
   private static final String JUL_ROOT_LOGGER_NAME = "";
@@ -25,14 +28,30 @@ public final class GlobalLogger {
     java.util.logging.Logger.getLogger("");
   }
 
+  /**
+   * Sets the backing JUL root logger used by the global logger.
+   *
+   * @param logger the JUL logger to use as the root logger
+   */
   public static void setRootLogger(final java.util.logging.Logger logger) {
     globalLogger = Lazy.of(() -> globalLogger.get().setParent(logger));
   }
 
+  /**
+   * Returns the shared root logger adapter.
+   *
+   * @return the root logger adapter
+   */
   public static LoggerAdapter getRootLogger() {
     return globalLogger.get();
   }
 
+  /**
+   * Sets the default log level used when creating new loggers.
+   *
+   * @param level the default log level
+   * @throws IllegalArgumentException if {@code level} is {@code null}
+   */
   public static void setDefaultLogLevel(final Level level) {
     if (level == null) {
       throw new IllegalArgumentException("Default LogLevel of GlobalLogger cannot be null!");
@@ -40,6 +59,11 @@ public final class GlobalLogger {
     GlobalLogger.defaultLevel = level;
   }
 
+  /**
+   * Sets the mapping of logger names to log levels.
+   *
+   * @param logLevelMap the logger level mapping
+   */
   public static void setLogLevelMapping(final Map<String, Level> logLevelMap) {
     GlobalLogger.logLevelMap = logLevelMap;
   }
@@ -276,6 +300,12 @@ public final class GlobalLogger {
     }
   }
 
+  /**
+   * Returns whether a logger with the given name has already been created.
+   *
+   * @param name the logger name
+   * @return {@code true} if a logger with the given name exists in the registry
+   */
   public static boolean hasLogger(String name) {
     // the root logger is called "" in JUL
     if (name.equalsIgnoreCase(Logger.ROOT_LOGGER_NAME)) {

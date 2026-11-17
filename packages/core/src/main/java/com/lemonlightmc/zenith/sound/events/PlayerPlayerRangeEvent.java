@@ -6,6 +6,9 @@ import org.bukkit.event.HandlerList;
 import com.lemonlightmc.zenith.events.BaseEvent;
 import com.lemonlightmc.zenith.sound.player.SoundPlayer;
 
+/**
+ * Fired when a player's in-range state changes for a sound player.
+ */
 public class PlayerPlayerRangeEvent extends BaseEvent {
 
   private static final HandlerList handlers = new HandlerList();

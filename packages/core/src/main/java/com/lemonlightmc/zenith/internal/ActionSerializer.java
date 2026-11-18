@@ -15,7 +15,6 @@ import org.bukkit.SoundCategory;
 import org.bukkit.block.data.BlockData;
 
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.checkerframework.checker.nullness.qual.Nullable;

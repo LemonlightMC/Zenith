@@ -23,12 +23,12 @@ public class Actions3 {
       this(amount, null);
     }
 
-    public AddCurrencyAction(final double amount, final Condition<Player> conditions) {
+    public AddCurrencyAction(final double amount, final Condition conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public AddCurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
+    public AddCurrencyAction(final double amount, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -39,7 +39,8 @@ public class Actions3 {
 
     @Override
     protected boolean run(final ActionContext context) {
-      if (!(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (player == null) {
         return false;
       }
       final RegisteredServiceProvider<Economy> rsp = Bukkit.getServicesManager().getRegistration(Economy.class);
@@ -59,12 +60,12 @@ public class Actions3 {
       this(amount, null);
     }
 
-    public RemoveCurrencyAction(final double amount, final Condition<Player> conditions) {
+    public RemoveCurrencyAction(final double amount, final Condition conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public RemoveCurrencyAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
+    public RemoveCurrencyAction(final double amount, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -75,7 +76,8 @@ public class Actions3 {
 
     @Override
     protected boolean run(final ActionContext context) {
-      if (!(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (player == null) {
         return false;
       }
       final RegisteredServiceProvider<Economy> rsp = Bukkit.getServicesManager().getRegistration(Economy.class);
@@ -108,7 +110,7 @@ public class Actions3 {
     }
 
     public PermissionAction(final String permission, final Mode mode, final boolean value,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.permission = permission;
       this.mode = mode == null ? Mode.GRANT : mode;
@@ -116,7 +118,7 @@ public class Actions3 {
     }
 
     public PermissionAction(final String permission, final Mode mode, final boolean value,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.permission = permission;
       this.mode = mode == null ? Mode.GRANT : mode;
@@ -128,7 +130,8 @@ public class Actions3 {
       if (permission == null || permission.isEmpty()) {
         return true;
       }
-      if (!(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (player == null) {
         return false;
       }
       if (LuckPerms.isEnabled()) {

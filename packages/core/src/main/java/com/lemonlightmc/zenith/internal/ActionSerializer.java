@@ -1,6 +1,7 @@
 package com.lemonlightmc.zenith.internal;
 
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -9,13 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.SoundCategory;
-import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
+
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -33,7 +31,7 @@ import com.lemonlightmc.zenith.utils.actions.Actions.ActionbarAction;
 import com.lemonlightmc.zenith.utils.actions.Actions.BlockBreakAction;
 import com.lemonlightmc.zenith.utils.actions.Actions.BlockPlaceAction;
 import com.lemonlightmc.zenith.utils.actions.Actions.BlockReplaceAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.BossBarAction;
+import com.lemonlightmc.zenith.apis.bossbar.BossBarAction;
 import com.lemonlightmc.zenith.utils.actions.Actions.ConsoleCommandAction;
 import com.lemonlightmc.zenith.utils.actions.Actions.DelayAction;
 import com.lemonlightmc.zenith.utils.actions.Actions.ExperienceAction;
@@ -65,15 +63,29 @@ import com.lemonlightmc.zenith.utils.actions.Actions.WeightedRandomAction;
 
 import io.leangen.geantyref.TypeToken;
 
+/**
+ * Serializes and deserializes {@link Action} instances from configuration data.
+ */
 public final class ActionSerializer implements TypeSerializer<Action> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final ActionSerializer INSTANCE = new ActionSerializer();
-  private static final TypeToken<Condition<Player>> CONDITION_TYPE = new TypeToken<Condition<Player>>() {
+  private static final TypeToken<Condition> CONDITION_TYPE = new TypeToken<Condition>() {
   };
 
   private ActionSerializer() {
   }
 
+  /**
+   * Deserializes an action from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the deserialized action, or {@code null} if unavailable
+   * @throws SerializationException if the action cannot be parsed
+   */
   @Override
   public Action deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -88,7 +100,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       throw new SerializationException(node, Action.class, "Action requires a 'type'");
     }
 
-    final Condition<Player> condition = readCondition(node);
+    final Condition condition = readCondition(node);
     // useSync defaults to true for most actions; Delay/Stop manage their own
     // semantics
     final boolean useSync = node.node("sync").getBoolean(node.node("use-sync").getBoolean(true));
@@ -130,7 +142,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
 
       case "teleport":
       case "tp": {
-        final Location loc = readLocation(node.node("location").virtual() ? node : node.node("location"));
+        final Location loc = (node.node("location").virtual() ? node : node.node("location")).get(Location.class);
         return new TeleportAction(loc, broadcast, condition, useSync);
       }
 
@@ -144,20 +156,13 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       }
 
       case "bossbar":
-      case "boss-bar": {
-        final ConfigurationNode keyNode = firstNonEmpty(node, "key", "id", "name");
-        final String title = str(node, "title", "text", "message");
-        final BarColor color = parseEnum(str(node, "color"), BarColor.class, BarColor.PURPLE);
-        final BarStyle style = parseEnum(str(node, "style"), BarStyle.class, BarStyle.SOLID);
-        final double progress = node.node("progress").getDouble(1.0);
-        final int duration = node.node("duration-ticks").getInt(node.node("duration").getInt(-1));
-        return new BossBarAction(keyNode == null ? null : keyNode.get(NamespacedKey.class), title, color, style, progress, duration, broadcast, condition, useSync);
-      }
+      case "boss-bar":
+        return BossBarAction.SERIALIZER.deserialize(type, node, condition, useSync, broadcast);
 
       case "particle":
       case "particles": {
         final Particle particle = parseEnum(str(node, "particle", "type", "value"), Particle.class, null);
-        final int count = node.node("count").getInt(node.node("amount").getInt(1));
+        final int count = firstNonEmpty(node, "amount", "count").getInt(1);
         final ConfigurationNode off = node.node("offset");
         final double ox = !off.virtual() ? off.node("x").getDouble(0.5) : node.node("offset-x").getDouble(0.5);
         final double oy = !off.virtual() ? off.node("y").getDouble(0.5) : node.node("offset-y").getDouble(0.5);
@@ -176,38 +181,37 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       case "removeitem":
       case "take-item": {
         final Material material = parseEnum(str(node, "material", "item", "type"), Material.class, null);
-        final int amount = node.node("amount").getInt(node.node("count").getInt(1));
+        final int amount = firstNonEmpty(node, "amount", "count").getInt(1);
         return new RemoveItemAction(material, amount, condition, useSync);
       }
 
       case "experience":
       case "exp":
       case "xp":
-        return new ExperienceAction(node.node("amount").getInt(node.node("value").getInt(0)), condition, useSync);
+        return new ExperienceAction(firstNonEmpty(node, "amount", "value", "xp", "experience").getInt(0), condition,
+            useSync);
 
       case "level":
       case "levels":
-        return new LevelAction(node.node("amount").getInt(node.node("value").getInt(0)), condition, useSync);
+        return new LevelAction(firstNonEmpty(node, "amount", "level", "levels", "value").getInt(0), condition, useSync);
 
       case "health":
       case "heal":
       case "damage":
-        return new HealthAction(node.node("amount").getDouble(node.node("value").getDouble(0.0)), condition, useSync);
+        return new HealthAction(firstNonEmpty(node, "amount", "health", "value").getDouble(0.0), condition, useSync);
 
       case "food":
       case "hunger":
       case "feed":
         return new FoodAction(
-            node.node("amount").getInt(node.node("food").getInt(node.node("value").getInt(0))),
+            firstNonEmpty(node, "amount", "food", "value").getInt(0),
             (float) node.node("saturation").getDouble(0.0),
             condition, useSync);
 
       case "delay":
       case "wait":
       case "sleep": {
-        final long ticks = node.node("ticks").getLong(node.node("delay").getLong(node.node("duration").getLong(0L)));
-        // DelayAction constructor sets useSync true internally
-        return condition == null ? new DelayAction(ticks) : new DelayAction(ticks, condition);
+        return new DelayAction(firstNonEmpty(node, "ticks", "delay", "duration").get(Duration.class), condition);
       }
 
       case "stop-sound":
@@ -219,9 +223,11 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       case "movement":
       case "velocity":
       case "motion": {
-        final MathOperation operation = node.node("operation").get(MathOperation.class);
-        final boolean relLook = node.node("use-look-direction").getBoolean(false);
-        return new MovementAction(node.get(Vector.class), operation, relLook, broadcast, condition, useSync);
+        return new MovementAction(
+            node.get(Vector.class),
+            node.node("operation").get(MathOperation.class),
+            node.node("use-look-direction").getBoolean(false),
+            broadcast, condition, useSync);
       }
 
       case "gamemode":
@@ -239,7 +245,10 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       case "invulnerability":
       case "god":
       case "invurable": {
-        return new InvulnerableAction(node.node("value").getBoolean(true), node.node("duration").getInt(-1), broadcast,
+        return new InvulnerableAction(
+            node.node("value").getBoolean(true),
+            node.node("duration").get(Duration.class),
+            broadcast,
             condition, useSync);
       }
 
@@ -248,9 +257,9 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       case "spawn-entity": {
         final EntityType entityType = parseEnum(str(node, "entity", "entity-type", "type", "mob"), EntityType.class,
             null);
-        final int amount = node.node("amount").getInt(node.node("count").getInt(1));
-        final boolean atPlayer = node.node("at-player").getBoolean(node.node("player-location").getBoolean(true));
-        final Location loc = atPlayer ? null : readLocation(node.node("location"));
+        final int amount = firstNonEmpty(node, "amount", "count").getInt(1);
+        final boolean atPlayer = firstNonEmpty(node, "at-player", "player-location").getBoolean(true);
+        final Location loc = atPlayer ? null : node.node("location").get(Location.class);
         if (node.hasChild("customizer")) {
           throw new SerializationException(node, Action.class,
               "SummonAction 'customizer' is not serializable from config");
@@ -266,53 +275,55 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       }
 
       case "time": {
-        final long time = node.node("time").getLong(node.node("value").getLong(0L));
-        final boolean add = node.node("add").getBoolean(node.node("relative").getBoolean(false));
+        final long time = firstNonEmpty(node, "time", "value").getLong(0L);
+        final boolean add = firstNonEmpty(node, "add", "relative").getBoolean(false);
         return new TimeAction(time, add, str(node, "world"), condition, useSync);
       }
 
       case "block-place":
       case "place-block":
       case "set-block": {
-        final boolean atPlayer = node.node("at-player").getBoolean(node.node("player-location").getBoolean(false));
+        final boolean atPlayer = firstNonEmpty(node, "at-player", "player-location").getBoolean(false);
         final Location loc = atPlayer ? null
-            : readLocation(node.node("location").virtual() ? node : node.node("location"));
+            : (node.node("location").virtual() ? node : node.node("location")).get(Location.class);
         final Material mat = parseEnum(str(node, "material", "block", "type"), Material.class, null);
         final BlockData data = readBlockData(node.node("block-data").getString(node.node("data").getString()));
-        final boolean physics = node.node("physics").getBoolean(node.node("apply-physics").getBoolean(true));
+        final boolean physics = firstNonEmpty(node, "physics", "apply-physics").getBoolean(true);
         return new BlockPlaceAction(loc, atPlayer, mat, data, physics, condition, useSync);
       }
 
       case "block-break":
       case "break-block": {
-        final boolean atPlayer = node.node("at-player").getBoolean(node.node("player-location").getBoolean(false));
+        final boolean atPlayer = firstNonEmpty(node, "at-player", "player-location").getBoolean(false);
         final Location loc = atPlayer ? null
-            : readLocation(node.node("location").virtual() ? node : node.node("location"));
+            : (node.node("location").virtual() ? node : node.node("location")).get(Location.class);
         final boolean drop = node.node("drop-items").getBoolean(node.node("drop").getBoolean(false));
-        final boolean physics = node.node("physics").getBoolean(node.node("apply-physics").getBoolean(true));
+        final boolean physics = firstNonEmpty(node, "physics", "apply-physics").getBoolean(true);
         return new BlockBreakAction(loc, atPlayer, drop, physics, condition, useSync);
       }
 
       case "block-replace":
       case "replace-block": {
-        final boolean atPlayer = node.node("at-player").getBoolean(node.node("player-location").getBoolean(false));
+        final boolean atPlayer = firstNonEmpty(node, "at-player", "player-location").getBoolean(false);
         final Location loc = atPlayer ? null
-            : readLocation(node.node("location").virtual() ? node : node.node("location"));
+            : (node.node("location").virtual()
+                ? node
+                : node.node("location")).get(Location.class);
         final Material from = parseEnum(str(node, "from", "from-material"), Material.class, null);
         final Material to = parseEnum(str(node, "to", "to-material", "material", "block", "type"), Material.class,
             null);
         final BlockData data = readBlockData(node.node("block-data").getString(node.node("to-data").getString()));
-        final boolean physics = node.node("physics").getBoolean(node.node("apply-physics").getBoolean(true));
+        final boolean physics = firstNonEmpty(node, "physics", "apply-physics").getBoolean(true);
         return new BlockReplaceAction(loc, atPlayer, from, to, data, physics, condition, useSync);
       }
 
       case "explosion":
       case "explode": {
-        final boolean atPlayer = node.node("at-player").getBoolean(node.node("player-location").getBoolean(true));
-        final Location loc = atPlayer ? null : readLocation(node.node("location"));
-        final float power = (float) node.node("power").getDouble(node.node("strength").getDouble(4.0));
-        final boolean fire = node.node("fire").getBoolean(node.node("set-fire").getBoolean(false));
-        final boolean breakBlocks = node.node("break-blocks").getBoolean(node.node("break").getBoolean(true));
+        final boolean atPlayer = firstNonEmpty(node, "at-player", "player-location").getBoolean(false);
+        final Location loc = atPlayer ? null : node.node("location").get(Location.class);
+        final float power = (float) node.node("power").getDouble(4.0);
+        final boolean fire = node.node("fire").getBoolean(false);
+        final boolean breakBlocks = firstNonEmpty(node, "break-blocks", "break").getBoolean(true);
         return new ExplosionAction(loc, atPlayer, power, fire, breakBlocks, condition, useSync);
       }
 
@@ -328,8 +339,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
 
       case "weighted-random":
       case "weighted": {
-        final List<WeightedRandomAction.Entry> entries = readWeightedActions(node);
-        return new WeightedRandomAction(entries, condition, useSync);
+        return new WeightedRandomAction(readWeightedActions(node), condition, useSync);
       }
 
       case "repeat":
@@ -341,10 +351,12 @@ public final class ActionSerializer implements TypeSerializer<Action> {
             actions.add(single);
           }
         }
-        final int times = node.node("times").getInt(node.node("count").getInt(node.node("repeat").getInt(1)));
-        final long interval = node.node("interval-ticks").getLong(node.node("interval").getLong(0L));
-        final long initial = node.node("initial-delay-ticks").getLong(node.node("initial-delay").getLong(0L));
-        return new RepeatAction(actions, times, interval, initial, condition, useSync);
+        return new RepeatAction(
+            actions,
+            firstNonEmpty(node, "times", "count", "repeat").getInt(1),
+            firstNonEmpty(node, "initial-delay", "delay").getLong(0L),
+            node.node("interval").getLong(0L),
+            condition, useSync);
       }
 
       default:
@@ -352,6 +364,14 @@ public final class ActionSerializer implements TypeSerializer<Action> {
     }
   }
 
+  /**
+   * Serializes an action to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the action to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails or is unsupported for the action type
+   */
   @Override
   public void serialize(final Type type, final @Nullable Action obj, final ConfigurationNode node)
       throws SerializationException {
@@ -395,7 +415,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
 
   // ----------------- helpers -----------------
 
-  private Condition<Player> readCondition(final ConfigurationNode node) throws SerializationException {
+  private Condition readCondition(final ConfigurationNode node) throws SerializationException {
     ConfigurationNode c = node.node("condition");
     if (!c.virtual() && !c.isNull()) {
       return c.get(CONDITION_TYPE);
@@ -463,19 +483,6 @@ public final class ActionSerializer implements TypeSerializer<Action> {
     return out;
   }
 
-  private static Location readLocation(final ConfigurationNode n) {
-    if (n == null || n.virtual() || n.isNull()) {
-      return null;
-    }
-    final String worldName = n.node("world").getString();
-    final World world = worldName == null ? null : Bukkit.getWorld(worldName);
-    if (!n.hasChild("x") && !n.hasChild("y") && !n.hasChild("z")) {
-      return null;
-    }
-    return new Location(world, n.node("x").getDouble(), n.node("y").getDouble(), n.node("z").getDouble(),
-        (float) n.node("yaw").getDouble(0.0), (float) n.node("pitch").getDouble(0.0));
-  }
-
   private static ItemStack readItem(final ConfigurationNode node) throws SerializationException {
     ConfigurationNode n = node.node("item");
     if (n.virtual()) {
@@ -524,7 +531,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
     return null;
   }
 
-  private static ConfigurationNode firstNonEmpty(final ConfigurationNode node, final String... keys) {
+  static ConfigurationNode firstNonEmpty(final ConfigurationNode node, final String... keys) {
     for (final String key : keys) {
       final ConfigurationNode n = node.node(key);
       if (!n.virtual() && !n.isNull()) {
@@ -534,7 +541,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
     return null;
   }
 
-  private static String firstNonEmpty(final String... values) {
+  static String firstNonEmpty(final String... values) {
     for (final String v : values) {
       if (v != null && !v.isEmpty()) {
         return v;

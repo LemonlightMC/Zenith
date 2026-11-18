@@ -9,13 +9,27 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
+/**
+ * Serializes and deserializes {@link Vector} values.
+ */
 public final class VectorSerializer implements TypeSerializer<Vector> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final VectorSerializer INSTANCE = new VectorSerializer();
 
   private VectorSerializer() {
   }
 
+  /**
+   * Deserializes a vector from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the deserialized vector, or {@code null} if unavailable
+   * @throws SerializationException if the node cannot be parsed as a vector
+   */
   @Override
   public Vector deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -50,6 +64,14 @@ public final class VectorSerializer implements TypeSerializer<Vector> {
     }
   }
 
+  /**
+   * Serializes a vector to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the vector to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Vector obj, final ConfigurationNode node)
       throws SerializationException {

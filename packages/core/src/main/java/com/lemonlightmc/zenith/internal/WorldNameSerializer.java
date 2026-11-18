@@ -9,15 +9,26 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 /**
- * Serializes/deserializes a {@link World} by its name.
+ * Serializes and deserializes a {@link World} by its name.
  */
 public final class WorldNameSerializer implements TypeSerializer<World> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final WorldNameSerializer INSTANCE = new WorldNameSerializer();
 
   private WorldNameSerializer() {
   }
 
+  /**
+   * Deserializes a world reference from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the resolved world, or {@code null} if unavailable
+   * @throws SerializationException if deserialization fails
+   */
   @Override
   public World deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -41,6 +52,14 @@ public final class WorldNameSerializer implements TypeSerializer<World> {
     return Bukkit.getWorld(name);
   }
 
+  /**
+   * Serializes a world reference to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the world to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final World obj, final ConfigurationNode node)
       throws SerializationException {

@@ -10,13 +10,27 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
+/**
+ * Serializes and deserializes {@link Color} values.
+ */
 public final class ColorSerializer implements TypeSerializer<Color> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final ColorSerializer INSTANCE = new ColorSerializer();
 
   private ColorSerializer() {
   }
 
+  /**
+   * Deserializes a color from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the parsed color, or {@code null} if unavailable
+   * @throws SerializationException if the value cannot be parsed as a color
+   */
   @Override
   public Color deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -80,6 +94,14 @@ public final class ColorSerializer implements TypeSerializer<Color> {
     }
   }
 
+  /**
+   * Serializes a color to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the color to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Color obj, final ConfigurationNode node)
       throws SerializationException {

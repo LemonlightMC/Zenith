@@ -7,104 +7,99 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import com.lemonlightmc.zenith.internal.ConditionSerializer;
+import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
 
 /**
  * A composable condition tree.
  */
-public interface Condition<T> {
+public interface Condition {
 
-    @SuppressWarnings("rawtypes")
-    static ConditionSerializer serializer() {
-        return ConditionSerializer.INSTANCE;
-    }
+    boolean test(ActionContext context);
 
-    boolean test(T value);
-
-    default Condition<T> and(final Condition<T> other) {
+    default Condition and(final Condition other) {
         return other == null || other instanceof AlwaysCondition ? this : AndCondition.of(this, other);
     }
 
-    default Condition<T> or(final Condition<T> other) {
+    default Condition or(final Condition other) {
         if (other == null || other instanceof NeverCondition) {
             return this;
         }
         return other instanceof AlwaysCondition ? AlwaysCondition.of() : OrCondition.of(this, other);
     }
 
-    default Condition<T> xor(final Condition<T> other) {
+    default Condition xor(final Condition other) {
         if (other == null || other instanceof NeverCondition || other instanceof AlwaysCondition) {
             return NotCondition.of(this);
         }
         return XorCondition.of(this, other);
     }
 
-    default Condition<T> negate() {
+    default Condition negate() {
         return NotCondition.of(this);
     }
 
     /**
      * Mutable root/container node that requires all child conditions to pass.
      */
-    final class ConditionSet<T> implements Condition<T> {
-        private final List<Condition<T>> children = new ArrayList<>();
+    final class ConditionSet implements Condition {
+        private final List<Condition> children = new ArrayList<>();
 
         private ConditionSet() {
         }
 
-        private ConditionSet(final Collection<? extends Condition<T>> children) {
+        private ConditionSet(final Collection<? extends Condition> children) {
             addAll(children);
         }
 
         @SafeVarargs
-        private ConditionSet(final Condition<T>... children) {
+        private ConditionSet(final Condition... children) {
             addAll(children);
         }
 
-        public static <T> ConditionSet<T> of(final Collection<? extends Condition<T>> children) {
-            return new ConditionSet<>(children);
+        public static ConditionSet of(final Collection<? extends Condition> children) {
+            return new ConditionSet(children);
         }
 
         @SafeVarargs
-        public static <T> ConditionSet<T> of(final Condition<T>... children) {
-            return new ConditionSet<>(children);
+        public static ConditionSet of(final Condition... children) {
+            return new ConditionSet(children);
         }
 
-        public ConditionSet<T> add(final Condition<T> condition) {
+        public ConditionSet add(final Condition condition) {
             if (condition == null) {
                 return this;
             }
-            final Condition<T> cast = (Condition<T>) condition;
+            final Condition cast = (Condition) condition;
             children.add(cast);
             return this;
         }
 
-        public ConditionSet<T> addAll(final Collection<? extends Condition<T>> conditions) {
+        public ConditionSet addAll(final Collection<? extends Condition> conditions) {
             if (conditions == null) {
                 return this;
             }
-            for (final Condition<T> condition : conditions) {
+            for (final Condition condition : conditions) {
                 add(condition);
             }
             return this;
         }
 
         @SafeVarargs
-        public final ConditionSet<T> addAll(final Condition<T>... conditions) {
+        public final ConditionSet addAll(final Condition... conditions) {
             if (conditions == null) {
                 return this;
             }
-            for (final Condition<T> condition : conditions) {
+            for (final Condition condition : conditions) {
                 add(condition);
             }
             return this;
         }
 
-        public boolean remove(final Condition<?> condition) {
+        public boolean remove(final Condition condition) {
             return children.remove(condition);
         }
 
-        public boolean has(final Condition<?> condition) {
+        public boolean has(final Condition condition) {
             return children.contains(condition);
         }
 
@@ -112,12 +107,12 @@ public interface Condition<T> {
             children.clear();
         }
 
-        public List<Condition<T>> children() {
+        public List<Condition> children() {
             return Collections.unmodifiableList(children);
         }
 
         public boolean isEmpty() {
-            for (final Condition<T> child : children) {
+            for (final Condition child : children) {
                 if (child != null) {
                     return false;
                 }
@@ -126,17 +121,14 @@ public interface Condition<T> {
         }
 
         @Override
-        public boolean test(final T value) {
-            if (value == null) {
-                return false;
-            }
+        public boolean test(final ActionContext context) {
             boolean evaluated = false;
-            for (final Condition<T> child : children) {
+            for (final Condition child : children) {
                 if (child == null) {
                     continue;
                 }
                 evaluated = true;
-                if (!child.test(value)) {
+                if (!child.test(context)) {
                     return false;
                 }
             }
@@ -153,7 +145,7 @@ public interface Condition<T> {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof final ConditionSet<?> other)) {
+            if (!(obj instanceof final ConditionSet other)) {
                 return false;
             }
             return Objects.equals(children, other.children);
@@ -168,11 +160,11 @@ public interface Condition<T> {
     /**
      * Base node for logical operator conditions in the tree.
      */
-    abstract class ConditionOperator<T> implements Condition<T> {
-        protected final Condition<T> left;
-        protected final Condition<T> right;
+    abstract class ConditionOperator implements Condition {
+        protected final Condition left;
+        protected final Condition right;
 
-        protected ConditionOperator(final Condition<T> left, final Condition<T> right) {
+        protected ConditionOperator(final Condition left, final Condition right) {
             if (left == null) {
                 throw new IllegalArgumentException("Left condition cannot be null or empty");
             }
@@ -183,15 +175,15 @@ public interface Condition<T> {
             this.right = right;
         }
 
-        protected static <T> Condition<T> cast(final Condition<T> condition) {
-            return (Condition<T>) condition;
+        protected static Condition cast(final Condition condition) {
+            return (Condition) condition;
         }
 
-        public Condition<T> left() {
+        public Condition left() {
             return left;
         }
 
-        public Condition<T> right() {
+        public Condition right() {
             return right;
         }
 
@@ -208,7 +200,7 @@ public interface Condition<T> {
             if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            final ConditionOperator<?> other = (ConditionOperator<?>) obj;
+            final ConditionOperator other = (ConditionOperator) obj;
             return Objects.equals(left, other.left) && Objects.equals(right, other.right);
         }
 
@@ -219,13 +211,13 @@ public interface Condition<T> {
     }
 
     /** Logical AND operator node. */
-    final class AndCondition<T> extends ConditionOperator<T> {
+    final class AndCondition extends ConditionOperator {
 
-        private AndCondition(final Condition<T> left, final Condition<T> right) {
+        private AndCondition(final Condition left, final Condition right) {
             super(cast(left), cast(right));
         }
 
-        public static <T> Condition<T> of(final Condition<T> left, final Condition<T> right) {
+        public static Condition of(final Condition left, final Condition right) {
             if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
@@ -235,26 +227,23 @@ public interface Condition<T> {
             if (right == null) {
                 return left;
             }
-            return new AndCondition<>(left, right);
+            return new AndCondition(left, right);
         }
 
         @Override
-        public boolean test(final T value) {
-            if (value == null) {
-                return false;
-            }
-            return left.test(value) && right.test(value);
+        public boolean test(final ActionContext context) {
+            return left.test(context) && right.test(context);
         }
     }
 
     /** Logical OR operator node. */
-    final class OrCondition<T> extends ConditionOperator<T> {
+    final class OrCondition extends ConditionOperator {
 
-        private OrCondition(final Condition<T> left, final Condition<T> right) {
+        private OrCondition(final Condition left, final Condition right) {
             super(cast(left), cast(right));
         }
 
-        public static <T> Condition<T> of(final Condition<T> left, final Condition<T> right) {
+        public static Condition of(final Condition left, final Condition right) {
             if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
@@ -264,26 +253,23 @@ public interface Condition<T> {
             if (right == null) {
                 return left;
             }
-            return new OrCondition<>(left, right);
+            return new OrCondition(left, right);
         }
 
         @Override
-        public boolean test(final T value) {
-            if (value == null) {
-                return false;
-            }
-            return left.test(value) || right.test(value);
+        public boolean test(final ActionContext context) {
+            return left.test(context) || right.test(context);
         }
     }
 
     /** Logical XOR operator node. */
-    final class XorCondition<T> extends ConditionOperator<T> {
+    final class XorCondition extends ConditionOperator {
 
-        private XorCondition(final Condition<T> left, final Condition<T> right) {
+        private XorCondition(final Condition left, final Condition right) {
             super(cast(left), cast(right));
         }
 
-        public static <T> Condition<T> of(final Condition<T> left, final Condition<T> right) {
+        public static Condition of(final Condition left, final Condition right) {
             if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
@@ -293,44 +279,41 @@ public interface Condition<T> {
             if (right == null) {
                 return left;
             }
-            return new XorCondition<>(left, right);
+            return new XorCondition(left, right);
         }
 
         @Override
-        public boolean test(final T value) {
-            if (value == null) {
-                return false;
-            }
-            return left.test(value) ^ right.test(value);
+        public boolean test(final ActionContext context) {
+            return left.test(context) ^ right.test(context);
         }
     }
 
     /** Negates a child condition. */
-    final class NotCondition<T> implements Condition<T> {
-        private final Condition<T> delegate;
+    final class NotCondition implements Condition {
+        private final Condition delegate;
 
-        private NotCondition(final Condition<T> delegate) {
-            this.delegate = delegate == null ? AlwaysCondition.of() : delegate;
+        private NotCondition(final Condition delegate) {
+            this.delegate = delegate;
         }
 
-        public static <T> Condition<T> of(final Condition<T> delegate) {
+        public static Condition of(final Condition delegate) {
             if (delegate == null) {
                 return NeverCondition.of();
             }
-            return new NotCondition<>(delegate);
+            return new NotCondition(delegate);
         }
 
-        public Condition<T> delegate() {
+        public Condition delegate() {
             return delegate;
         }
 
         @Override
-        public boolean test(final T value) {
-            return value != null && !delegate.test(value);
+        public boolean test(final ActionContext context) {
+            return !delegate.test(context);
         }
 
         @Override
-        public Condition<T> negate() {
+        public Condition negate() {
             return delegate;
         }
 
@@ -344,7 +327,7 @@ public interface Condition<T> {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof final NotCondition<?> other)) {
+            if (!(obj instanceof final NotCondition other)) {
                 return false;
             }
             return Objects.equals(delegate, other.delegate);
@@ -357,24 +340,23 @@ public interface Condition<T> {
     }
 
     /** Always-true condition. */
-    final class AlwaysCondition<T> implements Condition<T> {
-        private static final AlwaysCondition<?> INSTANCE = new AlwaysCondition<>();
+    final class AlwaysCondition implements Condition {
+        private static final AlwaysCondition INSTANCE = new AlwaysCondition();
 
         private AlwaysCondition() {
         }
 
-        @SuppressWarnings("unchecked")
-        public static <T> Condition<T> of() {
-            return (AlwaysCondition<T>) INSTANCE;
+        public static Condition of() {
+            return (AlwaysCondition) INSTANCE;
         }
 
         @Override
-        public boolean test(final T value) {
+        public boolean test(final ActionContext context) {
             return true;
         }
 
         @Override
-        public Condition<T> negate() {
+        public Condition negate() {
             return NeverCondition.of();
         }
 
@@ -385,25 +367,23 @@ public interface Condition<T> {
     }
 
     /** Always-false condition. */
-    final class NeverCondition<T> implements Condition<T> {
-        private static final NeverCondition<?> INSTANCE = new NeverCondition<>();
+    final class NeverCondition implements Condition {
+        private static final NeverCondition INSTANCE = new NeverCondition();
 
         private NeverCondition() {
         }
 
-        @SuppressWarnings("unchecked")
-
-        public static <T> Condition<T> of() {
-            return (NeverCondition<T>) INSTANCE;
+        public static Condition of() {
+            return (NeverCondition) INSTANCE;
         }
 
         @Override
-        public boolean test(final T value) {
+        public boolean test(final ActionContext context) {
             return false;
         }
 
         @Override
-        public Condition<T> negate() {
+        public Condition negate() {
             return AlwaysCondition.of();
         }
 
@@ -414,20 +394,20 @@ public interface Condition<T> {
     }
 
     /** Adapts a predicate into a condition leaf. */
-    final class PredicateCondition<T> implements Condition<T> {
-        private final Predicate<T> predicate;
+    final class PredicateCondition implements Condition {
+        private final Predicate<ActionContext> predicate;
 
-        private PredicateCondition(final Predicate<T> predicate) {
+        private PredicateCondition(final Predicate<ActionContext> predicate) {
             this.predicate = predicate;
         }
 
-        public static <T> Condition<T> of(final Predicate<T> predicate) {
-            return predicate == null ? AlwaysCondition.of() : new PredicateCondition<>(predicate);
+        public static Condition of(final Predicate<ActionContext> predicate) {
+            return predicate == null ? AlwaysCondition.of() : new PredicateCondition(predicate);
         }
 
         @Override
-        public boolean test(final T value) {
-            return predicate != null && value != null && predicate.test(value);
+        public boolean test(final ActionContext context) {
+            return predicate != null && predicate.test(context);
         }
 
         @Override
@@ -440,7 +420,7 @@ public interface Condition<T> {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof final PredicateCondition<?> other)) {
+            if (!(obj instanceof final PredicateCondition other)) {
                 return false;
             }
             return Objects.equals(predicate, other.predicate);

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
@@ -26,15 +27,19 @@ public class ActionManager {
   public ActionManager() {
   }
 
-  public boolean execute(final String key, final Player target) {
-    return execute(key, new ActionContext(target));
+  public boolean execute(final String key, final CommandSender sender) {
+    return execute(key, new ActionContext(sender));
+  }
+
+  public boolean execute(final String key, final CommandSender sender, final Player player) {
+    return execute(key, new ActionContext(sender, player));
   }
 
   public boolean execute(final String key, final ActionContext context) {
     if (key == null || key.isEmpty()) {
       return false;
     }
-    if (context == null || context.isStopped() || context.getTarget() == null) {
+    if (context == null || context.isStopped()) {
       return false;
     }
     final List<Action> snapshot = actionsMap.get(key);

@@ -10,13 +10,27 @@ import com.lemonlightmc.zenith.additive.version.ComplexVersion;
 import com.lemonlightmc.zenith.additive.version.SemverVersion;
 import com.lemonlightmc.zenith.additive.version.Version;
 
+/**
+ * Serializes and deserializes {@link Version} values.
+ */
 public final class VersionSerializer implements TypeSerializer<Version> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final VersionSerializer INSTANCE = new VersionSerializer();
 
   private VersionSerializer() {
   }
 
+  /**
+   * Deserializes a version value from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the parsed version, or {@code null} if unavailable
+   * @throws SerializationException if the value cannot be parsed as a version
+   */
   @Override
   public Version deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -47,6 +61,14 @@ public final class VersionSerializer implements TypeSerializer<Version> {
     }
   }
 
+  /**
+   * Serializes a version value to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the version to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Version obj, final ConfigurationNode node)
       throws SerializationException {

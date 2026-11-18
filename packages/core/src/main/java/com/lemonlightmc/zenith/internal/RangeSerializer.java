@@ -13,14 +13,28 @@ import com.lemonlightmc.zenith.additive.math.ranges.DoubleRange;
 import com.lemonlightmc.zenith.additive.math.ranges.IntegerRange;
 import com.lemonlightmc.zenith.additive.math.ranges.LongRange;
 
+/**
+ * Serializes and deserializes {@link Range} values.
+ */
 @SuppressWarnings("rawtypes")
 public final class RangeSerializer implements TypeSerializer<Range> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final RangeSerializer INSTANCE = new RangeSerializer();
 
   private RangeSerializer() {
   }
 
+  /**
+   * Deserializes a range from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the parsed range, or {@code null} if unavailable
+   * @throws SerializationException if the value cannot be parsed as a range
+   */
   @Override
   public Range deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -97,6 +111,14 @@ public final class RangeSerializer implements TypeSerializer<Range> {
     }
   }
 
+  /**
+   * Serializes a range to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the range to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Range obj, final ConfigurationNode node)
       throws SerializationException {

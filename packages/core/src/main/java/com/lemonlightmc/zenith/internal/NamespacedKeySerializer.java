@@ -7,13 +7,27 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
+/**
+ * Serializes and deserializes {@link NamespacedKey} values.
+ */
 public final class NamespacedKeySerializer implements TypeSerializer<NamespacedKey> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final NamespacedKeySerializer INSTANCE = new NamespacedKeySerializer();
 
   private NamespacedKeySerializer() {
   }
 
+  /**
+   * Deserializes a namespaced key from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the parsed namespaced key, or {@code null} if unavailable
+   * @throws SerializationException if the value cannot be parsed as a namespaced key
+   */
   @Override
   public NamespacedKey deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -66,6 +80,14 @@ public final class NamespacedKeySerializer implements TypeSerializer<NamespacedK
     }
   }
 
+  /**
+   * Serializes a namespaced key to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the namespaced key to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final NamespacedKey obj, final ConfigurationNode node)
       throws SerializationException {

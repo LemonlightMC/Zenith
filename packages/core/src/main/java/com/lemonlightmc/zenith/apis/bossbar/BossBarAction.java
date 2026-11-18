@@ -72,7 +72,7 @@ public class BossBarAction extends Action {
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
-      final Condition<Player> conditions) {
+      final Condition conditions) {
     super(conditions);
     this.key = key;
     this.title = title == null ? "" : title;
@@ -98,7 +98,7 @@ public class BossBarAction extends Action {
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
-      final Condition<Player> conditions, final boolean useSync) {
+      final Condition conditions, final boolean useSync) {
     super(conditions, useSync);
     this.key = key;
     this.title = title == null ? "" : title;
@@ -125,7 +125,8 @@ public class BossBarAction extends Action {
       for (final Player p : Bukkit.getOnlinePlayers()) {
         BossbarAPI.addBar(p, bar);
       }
-    } else if (context.getTarget() instanceof final Player player) {
+    } else if (context.player() != null) {
+        final Player player = context.player();
       BossbarAPI.addBar(player, bar);
     }
     if (durationTicks > 0) {
@@ -157,7 +158,7 @@ public class BossBarAction extends Action {
      * @throws SerializationException if deserialization fails
      */
     public BossBarAction deserialize(final Type type, final ConfigurationNode node,
-        final Condition<Player> condition, final boolean useSync, final boolean broadcast)
+        final Condition condition, final boolean useSync, final boolean broadcast)
         throws SerializationException {
       final ConfigurationNode keyNode = firstNonEmpty(node, "key", "id", "name");
       final String title = str(node, "title", "text", "message");

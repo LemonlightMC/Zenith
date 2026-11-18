@@ -8,7 +8,7 @@ import com.lemonlightmc.zenith.items.Firework;
 import com.lemonlightmc.zenith.items.Potion;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.utils.actions.Action;
-import com.lemonlightmc.zenith.utils.actions.Condition.ConditionSet;
+import com.lemonlightmc.zenith.utils.actions.Condition;
 
 /**
  * Collection of action implementations related to items and effects.
@@ -42,7 +42,7 @@ public class Actions2 {
          * @param conditions conditions that must be met before execution
          */
         public PotionEffectAction(final Potion potion, final boolean clear,
-                final boolean broadcast, final ConditionSet<Player> conditions) {
+                final boolean broadcast, final Condition conditions) {
             super(conditions);
             this.potion = potion;
             this.clear = clear;
@@ -59,7 +59,7 @@ public class Actions2 {
          * @param useSync whether the action should run synchronously
          */
         public PotionEffectAction(final Potion potion, final boolean clear,
-                final boolean broadcast, final ConditionSet<Player> conditions, final boolean useSync) {
+                final boolean broadcast, final Condition conditions, final boolean useSync) {
             super(conditions, useSync);
             this.potion = potion;
             this.clear = clear;
@@ -90,7 +90,7 @@ public class Actions2 {
          */
         @Override
         protected boolean run(final ActionContext context) {
-            final Player player = context.getTarget();
+            final Player player = context.player();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     apply(p);
@@ -144,7 +144,7 @@ public class Actions2 {
          * @param conditions conditions that must be met before execution
          */
         public FireworkAction(
-                final Firework firework, final boolean broadcast, final ConditionSet<Player> conditions) {
+                final Firework firework, final boolean broadcast, final Condition conditions) {
             super(conditions);
             this.firework = firework;
             this.broadcast = broadcast;
@@ -159,7 +159,7 @@ public class Actions2 {
          * @param useSync whether the action should run synchronously
          */
         public FireworkAction(
-                final Firework firework, final boolean broadcast, final ConditionSet<Player> conditions,
+                final Firework firework, final boolean broadcast, final Condition conditions,
                 final boolean useSync) {
             super(conditions, useSync);
             this.firework = firework;
@@ -171,7 +171,7 @@ public class Actions2 {
          */
         @Override
         protected boolean run(final ActionContext context) {
-            final Player player = context.getTarget();
+            final Player player = context.player();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {
                     spawn(p.getLocation());

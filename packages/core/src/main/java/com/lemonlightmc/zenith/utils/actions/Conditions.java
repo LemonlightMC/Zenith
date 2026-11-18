@@ -46,6 +46,7 @@ import com.lemonlightmc.zenith.internal.ConditionSerializer;
 import com.lemonlightmc.zenith.math.Region;
 import com.lemonlightmc.zenith.utils.CooldownStore;
 import com.lemonlightmc.zenith.utils.Plugins;
+import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
 
 /**
  * Collection of built-in condition implementations and helpers.
@@ -74,7 +75,7 @@ public class Conditions {
 
   // -------------------- Existing conditions
 
-  public static class WorldConditions implements Condition<Player> {
+  public static class WorldConditions implements Condition {
 
     private final Set<String> worlds;
     private final ConditionListType type;
@@ -84,21 +85,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<String> allowed_worlds) {
+    public static Condition allowed(final Set<String> allowed_worlds) {
       if (allowed_worlds == null || allowed_worlds.isEmpty()) {
         return NeverCondition.of();
       }
       return new WorldConditions(allowed_worlds, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<String> denied_worlds) {
+    public static Condition denied(final Set<String> denied_worlds) {
       if (denied_worlds == null || denied_worlds.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new WorldConditions(denied_worlds, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<String> worlds, final ConditionListType type) {
+    public static Condition from(final Set<String> worlds, final ConditionListType type) {
       if (worlds == null || worlds.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -106,12 +107,15 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      return type.apply(worlds.contains(player.getWorld().getName().toLowerCase(Locale.ROOT)));
+    public boolean test(final ActionContext context) {
+      if (!context.isPlayer()) {
+        return false;
+      }
+      return type.apply(worlds.contains(context.player().getWorld().getName().toLowerCase(Locale.ROOT)));
     }
   }
 
-  public static class BiomeConditions implements Condition<Player> {
+  public static class BiomeConditions implements Condition {
 
     private final Set<String> biomes;
     private final ConditionListType type;
@@ -121,21 +125,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<String> allowed_biomes) {
+    public static Condition allowed(final Set<String> allowed_biomes) {
       if (allowed_biomes == null || allowed_biomes.isEmpty()) {
         return NeverCondition.of();
       }
       return new BiomeConditions(allowed_biomes, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<String> denied_biomes) {
+    public static Condition denied(final Set<String> denied_biomes) {
       if (denied_biomes == null || denied_biomes.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new BiomeConditions(denied_biomes, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<String> biomes, final ConditionListType type) {
+    public static Condition from(final Set<String> biomes, final ConditionListType type) {
       if (biomes == null || biomes.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -143,15 +147,19 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       try {
         final Biome biome = player.getWorld().getBiome(player.getLocation());
         final String b = biome == null ? "" : biome.toString().toLowerCase(Locale.ROOT);
-        final String key = biome != null && biome.getKey() != null ? biome.getKey().toString().toLowerCase(Locale.ROOT) : "";
-        final String keyOnly = biome != null && biome.getKey() != null ? biome.getKey().getKey().toLowerCase(Locale.ROOT) : "";
+        final String key = biome != null && biome.getKey() != null ? biome.getKey().toString().toLowerCase(Locale.ROOT)
+            : "";
+        final String keyOnly = biome != null && biome.getKey() != null
+            ? biome.getKey().getKey().toLowerCase(Locale.ROOT)
+            : "";
         return type.apply(biomes.contains(b) || biomes.contains(key) || biomes.contains(keyOnly));
       } catch (final Throwable ignored) {
         return false;
@@ -159,7 +167,7 @@ public class Conditions {
     }
   }
 
-  public static class WeatherConditions implements Condition<Player> {
+  public static class WeatherConditions implements Condition {
 
     private final Set<String> weathers;
     private final ConditionListType type;
@@ -169,21 +177,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<String> allowed_weathers) {
+    public static Condition allowed(final Set<String> allowed_weathers) {
       if (allowed_weathers == null || allowed_weathers.isEmpty()) {
         return NeverCondition.of();
       }
       return new WeatherConditions(allowed_weathers, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<String> denied_weathers) {
+    public static Condition denied(final Set<String> denied_weathers) {
       if (denied_weathers == null || denied_weathers.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new WeatherConditions(denied_weathers, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<String> weathers, final ConditionListType type) {
+    public static Condition from(final Set<String> weathers, final ConditionListType type) {
       if (weathers == null || weathers.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -191,17 +199,18 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final World world = player.getWorld();
       final String now = world.isThundering() ? "thunder" : (world.hasStorm() ? "rain" : "clear");
       return type.apply(weathers.contains(now));
     }
   }
 
-  public static class MoonConditions implements Condition<Player> {
+  public static class MoonConditions implements Condition {
 
     private final Set<Integer> moonPhases;
     private final ConditionListType type;
@@ -211,21 +220,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<Integer> moonPhases) {
+    public static Condition allowed(final Set<Integer> moonPhases) {
       if (moonPhases == null || moonPhases.isEmpty()) {
         return NeverCondition.of();
       }
       return new MoonConditions(moonPhases, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<Integer> moonPhases) {
+    public static Condition denied(final Set<Integer> moonPhases) {
       if (moonPhases == null || moonPhases.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new MoonConditions(moonPhases, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<Integer> moonPhases, final ConditionListType type) {
+    public static Condition from(final Set<Integer> moonPhases, final ConditionListType type) {
       if (moonPhases == null || moonPhases.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -233,10 +242,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final int value = getMoonPhase(player);
       return type.apply(moonPhases.contains(value));
     }
@@ -247,7 +257,7 @@ public class Conditions {
     }
   }
 
-  public static class TimeRangeConditions implements Condition<Player> {
+  public static class TimeRangeConditions implements Condition {
 
     private final Set<TimeRange> timeRanges;
     private final ConditionListType type;
@@ -257,21 +267,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<TimeRange> timeRanges) {
+    public static Condition allowed(final Set<TimeRange> timeRanges) {
       if (timeRanges == null || timeRanges.isEmpty()) {
         return NeverCondition.of();
       }
       return new TimeRangeConditions(timeRanges, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<TimeRange> timeRanges) {
+    public static Condition denied(final Set<TimeRange> timeRanges) {
       if (timeRanges == null || timeRanges.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new TimeRangeConditions(timeRanges, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<TimeRange> timeRanges, final ConditionListType type) {
+    public static Condition from(final Set<TimeRange> timeRanges, final ConditionListType type) {
       if (timeRanges == null || timeRanges.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -279,10 +289,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final int t = (int) Math.floorMod(player.getWorld().getFullTime(), 24000);
       boolean match = false;
       for (final TimeRange timeRange : timeRanges) {
@@ -295,7 +306,7 @@ public class Conditions {
     }
   }
 
-  public static class AdvancementConditions implements Condition<Player> {
+  public static class AdvancementConditions implements Condition {
 
     private final Set<String> advancements;
     private final ConditionListType type;
@@ -315,21 +326,21 @@ public class Conditions {
       this.cachedKeys = java.util.Collections.unmodifiableList(keys);
     }
 
-    public static Condition<Player> allowed(final Set<String> advancements) {
+    public static Condition allowed(final Set<String> advancements) {
       if (advancements == null || advancements.isEmpty()) {
         return NeverCondition.of();
       }
       return new AdvancementConditions(advancements, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<String> advancements) {
+    public static Condition denied(final Set<String> advancements) {
       if (advancements == null || advancements.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new AdvancementConditions(advancements, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<String> advancements, final ConditionListType type) {
+    public static Condition from(final Set<String> advancements, final ConditionListType type) {
       if (advancements == null || advancements.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -337,8 +348,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || cachedKeys.isEmpty()) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (cachedKeys.isEmpty()) {
         return false;
       }
       boolean value = true;
@@ -358,7 +373,7 @@ public class Conditions {
     }
   }
 
-  public static class RecipeConditions implements Condition<Player> {
+  public static class RecipeConditions implements Condition {
 
     private final Set<String> recipes;
     private final ConditionListType type;
@@ -379,21 +394,21 @@ public class Conditions {
       this.cachedKeys = java.util.Collections.unmodifiableList(keys);
     }
 
-    public static Condition<Player> allowed(final Set<String> recipes) {
+    public static Condition allowed(final Set<String> recipes) {
       if (recipes == null || recipes.isEmpty()) {
         return NeverCondition.of();
       }
       return new RecipeConditions(recipes, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<String> recipes) {
+    public static Condition denied(final Set<String> recipes) {
       if (recipes == null || recipes.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new RecipeConditions(recipes, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<String> recipes, final ConditionListType type) {
+    public static Condition from(final Set<String> recipes, final ConditionListType type) {
       if (recipes == null || recipes.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -401,8 +416,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || cachedKeys.isEmpty()) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (cachedKeys.isEmpty()) {
         return false;
       }
       boolean value = true;
@@ -418,7 +437,7 @@ public class Conditions {
     }
   }
 
-  public static class PluginConditions implements Condition<CommandSender> {
+  public static class PluginConditions implements Condition {
 
     private final Set<String> plugins;
     private final ConditionListType type;
@@ -428,21 +447,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<CommandSender> allowed(final Set<String> plugins) {
+    public static Condition allowed(final Set<String> plugins) {
       if (plugins == null || plugins.isEmpty()) {
         return NeverCondition.of();
       }
       return new PluginConditions(plugins, ConditionListType.WHITELIST);
     }
 
-    public static Condition<CommandSender> denied(final Set<String> plugins) {
+    public static Condition denied(final Set<String> plugins) {
       if (plugins == null || plugins.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new PluginConditions(plugins, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<CommandSender> from(final Set<String> plugins, final ConditionListType type) {
+    public static Condition from(final Set<String> plugins, final ConditionListType type) {
       if (plugins == null || plugins.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -450,7 +469,10 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final CommandSender sender) {
+    public boolean test(final ActionContext context) {
+      if (context == null) {
+        return false;
+      }
       boolean value = true;
       boolean evaluated = false;
       for (final String plugin : plugins) {
@@ -467,7 +489,7 @@ public class Conditions {
     }
   }
 
-  public static class PermissionConditions implements Condition<CommandSender> {
+  public static class PermissionConditions implements Condition {
 
     private final Set<String> permissions;
     private final ConditionListType type;
@@ -477,21 +499,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<CommandSender> allowed(final Set<String> permissions) {
+    public static Condition allowed(final Set<String> permissions) {
       if (permissions == null || permissions.isEmpty()) {
         return NeverCondition.of();
       }
       return new PermissionConditions(permissions, ConditionListType.WHITELIST);
     }
 
-    public static Condition<CommandSender> denied(final Set<String> permissions) {
+    public static Condition denied(final Set<String> permissions) {
       if (permissions == null || permissions.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new PermissionConditions(permissions, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<CommandSender> from(final Set<String> permissions, final ConditionListType type) {
+    public static Condition from(final Set<String> permissions, final ConditionListType type) {
       if (permissions == null || permissions.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -499,10 +521,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final CommandSender sender) {
-      if (sender == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || context.sender() == null) {
         return false;
       }
+      final CommandSender sender = context.sender();
       boolean value = true;
       boolean evaluated = false;
       for (final String permission : permissions) {
@@ -521,7 +544,7 @@ public class Conditions {
 
   // -------------------- New requested conditions --------------------
 
-  public static class GameModeConditions implements Condition<Player> {
+  public static class GameModeConditions implements Condition {
     private final Set<GameMode> modes;
     private final ConditionListType type;
 
@@ -530,21 +553,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<GameMode> modes) {
+    public static Condition allowed(final Set<GameMode> modes) {
       if (modes == null || modes.isEmpty()) {
         return NeverCondition.of();
       }
       return new GameModeConditions(modes, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<GameMode> modes) {
+    public static Condition denied(final Set<GameMode> modes) {
       if (modes == null || modes.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new GameModeConditions(modes, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<GameMode> modes, final ConditionListType type) {
+    public static Condition from(final Set<GameMode> modes, final ConditionListType type) {
       if (modes == null || modes.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -552,15 +575,16 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(modes.contains(player.getGameMode()));
     }
   }
 
-  public static class HealthConditions implements Condition<Player> {
+  public static class HealthConditions implements Condition {
     private final Double min;
     private final Double max;
     private final boolean percent;
@@ -573,15 +597,15 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> range(final double min, final double max) {
+    public static Condition range(final double min, final double max) {
       return new HealthConditions(min, max, false, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> percentRange(final double min, final double max) {
+    public static Condition percentRange(final double min, final double max) {
       return new HealthConditions(min, max, true, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Double min, final Double max, final boolean percent,
+    public static Condition from(final Double min, final Double max, final boolean percent,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -590,7 +614,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
       double value = player.getHealth();
       if (percent) {
         final double maxHealth = Math.max(1.0, player.getMaxHealth());
@@ -607,7 +635,7 @@ public class Conditions {
     }
   }
 
-  public static class LevelConditions implements Condition<Player> {
+  public static class LevelConditions implements Condition {
     private final Integer min;
     private final Integer max;
     private final ConditionListType type;
@@ -618,15 +646,15 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> range(final int min, final int max) {
+    public static Condition range(final int min, final int max) {
       return new LevelConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> atLeast(final int min) {
+    public static Condition atLeast(final int min) {
       return new LevelConditions(min, null, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Integer min, final Integer max, final ConditionListType type) {
+    public static Condition from(final Integer min, final Integer max, final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -634,7 +662,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
       final int value = player.getLevel();
       boolean inRange = true;
       if (min != null) {
@@ -647,7 +679,7 @@ public class Conditions {
     }
   }
 
-  public static class FoodConditions implements Condition<Player> {
+  public static class FoodConditions implements Condition {
     private final Integer min;
     private final Integer max;
     private final ConditionListType type;
@@ -658,11 +690,11 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> range(final int min, final int max) {
+    public static Condition range(final int min, final int max) {
       return new FoodConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Integer min, final Integer max, final ConditionListType type) {
+    public static Condition from(final Integer min, final Integer max, final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -670,7 +702,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
       final int value = player.getFoodLevel();
       boolean inRange = true;
       if (min != null) {
@@ -683,7 +719,7 @@ public class Conditions {
     }
   }
 
-  public static class FlightConditions implements Condition<Player> {
+  public static class FlightConditions implements Condition {
     private final Boolean allowFlight;
     private final Boolean flying;
     private final ConditionListType type;
@@ -694,21 +730,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Boolean allowFlight, final Boolean flying) {
+    public static Condition allowed(final Boolean allowFlight, final Boolean flying) {
       if (allowFlight == null && flying == null) {
         return NeverCondition.of();
       }
       return new FlightConditions(allowFlight, flying, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Boolean allowFlight, final Boolean flying) {
+    public static Condition denied(final Boolean allowFlight, final Boolean flying) {
       if (allowFlight == null && flying == null) {
         return AlwaysCondition.of();
       }
       return new FlightConditions(allowFlight, flying, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Boolean allowFlight, final Boolean flying,
+    public static Condition from(final Boolean allowFlight, final Boolean flying,
         final ConditionListType type) {
       if (allowFlight == null && flying == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -717,7 +753,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
       boolean match = true;
       if (allowFlight != null) {
         match = match && player.getAllowFlight() == allowFlight;
@@ -729,7 +769,7 @@ public class Conditions {
     }
   }
 
-  public static class InvulnerableConditions implements Condition<Player> {
+  public static class InvulnerableConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -738,20 +778,24 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new InvulnerableConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final boolean expected) {
+    public static Condition denied(final boolean expected) {
       return new InvulnerableConditions(expected, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new InvulnerableConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
       return type.apply(player.isInvulnerable() == expected);
     }
   }
@@ -763,7 +807,7 @@ public class Conditions {
     }
   }
 
-  public static class SneakingConditions implements Condition<Player> {
+  public static class SneakingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -772,24 +816,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new SneakingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new SneakingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(player.isSneaking() == expected);
     }
   }
 
-  public static class SprintingConditions implements Condition<Player> {
+  public static class SprintingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -798,24 +843,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new SprintingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new SprintingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(player.isSprinting() == expected);
     }
   }
 
-  public static class SwimmingConditions implements Condition<Player> {
+  public static class SwimmingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -824,24 +870,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new SwimmingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new SwimmingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(player.isSwimming() == expected);
     }
   }
 
-  public static class GlidingConditions implements Condition<Player> {
+  public static class GlidingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -850,24 +897,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new GlidingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new GlidingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(player.isGliding() == expected);
     }
   }
 
-  public static class GameRulesConditions implements Condition<Player> {
+  public static class GameRulesConditions implements Condition {
     private final Map<String, String> expectedRules;
     private final ConditionListType type;
 
@@ -876,21 +924,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Map<String, String> expectedRules) {
+    public static Condition allowed(final Map<String, String> expectedRules) {
       if (expectedRules == null || expectedRules.isEmpty()) {
         return NeverCondition.of();
       }
       return new GameRulesConditions(expectedRules, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Map<String, String> expectedRules) {
+    public static Condition denied(final Map<String, String> expectedRules) {
       if (expectedRules == null || expectedRules.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new GameRulesConditions(expectedRules, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Map<String, String> expectedRules, final ConditionListType type) {
+    public static Condition from(final Map<String, String> expectedRules, final ConditionListType type) {
       if (expectedRules == null || expectedRules.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -899,7 +947,11 @@ public class Conditions {
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
       boolean value = true;
       boolean evaluated = false;
       for (final Map.Entry<String, String> entry : expectedRules.entrySet()) {
@@ -928,7 +980,7 @@ public class Conditions {
     MAIN, OFF
   }
 
-  public static class ItemInHandConditions implements Condition<Player> {
+  public static class ItemInHandConditions implements Condition {
     private final Set<Material> materials;
     private final HandSlot slot;
     private final ConditionListType type;
@@ -939,21 +991,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<Material> materials, final HandSlot slot) {
+    public static Condition allowed(final Set<Material> materials, final HandSlot slot) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
       return new ItemInHandConditions(materials, slot, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<Material> materials, final HandSlot slot) {
+    public static Condition denied(final Set<Material> materials, final HandSlot slot) {
       if (materials == null || materials.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new ItemInHandConditions(materials, slot, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<Material> materials, final HandSlot slot,
+    public static Condition from(final Set<Material> materials, final HandSlot slot,
         final ConditionListType type) {
       if (materials == null || materials.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -962,8 +1014,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getInventory() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getInventory() == null) {
         return false;
       }
       final ItemStack stack = slot == HandSlot.OFF ? player.getInventory().getItemInOffHand()
@@ -973,7 +1029,7 @@ public class Conditions {
     }
   }
 
-  public static class ArmorConditions implements Condition<Player> {
+  public static class ArmorConditions implements Condition {
     private final Map<EquipmentSlot, Set<Material>> armor;
     private final ConditionListType type;
 
@@ -982,21 +1038,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Map<EquipmentSlot, Set<Material>> armor) {
+    public static Condition allowed(final Map<EquipmentSlot, Set<Material>> armor) {
       if (armor == null || armor.isEmpty()) {
         return NeverCondition.of();
       }
       return new ArmorConditions(armor, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Map<EquipmentSlot, Set<Material>> armor) {
+    public static Condition denied(final Map<EquipmentSlot, Set<Material>> armor) {
       if (armor == null || armor.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new ArmorConditions(armor, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Map<EquipmentSlot, Set<Material>> armor, final ConditionListType type) {
+    public static Condition from(final Map<EquipmentSlot, Set<Material>> armor, final ConditionListType type) {
       if (armor == null || armor.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -1004,8 +1060,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getEquipment() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getEquipment() == null) {
         return false;
       }
       final EntityEquipment eq = player.getEquipment();
@@ -1024,7 +1084,7 @@ public class Conditions {
     }
   }
 
-  public static class EmptySlotConditions implements Condition<Player> {
+  public static class EmptySlotConditions implements Condition {
     private final Integer minEmptySlots;
     private final ConditionListType type;
 
@@ -1033,11 +1093,11 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> atLeast(final int minEmptySlots) {
+    public static Condition atLeast(final int minEmptySlots) {
       return new EmptySlotConditions(minEmptySlots, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Integer minEmptySlots, final ConditionListType type) {
+    public static Condition from(final Integer minEmptySlots, final ConditionListType type) {
       if (minEmptySlots == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -1045,8 +1105,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getInventory() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getInventory() == null) {
         return false;
       }
       int empty = 0;
@@ -1062,7 +1126,7 @@ public class Conditions {
     }
   }
 
-  public static class InventoryContainsConditions implements Condition<Player> {
+  public static class InventoryContainsConditions implements Condition {
     private final Material material;
     private final int minAmount;
     private final ConditionListType type;
@@ -1073,14 +1137,14 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> atLeast(final Material material, final int minAmount) {
+    public static Condition atLeast(final Material material, final int minAmount) {
       if (material == null) {
         return NeverCondition.of();
       }
       return new InventoryContainsConditions(material, minAmount, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Material material, final int minAmount,
+    public static Condition from(final Material material, final int minAmount,
         final ConditionListType type) {
       if (material == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -1089,15 +1153,19 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getInventory() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getInventory() == null) {
         return false;
       }
       return type.apply(player.getInventory().contains(material, minAmount));
     }
   }
 
-  public static class RegionConditions implements Condition<Player> {
+  public static class RegionConditions implements Condition {
     private final Set<Region> regions;
     private final ConditionListType type;
 
@@ -1106,21 +1174,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<Region> regions) {
+    public static Condition allowed(final Set<Region> regions) {
       if (regions == null || regions.isEmpty()) {
         return NeverCondition.of();
       }
       return new RegionConditions(regions, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<Region> regions) {
+    public static Condition denied(final Set<Region> regions) {
       if (regions == null || regions.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new RegionConditions(regions, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<Region> regions, final ConditionListType type) {
+    public static Condition from(final Set<Region> regions, final ConditionListType type) {
       if (regions == null || regions.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -1128,8 +1196,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getLocation() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getLocation() == null) {
         return false;
       }
       boolean inside = false;
@@ -1150,7 +1222,7 @@ public class Conditions {
     }
   }
 
-  public static class LightLevelConditions implements Condition<Player> {
+  public static class LightLevelConditions implements Condition {
     public enum LightType {
       BLOCK, SKY, MAX
     }
@@ -1168,11 +1240,11 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> range(final int min, final int max, final LightType lightType) {
+    public static Condition range(final int min, final int max, final LightType lightType) {
       return new LightLevelConditions(min, max, lightType, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Integer min, final Integer max, final LightType lightType,
+    public static Condition from(final Integer min, final Integer max, final LightType lightType,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -1181,8 +1253,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getLocation() == null || player.getLocation().getBlock() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getLocation() == null || player.getLocation().getBlock() == null) {
         return false;
       }
       final int value;
@@ -1209,7 +1285,7 @@ public class Conditions {
     }
   }
 
-  public static class DimensionConditions implements Condition<Player> {
+  public static class DimensionConditions implements Condition {
     private final Set<World.Environment> environments;
     private final ConditionListType type;
 
@@ -1218,21 +1294,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<World.Environment> environments) {
+    public static Condition allowed(final Set<World.Environment> environments) {
       if (environments == null || environments.isEmpty()) {
         return NeverCondition.of();
       }
       return new DimensionConditions(environments, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<World.Environment> environments) {
+    public static Condition denied(final Set<World.Environment> environments) {
       if (environments == null || environments.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new DimensionConditions(environments, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<World.Environment> environments, final ConditionListType type) {
+    public static Condition from(final Set<World.Environment> environments, final ConditionListType type) {
       if (environments == null || environments.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -1240,15 +1316,19 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getWorld() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getWorld() == null) {
         return false;
       }
       return type.apply(environments.contains(player.getWorld().getEnvironment()));
     }
   }
 
-  public static class DifficultyConditions implements Condition<Player> {
+  public static class DifficultyConditions implements Condition {
     private final Set<Difficulty> difficulties;
     private final ConditionListType type;
 
@@ -1257,21 +1337,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<Difficulty> difficulties) {
+    public static Condition allowed(final Set<Difficulty> difficulties) {
       if (difficulties == null || difficulties.isEmpty()) {
         return NeverCondition.of();
       }
       return new DifficultyConditions(difficulties, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<Difficulty> difficulties) {
+    public static Condition denied(final Set<Difficulty> difficulties) {
       if (difficulties == null || difficulties.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new DifficultyConditions(difficulties, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<Difficulty> difficulties, final ConditionListType type) {
+    public static Condition from(final Set<Difficulty> difficulties, final ConditionListType type) {
       if (difficulties == null || difficulties.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -1279,15 +1359,19 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getWorld() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getWorld() == null) {
         return false;
       }
       return type.apply(difficulties.contains(player.getWorld().getDifficulty()));
     }
   }
 
-  public static class StatisticConditions implements Condition<Player> {
+  public static class StatisticConditions implements Condition {
     public enum CompareOp {
       EQ, NE, GT, GE, LT, LE
     }
@@ -1309,14 +1393,14 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> of(final Statistic statistic, final int target, final CompareOp op) {
+    public static Condition of(final Statistic statistic, final int target, final CompareOp op) {
       if (statistic == null) {
         return NeverCondition.of();
       }
       return new StatisticConditions(statistic, null, null, target, op, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> of(final Statistic statistic, final Material material, final int target,
+    public static Condition of(final Statistic statistic, final Material material, final int target,
         final CompareOp op) {
       if (statistic == null) {
         return NeverCondition.of();
@@ -1324,7 +1408,7 @@ public class Conditions {
       return new StatisticConditions(statistic, material, null, target, op, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> of(final Statistic statistic, final EntityType entityType, final int target,
+    public static Condition of(final Statistic statistic, final EntityType entityType, final int target,
         final CompareOp op) {
       if (statistic == null) {
         return NeverCondition.of();
@@ -1332,7 +1416,7 @@ public class Conditions {
       return new StatisticConditions(statistic, null, entityType, target, op, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Statistic statistic, final Material material,
+    public static Condition from(final Statistic statistic, final Material material,
         final EntityType entityType, final int target, final CompareOp op, final ConditionListType type) {
       if (statistic == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -1341,10 +1425,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       int value;
       try {
         if (material != null) {
@@ -1385,7 +1470,7 @@ public class Conditions {
     }
   }
 
-  public static class ObjectiveScoreConditions implements Condition<Player> {
+  public static class ObjectiveScoreConditions implements Condition {
     private final String objectiveName;
     private final Integer min;
     private final Integer max;
@@ -1401,14 +1486,14 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> range(final String objectiveName, final Integer min, final Integer max) {
+    public static Condition range(final String objectiveName, final Integer min, final Integer max) {
       if (objectiveName == null || objectiveName.isEmpty() || (min == null && max == null)) {
         return NeverCondition.of();
       }
       return new ObjectiveScoreConditions(objectiveName, min, max, true, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final String objectiveName, final Integer min, final Integer max,
+    public static Condition from(final String objectiveName, final Integer min, final Integer max,
         final boolean usePlayerScoreboard, final ConditionListType type) {
       if (objectiveName == null || objectiveName.isEmpty() || (min == null && max == null)) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -1417,10 +1502,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       try {
         final Scoreboard scoreboard = usePlayerScoreboard ? player.getScoreboard()
             : (Bukkit.getScoreboardManager() == null ? null : Bukkit.getScoreboardManager().getMainScoreboard());
@@ -1447,7 +1533,7 @@ public class Conditions {
     }
   }
 
-  public static class CooldownConditions implements Condition<Player> {
+  public static class CooldownConditions implements Condition {
     private final CooldownStore<UUID> store;
     private final boolean requireOnCooldown;
     private final ConditionListType type;
@@ -1459,21 +1545,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> onCooldown(final CooldownStore<UUID> store) {
+    public static Condition onCooldown(final CooldownStore<UUID> store) {
       if (store == null) {
         return NeverCondition.of();
       }
       return new CooldownConditions(store, true, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> notOnCooldown(final CooldownStore<UUID> store) {
+    public static Condition notOnCooldown(final CooldownStore<UUID> store) {
       if (store == null) {
         return NeverCondition.of();
       }
       return new CooldownConditions(store, false, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final CooldownStore<UUID> store, final boolean requireOnCooldown,
+    public static Condition from(final CooldownStore<UUID> store, final boolean requireOnCooldown,
         final ConditionListType type) {
       if (store == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -1482,16 +1568,17 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final boolean onCooldown = store.isOnCooldown(player.getUniqueId());
       return type.apply(onCooldown == requireOnCooldown);
     }
   }
 
-  public static class CurrencyConditions implements Condition<Player> {
+  public static class CurrencyConditions implements Condition {
     public enum CompareOp {
       EQ, NE, GT, GE, LT, LE
     }
@@ -1506,19 +1593,20 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> atLeast(final double amount) {
+    public static Condition atLeast(final double amount) {
       return new CurrencyConditions(amount, CompareOp.GE, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final double target, final CompareOp op, final ConditionListType type) {
+    public static Condition from(final double target, final CompareOp op, final ConditionListType type) {
       return new CurrencyConditions(target, op, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final Double balance = getBalance(player);
       if (balance == null) {
         return false;
@@ -1571,7 +1659,7 @@ public class Conditions {
     }
   }
 
-  public static class PlaceholderConditions implements Condition<Player> {
+  public static class PlaceholderConditions implements Condition {
     public enum CompareOp {
       EQUALS, EQUALS_IGNORE_CASE, CONTAINS, STARTS_WITH, ENDS_WITH, REGEX, NOT_EQUALS, GT, GE, LT, LE
     }
@@ -1601,14 +1689,14 @@ public class Conditions {
       this.regexPattern = compiled;
     }
 
-    public static Condition<Player> equals(final String placeholder, final String expected) {
+    public static Condition equals(final String placeholder, final String expected) {
       if (placeholder == null || placeholder.isEmpty()) {
         return NeverCondition.of();
       }
       return new PlaceholderConditions(placeholder, expected, CompareOp.EQUALS, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final String placeholder, final String expected, final CompareOp op,
+    public static Condition from(final String placeholder, final String expected, final CompareOp op,
         final ConditionListType type) {
       if (placeholder == null || placeholder.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -1617,7 +1705,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
       final String resolved = resolve(player, placeholder);
       boolean matches;
       switch (op) {
@@ -1709,7 +1801,7 @@ public class Conditions {
     }
   }
 
-  public static class PotionEffectConditions implements Condition<Player> {
+  public static class PotionEffectConditions implements Condition {
     private final Set<PotionEffectType> effects;
     private final Integer minAmplifier;
     private final Integer minDuration;
@@ -1723,21 +1815,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<PotionEffectType> effects) {
+    public static Condition allowed(final Set<PotionEffectType> effects) {
       if (effects == null || effects.isEmpty()) {
         return NeverCondition.of();
       }
       return new PotionEffectConditions(effects, null, null, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<PotionEffectType> effects) {
+    public static Condition denied(final Set<PotionEffectType> effects) {
       if (effects == null || effects.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new PotionEffectConditions(effects, null, null, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<PotionEffectType> effects, final Integer minAmplifier,
+    public static Condition from(final Set<PotionEffectType> effects, final Integer minAmplifier,
         final Integer minDuration, final ConditionListType type) {
       final boolean empty = (effects == null || effects.isEmpty()) && minAmplifier == null && minDuration == null;
       if (empty) {
@@ -1747,10 +1839,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       boolean match = false;
       if (effects == null || effects.isEmpty()) {
         for (final PotionEffect effect : player.getActivePotionEffects()) {
@@ -1788,7 +1881,7 @@ public class Conditions {
     }
   }
 
-  public static class ExperienceConditions implements Condition<Player> {
+  public static class ExperienceConditions implements Condition {
     public enum Mode {
       TOTAL, LEVEL_PROGRESS
     }
@@ -1805,15 +1898,15 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> totalRange(final double min, final double max) {
+    public static Condition totalRange(final double min, final double max) {
       return new ExperienceConditions(min, max, Mode.TOTAL, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> progressRange(final double min, final double max) {
+    public static Condition progressRange(final double min, final double max) {
       return new ExperienceConditions(min, max, Mode.LEVEL_PROGRESS, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Double min, final Double max, final Mode mode,
+    public static Condition from(final Double min, final Double max, final Mode mode,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -1822,10 +1915,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final double value = mode == Mode.LEVEL_PROGRESS ? player.getExp() : player.getTotalExperience();
       boolean inRange = true;
       if (min != null) {
@@ -1838,7 +1932,7 @@ public class Conditions {
     }
   }
 
-  public static class AbsorptionConditions implements Condition<Player> {
+  public static class AbsorptionConditions implements Condition {
     private final Double min;
     private final Double max;
     private final ConditionListType type;
@@ -1849,15 +1943,15 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> range(final double min, final double max) {
+    public static Condition range(final double min, final double max) {
       return new AbsorptionConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> atLeast(final double min) {
+    public static Condition atLeast(final double min) {
       return new AbsorptionConditions(min, null, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Double min, final Double max, final ConditionListType type) {
+    public static Condition from(final Double min, final Double max, final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -1865,10 +1959,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final double value = player.getAbsorptionAmount();
       boolean inRange = true;
       if (min != null) {
@@ -1881,7 +1976,7 @@ public class Conditions {
     }
   }
 
-  public static class SaturationConditions implements Condition<Player> {
+  public static class SaturationConditions implements Condition {
     private final Float min;
     private final Float max;
     private final ConditionListType type;
@@ -1892,11 +1987,11 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> range(final float min, final float max) {
+    public static Condition range(final float min, final float max) {
       return new SaturationConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Float min, final Float max, final ConditionListType type) {
+    public static Condition from(final Float min, final Float max, final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -1904,10 +1999,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final float value = player.getSaturation();
       boolean inRange = true;
       if (min != null) {
@@ -1920,7 +2016,7 @@ public class Conditions {
     }
   }
 
-  public static class SleepingConditions implements Condition<Player> {
+  public static class SleepingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -1929,24 +2025,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new SleepingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new SleepingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(player.isSleeping() == expected);
     }
   }
 
-  public static class RiptidingConditions implements Condition<Player> {
+  public static class RiptidingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -1955,24 +2052,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new RiptidingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new RiptidingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(player.isRiptiding() == expected);
     }
   }
 
-  public static class BlockingConditions implements Condition<Player> {
+  public static class BlockingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -1981,24 +2079,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final boolean expected) {
+    public static Condition allowed(final boolean expected) {
       return new BlockingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expected, final ConditionListType type) {
+    public static Condition from(final boolean expected, final ConditionListType type) {
       return new BlockingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       return type.apply(player.isBlocking() == expected);
     }
   }
 
-  public static class HeldItemDetailConditions implements Condition<Player> {
+  public static class HeldItemDetailConditions implements Condition {
     private final Set<Material> materials;
     private final HandSlot slot;
     private final String displayName;
@@ -2026,7 +2125,7 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> from(final Set<Material> materials, final HandSlot slot,
+    public static Condition from(final Set<Material> materials, final HandSlot slot,
         final String displayName, final String displayNameContains, final String loreContains,
         final Integer customModelData, final Map<Enchantment, Integer> minEnchantments, final Integer minDurability,
         final Integer maxDurability, final ConditionListType type) {
@@ -2041,8 +2140,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getInventory() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getInventory() == null) {
         return false;
       }
       final ItemStack stack = slot == HandSlot.OFF ? player.getInventory().getItemInOffHand()
@@ -2129,7 +2232,7 @@ public class Conditions {
     }
   }
 
-  public static class SpecificSlotConditions implements Condition<Player> {
+  public static class SpecificSlotConditions implements Condition {
     private final int slot;
     private final Set<Material> materials;
     private final boolean requireEmpty;
@@ -2143,18 +2246,18 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> empty(final int slot) {
+    public static Condition empty(final int slot) {
       return new SpecificSlotConditions(slot, Collections.emptySet(), true, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> materials(final int slot, final Set<Material> materials) {
+    public static Condition materials(final int slot, final Set<Material> materials) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
       return new SpecificSlotConditions(slot, materials, false, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final int slot, final Set<Material> materials, final boolean requireEmpty,
+    public static Condition from(final int slot, final Set<Material> materials, final boolean requireEmpty,
         final ConditionListType type) {
       if (!requireEmpty && (materials == null || materials.isEmpty())) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -2163,8 +2266,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getInventory() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getInventory() == null) {
         return false;
       }
       if (slot >= player.getInventory().getSize()) {
@@ -2179,7 +2286,7 @@ public class Conditions {
     }
   }
 
-  public static class InventoryFullConditions implements Condition<Player> {
+  public static class InventoryFullConditions implements Condition {
     private final boolean expectedFull;
     private final ConditionListType type;
 
@@ -2188,21 +2295,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> full() {
+    public static Condition full() {
       return new InventoryFullConditions(true, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> notFull() {
+    public static Condition notFull() {
       return new InventoryFullConditions(false, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expectedFull, final ConditionListType type) {
+    public static Condition from(final boolean expectedFull, final ConditionListType type) {
       return new InventoryFullConditions(expectedFull, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getInventory() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getInventory() == null) {
         return false;
       }
       boolean hasEmpty = false;
@@ -2219,7 +2330,7 @@ public class Conditions {
     }
   }
 
-  public static class CoordinateConditions implements Condition<Player> {
+  public static class CoordinateConditions implements Condition {
     private final Double minX;
     private final Double maxX;
     private final Double minY;
@@ -2239,7 +2350,7 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> from(final Double minX, final Double maxX, final Double minY, final Double maxY,
+    public static Condition from(final Double minX, final Double maxX, final Double minY, final Double maxY,
         final Double minZ, final Double maxZ, final ConditionListType type) {
       if (minX == null && maxX == null && minY == null && maxY == null && minZ == null && maxZ == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -2248,8 +2359,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getLocation() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getLocation() == null) {
         return false;
       }
       final Location loc = player.getLocation();
@@ -2271,7 +2386,7 @@ public class Conditions {
     }
   }
 
-  public static class DistanceConditions implements Condition<Player> {
+  public static class DistanceConditions implements Condition {
     private final Location origin;
     private final Double min;
     private final Double max;
@@ -2289,14 +2404,14 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> within(final Location origin, final double max) {
+    public static Condition within(final Location origin, final double max) {
       if (origin == null) {
         return NeverCondition.of();
       }
       return new DistanceConditions(origin, null, max, true, false, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Location origin, final Double min, final Double max,
+    public static Condition from(final Location origin, final Double min, final Double max,
         final boolean sameWorld, final boolean ignoreY, final ConditionListType type) {
       if (origin == null || (min == null && max == null)) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -2305,8 +2420,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getLocation() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getLocation() == null) {
         return false;
       }
       final Location loc = player.getLocation();
@@ -2333,7 +2452,7 @@ public class Conditions {
     }
   }
 
-  public static class BlockAtLocationConditions implements Condition<Player> {
+  public static class BlockAtLocationConditions implements Condition {
     public enum Position {
       FEET, HEAD
     }
@@ -2349,21 +2468,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> feet(final Set<Material> materials) {
+    public static Condition feet(final Set<Material> materials) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
       return new BlockAtLocationConditions(Position.FEET, materials, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> head(final Set<Material> materials) {
+    public static Condition head(final Set<Material> materials) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
       return new BlockAtLocationConditions(Position.HEAD, materials, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Position position, final Set<Material> materials,
+    public static Condition from(final Position position, final Set<Material> materials,
         final ConditionListType type) {
       if (materials == null || materials.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -2372,8 +2491,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getLocation() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getLocation() == null) {
         return false;
       }
       final Location base = player.getLocation();
@@ -2386,7 +2509,7 @@ public class Conditions {
     }
   }
 
-  public static class StructureConditions implements Condition<Player> {
+  public static class StructureConditions implements Condition {
     private final Set<String> structures;
     private final ConditionListType type;
 
@@ -2395,21 +2518,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> allowed(final Set<String> structures) {
+    public static Condition allowed(final Set<String> structures) {
       if (structures == null || structures.isEmpty()) {
         return NeverCondition.of();
       }
       return new StructureConditions(structures, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> denied(final Set<String> structures) {
+    public static Condition denied(final Set<String> structures) {
       if (structures == null || structures.isEmpty()) {
         return AlwaysCondition.of();
       }
       return new StructureConditions(structures, ConditionListType.BLACKLIST);
     }
 
-    public static Condition<Player> from(final Set<String> structures, final ConditionListType type) {
+    public static Condition from(final Set<String> structures, final ConditionListType type) {
       if (structures == null || structures.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
@@ -2417,8 +2540,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getLocation() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getLocation() == null) {
         return false;
       }
       boolean match = false;
@@ -2510,7 +2637,7 @@ public class Conditions {
     SERVER, WORLD
   }
 
-  public static class PlayerCountConditions implements Condition<Player> {
+  public static class PlayerCountConditions implements Condition {
     private final Integer min;
     private final Integer max;
     private final PlayerCountScope scope;
@@ -2524,21 +2651,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> server(final Integer min, final Integer max) {
+    public static Condition server(final Integer min, final Integer max) {
       if (min == null && max == null) {
         return NeverCondition.of();
       }
       return new PlayerCountConditions(min, max, PlayerCountScope.SERVER, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> world(final Integer min, final Integer max) {
+    public static Condition world(final Integer min, final Integer max) {
       if (min == null && max == null) {
         return NeverCondition.of();
       }
       return new PlayerCountConditions(min, max, PlayerCountScope.WORLD, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Integer min, final Integer max, final PlayerCountScope scope,
+    public static Condition from(final Integer min, final Integer max, final PlayerCountScope scope,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -2547,13 +2674,16 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
+    public boolean test(final ActionContext context) {
+      if (context == null) {
+        return false;
+      }
       int count;
       if (scope == PlayerCountScope.WORLD) {
-        if (player == null || player.getWorld() == null) {
+        if (!context.isPlayer() || context.player().getWorld() == null) {
           return false;
         }
-        count = player.getWorld().getPlayers().size();
+        count = context.player().getWorld().getPlayers().size();
       } else {
         count = Bukkit.getOnlinePlayers().size();
       }
@@ -2568,7 +2698,7 @@ public class Conditions {
     }
   }
 
-  public static class NearbyEntitiesConditions implements Condition<Player> {
+  public static class NearbyEntitiesConditions implements Condition {
     private final Double radius;
     private final Set<EntityType> entityTypes;
     private final Integer minCount;
@@ -2589,7 +2719,7 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> players(final double radius, final Integer minCount,
+    public static Condition players(final double radius, final Integer minCount,
         final Integer maxCount) {
       if (minCount == null && maxCount == null) {
         return NeverCondition.of();
@@ -2598,7 +2728,7 @@ public class Conditions {
           ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Double radius, final Set<EntityType> entityTypes,
+    public static Condition from(final Double radius, final Set<EntityType> entityTypes,
         final Integer minCount, final Integer maxCount, final boolean includePlayers, final boolean includeSelf,
         final ConditionListType type) {
       if (radius == null || (minCount == null && maxCount == null)) {
@@ -2608,8 +2738,12 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null || player.getLocation() == null || player.getWorld() == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
+        return false;
+      }
+      final Player player = context.player();
+      if (player.getLocation() == null || player.getWorld() == null) {
         return false;
       }
       int count = 0;
@@ -2642,7 +2776,7 @@ public class Conditions {
     }
   }
 
-  public static class PlaytimeConditions implements Condition<Player> {
+  public static class PlaytimeConditions implements Condition {
     public enum Unit {
       TICKS, SECONDS, MINUTES
     }
@@ -2659,11 +2793,11 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> atLeast(final long value, final Unit unit) {
+    public static Condition atLeast(final long value, final Unit unit) {
       return new PlaytimeConditions(value, null, unit, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final Long min, final Long max, final Unit unit,
+    public static Condition from(final Long min, final Long max, final Unit unit,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
@@ -2672,10 +2806,11 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       long ticks;
       try {
         ticks = player.getStatistic(Statistic.PLAY_ONE_MINUTE);
@@ -2703,7 +2838,7 @@ public class Conditions {
     }
   }
 
-  public static class FirstJoinConditions implements Condition<Player> {
+  public static class FirstJoinConditions implements Condition {
     private final boolean expectedFirstJoin;
     private final ConditionListType type;
 
@@ -2712,23 +2847,24 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static Condition<Player> firstJoin() {
+    public static Condition firstJoin() {
       return new FirstJoinConditions(true, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> returningPlayer() {
+    public static Condition returningPlayer() {
       return new FirstJoinConditions(false, ConditionListType.WHITELIST);
     }
 
-    public static Condition<Player> from(final boolean expectedFirstJoin, final ConditionListType type) {
+    public static Condition from(final boolean expectedFirstJoin, final ConditionListType type) {
       return new FirstJoinConditions(expectedFirstJoin, type);
     }
 
     @Override
-    public boolean test(final Player player) {
-      if (player == null) {
+    public boolean test(final ActionContext context) {
+      if (context == null || !context.isPlayer()) {
         return false;
       }
+      final Player player = context.player();
       final boolean isFirst = !player.hasPlayedBefore() || player.getFirstPlayed() == 0;
       return type.apply(isFirst == expectedFirstJoin);
     }

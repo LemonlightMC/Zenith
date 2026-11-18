@@ -11,13 +11,27 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
+/**
+ * Serializes and deserializes {@link Location} values.
+ */
 public final class LocationSerializer implements TypeSerializer<Location> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final LocationSerializer INSTANCE = new LocationSerializer();
 
   private LocationSerializer() {
   }
 
+  /**
+   * Deserializes a location from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the parsed location, or {@code null} if unavailable
+   * @throws SerializationException if the value cannot be parsed as a location
+   */
   @Override
   public Location deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -95,6 +109,14 @@ public final class LocationSerializer implements TypeSerializer<Location> {
     return true;
   }
 
+  /**
+   * Serializes a location to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the location to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Location obj, final ConfigurationNode node)
       throws SerializationException {

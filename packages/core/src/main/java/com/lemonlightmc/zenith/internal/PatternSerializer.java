@@ -9,13 +9,27 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
+/**
+ * Serializes and deserializes {@link Pattern} values.
+ */
 public final class PatternSerializer implements TypeSerializer<Pattern> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final PatternSerializer INSTANCE = new PatternSerializer();
 
   private PatternSerializer() {
   }
 
+  /**
+   * Deserializes a regular expression pattern from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the compiled pattern, or {@code null} if unavailable
+   * @throws SerializationException if the pattern cannot be parsed or compiled
+   */
   @Override
   public Pattern deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -105,6 +119,14 @@ public final class PatternSerializer implements TypeSerializer<Pattern> {
     }
   }
 
+  /**
+   * Serializes a regular expression pattern to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the pattern to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Pattern obj, final ConfigurationNode node)
       throws SerializationException {

@@ -9,13 +9,27 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
+/**
+ * Serializes and deserializes {@link Material} values.
+ */
 public final class MaterialSerializer implements TypeSerializer<Material> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final MaterialSerializer INSTANCE = new MaterialSerializer();
 
   private MaterialSerializer() {
   }
 
+  /**
+   * Deserializes a material from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the resolved material, or {@code null} if unavailable
+   * @throws SerializationException if the value cannot be resolved to a material
+   */
   @Override
   public Material deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -65,6 +79,14 @@ public final class MaterialSerializer implements TypeSerializer<Material> {
     }
   }
 
+  /**
+   * Serializes a material to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the material to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Material obj, final ConfigurationNode node)
       throws SerializationException {

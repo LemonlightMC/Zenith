@@ -9,13 +9,27 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import com.lemonlightmc.zenith.additive.time.DurationParser;
 
+/**
+ * Serializes and deserializes {@link Duration} values.
+ */
 public final class DurationSerializer implements TypeSerializer<Duration> {
 
+  /**
+   * Shared singleton instance of this serializer.
+   */
   public static final DurationSerializer INSTANCE = new DurationSerializer();
 
   private DurationSerializer() {
   }
 
+  /**
+   * Deserializes a duration from a configuration node.
+   *
+   * @param type the target type
+   * @param node the configuration node to read
+   * @return the parsed duration, or {@code null} if unavailable
+   * @throws SerializationException if the value cannot be parsed as a duration
+   */
   @Override
   public Duration deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
@@ -54,6 +68,14 @@ public final class DurationSerializer implements TypeSerializer<Duration> {
     }
   }
 
+  /**
+   * Serializes a duration to a configuration node.
+   *
+   * @param type the source type
+   * @param obj the duration to serialize
+   * @param node the configuration node to write
+   * @throws SerializationException if serialization fails
+   */
   @Override
   public void serialize(final Type type, final Duration obj, final ConfigurationNode node)
       throws SerializationException {

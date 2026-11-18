@@ -29,7 +29,6 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -79,7 +78,7 @@ public class Actions {
       super(null, true);
     }
 
-    public StopAction(final Condition<Player> conditions) {
+    public StopAction(final Condition conditions) {
       super(conditions, true);
     }
 
@@ -98,12 +97,12 @@ public class Actions {
       this(command, null);
     }
 
-    public ConsoleCommandAction(final String command, final Condition<Player> conditions) {
+    public ConsoleCommandAction(final String command, final Condition conditions) {
       super(conditions);
       this.command = command;
     }
 
-    public ConsoleCommandAction(final String command, final Condition<Player> conditions,
+    public ConsoleCommandAction(final String command, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.command = command;
@@ -111,12 +110,11 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      final CommandSender sender = context.getTarget();
       if (command == null || command.isEmpty()) {
         return true;
       }
-      final String parsed = sender instanceof Player
-          ? command.replace("%player%", ((Player) sender).getName())
+      final String parsed = context.player() != null
+          ? command.replace("%player%", context.player().getName())
           : command;
       Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
       return true;
@@ -131,19 +129,20 @@ public class Actions {
       this(command, null);
     }
 
-    public PlayerCommandAction(final String command, final Condition<Player> conditions) {
+    public PlayerCommandAction(final String command, final Condition conditions) {
       super(conditions);
       this.command = command;
     }
 
-    public PlayerCommandAction(final String command, final Condition<Player> conditions, final boolean useSync) {
+    public PlayerCommandAction(final String command, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.command = command;
     }
 
     @Override
     protected boolean run(final ActionContext context) {
-      if (command == null || command.isEmpty() || !(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (command == null || command.isEmpty() || player == null) {
         return true;
       }
       return player.performCommand(command.replace("%player%", player.getName()));
@@ -163,13 +162,13 @@ public class Actions {
       this(message, broadcast, null);
     }
 
-    public MessageAction(final String message, final boolean broadcast, final Condition<Player> conditions) {
+    public MessageAction(final String message, final boolean broadcast, final Condition conditions) {
       super(conditions);
       this.message = message;
       this.broadcast = broadcast;
     }
 
-    public MessageAction(final String message, final boolean broadcast, final Condition<Player> conditions,
+    public MessageAction(final String message, final boolean broadcast, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.message = message;
@@ -181,7 +180,7 @@ public class Actions {
       if (broadcast) {
         ChatAPI.broadcast(message);
       } else {
-        ChatAPI.send(context.getTarget(), message);
+        ChatAPI.send(context.player() != null ? context.player() : context.sender(), message);
       }
       return true;
     }
@@ -200,13 +199,13 @@ public class Actions {
       this(info, broadcast, null);
     }
 
-    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition<Player> conditions) {
+    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition conditions) {
       super(conditions);
       this.info = info;
       this.broadcast = broadcast;
     }
 
-    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition<Player> conditions,
+    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.info = info;
@@ -221,7 +220,9 @@ public class Actions {
       if (broadcast) {
         TitleAPI.broadcast(info);
       } else {
-        TitleAPI.send(context.getTarget(), info);
+        if (context.player() != null) {
+          TitleAPI.send(context.player(), info);
+        }
       }
       return true;
     }
@@ -241,14 +242,14 @@ public class Actions {
     }
 
     public ActionbarAction(final String message, final boolean broadcast,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.message = message;
       this.broadcast = broadcast;
     }
 
     public ActionbarAction(final String message, final boolean broadcast,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.message = message;
       this.broadcast = broadcast;
@@ -258,7 +259,8 @@ public class Actions {
     protected boolean run(final ActionContext context) {
       if (broadcast) {
         ActionbarAPI.broadcast(message);
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         ActionbarAPI.send(player, message);
       }
       return true;
@@ -278,13 +280,13 @@ public class Actions {
       this(loc, all, null);
     }
 
-    public TeleportAction(final Location loc, final boolean all, final Condition<Player> conditions) {
+    public TeleportAction(final Location loc, final boolean all, final Condition conditions) {
       super(conditions);
       this.loc = loc;
       this.all = all;
     }
 
-    public TeleportAction(final Location loc, final boolean all, final Condition<Player> conditions,
+    public TeleportAction(final Location loc, final boolean all, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.loc = loc;
@@ -300,7 +302,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           p.teleport(loc, TeleportCause.PLUGIN);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         player.teleport(loc, TeleportCause.PLUGIN);
       }
       return true;
@@ -324,7 +327,7 @@ public class Actions {
     }
 
     public SoundAction(final String sound, final float volume, final float pitch, final boolean broadcast,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -334,7 +337,7 @@ public class Actions {
     }
 
     public SoundAction(final String sound, final float volume, final float pitch, final boolean broadcast,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -352,7 +355,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           play(p);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         play(player);
       }
       return true;
@@ -383,7 +387,7 @@ public class Actions {
 
     public ParticleAction(final Particle particle, final int count, final double offsetX, final double offsetY,
         final double offsetZ, final double speed, final boolean broadcast,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.particle = particle;
       this.count = count;
@@ -396,7 +400,7 @@ public class Actions {
 
     public ParticleAction(final Particle particle, final int count, final double offsetX, final double offsetY,
         final double offsetZ, final double speed, final boolean broadcast,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.particle = particle;
       this.count = count;
@@ -416,7 +420,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           p.spawnParticle(particle, p.getLocation().add(0, 1, 0), count, offsetX, offsetY, offsetZ, speed);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         player.spawnParticle(particle, player.getLocation().add(0, 1, 0), count, offsetX, offsetY, offsetZ, speed);
       }
       return true;
@@ -431,12 +436,12 @@ public class Actions {
       this(item, null);
     }
 
-    public GiveItemAction(final ItemStack item, final Condition<Player> conditions) {
+    public GiveItemAction(final ItemStack item, final Condition conditions) {
       super(conditions);
       this.item = item;
     }
 
-    public GiveItemAction(final ItemStack item, final Condition<Player> conditions, final boolean useSync) {
+    public GiveItemAction(final ItemStack item, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.item = item;
     }
@@ -446,7 +451,8 @@ public class Actions {
       if (item == null) {
         return true;
       }
-      if (!(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (player == null) {
         return false;
       }
       final Map<Integer, ItemStack> leftover = player.getInventory().addItem(item.clone());
@@ -466,13 +472,13 @@ public class Actions {
       this(material, amount, null);
     }
 
-    public RemoveItemAction(final Material material, final int amount, final Condition<Player> conditions) {
+    public RemoveItemAction(final Material material, final int amount, final Condition conditions) {
       super(conditions);
       this.material = material;
       this.amount = Math.max(1, amount);
     }
 
-    public RemoveItemAction(final Material material, final int amount, final Condition<Player> conditions,
+    public RemoveItemAction(final Material material, final int amount, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.material = material;
@@ -484,7 +490,8 @@ public class Actions {
       if (material == null) {
         return true;
       }
-      if (!(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (player == null) {
         return false;
       }
       int remaining = amount;
@@ -514,19 +521,19 @@ public class Actions {
       this(amount, null);
     }
 
-    public ExperienceAction(final int amount, final Condition<Player> conditions) {
+    public ExperienceAction(final int amount, final Condition conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public ExperienceAction(final int amount, final Condition<Player> conditions, final boolean useSync) {
+    public ExperienceAction(final int amount, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
+      final Player player = context.player();
       if (player != null) {
         player.giveExp(amount);
       }
@@ -542,19 +549,19 @@ public class Actions {
       this(amount, null);
     }
 
-    public LevelAction(final int amount, final Condition<Player> conditions) {
+    public LevelAction(final int amount, final Condition conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public LevelAction(final int amount, final Condition<Player> conditions, final boolean useSync) {
+    public LevelAction(final int amount, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
 
     @Override
     protected boolean run(final ActionContext context) {
-      final Player player = context.getTarget();
+      final Player player = context.player();
       if (player != null) {
         player.setLevel(Math.max(0, player.getLevel() + amount));
       }
@@ -570,19 +577,20 @@ public class Actions {
       this(amount, null);
     }
 
-    public HealthAction(final double amount, final Condition<Player> conditions) {
+    public HealthAction(final double amount, final Condition conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public HealthAction(final double amount, final Condition<Player> conditions, final boolean useSync) {
+    public HealthAction(final double amount, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
 
     @Override
     protected boolean run(final ActionContext context) {
-      if (!(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (player == null) {
         return false;
       }
       final AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
@@ -602,13 +610,13 @@ public class Actions {
       this(amount, 0f, null);
     }
 
-    public FoodAction(final int amount, final float saturation, final Condition<Player> conditions) {
+    public FoodAction(final int amount, final float saturation, final Condition conditions) {
       super(conditions);
       this.amount = amount;
       this.saturation = saturation;
     }
 
-    public FoodAction(final int amount, final float saturation, final Condition<Player> conditions,
+    public FoodAction(final int amount, final float saturation, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
@@ -617,7 +625,8 @@ public class Actions {
 
     @Override
     protected boolean run(final ActionContext context) {
-      if (!(context.getTarget() instanceof final Player player)) {
+      final Player player = context.player();
+      if (player == null) {
         return false;
       }
       player.setFoodLevel(Math.max(0, Math.min(20, player.getFoodLevel() + amount)));
@@ -637,7 +646,7 @@ public class Actions {
       this.delayTicks = Math.max(0L, duration.getSeconds() * 20);
     }
 
-    public DelayAction(final Duration duration, final Condition<Player> conditions) {
+    public DelayAction(final Duration duration, final Condition conditions) {
       super(conditions, true);
       this.delayTicks = Math.max(0L, duration.getSeconds() * 20);
     }
@@ -668,7 +677,7 @@ public class Actions {
     }
 
     public StopSoundAction(final String sound, final SoundCategory category, final boolean broadcast,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -677,7 +686,7 @@ public class Actions {
     }
 
     public StopSoundAction(final String sound, final SoundCategory category, final boolean broadcast,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -691,7 +700,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           stop(p);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         stop(player);
       }
       return true;
@@ -734,7 +744,7 @@ public class Actions {
     }
 
     public MovementAction(final Vector velocity, final MathOperation operation, final boolean useLookDirection,
-        final boolean broadcast, final Condition<Player> conditions) {
+        final boolean broadcast, final Condition conditions) {
       super(conditions);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
       this.operation = operation;
@@ -743,7 +753,7 @@ public class Actions {
     }
 
     public MovementAction(final Vector velocity, final MathOperation operation, final boolean useLookDirection,
-        final boolean broadcast, final Condition<Player> conditions, final boolean useSync) {
+        final boolean broadcast, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
       this.operation = operation;
@@ -757,7 +767,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         apply(player);
       }
       return true;
@@ -785,13 +796,13 @@ public class Actions {
       this(gameMode, false, null);
     }
 
-    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition<Player> conditions) {
+    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition conditions) {
       super(conditions);
       this.gameMode = gameMode;
       this.broadcast = broadcast;
     }
 
-    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition<Player> conditions,
+    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.gameMode = gameMode;
@@ -807,7 +818,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           p.setGameMode(gameMode);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         player.setGameMode(gameMode);
       }
       return true;
@@ -825,7 +837,7 @@ public class Actions {
     }
 
     public FlyAction(final boolean allowFlight, final boolean flying, final boolean broadcast,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.allowFlight = allowFlight;
       this.flying = flying;
@@ -833,7 +845,7 @@ public class Actions {
     }
 
     public FlyAction(final boolean allowFlight, final boolean flying, final boolean broadcast,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.allowFlight = allowFlight;
       this.flying = flying;
@@ -846,7 +858,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         apply(player);
       }
       return true;
@@ -875,7 +888,7 @@ public class Actions {
     }
 
     public InvulnerableAction(final boolean invulnerable, final Duration duration, final boolean broadcast,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.invulnerable = invulnerable;
       this.durationTicks = duration == null ? -1 : duration.getSeconds() * 20;
@@ -883,7 +896,7 @@ public class Actions {
     }
 
     public InvulnerableAction(final boolean invulnerable, final Duration duration, final boolean broadcast,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.invulnerable = invulnerable;
       this.durationTicks = duration == null ? -1 : duration.getSeconds() * 20;
@@ -896,7 +909,8 @@ public class Actions {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
         }
-      } else if (context.getTarget() instanceof final Player player) {
+      } else if (context.player() != null) {
+        final Player player = context.player();
         apply(player);
       }
       return true;
@@ -936,7 +950,7 @@ public class Actions {
     }
 
     public SummonAction(final EntityType type, final int amount, final Location location, final boolean atPlayer,
-        final Consumer<Entity> customizer, final Condition<Player> conditions) {
+        final Consumer<Entity> customizer, final Condition conditions) {
       super(conditions);
       this.type = type;
       this.amount = Math.max(1, amount);
@@ -952,7 +966,8 @@ public class Actions {
       }
       final Location base;
       if (atPlayer) {
-        if (!(context.getTarget() instanceof final Player player)) {
+        final Player player = context.player();
+        if (player == null) {
           return false;
         }
         base = player.getLocation();
@@ -997,7 +1012,7 @@ public class Actions {
     }
 
     public WeatherAction(final WeatherType type, final String worldName, final int durationTicks,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.type = type == null ? WeatherType.CLEAR : type;
       this.worldName = worldName;
@@ -1005,7 +1020,7 @@ public class Actions {
     }
 
     public WeatherAction(final WeatherType type, final String worldName, final int durationTicks,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.type = type == null ? WeatherType.CLEAR : type;
       this.worldName = worldName;
@@ -1059,7 +1074,7 @@ public class Actions {
     }
 
     public TimeAction(final long time, final boolean add, final String worldName,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions);
       this.time = time;
       this.add = add;
@@ -1067,7 +1082,7 @@ public class Actions {
     }
 
     public TimeAction(final long time, final boolean add, final String worldName,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.time = time;
       this.add = add;
@@ -1110,7 +1125,7 @@ public class Actions {
     }
 
     public BlockPlaceAction(final Location location, final boolean atPlayer, final Material material,
-        final BlockData blockData, final boolean applyPhysics, final Condition<Player> conditions) {
+        final BlockData blockData, final boolean applyPhysics, final Condition conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1120,7 +1135,7 @@ public class Actions {
     }
 
     public BlockPlaceAction(final Location location, final boolean atPlayer, final Material material,
-        final BlockData blockData, final boolean applyPhysics, final Condition<Player> conditions,
+        final BlockData blockData, final boolean applyPhysics, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
@@ -1162,7 +1177,7 @@ public class Actions {
     }
 
     public BlockBreakAction(final Location location, final boolean atPlayer, final boolean dropItems,
-        final boolean applyPhysics, final Condition<Player> conditions) {
+        final boolean applyPhysics, final Condition conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1171,7 +1186,7 @@ public class Actions {
     }
 
     public BlockBreakAction(final Location location, final boolean atPlayer, final boolean dropItems,
-        final boolean applyPhysics, final Condition<Player> conditions, final boolean useSync) {
+        final boolean applyPhysics, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1213,7 +1228,7 @@ public class Actions {
     }
 
     public BlockReplaceAction(final Location location, final boolean atPlayer, final Material from, final Material to,
-        final BlockData toData, final boolean applyPhysics, final Condition<Player> conditions) {
+        final BlockData toData, final boolean applyPhysics, final Condition conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1224,7 +1239,7 @@ public class Actions {
     }
 
     public BlockReplaceAction(final Location location, final boolean atPlayer, final Material from, final Material to,
-        final BlockData toData, final boolean applyPhysics, final Condition<Player> conditions,
+        final BlockData toData, final boolean applyPhysics, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
@@ -1273,7 +1288,7 @@ public class Actions {
     }
 
     public ExplosionAction(final Location location, final boolean atPlayer, final float power, final boolean setFire,
-        final boolean breakBlocks, final Condition<Player> conditions) {
+        final boolean breakBlocks, final Condition conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1283,7 +1298,7 @@ public class Actions {
     }
 
     public ExplosionAction(final Location location, final boolean atPlayer, final float power, final boolean setFire,
-        final boolean breakBlocks, final Condition<Player> conditions, final boolean useSync) {
+        final boolean breakBlocks, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1323,7 +1338,7 @@ public class Actions {
     }
 
     public LogAction(final String message, final Level level, final String loggerName,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       super(conditions, true);
       this.message = message == null ? "" : message;
       this.level = level == null ? Level.INFO : level;
@@ -1331,7 +1346,7 @@ public class Actions {
     }
 
     public LogAction(final String message, final Level level, final String loggerName,
-        final Condition<Player> conditions, final boolean useSync) {
+        final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.message = message == null ? "" : message;
       this.level = level == null ? Level.INFO : level;
@@ -1341,7 +1356,8 @@ public class Actions {
     @Override
     protected boolean run(final ActionContext context) {
       String out = message;
-      if (context.getTarget() instanceof final Player player) {
+      if (context.player() != null) {
+        final Player player = context.player();
         out = out.replace("%player%", player.getName())
             .replace("%uuid%", player.getUniqueId().toString())
             .replace("%world%", player.getWorld() == null ? "" : player.getWorld().getName());
@@ -1364,12 +1380,12 @@ public class Actions {
       this(actions, null);
     }
 
-    public RandomAction(final Collection<? extends Action> actions, final Condition<Player> conditions) {
+    public RandomAction(final Collection<? extends Action> actions, final Condition conditions) {
       super(conditions);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
     }
 
-    public RandomAction(final Collection<? extends Action> actions, final Condition<Player> conditions,
+    public RandomAction(final Collection<? extends Action> actions, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
@@ -1418,7 +1434,7 @@ public class Actions {
     }
 
     public WeightedRandomAction(final Map<Action, ? extends Number> weightedActions,
-        final Condition<Player> conditions) {
+        final Condition conditions) {
       this(toEntries(weightedActions), conditions);
     }
 
@@ -1426,12 +1442,12 @@ public class Actions {
       this(weightedEntries, null);
     }
 
-    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition<Player> conditions) {
+    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition conditions) {
       super(conditions);
       addEntries(weightedEntries);
     }
 
-    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition<Player> conditions,
+    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition conditions,
         final boolean useSync) {
       super(conditions, useSync);
       addEntries(weightedEntries);
@@ -1505,7 +1521,7 @@ public class Actions {
     }
 
     public RepeatAction(final Collection<? extends Action> actions, final int times, final long intervalTicks,
-        final long initialDelayTicks, final Condition<Player> conditions) {
+        final long initialDelayTicks, final Condition conditions) {
       super(conditions);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
       this.times = Math.max(0, times);
@@ -1514,7 +1530,7 @@ public class Actions {
     }
 
     public RepeatAction(final Collection<? extends Action> actions, final int times, final long intervalTicks,
-        final long initialDelayTicks, final Condition<Player> conditions, final boolean useSync) {
+        final long initialDelayTicks, final Condition conditions, final boolean useSync) {
       super(conditions, useSync);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
       this.times = Math.max(0, times);
@@ -1591,13 +1607,15 @@ public class Actions {
     if (worldName != null && !worldName.isEmpty()) {
       return Bukkit.getWorld(worldName);
     }
-    return context.getTarget().getWorld();
+    final Player player = context.player();
+    return player == null ? null : player.getWorld();
   }
 
   private static Location resolveLocation(final ActionContext context, final Location location,
       final boolean atPlayer) {
     if (atPlayer) {
-      return context.getTarget().getLocation().clone();
+      final Player player = context.player();
+      return player == null ? null : player.getLocation().clone();
     }
     return location == null ? null : location.clone();
   }

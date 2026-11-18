@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.items.internal;
+package com.lemonlightmc.zenith.internal;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;

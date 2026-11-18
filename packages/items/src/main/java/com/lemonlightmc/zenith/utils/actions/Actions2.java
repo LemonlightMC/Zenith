@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.utils;
+package com.lemonlightmc.zenith.utils.actions;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

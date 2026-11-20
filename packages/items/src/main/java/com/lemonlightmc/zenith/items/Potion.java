@@ -15,11 +15,13 @@ import org.bukkit.potion.PotionEffectTypeCategory;
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 import com.lemonlightmc.zenith.apis.PotionAPI;
+import com.lemonlightmc.zenith.itembuilder.ItemModifier;
+import com.lemonlightmc.zenith.itembuilder.ItemStackBuilder;
 
 /**
  * Mutable representation of a custom potion definition and its effects.
  */
-public class Potion implements Cloneable<Potion> {
+public class Potion implements Cloneable<Potion>, ItemModifier {
   private NamespacedKey key;
   private Color color;
   private Material material = Material.POTION;
@@ -33,13 +35,13 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Creates a custom potion definition.
    *
-   * @param key the namespaced key identifying the potion
-   * @param effects the custom potion effects
-   * @param material the potion item material
-   * @param category the potion effect category
-   * @param color the potion display color
+   * @param key           the namespaced key identifying the potion
+   * @param effects       the custom potion effects
+   * @param material      the potion item material
+   * @param category      the potion effect category
+   * @param color         the potion display color
    * @param isUpgradeable whether the potion can be upgraded
-   * @param isExtendable whether the potion can be extended
+   * @param isExtendable  whether the potion can be extended
    * @param durationScale the duration scale applied to potion effects
    * @throws IllegalArgumentException if the key is {@code null}
    */
@@ -61,13 +63,14 @@ public class Potion implements Cloneable<Potion> {
   }
 
   /**
-   * Creates a custom potion definition with default upgrade, extend, and duration scale settings.
+   * Creates a custom potion definition with default upgrade, extend, and duration
+   * scale settings.
    *
-   * @param key the namespaced key identifying the potion
-   * @param effects the custom potion effects
+   * @param key      the namespaced key identifying the potion
+   * @param effects  the custom potion effects
    * @param material the potion item material
    * @param category the potion effect category
-   * @param color the potion display color
+   * @param color    the potion display color
    */
   public Potion(final NamespacedKey key, final List<PotionEffect> effects, final Material material,
       final PotionEffectTypeCategory category, final Color color) {
@@ -77,8 +80,8 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Creates a custom potion definition with default color and behavior settings.
    *
-   * @param key the namespaced key identifying the potion
-   * @param effects the custom potion effects
+   * @param key      the namespaced key identifying the potion
+   * @param effects  the custom potion effects
    * @param material the potion item material
    * @param category the potion effect category
    */
@@ -88,9 +91,10 @@ public class Potion implements Cloneable<Potion> {
   }
 
   /**
-   * Creates a custom potion definition with default material, category, and behavior settings.
+   * Creates a custom potion definition with default material, category, and
+   * behavior settings.
    *
-   * @param key the namespaced key identifying the potion
+   * @param key     the namespaced key identifying the potion
    * @param effects the custom potion effects
    */
   public Potion(final NamespacedKey key, final List<PotionEffect> effects) {
@@ -114,7 +118,7 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Creates a custom potion definition.
    *
-   * @param key the namespaced key identifying the potion
+   * @param key     the namespaced key identifying the potion
    * @param effects the custom potion effects
    * @return a new potion definition
    */
@@ -125,8 +129,8 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Creates a custom potion definition.
    *
-   * @param key the namespaced key identifying the potion
-   * @param effects the custom potion effects
+   * @param key      the namespaced key identifying the potion
+   * @param effects  the custom potion effects
    * @param material the potion item material
    * @param category the potion effect category
    * @return a new potion definition
@@ -140,11 +144,11 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Creates a custom potion definition.
    *
-   * @param key the namespaced key identifying the potion
-   * @param effects the custom potion effects
+   * @param key      the namespaced key identifying the potion
+   * @param effects  the custom potion effects
    * @param material the potion item material
    * @param category the potion effect category
-   * @param color the potion display color
+   * @param color    the potion display color
    * @return a new potion definition
    */
   public static Potion from(final NamespacedKey key, final List<PotionEffect> effects,
@@ -156,13 +160,13 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Creates a custom potion definition.
    *
-   * @param key the namespaced key identifying the potion
-   * @param effects the custom potion effects
-   * @param material the potion item material
-   * @param category the potion effect category
-   * @param color the potion display color
+   * @param key           the namespaced key identifying the potion
+   * @param effects       the custom potion effects
+   * @param material      the potion item material
+   * @param category      the potion effect category
+   * @param color         the potion display color
    * @param isUpgradeable whether the potion can be upgraded
-   * @param isExtendable whether the potion can be extended
+   * @param isExtendable  whether the potion can be extended
    * @param durationScale the duration scale applied to potion effects
    * @return a new potion definition
    */
@@ -423,9 +427,10 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Adds a custom effect to this potion.
    *
-   * @param type the Bukkit potion effect type
-   * @param duration the effect duration
-   * @param unit the time unit of the duration, or {@code null} to interpret as ticks
+   * @param type      the Bukkit potion effect type
+   * @param duration  the effect duration
+   * @param unit      the time unit of the duration, or {@code null} to interpret
+   *                  as ticks
    * @param amplifier the effect amplifier
    * @return this potion
    */
@@ -442,8 +447,8 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Adds a custom effect to this potion.
    *
-   * @param type the Bukkit potion effect type
-   * @param duration the effect duration in ticks
+   * @param type      the Bukkit potion effect type
+   * @param duration  the effect duration in ticks
    * @param amplifier the effect amplifier
    * @return this potion
    */
@@ -553,7 +558,8 @@ public class Potion implements Cloneable<Potion> {
   /**
    * Gets Bukkit potion effects equivalent to the configured custom effects.
    *
-   * @return the Bukkit potion effects, or {@code null} if no effects are configured
+   * @return the Bukkit potion effects, or {@code null} if no effects are
+   *         configured
    */
   public List<org.bukkit.potion.PotionEffect> getBukkitEffects() {
     if (bukkitEffects != null || effects == null || effects.isEmpty()) {
@@ -572,7 +578,7 @@ public class Potion implements Cloneable<Potion> {
    * @param p the player to apply the potion to
    * @return this potion
    */
-  public Potion playerApplyPotion(Player p) {
+  public Potion playerApplyPotion(final Player p) {
     if (p != null) {
       p.addPotionEffects(getBukkitEffects());
     }
@@ -585,11 +591,11 @@ public class Potion implements Cloneable<Potion> {
    * @param p the player to remove the potion from
    * @return this potion
    */
-  public Potion playerRemovePotion(Player p) {
+  public Potion playerRemovePotion(final Player p) {
     if (p == null) {
       return this;
     }
-    for (org.bukkit.potion.PotionEffect potionEffect : getBukkitEffects()) {
+    for (final org.bukkit.potion.PotionEffect potionEffect : getBukkitEffects()) {
       p.removePotionEffect(potionEffect.getType());
     }
     return this;
@@ -601,11 +607,11 @@ public class Potion implements Cloneable<Potion> {
    * @param p the player to inspect
    * @return {@code true} if the player has all of this potion's effects
    */
-  public boolean playerHasPotion(Player p) {
+  public boolean playerHasPotion(final Player p) {
     if (p == null) {
       return false;
     }
-    for (org.bukkit.potion.PotionEffect potionEffect : getBukkitEffects()) {
+    for (final org.bukkit.potion.PotionEffect potionEffect : getBukkitEffects()) {
       if (!p.hasPotionEffect(potionEffect.getType())) {
         return false;
       }
@@ -644,16 +650,54 @@ public class Potion implements Cloneable<Potion> {
       throw new IllegalArgumentException("Invalid Potion Item");
     }
     final PotionMeta meta = (PotionMeta) item.getItemMeta();
-
-    meta.setItemName(key.toString());
-    meta.setColor(color);
-    meta.setDurationScale(durationScale);
-    for (final PotionEffect effect : effects) {
-      meta.addCustomEffect(effect.toBukkit(), false);
-    }
-
+    apply(meta);
     item.setItemMeta(meta);
     return item;
+  }
+
+  /**
+   * Applies this potion's data to potion item metadata.
+   */
+  public PotionMeta apply(final PotionMeta meta) {
+    if (meta == null) {
+      return null;
+    }
+    if (key != null) {
+      meta.setItemName(key.toString());
+    }
+    if (color != null) {
+      meta.setColor(color);
+    }
+    meta.setDurationScale(durationScale);
+    if (effects != null) {
+      for (final PotionEffect effect : effects) {
+        if (effect != null) {
+          meta.addCustomEffect(effect.toBukkit(), false);
+        }
+      }
+    }
+    return meta;
+  }
+
+  /**
+   * Applies this potion definition to the given builder.
+   */
+  @Override
+  public void apply(final ItemStackBuilder<?> builder) {
+    if (builder == null) {
+      return;
+    }
+    if (material != null) {
+      builder.type(material);
+    }
+    builder.meta(PotionMeta.class, this::apply);
+  }
+
+  /**
+   * Returns this potion as a reusable item modifier.
+   */
+  public ItemModifier asModifier() {
+    return this::apply;
   }
 
   /**

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntUnaryOperator;
 import java.util.function.UnaryOperator;
@@ -17,13 +18,14 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.Repairable;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 
 import com.lemonlightmc.zenith.additive.interfaces.Builder;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 /**
  * Fluent builder for creating and modifying {@link ItemStack} instances.
@@ -181,6 +183,20 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return target;
   }
 
+  /**
+   * Creates a deep copy of this builder.
+   */
+  @Override
+  public B clone() {
+    try {
+      final ItemStackBuilder<?> copy = (ItemStackBuilder<?>) super.clone();
+      copy.item = this.item == null ? null : this.item.clone();
+      copy.meta = this.meta == null ? null : this.meta.clone();
+      return (B) copy;
+    } catch (final CloneNotSupportedException e) {
+      throw new AssertionError(e);
+    }
+  }
   /* -------------------- type / amount -------------------- */
 
   public Material type() {
@@ -219,6 +235,11 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return self();
   }
 
+  public B amountMax() {
+    final int max = item.getType().getMaxStackSize();
+    item.setAmount(max > 0 ? max : item.getAmount());
+    return self();
+  }
   /* -------------------- meta access -------------------- */
 
   /**
@@ -298,7 +319,43 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return self();
   }
 
-  /* -------------------- name / lore -------------------- */
+  /* -------------------- conditional composition -------------------- */
+
+  public B when(final boolean condition, final Consumer<? super B> action) {
+    if (condition && action != null) {
+      action.accept(self());
+    }
+    return self();
+  }
+
+  public B when(final boolean condition, final ItemModifier modifier) {
+    if (condition && modifier != null) {
+      modifier.apply(this);
+    }
+    return self();
+  }
+
+  public B unless(final boolean condition, final Consumer<? super B> action) {
+    return when(!condition, action);
+  }
+
+  public B unless(final boolean condition, final ItemModifier modifier) {
+    return when(!condition, modifier);
+  }
+
+  public B applyIf(final boolean condition, final ItemModifier modifier) {
+    return when(condition, modifier);
+  }
+
+  public B applyIf(final BooleanSupplier condition, final ItemModifier modifier) {
+    return when(condition != null && condition.getAsBoolean(), modifier);
+  }
+
+  /* -------------------- name / lore (legacy + component) -------------------- */
+
+  protected static String legacy(final Component component) {
+    return component == null ? null : LegacyComponentSerializer.legacySection().serialize(component);
+  }
 
   public boolean hasName() {
     return meta != null && meta.hasDisplayName();
@@ -315,6 +372,10 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return self();
   }
 
+  public B name(final Component name) {
+    return name(legacy(name));
+  }
+
   public boolean hasItemName() {
     return meta != null && meta.hasItemName();
   }
@@ -324,6 +385,10 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
       meta.setItemName(name);
     }
     return self();
+  }
+
+  public B itemName(final Component name) {
+    return itemName(legacy(name));
   }
 
   public boolean hasLore() {
@@ -351,6 +416,38 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return self();
   }
 
+  public B lore(final Component... lines) {
+    if (meta == null) {
+      return self();
+    }
+    if (lines == null) {
+      meta.setLore(null);
+      return self();
+    }
+    final List<String> out = new ArrayList<>(lines.length);
+    for (final Component line : lines) {
+      out.add(legacy(line));
+    }
+    meta.setLore(out);
+    return self();
+  }
+
+  public B loreComponents(final List<? extends Component> lines) {
+    if (meta == null) {
+      return self();
+    }
+    if (lines == null) {
+      meta.setLore(null);
+      return self();
+    }
+    final List<String> out = new ArrayList<>(lines.size());
+    for (final Component line : lines) {
+      out.add(legacy(line));
+    }
+    meta.setLore(out);
+    return self();
+  }
+
   public B appendLore(final String... lines) {
     if (meta == null || lines == null || lines.length == 0) {
       return self();
@@ -369,6 +466,32 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     final List<String> lore = meta.hasLore() && meta.getLore() != null ? new ArrayList<>(meta.getLore())
         : new ArrayList<>();
     lore.addAll(lines);
+    meta.setLore(lore);
+    return self();
+  }
+
+  public B appendLore(final Component... lines) {
+    if (meta == null || lines == null || lines.length == 0) {
+      return self();
+    }
+    final List<String> lore = meta.hasLore() && meta.getLore() != null ? new ArrayList<>(meta.getLore())
+        : new ArrayList<>();
+    for (final Component line : lines) {
+      lore.add(legacy(line));
+    }
+    meta.setLore(lore);
+    return self();
+  }
+
+  public B appendLoreComponents(final List<? extends Component> lines) {
+    if (meta == null || lines == null || lines.isEmpty()) {
+      return self();
+    }
+    final List<String> lore = meta.hasLore() && meta.getLore() != null ? new ArrayList<>(meta.getLore())
+        : new ArrayList<>();
+    for (final Component line : lines) {
+      lore.add(legacy(line));
+    }
     meta.setLore(lore);
     return self();
   }
@@ -453,9 +576,23 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return self();
   }
 
-  public B enchantmentGlintOverride(final Boolean override) {
+  public B glint() {
     if (meta != null) {
-      meta.setEnchantmentGlintOverride(override);
+      meta.setEnchantmentGlintOverride(true);
+    }
+    return self();
+  }
+
+  public B glint(final boolean glint) {
+    if (meta != null) {
+      meta.setEnchantmentGlintOverride(glint);
+    }
+    return self();
+  }
+
+  public B resetGlint() {
+    if (meta != null) {
+      meta.setEnchantmentGlintOverride(null);
     }
     return self();
   }
@@ -560,46 +697,117 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return self();
   }
 
-  /* -------------------- enchantments -------------------- */
+  public B hideFlags() {
+    return hideAllFlags();
+  }
+
+  /*
+   * -------------------- enchantments (incl. stored for books)
+   * --------------------
+   */
 
   public B enchant(final Enchantment enchantment, final int level) {
-    if (enchantment != null) {
+    if (enchantment == null) {
+      return self();
+    }
+    if (meta instanceof final EnchantmentStorageMeta esm) {
+      esm.addStoredEnchant(enchantment, level, false);
+    } else {
       item.addEnchantment(enchantment, level);
     }
     return self();
   }
 
   public B enchantUnsafe(final Enchantment enchantment, final int level) {
-    if (enchantment != null) {
+    if (enchantment == null) {
+      return self();
+    }
+    if (meta instanceof final EnchantmentStorageMeta esm) {
+      esm.addStoredEnchant(enchantment, level, true);
+    } else {
       item.addUnsafeEnchantment(enchantment, level);
     }
     return self();
   }
 
   public B enchants(final Map<Enchantment, Integer> enchantments) {
-    if (enchantments != null && !enchantments.isEmpty()) {
+    if (enchantments == null || enchantments.isEmpty()) {
+      return self();
+    }
+    if (meta instanceof final EnchantmentStorageMeta esm) {
+      for (final Map.Entry<Enchantment, Integer> e : enchantments.entrySet()) {
+        if (e.getKey() != null && e.getValue() != null) {
+          esm.addStoredEnchant(e.getKey(), e.getValue(), false);
+        }
+      }
+    } else {
       item.addEnchantments(enchantments);
     }
     return self();
   }
 
   public B enchantsUnsafe(final Map<Enchantment, Integer> enchantments) {
-    if (enchantments != null && !enchantments.isEmpty()) {
+    if (enchantments == null || enchantments.isEmpty()) {
+      return self();
+    }
+    if (meta instanceof final EnchantmentStorageMeta esm) {
+      for (final Map.Entry<Enchantment, Integer> e : enchantments.entrySet()) {
+        if (e.getKey() != null && e.getValue() != null) {
+          esm.addStoredEnchant(e.getKey(), e.getValue(), true);
+        }
+      }
+    } else {
       item.addUnsafeEnchantments(enchantments);
     }
     return self();
   }
 
   public B removeEnchant(final Enchantment enchantment) {
-    if (enchantment != null) {
-      item.removeEnchantment(enchantment);
+    if (enchantment == null) {
+      return self();
     }
+    if (meta instanceof final EnchantmentStorageMeta esm) {
+      esm.removeStoredEnchant(enchantment);
+    }
+    item.removeEnchantment(enchantment);
     return self();
   }
 
   public B clearEnchants() {
+    if (meta instanceof final EnchantmentStorageMeta esm) {
+      for (final Enchantment e : new ArrayList<>(esm.getStoredEnchants().keySet())) {
+        esm.removeStoredEnchant(e);
+      }
+    }
     for (final Enchantment e : new ArrayList<>(item.getEnchantments().keySet())) {
       item.removeEnchantment(e);
+    }
+    return self();
+  }
+
+  public B storedEnchant(final Enchantment enchantment, final int level) {
+    return storedEnchant(enchantment, level, false);
+  }
+
+  public B storedEnchant(final Enchantment enchantment, final int level, final boolean ignoreLevelRestriction) {
+    if (meta instanceof final EnchantmentStorageMeta esm && enchantment != null) {
+      esm.addStoredEnchant(enchantment, level, ignoreLevelRestriction);
+    }
+    return self();
+  }
+
+  public B removeStoredEnchant(final Enchantment enchantment) {
+    if (meta instanceof final EnchantmentStorageMeta esm && enchantment != null) {
+      esm.removeStoredEnchant(enchantment);
+    }
+    return self();
+  }
+
+  public B clearStoredEnchants() {
+    if (meta instanceof final EnchantmentStorageMeta esm) {
+      for (final Enchantment e : new ArrayList<>(esm.getStoredEnchants().keySet())) {
+        esm.removeStoredEnchant(e);
+      }
     }
     return self();
   }
@@ -628,6 +836,13 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
     return self();
   }
 
+  public B clearAttributes() {
+    if (meta != null) {
+      meta.setAttributeModifiers(null);
+    }
+    return self();
+  }
+
   public <T, Z> B pdc(final NamespacedKey key, final PersistentDataType<T, Z> type, final Z value) {
     if (meta != null && key != null && type != null) {
       if (value == null) {
@@ -637,6 +852,115 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
       }
     }
     return self();
+  }
+
+  public B removePdc(final NamespacedKey key) {
+    if (meta != null && key != null) {
+      meta.getPersistentDataContainer().remove(key);
+    }
+    return self();
+  }
+
+  /* -------------------- discoverability meta helpers -------------------- */
+
+  public B skull(final Consumer<? super SkullMeta> consumer) {
+    return meta(SkullMeta.class, consumer);
+  }
+
+  public B potionMeta(final Consumer<? super PotionMeta> consumer) {
+    return meta(PotionMeta.class, consumer);
+  }
+
+  public B potion(final Consumer<? super PotionMeta> consumer) {
+    return meta(PotionMeta.class, consumer);
+  }
+
+  public B book(final Consumer<? super BookMeta> consumer) {
+    return meta(BookMeta.class, consumer);
+  }
+
+  public B writableBook(final Consumer<? super WritableBookMeta> consumer) {
+    return meta(WritableBookMeta.class, consumer);
+  }
+
+  public B banner(final Consumer<? super BannerMeta> consumer) {
+    return meta(BannerMeta.class, consumer);
+  }
+
+  public B leatherArmor(final Consumer<? super LeatherArmorMeta> consumer) {
+    return meta(LeatherArmorMeta.class, consumer);
+  }
+
+  public B firework(final Consumer<? super FireworkMeta> consumer) {
+    return meta(FireworkMeta.class, consumer);
+  }
+
+  public B fireworkEffect(final Consumer<? super FireworkEffectMeta> consumer) {
+    return meta(FireworkEffectMeta.class, consumer);
+  }
+
+  public B map(final Consumer<? super MapMeta> consumer) {
+    return meta(MapMeta.class, consumer);
+  }
+
+  public B compass(final Consumer<? super CompassMeta> consumer) {
+    return meta(CompassMeta.class, consumer);
+  }
+
+  public B crossbow(final Consumer<? super CrossbowMeta> consumer) {
+    return meta(CrossbowMeta.class, consumer);
+  }
+
+  public B bundle(final Consumer<? super BundleMeta> consumer) {
+    return meta(BundleMeta.class, consumer);
+  }
+
+  public B armor(final Consumer<? super ArmorMeta> consumer) {
+    return meta(ArmorMeta.class, consumer);
+  }
+
+  public B axolotlBucket(final Consumer<? super AxolotlBucketMeta> consumer) {
+    return meta(AxolotlBucketMeta.class, consumer);
+  }
+
+  public B tropicalFishBucket(final Consumer<? super TropicalFishBucketMeta> consumer) {
+    return meta(TropicalFishBucketMeta.class, consumer);
+  }
+
+  public B blockState(final Consumer<? super BlockStateMeta> consumer) {
+    return meta(BlockStateMeta.class, consumer);
+  }
+
+  public B knowledgeBook(final Consumer<? super KnowledgeBookMeta> consumer) {
+    return meta(KnowledgeBookMeta.class, consumer);
+  }
+
+  public B suspiciousStew(final Consumer<? super SuspiciousStewMeta> consumer) {
+    return meta(SuspiciousStewMeta.class, consumer);
+  }
+
+  public B musicInstrument(final Consumer<? super MusicInstrumentMeta> consumer) {
+    return meta(MusicInstrumentMeta.class, consumer);
+  }
+
+  public B ominousBottle(final Consumer<? super OminousBottleMeta> consumer) {
+    return meta(OminousBottleMeta.class, consumer);
+  }
+
+  public B shield(final Consumer<? super ShieldMeta> consumer) {
+    return meta(ShieldMeta.class, consumer);
+  }
+
+  public B damageable(final Consumer<? super Damageable> consumer) {
+    return meta(Damageable.class, consumer);
+  }
+
+  public B repairable(final Consumer<? super Repairable> consumer) {
+    return meta(Repairable.class, consumer);
+  }
+
+  public B enchantmentStorage(final Consumer<? super EnchantmentStorageMeta> consumer) {
+    return meta(EnchantmentStorageMeta.class, consumer);
   }
 
   /* -------------------- modifiers -------------------- */
@@ -668,6 +992,21 @@ public class ItemStackBuilder<B extends ItemStackBuilder<B>> implements Builder<
       }
     }
     return self();
+  }
+
+  /**
+   * Alias for {@link #apply(ItemModifier...)}.
+   */
+  public B components(final ItemModifier... modifiers) {
+    return apply(modifiers);
+  }
+
+  public B components(final ItemModifier modifier) {
+    return apply(modifier);
+  }
+
+  public B components(final Iterable<? extends ItemModifier> modifiers) {
+    return apply(modifiers);
   }
 
   @Override

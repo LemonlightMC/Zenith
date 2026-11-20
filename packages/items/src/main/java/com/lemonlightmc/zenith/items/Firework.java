@@ -10,11 +10,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
+import com.lemonlightmc.zenith.itembuilder.ItemModifier;
+import com.lemonlightmc.zenith.itembuilder.ItemStackBuilder;
 
 /**
  * Mutable representation of a firework and its configured effects.
  */
-public class Firework implements Cloneable<Firework>, ConfigurationSerializable {
+public class Firework implements Cloneable<Firework>, ConfigurationSerializable, ItemModifier {
   private List<FireworkEffect> effects;
   private int power;
 
@@ -22,7 +24,7 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
    * Creates a firework with the given effects and power.
    *
    * @param effects the firework effects to include
-   * @param power the firework flight power
+   * @param power   the firework flight power
    */
   public Firework(final List<FireworkEffect> effects, final int power) {
     this.effects = effects == null ? new ArrayList<>() : effects;
@@ -57,7 +59,8 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
    * Spawns a firework entity at the given location.
    *
    * @param loc the location at which to spawn the firework
-   * @return the spawned firework entity, or {@code null} if the location is {@code null}
+   * @return the spawned firework entity, or {@code null} if the location is
+   *         {@code null}
    */
   public org.bukkit.entity.Firework spawnEntity(final Location loc) {
     if (loc == null) {
@@ -77,7 +80,8 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
    * Creates, but does not spawn, a firework entity at the given location.
    *
    * @param loc the location for the created firework entity
-   * @return the created firework entity, or {@code null} if the location is {@code null}
+   * @return the created firework entity, or {@code null} if the location is
+   *         {@code null}
    */
   public org.bukkit.entity.Firework toEntity(final Location loc) {
     if (loc == null) {
@@ -239,6 +243,47 @@ public class Firework implements Cloneable<Firework>, ConfigurationSerializable 
   public Firework setPower(final int power) {
     this.power = power;
     return this;
+  }
+
+  /**
+   * Applies this firework's effects and power to rocket item metadata.
+   */
+  public FireworkMeta apply(final FireworkMeta meta) {
+    if (meta == null) {
+      return null;
+    }
+    meta.clearEffects();
+    if (effects != null) {
+      for (final FireworkEffect fireworkEffect : effects) {
+        if (fireworkEffect == null) {
+          continue;
+        }
+        final org.bukkit.FireworkEffect bukkit = fireworkEffect.toBukkit();
+        if (bukkit != null) {
+          meta.addEffect(bukkit);
+        }
+      }
+    }
+    meta.setPower(power);
+    return meta;
+  }
+
+  /**
+   * Applies this firework configuration to the given builder (rocket meta).
+   */
+  @Override
+  public void apply(final ItemStackBuilder<?> builder) {
+    if (builder == null) {
+      return;
+    }
+    builder.meta(FireworkMeta.class, this::apply);
+  }
+
+  /**
+   * Returns this firework as a reusable item modifier.
+   */
+  public ItemModifier asModifier() {
+    return this::apply;
   }
 
   /**

@@ -8,15 +8,16 @@ import java.util.Map;
 import org.bukkit.Color;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
-import com.google.common.collect.ImmutableList;
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
+import com.lemonlightmc.zenith.itembuilder.ItemModifier;
+import com.lemonlightmc.zenith.itembuilder.ItemStackBuilder;
 
 // TODO: Rework FireworkEffect for 1.1
 /**
  * Mutable representation of a firework effect and its visual properties.
  */
 public class FireworkEffect
-    implements ConfigurationSerializable, Cloneable<FireworkEffect> {
+    implements ConfigurationSerializable, Cloneable<FireworkEffect>, ItemModifier {
   /**
    * Supported firework effect shape types.
    */
@@ -317,8 +318,8 @@ public class FireworkEffect
    * @return this firework effect
    */
   public FireworkEffect setFadeColors(final Collection<Color> fadeColors) {
-    if (colors != null && !colors.isEmpty()) {
-      this.fadeColors = List.copyOf(fadeColors);
+    if (fadeColors != null) {
+      this.fadeColors = new ArrayList<>(fadeColors);
     }
     return this;
   }
@@ -442,13 +443,57 @@ public class FireworkEffect
       throw new IllegalStateException("Cannot make FireworkEffect without any color");
     }
     try {
-      return org.bukkit.FireworkEffect.class.getConstructor().newInstance(flicker, trail,
-          ImmutableList.copyOf(colors),
-          ImmutableList.copyOf(fadeColors == null ? List.of() : fadeColors),
-          type.toBukkit());
+      final org.bukkit.FireworkEffect.Builder builder = org.bukkit.FireworkEffect.builder()
+          .with(type == null ? FireworkEffectType.BALL.toBukkit() : type.toBukkit())
+          .flicker(flicker)
+          .trail(trail)
+          .withColor(colors);
+      if (fadeColors != null && !fadeColors.isEmpty()) {
+        builder.withFade(fadeColors);
+      }
+      return builder.build();
     } catch (final Exception e) {
       return null;
     }
+  }
+
+  /**
+   * Applies this effect to firework star metadata.
+   */
+  public org.bukkit.inventory.meta.FireworkEffectMeta apply(final org.bukkit.inventory.meta.FireworkEffectMeta meta) {
+    if (meta == null) {
+      return null;
+    }
+    final org.bukkit.FireworkEffect bukkit = toBukkit();
+    if (bukkit != null) {
+      meta.setEffect(bukkit);
+    }
+    return meta;
+  }
+
+  /**
+   * Applies this effect to a builder targeting firework star meta.
+   */
+  @Override
+  public void apply(final ItemStackBuilder<?> builder) {
+    applyTo(builder);
+  }
+
+  /**
+   * Applies this effect to a builder targeting firework star meta.
+   */
+  public void applyTo(final ItemStackBuilder<?> builder) {
+    if (builder == null) {
+      return;
+    }
+    builder.meta(org.bukkit.inventory.meta.FireworkEffectMeta.class, this::apply);
+  }
+
+  /**
+   * Returns this effect as a reusable item modifier.
+   */
+  public ItemModifier asModifier() {
+    return this::applyTo;
   }
 
   @Override

@@ -14,11 +14,13 @@ import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
+import com.lemonlightmc.zenith.itembuilder.ItemModifier;
+import com.lemonlightmc.zenith.itembuilder.ItemStackBuilder;
 
 /**
  * Mutable representation of a banner's base color and patterns.
  */
-public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
+public class Banner implements Cloneable<Banner>, ConfigurationSerializable, ItemModifier {
   private List<Pattern> patterns;
   private DyeColor baseColor;
 
@@ -26,7 +28,7 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
    * Creates a banner with the given base color and patterns.
    *
    * @param baseColor the base color of the banner
-   * @param patterns the banner patterns to apply
+   * @param patterns  the banner patterns to apply
    */
   public Banner(final DyeColor baseColor, final List<Pattern> patterns) {
     this.baseColor = baseColor == null ? DyeColor.WHITE : baseColor;
@@ -101,7 +103,7 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
   /**
    * Creates a banner from a base color and patterns.
    *
-   * @param color the base color of the banner
+   * @param color    the base color of the banner
    * @param patterns the banner patterns to apply
    * @return a new banner instance
    */
@@ -235,7 +237,7 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
    * Adds a pattern to this banner.
    *
    * @param patternType the pattern type to add
-   * @param color the pattern color
+   * @param color       the pattern color
    * @return this banner
    */
   public Banner addPattern(final PatternType patternType, final DyeColor color) {
@@ -249,9 +251,9 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
   /**
    * Inserts a pattern at the specified index.
    *
-   * @param idx the index at which to insert the pattern
+   * @param idx         the index at which to insert the pattern
    * @param patternType the pattern type to add
-   * @param color the pattern color
+   * @param color       the pattern color
    * @return this banner
    */
   public Banner addPattern(final int idx, final PatternType patternType, final DyeColor color) {
@@ -265,7 +267,7 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
   /**
    * Inserts a pattern at the specified index.
    *
-   * @param idx the index at which to insert the pattern
+   * @param idx     the index at which to insert the pattern
    * @param pattern the pattern to insert
    * @return this banner
    */
@@ -280,9 +282,9 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
   /**
    * Replaces the pattern at the specified index.
    *
-   * @param idx the index of the pattern to replace
+   * @param idx         the index of the pattern to replace
    * @param patternType the new pattern type
-   * @param color the new pattern color
+   * @param color       the new pattern color
    * @return this banner
    */
   public Banner setPattern(final int idx, final PatternType patternType, final DyeColor color) {
@@ -428,7 +430,8 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
    * Applies this banner's patterns to banner item metadata.
    *
    * @param meta the item metadata to update
-   * @return the updated metadata, or the original metadata if it is not banner metadata
+   * @return the updated metadata, or the original metadata if it is not banner
+   *         metadata
    */
   public ItemMeta apply(final ItemMeta meta) {
     if (meta == null || !(meta instanceof final BannerMeta bannerMeta)) {
@@ -436,6 +439,25 @@ public class Banner implements Cloneable<Banner>, ConfigurationSerializable {
     }
     bannerMeta.setPatterns(patterns);
     return bannerMeta;
+  }
+
+  /**
+   * Applies this banner (material and patterns) to the given builder.
+   */
+  @Override
+  public void apply(final ItemStackBuilder<?> builder) {
+    if (builder == null) {
+      return;
+    }
+    builder.type(toMaterial());
+    builder.meta(BannerMeta.class, m -> m.setPatterns(patterns == null ? List.of() : patterns));
+  }
+
+  /**
+   * Returns this banner as a reusable item modifier.
+   */
+  public ItemModifier asModifier() {
+    return this::apply;
   }
 
   /**

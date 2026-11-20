@@ -13,7 +13,7 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.components.BlocksAttacksComponent;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.inventory.meta.components.EquippableComponent;
@@ -24,6 +24,8 @@ import org.bukkit.inventory.meta.components.UseCooldownComponent;
 import org.bukkit.inventory.meta.components.WeaponComponent;
 import org.bukkit.inventory.meta.components.consumable.ConsumableComponent;
 import org.bukkit.persistence.PersistentDataType;
+
+import net.kyori.adventure.text.Component;
 
 /**
  * Reusable modification that can be applied to an {@link ItemStackBuilder}.
@@ -61,6 +63,10 @@ public interface ItemModifier {
     return modifier == null ? empty() : modifier;
   }
 
+  static ItemModifier when(final boolean condition, final ItemModifier modifier) {
+    return condition ? of(modifier) : empty();
+  }
+
   /* -------------------- typed meta -------------------- */
 
   static <M extends ItemMeta> ItemModifier meta(final Class<M> type, final Consumer<? super M> consumer) {
@@ -69,6 +75,107 @@ public interface ItemModifier {
 
   static ItemModifier editMeta(final Consumer<? super ItemMeta> metaEditor) {
     return builder -> builder.meta(metaEditor);
+  }
+
+  /* -------------------- typed meta -------------------- */
+  static ItemModifier skull(final Consumer<? super SkullMeta> consumer) {
+    return meta(SkullMeta.class, consumer);
+  }
+
+  static ItemModifier potionMeta(final Consumer<? super PotionMeta> consumer) {
+    return meta(PotionMeta.class, consumer);
+  }
+
+  static ItemModifier potion(final Consumer<? super PotionMeta> consumer) {
+    return meta(PotionMeta.class, consumer);
+  }
+
+  static ItemModifier book(final Consumer<? super BookMeta> consumer) {
+    return meta(BookMeta.class, consumer);
+  }
+
+  static ItemModifier writableBook(final Consumer<? super WritableBookMeta> consumer) {
+    return meta(WritableBookMeta.class, consumer);
+  }
+
+  static ItemModifier banner(final Consumer<? super BannerMeta> consumer) {
+    return meta(BannerMeta.class, consumer);
+  }
+
+  static ItemModifier leatherArmor(final Consumer<? super LeatherArmorMeta> consumer) {
+    return meta(LeatherArmorMeta.class, consumer);
+  }
+
+  static ItemModifier firework(final Consumer<? super FireworkMeta> consumer) {
+    return meta(FireworkMeta.class, consumer);
+  }
+
+  static ItemModifier fireworkEffect(final Consumer<? super FireworkEffectMeta> consumer) {
+    return meta(FireworkEffectMeta.class, consumer);
+  }
+
+  static ItemModifier map(final Consumer<? super MapMeta> consumer) {
+    return meta(MapMeta.class, consumer);
+  }
+
+  static ItemModifier compass(final Consumer<? super CompassMeta> consumer) {
+    return meta(CompassMeta.class, consumer);
+  }
+
+  static ItemModifier crossbow(final Consumer<? super CrossbowMeta> consumer) {
+    return meta(CrossbowMeta.class, consumer);
+  }
+
+  static ItemModifier bundle(final Consumer<? super BundleMeta> consumer) {
+    return meta(BundleMeta.class, consumer);
+  }
+
+  static ItemModifier armor(final Consumer<? super ArmorMeta> consumer) {
+    return meta(ArmorMeta.class, consumer);
+  }
+
+  static ItemModifier axolotlBucket(final Consumer<? super AxolotlBucketMeta> consumer) {
+    return meta(AxolotlBucketMeta.class, consumer);
+  }
+
+  static ItemModifier tropicalFishBucket(final Consumer<? super TropicalFishBucketMeta> consumer) {
+    return meta(TropicalFishBucketMeta.class, consumer);
+  }
+
+  static ItemModifier blockState(final Consumer<? super BlockStateMeta> consumer) {
+    return meta(BlockStateMeta.class, consumer);
+  }
+
+  static ItemModifier knowledgeBook(final Consumer<? super KnowledgeBookMeta> consumer) {
+    return meta(KnowledgeBookMeta.class, consumer);
+  }
+
+  static ItemModifier suspiciousStew(final Consumer<? super SuspiciousStewMeta> consumer) {
+    return meta(SuspiciousStewMeta.class, consumer);
+  }
+
+  static ItemModifier musicInstrument(final Consumer<? super MusicInstrumentMeta> consumer) {
+    return meta(MusicInstrumentMeta.class, consumer);
+  }
+
+  static ItemModifier ominousBottle(final Consumer<? super OminousBottleMeta> consumer) {
+    return meta(OminousBottleMeta.class, consumer);
+  }
+
+  static ItemModifier shield(final Consumer<? super ShieldMeta> consumer) {
+    return meta(ShieldMeta.class, consumer);
+  }
+
+  static ItemModifier damageable(final Consumer<? super Damageable> consumer) {
+    return meta(Damageable.class, consumer);
+  }
+
+  static ItemModifier repairable(final Consumer<? super Repairable> consumer) {
+    return meta(Repairable.class, consumer);
+  }
+
+  static ItemModifier enchantmentStorage(final Consumer<? super EnchantmentStorageMeta> consumer) {
+    return meta(EnchantmentStorageMeta.class, consumer);
   }
 
   /* -------------------- enchantments -------------------- */
@@ -97,13 +204,33 @@ public interface ItemModifier {
     return builder -> builder.removeEnchant(enchantment);
   }
 
+  static ItemModifier storedEnchant(final Enchantment enchantment, final int level) {
+    return builder -> builder.storedEnchant(enchantment, level);
+  }
+
+  static ItemModifier storedEnchant(final Enchantment enchantment, final int level,
+      final boolean ignoreLevelRestriction) {
+    return builder -> builder.storedEnchant(enchantment, level, ignoreLevelRestriction);
+  }
+
+  static ItemModifier clearStoredEnchants() {
+    return ItemStackBuilder::clearStoredEnchants;
+  }
   /* -------------------- display / flags -------------------- */
 
   static ItemModifier name(final String name) {
     return builder -> builder.name(name);
   }
 
+  static ItemModifier name(final Component name) {
+    return builder -> builder.name(name);
+  }
+
   static ItemModifier itemName(final String name) {
+    return builder -> builder.itemName(name);
+  }
+
+  static ItemModifier itemName(final Component name) {
     return builder -> builder.itemName(name);
   }
 
@@ -115,7 +242,15 @@ public interface ItemModifier {
     return builder -> builder.lore(lines);
   }
 
-  static ItemModifier appendLore(final String... lines) {
+  static ItemModifier lore(final Component... lines) {
+    return builder -> builder.lore(lines);
+  }
+
+  static ItemModifier loreComponents(final List<? extends Component> lines) {
+    return builder -> builder.loreComponents(lines);
+  }
+
+  static ItemModifier appendLore(final Component... lines) {
     return builder -> builder.appendLore(lines);
   }
 
@@ -125,6 +260,10 @@ public interface ItemModifier {
 
   static ItemModifier flags(final ItemFlag... flags) {
     return builder -> builder.flags(flags);
+  }
+
+  static ItemModifier hideAllFlags() {
+    return ItemStackBuilder::hideAllFlags;
   }
 
   static ItemModifier hideTooltip(final boolean hide) {
@@ -153,6 +292,18 @@ public interface ItemModifier {
 
   static ItemModifier glider(final boolean isGlider) {
     return builder -> builder.glider(isGlider);
+  }
+
+  static ItemModifier glint() {
+    return ItemStackBuilder::glint;
+  }
+
+  static ItemModifier glint(final boolean glint) {
+    return builder -> builder.glint(glint);
+  }
+
+  static ItemModifier resetGlint() {
+    return ItemStackBuilder::resetGlint;
   }
 
   static ItemModifier breakSound(final Sound sound) {
@@ -207,9 +358,17 @@ public interface ItemModifier {
     return builder -> builder.addAttribute(attribute, modifier);
   }
 
+  static ItemModifier clearAttributes() {
+    return ItemStackBuilder::clearAttributes;
+  }
+
   static <T, Z> ItemModifier persistentTag(final NamespacedKey key, final PersistentDataType<T, Z> type,
       final Z value) {
     return builder -> builder.pdc(key, type, value);
+  }
+
+  static ItemModifier removePdc(final NamespacedKey key) {
+    return builder -> builder.removePdc(key);
   }
 
   static ItemModifier tag(final NamespacedKey key, final String value) {

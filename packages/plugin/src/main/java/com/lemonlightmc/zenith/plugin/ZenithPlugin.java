@@ -104,6 +104,15 @@ public abstract class ZenithPlugin extends JavaPlugin
   }
 
   /**
+   * Returns the plugin's internal namespace.
+   *
+   * @return the plugin namespace
+   */
+  public String namespace() {
+    return info.getKey();
+  }
+
+  /**
    * Returns the plugin's full display name.
    *
    * @return the full plugin name
@@ -142,7 +151,8 @@ public abstract class ZenithPlugin extends JavaPlugin
    * Resolves a file within the plugin data folder.
    *
    * @param path path segments relative to the data folder
-   * @return the resolved file, or the data folder itself if no segments are provided
+   * @return the resolved file, or the data folder itself if no segments are
+   *         provided
    */
   public File getDataFile(final String... path) {
     if (path == null || path.length == 0) {
@@ -189,7 +199,8 @@ public abstract class ZenithPlugin extends JavaPlugin
    * Not supported by Zenith plugins.
    *
    * @return never returns normally
-   * @throws UnsupportedOperationException always thrown because Bukkit file configuration is not supported
+   * @throws UnsupportedOperationException always thrown because Bukkit file
+   *                                       configuration is not supported
    * @deprecated use Configurate-based configuration instead
    */
   @Deprecated
@@ -202,7 +213,8 @@ public abstract class ZenithPlugin extends JavaPlugin
   /**
    * Not supported by Zenith plugins.
    *
-   * @throws UnsupportedOperationException always thrown because Bukkit file configuration is not supported
+   * @throws UnsupportedOperationException always thrown because Bukkit file
+   *                                       configuration is not supported
    * @deprecated use Configurate-based configuration instead
    */
   @Override
@@ -215,7 +227,8 @@ public abstract class ZenithPlugin extends JavaPlugin
   /**
    * Not supported by Zenith plugins.
    *
-   * @throws UnsupportedOperationException always thrown because Bukkit file configuration is not supported
+   * @throws UnsupportedOperationException always thrown because Bukkit file
+   *                                       configuration is not supported
    * @deprecated use Configurate-based configuration instead
    */
   @Override
@@ -228,7 +241,8 @@ public abstract class ZenithPlugin extends JavaPlugin
   /**
    * Not supported by Zenith plugins.
    *
-   * @throws UnsupportedOperationException always thrown because Bukkit file configuration is not supported
+   * @throws UnsupportedOperationException always thrown because Bukkit file
+   *                                       configuration is not supported
    * @deprecated use Configurate-based configuration instead
    */
   @Deprecated
@@ -241,7 +255,8 @@ public abstract class ZenithPlugin extends JavaPlugin
    * Not supported by Zenith plugins.
    *
    * @param file the configuration file that would be loaded
-   * @throws UnsupportedOperationException always thrown because Bukkit file configuration is not supported
+   * @throws UnsupportedOperationException always thrown because Bukkit file
+   *                                       configuration is not supported
    * @deprecated use Configurate-based configuration instead
    */
   @Deprecated
@@ -253,7 +268,8 @@ public abstract class ZenithPlugin extends JavaPlugin
   /**
    * Not supported by Zenith plugins.
    *
-   * @throws UnsupportedOperationException always thrown because Bukkit file configuration is not supported
+   * @throws UnsupportedOperationException always thrown because Bukkit file
+   *                                       configuration is not supported
    * @deprecated use Configurate-based configuration instead
    */
   @Override
@@ -279,7 +295,7 @@ public abstract class ZenithPlugin extends JavaPlugin
   /**
    * Saves a bundled resource to the plugin data folder.
    *
-   * @param path the resource path to save
+   * @param path    the resource path to save
    * @param replace whether to replace an existing file
    * @deprecated prefer Zenith resource utilities directly where appropriate
    */
@@ -334,12 +350,13 @@ public abstract class ZenithPlugin extends JavaPlugin
   /**
    * Not supported by Zenith plugins.
    *
-   * @param sender the command sender
+   * @param sender  the command sender
    * @param command the executed command
-   * @param label the alias used
-   * @param args the command arguments
+   * @param label   the alias used
+   * @param args    the command arguments
    * @return never returns normally
-   * @throws UnsupportedOperationException always thrown because command handling is managed by CommandAPI
+   * @throws UnsupportedOperationException always thrown because command handling
+   *                                       is managed by CommandAPI
    * @deprecated use CommandAPI-based command registration instead
    */
   @Override
@@ -353,12 +370,13 @@ public abstract class ZenithPlugin extends JavaPlugin
   /**
    * Not supported by Zenith plugins.
    *
-   * @param sender the command sender
+   * @param sender  the command sender
    * @param command the executed command
-   * @param label the alias used
-   * @param args the command arguments
+   * @param label   the alias used
+   * @param args    the command arguments
    * @return never returns normally
-   * @throws UnsupportedOperationException always thrown because command handling is managed by CommandAPI
+   * @throws UnsupportedOperationException always thrown because command handling
+   *                                       is managed by CommandAPI
    * @deprecated use CommandAPI-based command registration instead
    */
   @Override
@@ -372,9 +390,10 @@ public abstract class ZenithPlugin extends JavaPlugin
    * Returns the default world generator for this plugin.
    *
    * @param worldName the world name
-   * @param id the generator identifier
+   * @param id        the generator identifier
    * @return {@code null} because no default world generator is provided
-   * @deprecated override in a concrete plugin only when a custom world generator is required
+   * @deprecated override in a concrete plugin only when a custom world generator
+   *             is required
    */
   @Deprecated
   @Override
@@ -386,9 +405,10 @@ public abstract class ZenithPlugin extends JavaPlugin
    * Returns the default biome provider for this plugin.
    *
    * @param worldName the world name
-   * @param id the biome provider identifier
+   * @param id        the biome provider identifier
    * @return {@code null} because no default biome provider is provided
-   * @deprecated override in a concrete plugin only when a custom biome provider is required
+   * @deprecated override in a concrete plugin only when a custom biome provider
+   *             is required
    */
   @Deprecated
   @Override

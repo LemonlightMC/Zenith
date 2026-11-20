@@ -26,9 +26,12 @@ import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 
 /**
- * Central entry point for registering, resolving, dispatching, and managing Bukkit commands.
+ * Central entry point for registering, resolving, dispatching, and managing
+ * Bukkit commands.
  *
- * <p>This API bridges Zenith's command abstractions with Bukkit's command map and provides helpers for synchronous and
+ * <p>
+ * This API bridges Zenith's command abstractions with Bukkit's command map and
+ * provides helpers for synchronous and
  * asynchronous command execution.
  */
 public class CommandAPI {
@@ -111,7 +114,7 @@ public class CommandAPI {
   public static String getNamespace() {
     if (namespace == null || namespace.isEmpty()) {
       try {
-        namespace = ZenithProvider.instance().getKey();
+        CommandAPI.namespace = ZenithProvider.instance().namespace();
       } catch (final Exception ignored) {
       }
     }
@@ -119,12 +122,13 @@ public class CommandAPI {
   }
 
   /**
-   * Sets and returns the default command namespace based on the active Zenith plugin.
+   * Sets and returns the default command namespace based on the active Zenith
+   * plugin.
    *
    * @return the updated command namespace
    */
   public static String setNamespace() {
-    namespace = ZenithProvider.instance().getKey();
+    CommandAPI.namespace = ZenithProvider.instance().namespace();
     return namespace;
   }
 
@@ -153,7 +157,7 @@ public class CommandAPI {
     }
     key = key.startsWith("/") ? key.substring(1) : key;
     return new SimpleCommand(
-        new NamespacedKey(ZenithProvider.instance().getKey(), key));
+        new NamespacedKey(ZenithProvider.instance().namespace(), key));
   }
 
   /**
@@ -203,8 +207,9 @@ public class CommandAPI {
   /**
    * Registers a Bukkit command with the server command map.
    *
-   * @param command the command to register
-   * @param namespace the namespace to register the command under, or {@code null} to use the default namespace
+   * @param command   the command to register
+   * @param namespace the namespace to register the command under, or {@code null}
+   *                  to use the default namespace
    * @return {@code true} if registration succeeds; {@code false} otherwise
    */
   public static boolean register(final Command command, String namespace) {
@@ -227,11 +232,12 @@ public class CommandAPI {
   /**
    * Assigns a combined executor and tab completer to an existing plugin command.
    *
-   * @param key the command key to resolve
+   * @param key      the command key to resolve
    * @param executor the executor and tab completer to assign
    * @return {@code true} if the command was updated successfully
    * @throws MissingCommandExecutorException if {@code executor} is {@code null}
-   * @throws IllegalArgumentException if no matching plugin command is found
+   * @throws IllegalArgumentException        if no matching plugin command is
+   *                                         found
    */
   public static boolean register(final String key, final TabExecutor executor) {
     if (executor == null) {
@@ -249,12 +255,14 @@ public class CommandAPI {
   /**
    * Assigns an executor and optional tab completer to an existing plugin command.
    *
-   * @param key the command key to resolve
-   * @param executor the command executor to assign
-   * @param tabCompleter the tab completer to assign, or {@code null} to leave it unchanged
+   * @param key          the command key to resolve
+   * @param executor     the command executor to assign
+   * @param tabCompleter the tab completer to assign, or {@code null} to leave it
+   *                     unchanged
    * @return {@code true} if the command was updated successfully
    * @throws MissingCommandExecutorException if {@code executor} is {@code null}
-   * @throws IllegalArgumentException if no matching plugin command is found
+   * @throws IllegalArgumentException        if no matching plugin command is
+   *                                         found
    */
   public static boolean register(final String key, final CommandExecutor executor, final TabCompleter tabCompleter) {
     if (executor == null) {
@@ -274,9 +282,10 @@ public class CommandAPI {
   /**
    * Assigns a combined executor and tab completer to an existing plugin command.
    *
-   * @param key the namespaced command key to resolve
+   * @param key      the namespaced command key to resolve
    * @param executor the executor and tab completer to assign
-   * @return {@code true} if the command was updated successfully; {@code false} if the key is {@code null}
+   * @return {@code true} if the command was updated successfully; {@code false}
+   *         if the key is {@code null}
    */
   public static boolean register(final NamespacedKey key, final TabExecutor executor) {
     return key == null ? false : register(key.toString(), executor);
@@ -285,10 +294,12 @@ public class CommandAPI {
   /**
    * Assigns an executor and optional tab completer to an existing plugin command.
    *
-   * @param key the namespaced command key to resolve
-   * @param executor the command executor to assign
-   * @param tabCompleter the tab completer to assign, or {@code null} to leave it unchanged
-   * @return {@code true} if the command was updated successfully; {@code false} if the key is {@code null}
+   * @param key          the namespaced command key to resolve
+   * @param executor     the command executor to assign
+   * @param tabCompleter the tab completer to assign, or {@code null} to leave it
+   *                     unchanged
+   * @return {@code true} if the command was updated successfully; {@code false}
+   *         if the key is {@code null}
    */
   public static boolean register(final NamespacedKey key, final CommandExecutor executor,
       final TabCompleter tabCompleter) {
@@ -299,7 +310,8 @@ public class CommandAPI {
    * Unregisters a command by key from the server command map.
    *
    * @param key the command key to unregister
-   * @return {@code true} if the command was removed or not present; {@code false} on failure
+   * @return {@code true} if the command was removed or not present; {@code false}
+   *         on failure
    */
   public static boolean unregister(final String key) {
     try {
@@ -322,7 +334,8 @@ public class CommandAPI {
    * Unregisters a command by namespaced key from the server command map.
    *
    * @param key the namespaced command key to unregister
-   * @return {@code true} if the command was removed or not present; {@code false} on failure
+   * @return {@code true} if the command was removed or not present; {@code false}
+   *         on failure
    */
   public static boolean unregister(final NamespacedKey key) {
     return key == null ? true : unregister(key.toString());
@@ -332,7 +345,8 @@ public class CommandAPI {
    * Unregisters a simple command and its aliases from the server command map.
    *
    * @param command the command to unregister
-   * @return {@code true} if the command was removed or not present; {@code false} on failure
+   * @return {@code true} if the command was removed or not present; {@code false}
+   *         on failure
    */
   public static boolean unregister(final SimpleCommand command) {
     if (command == null) {
@@ -365,9 +379,11 @@ public class CommandAPI {
   /**
    * Unregisters a Bukkit command and its aliases from the server command map.
    *
-   * @param command the command to unregister
-   * @param namespace the namespace the command was registered under, or {@code null} to use the default namespace
-   * @return {@code true} if the command was removed or not present; {@code false} on failure
+   * @param command   the command to unregister
+   * @param namespace the namespace the command was registered under, or
+   *                  {@code null} to use the default namespace
+   * @return {@code true} if the command was removed or not present; {@code false}
+   *         on failure
    */
   public static boolean unregister(final Command command, String namespace) {
     if (command == null) {
@@ -398,7 +414,8 @@ public class CommandAPI {
    * Unregisters all commands registered under the specified namespace.
    *
    * @param namespace the namespace to unregister
-   * @return {@code true} if all matching commands were unregistered successfully; {@code false} otherwise
+   * @return {@code true} if all matching commands were unregistered successfully;
+   *         {@code false} otherwise
    */
   public static boolean unregisterAll(final String namespace) {
     if (namespace == null || namespace.isEmpty()) {
@@ -417,7 +434,8 @@ public class CommandAPI {
   /**
    * Unregisters all commands from the server command map.
    *
-   * @return {@code true} if the command map was cleared successfully; {@code false} otherwise
+   * @return {@code true} if the command map was cleared successfully;
+   *         {@code false} otherwise
    */
   public static boolean unregisterAll() {
     try {
@@ -545,9 +563,9 @@ public class CommandAPI {
   /**
    * Dispatches a simple command through the shared command handler.
    *
-   * @param sender the command sender, or {@code null} to use the console sender
+   * @param sender  the command sender, or {@code null} to use the console sender
    * @param command the command to execute
-   * @param args the command arguments
+   * @param args    the command arguments
    * @return {@code true} if the command was handled; {@code false} otherwise
    */
   public static boolean dispatch(CommandSender sender, final SimpleCommand command, final String[] args) {
@@ -565,9 +583,10 @@ public class CommandAPI {
    * Dispatches a command by label using Bukkit's command execution flow.
    *
    * @param sender the command sender, or {@code null} to use the console sender
-   * @param label the command label to execute
-   * @param args the full argument array, including the label at index {@code 0}
-   * @return {@code true} if the command executed successfully; {@code false} if no command was found
+   * @param label  the command label to execute
+   * @param args   the full argument array, including the label at index {@code 0}
+   * @return {@code true} if the command executed successfully; {@code false} if
+   *         no command was found
    * @throws CommandException if command execution fails
    */
   public static boolean dispatch(final CommandSender sender, final String label, final String[] args) {
@@ -590,7 +609,7 @@ public class CommandAPI {
    * Dispatches a simple command from the console sender.
    *
    * @param command the command to execute
-   * @param args the command arguments
+   * @param args    the command arguments
    * @return {@code true} if the command was handled; {@code false} otherwise
    */
   public static boolean dispatch(final SimpleCommand command, final String[] args) {
@@ -601,8 +620,10 @@ public class CommandAPI {
    * Dispatches a command by label from the console sender.
    *
    * @param command the command label to execute
-   * @param args the full argument array, including the label at index {@code 0}
-   * @return {@code true} if the command executed successfully; {@code false} if no command was found
+   * @param args    the full argument array, including the label at index
+   *                {@code 0}
+   * @return {@code true} if the command executed successfully; {@code false} if
+   *         no command was found
    */
   public static boolean dispatch(final String command, final String[] args) {
     return dispatch(Bukkit.getConsoleSender(), command, args);
@@ -611,9 +632,10 @@ public class CommandAPI {
   /**
    * Dispatches a raw command line from the specified sender.
    *
-   * @param sender the command sender
+   * @param sender      the command sender
    * @param commandLine the command line to parse and dispatch
-   * @return {@code true} if the command executed successfully; {@code false} otherwise
+   * @return {@code true} if the command executed successfully; {@code false}
+   *         otherwise
    */
   public static boolean dispatch(final CommandSender sender, final String commandLine) {
     final String[] args = commandLine.split(" ");
@@ -627,7 +649,8 @@ public class CommandAPI {
    * Dispatches a raw command line from the console sender.
    *
    * @param commandLine the command line to parse and dispatch
-   * @return {@code true} if the command executed successfully; {@code false} otherwise
+   * @return {@code true} if the command executed successfully; {@code false}
+   *         otherwise
    */
   public static boolean dispatch(final String commandLine) {
     return dispatch(Bukkit.getConsoleSender(), commandLine);
@@ -636,9 +659,9 @@ public class CommandAPI {
   /**
    * Dispatches a simple command asynchronously.
    *
-   * @param sender the command sender
+   * @param sender  the command sender
    * @param command the command to execute
-   * @param args the command arguments
+   * @param args    the command arguments
    */
   public static void dispatchAsync(final CommandSender sender, final SimpleCommand command, final String[] args) {
     GlobalScheduler.runAsync(() -> {
@@ -650,7 +673,7 @@ public class CommandAPI {
    * Dispatches a simple command asynchronously from the console sender.
    *
    * @param command the command to execute
-   * @param args the command arguments
+   * @param args    the command arguments
    */
   public static void dispatchAsync(final SimpleCommand command, final String[] args) {
     GlobalScheduler.runAsync(() -> {
@@ -662,8 +685,8 @@ public class CommandAPI {
    * Dispatches a command by label asynchronously.
    *
    * @param sender the command sender
-   * @param label the command label to execute
-   * @param args the full argument array, including the label at index {@code 0}
+   * @param label  the command label to execute
+   * @param args   the full argument array, including the label at index {@code 0}
    */
   public static void dispatchAsync(final CommandSender sender, final String label, final String[] args) {
     GlobalScheduler.runAsync(() -> {
@@ -675,7 +698,7 @@ public class CommandAPI {
    * Dispatches a command by label asynchronously from the console sender.
    *
    * @param label the command label to execute
-   * @param args the full argument array, including the label at index {@code 0}
+   * @param args  the full argument array, including the label at index {@code 0}
    */
   public static void dispatchAsync(final String label, final String[] args) {
     GlobalScheduler.runAsync(() -> {
@@ -686,7 +709,7 @@ public class CommandAPI {
   /**
    * Dispatches a raw command line asynchronously.
    *
-   * @param sender the command sender
+   * @param sender      the command sender
    * @param commandLine the command line to parse and dispatch
    */
   public static void dispatchAsync(final CommandSender sender, final String commandLine) {
@@ -719,9 +742,10 @@ public class CommandAPI {
   /**
    * Broadcasts an administrative command feedback message to eligible recipients.
    *
-   * @param source the sender that triggered the command
-   * @param message the message to broadcast
-   * @param sendToSource {@code true} to also send the message back to the source when applicable
+   * @param source       the sender that triggered the command
+   * @param message      the message to broadcast
+   * @param sendToSource {@code true} to also send the message back to the source
+   *                     when applicable
    */
   public static void broadcastCommandMessage(final CommandSender source, final String message,
       final boolean sendToSource) {

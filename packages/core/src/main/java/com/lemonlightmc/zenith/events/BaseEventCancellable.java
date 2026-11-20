@@ -20,7 +20,8 @@ public abstract class BaseEventCancellable extends BaseEvent implements Cancella
   /**
    * Creates a cancellable event with a default key and the specified async flag.
    *
-   * @param isAsync {@code true} if the event is asynchronous; {@code false} otherwise
+   * @param isAsync {@code true} if the event is asynchronous; {@code false}
+   *                otherwise
    */
   public BaseEventCancellable(final boolean isAsync) {
     this(null, isAsync);
@@ -38,12 +39,13 @@ public abstract class BaseEventCancellable extends BaseEvent implements Cancella
   /**
    * Creates a cancellable event with the specified key and async flag.
    *
-   * @param key the event key, or {@code null} to generate a default key
-   * @param isAsync {@code true} if the event is asynchronous; {@code false} otherwise
+   * @param key     the event key, or {@code null} to generate a default key
+   * @param isAsync {@code true} if the event is asynchronous; {@code false}
+   *                otherwise
    */
   public BaseEventCancellable(final NamespacedKey key, final boolean isAsync) {
     super(isAsync);
-    this.key = key == null ? new NamespacedKey(ZenithProvider.instance().getKey(), getClass().getSimpleName()) : key;
+    this.key = key == null ? new NamespacedKey(ZenithProvider.instance().namespace(), getClass().getSimpleName()) : key;
   }
 
   /**
@@ -57,7 +59,8 @@ public abstract class BaseEventCancellable extends BaseEvent implements Cancella
   /**
    * {@inheritDoc}
    *
-   * @param isCancelled {@code true} to cancel the event; {@code false} to allow it
+   * @param isCancelled {@code true} to cancel the event; {@code false} to allow
+   *                    it
    */
   @Override
   public void setCancelled(final boolean isCancelled) {

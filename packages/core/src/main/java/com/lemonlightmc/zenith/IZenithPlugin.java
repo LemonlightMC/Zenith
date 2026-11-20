@@ -17,6 +17,7 @@ import org.bukkit.plugin.ServicesManager;
 import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
 import com.lemonlightmc.zenith.additive.version.Version;
 import com.lemonlightmc.zenith.apis.MessageAPI;
+import com.lemonlightmc.zenith.data.Namespaced;
 import com.lemonlightmc.zenith.scheduler.Scheduler;
 
 /**
@@ -26,7 +27,7 @@ import com.lemonlightmc.zenith.scheduler.Scheduler;
  * framework. Some Bukkit configuration and command-related methods are deprecated in favor of Zenith-managed
  * alternatives.
  */
-public interface IZenithPlugin extends Plugin {
+public interface IZenithPlugin extends Plugin, Namespaced {
 
   /**
    * Returns descriptive metadata for this plugin.

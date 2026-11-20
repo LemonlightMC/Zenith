@@ -5,6 +5,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.OptionalInt;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.plugin.Plugin;
+
+import com.lemonlightmc.zenith.IZenithPlugin;
 import com.lemonlightmc.zenith.exceptions.InvalidKeyException;
 
 /**
@@ -135,6 +139,40 @@ public record Key(@KeyPattern.Namespace String namespace, @KeyPattern.Value Stri
             return new Key(MINECRAFT_NAMESPACE, value);
         }
         return key(namespaced.namespace(), value);
+    }
+
+    /**
+     * Creates a key.
+     *
+     * @param namespaced the namespace source
+     * @param value      the value
+     * @return the key
+     * @throws InvalidKeyException if the namespace or value contains an invalid
+     *                             character
+     */
+    @SuppressWarnings("PatternValidation") // The namespace is tested later.
+    public static Key key(final Plugin plugin, @KeyPattern.Value final String value) {
+        if (plugin == null) {
+            return new Key(MINECRAFT_NAMESPACE, value);
+        }
+        return key(plugin.getName().toLowerCase(), value);
+    }
+
+    /**
+     * Creates a key.
+     *
+     * @param namespaced the namespace source
+     * @param value      the value
+     * @return the key
+     * @throws InvalidKeyException if the namespace or value contains an invalid
+     *                             character
+     */
+    @SuppressWarnings("PatternValidation") // The namespace is tested later.
+    public static Key key(final IZenithPlugin plugin, @KeyPattern.Value final String value) {
+        if (plugin == null) {
+            return new Key(MINECRAFT_NAMESPACE, value);
+        }
+        return new Key(plugin.namespace(), value);
     }
 
     /**
@@ -323,6 +361,10 @@ public record Key(@KeyPattern.Namespace String namespace, @KeyPattern.Value Stri
      */
     public String asMinimalString() {
         return KeyFormat.minecraft().asMinimalString(this);
+    }
+
+    public NamespacedKey toBukkit() {
+        return new NamespacedKey(namespace, value);
     }
 
     @Override

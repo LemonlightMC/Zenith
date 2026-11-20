@@ -2,8 +2,9 @@ package com.lemonlightmc.zenith.commands.executors;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -46,10 +47,12 @@ public class CommandHandler<S, C extends CommandSource<S>> {
       }
       final ExecutionInfo<S> info = new ExecutionInfo<S>(source, cmdArgs);
       cmd.run(info, 0);
+    } catch (final CommandException ex) {
+      throw ex;
     } catch (final Throwable ex) {
       throw new CommandException(
           "Exception while executing command '" +
-              cmd.getName() +
+              (cmd == null ? "null" : cmd.getName()) +
               "' in plugin " +
               ZenithProvider.instance().getFullName(),
           ex);
@@ -69,8 +72,8 @@ public class CommandHandler<S, C extends CommandSource<S>> {
       if (cmdArgs == null) {
         return List.of();
       }
-      final SuggestionInfo<S> info = new SuggestionInfo<S>(source, cmdArgs,
-          cmdArgs.getLastRaw());
+      final String token = args.length > 0 ? args[args.length - 1] : "";
+      final SuggestionInfo<S> info = new SuggestionInfo<S>(source, cmdArgs, token);
 
       final List<Suggestions<S>> temp = cmd.tabComplete(info, 0);
       if (temp == null) {
@@ -85,17 +88,16 @@ public class CommandHandler<S, C extends CommandSource<S>> {
           }
         }
       }
-      final String token = args.length > 0 ? args[args.length - 1] : null;
-      tabCompletions.removeIf(s -> s == null || s.length() == 0 || token != null && !startsWithIgnoreCase(s, token));
+      tabCompletions.removeIf(s -> s == null || s.isEmpty() || !startsWithIgnoreCase(s, token));
       if (tabCompletions.size() > MAX_TABCOMPLETIONS) {
-        return tabCompletions.subList(0, MAX_TABCOMPLETIONS);
+        return new ArrayList<>(tabCompletions.subList(0, MAX_TABCOMPLETIONS));
       } else {
         return tabCompletions;
       }
     } catch (final Throwable ex) {
       final StringBuilder message = new StringBuilder("Unhandled exception during tab completion for command '/");
       message
-          .append(cmd.getName().toString())
+          .append(cmd == null ? "null" : cmd.getName())
           .append(' ')
           .append(String.join(" ", args))
           .append("' in plugin ")
@@ -130,15 +132,14 @@ public class CommandHandler<S, C extends CommandSource<S>> {
       }
     }
 
-    final Map<String, ParsedArgument> parsedArgs = new HashMap<>();
+    final Map<String, ParsedArgument> parsedArgs = new LinkedHashMap<>();
     for (final Argument<?, ?, S> arg : thisCmd.getArguments()) {
       if (!arg.checkRequirements(source)) {
         return null;
       }
+      reader.skipWhitespace();
       final Object value = _parseArg(reader, source, arg);
-      if (!arg.isListed()) {
-        parsedArgs.put(arg.getName(), new ParsedArgument(arg.getName(), reader.getLastRead(), value));
-      }
+      parsedArgs.put(arg.getName(), new ParsedArgument(arg.getName(), reader.getLastRead(), value));
     }
     return new CommandArguments(parsedArgs, reader.getString());
   }
@@ -153,7 +154,6 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     } catch (final CommandSyntaxException e) {
       source.sendError(e);
       reader.resetCursor();
-
     } catch (final Exception e) {
       source.sendError(arg.createError(reader, reader.getLastRead()));
       reader.resetCursor();
@@ -162,7 +162,11 @@ public class CommandHandler<S, C extends CommandSource<S>> {
   }
 
   private boolean _isSubCommand(final String arg, final AbstractCommand<?, S> sub) {
-    return sub.getAliases().contains(arg);
+    if (arg == null) {
+      return false;
+    }
+    final String key = arg.toLowerCase(Locale.ROOT);
+    return sub.getAliases().contains(key) || sub.getAliases().contains(arg);
   }
 
   private static boolean startsWithIgnoreCase(
@@ -179,7 +183,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
   }
 
   public boolean shouldHandle(final RootCommand<?, S> cmd, final S sender, final String label) {
-    if (sender == null) {
+    if (sender == null || cmd == null) {
       return false;
     }
     if (!ZenithProvider.instance().isEnabled()) {
@@ -191,10 +195,14 @@ public class CommandHandler<S, C extends CommandSource<S>> {
               " - plugin is disabled.");
       return false;
     }
-    if (label == null || label.isBlank() || (!cmd.getKey().equals(label) || !cmd.getAliases().contains(label))) {
+    if (label == null || label.isBlank()) {
       return false;
     }
-    return true;
+    final String normalized = label.toLowerCase(Locale.ROOT);
+    final String key = cmd.getKey() == null ? null : cmd.getKey().toLowerCase(Locale.ROOT);
+    return (key != null && key.equals(normalized))
+        || cmd.getAliases().contains(normalized)
+        || cmd.getAliases().contains(label);
   }
 
 }

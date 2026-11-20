@@ -14,11 +14,11 @@ import com.lemonlightmc.zenith.additive.math.ranges.LongRange;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
-import com.lemonlightmc.zenith.commands.argumentsbase.LocationType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException.CommandSyntaxExceptionContainer;
 import com.lemonlightmc.zenith.math.Rotation;
+import com.lemonlightmc.zenith.unfinished.LocationType;
 
 /**
  * Argument types for numeric values, ranges, locations, axes, and rotations.

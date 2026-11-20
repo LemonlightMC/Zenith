@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -88,7 +89,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     if (arg == null) {
       return getInstance();
     }
-    if (arguments.getLast().getType().isGreedy()) {
+    if (!arguments.isEmpty() && arguments.get(arguments.size() - 1).getType().isGreedy()) {
       throw new GreedyArgumentException(arg.getName(), GreedyArgumentException.buildArgsStr(arguments));
     }
     for (final Argument<?, ?, S> tempArg : arguments) {
@@ -99,11 +100,20 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     if (optional != null) {
       arg.setOptional(optional);
     }
+
+    final boolean seenOptional = arguments.stream().anyMatch(Argument::isOptional);
     if (arg.isOptional()) {
       hasOptional = true;
-    } else if (!hasOptional) {
-      throw new OptionalArgumentException(arg.getName(), arguments.getLast().getName());
+    } else if (seenOptional) {
+      final Argument<?, ?, S> lastOptional = arguments.stream().filter(Argument::isOptional).reduce((a, b) -> b).orElse(null);
+      if (lastOptional != null) {
+        throw new OptionalArgumentException(arg.getName(), lastOptional.getName());
+      }
+      throw new OptionalArgumentException(arg.getName());
+    } else {
+      hasOptional = seenOptional;
     }
+
     arguments.add(arg);
     return getInstance();
   }
@@ -159,7 +169,13 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   }
 
   public T setArguments(final List<Argument<?, ?, S>> args) {
-    arguments = args;
+    arguments.clear();
+    hasOptional = false;
+    if (args != null && !args.isEmpty()) {
+      for (final Argument<?, ?, S> arg : args) {
+        withArguments(arg, null);
+      }
+    }
     return getInstance();
   }
 
@@ -177,14 +193,23 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   }
 
   public List<Argument<?, ?, S>> getOptionalArguments() {
-    final List<Argument<?, ?, S>> list = List.copyOf(arguments);
-    list.removeIf(a -> !a.isOptional());
+    final List<Argument<?, ?, S>> list = new ArrayList<>();
+    for (final Argument<?, ?, S> argument : arguments) {
+      if (argument.isOptional()) {
+        list.add(argument);
+      }
+    }
     return list;
+  }
+
+  private void recomputeHasOptional() {
+    hasOptional = arguments.stream().anyMatch(Argument::isOptional);
   }
 
   public T removeArguments(final Collection<Argument<?, ?, S>> args) {
     if (args != null && !args.isEmpty()) {
       arguments.removeAll(args);
+      recomputeHasOptional();
     }
     return getInstance();
   }
@@ -193,12 +218,14 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   public final T removeArguments(final Argument<?, ?, S>... args) {
     if (args != null && args.length != 0) {
       arguments.removeAll(List.of(args));
+      recomputeHasOptional();
     }
     return getInstance();
   }
 
   public T clearArguments() {
     arguments.clear();
+    hasOptional = false;
     return getInstance();
   }
 
@@ -232,13 +259,22 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   }
 
   public boolean isSubcommand(final String sub) {
-    return sub != null && sub.length() != 0
-        && subcommands.stream().anyMatch((s) -> s.getAliases().contains(sub));
+    if (sub == null || sub.length() == 0) {
+      return false;
+    }
+    final String key = sub.toLowerCase();
+    return subcommands.stream().anyMatch((s) -> s.getAliases().contains(key) || s.getAliases().contains(sub));
   }
 
   public SimpleSubCommand<S> getSubcommand(final String sub) {
-    return sub == null || sub.length() == 0 || subcommands.isEmpty() ? null
-        : subcommands.stream().filter((s) -> s.getAliases().contains(sub)).findFirst().orElse(null);
+    if (sub == null || sub.length() == 0 || subcommands.isEmpty()) {
+      return null;
+    }
+    final String key = sub.toLowerCase();
+    return subcommands.stream()
+        .filter((s) -> s.getAliases().contains(key) || s.getAliases().contains(sub))
+        .findFirst()
+        .orElse(null);
   }
 
   public List<SimpleSubCommand<S>> getSubcommands() {
@@ -410,30 +446,38 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   }
 
   public List<Suggestions<S>> tabComplete(final SuggestionInfo<S> info, int idx) {
-    if (arguments.isEmpty()) {
-      if (subcommands.isEmpty()) {
-        return null;
-      }
-      final List<String> list = new ArrayList<>();
-      for (final SimpleSubCommand<S> sub : subcommands) {
-        for (final String string : sub.aliases) {
-          list.add(string);
-        }
-      }
-      return List.of(Suggestions.from(list));
-    }
-    if (idx >= 0) {
-      final String subStr = info.args().getRaw(idx);
-      final SimpleSubCommand<S> sub = getSubcommand(subStr);
-      if (sub != null) {
-        return sub.tabComplete(info, idx + 1);
-      }
-      idx = 0 - (info.args().count() - idx);
-    }
-    if (idx == 0) {
+    if (arguments.isEmpty() && subcommands.isEmpty()) {
       return null;
     }
-    final Argument<?, ?, S> arg = arguments.get(Math.abs(idx + 1));
+
+    if (idx >= 0) {
+      if (idx < info.args().count()) {
+        final String subStr = info.args().getRaw(idx);
+        final SimpleSubCommand<S> sub = getSubcommand(subStr);
+        if (sub != null) {
+          return sub.tabComplete(info, idx + 1);
+        }
+      }
+      if (!subcommands.isEmpty() && idx == 0) {
+        final List<String> list = new ArrayList<>();
+        for (final SimpleSubCommand<S> sub : subcommands) {
+          list.addAll(sub.getAliases());
+        }
+        if (!list.isEmpty()) {
+          return List.of(Suggestions.from(list));
+        }
+      }
+      if (arguments.isEmpty()) {
+        return null;
+      }
+      idx = -(info.args().count() - idx);
+    }
+
+    final int argIndex = Math.abs(idx + 1);
+    if (argIndex < 0 || argIndex >= arguments.size()) {
+      return null;
+    }
+    final Argument<?, ?, S> arg = arguments.get(argIndex);
     return arg == null ? null : arg.getSuggestions();
   }
 
@@ -445,13 +489,8 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
 
   @Override
   public int hashCode() {
-    int result = 31 * super.hashCode() + ((arguments == null) ? 0 : arguments.hashCode());
-    result = 31 * result + ((subcommands == null) ? 0 : subcommands.hashCode());
-    result = 31 * result + ((aliases == null) ? 0 : aliases.hashCode());
-    result = 31 * result + ((requirements == null) ? 0 : requirements.hashCode());
-    result = 31 * result + ((shortDescription == null) ? 0 : shortDescription.hashCode());
-    result = 31 * result + ((fullDescription == null) ? 0 : fullDescription.hashCode());
-    return 31 * result + (hasOptional ? 1231 : 1237);
+    return Objects.hash(super.hashCode(), arguments, subcommands, aliases, requirements, shortDescription, fullDescription,
+        hasOptional);
   }
 
   @Override
@@ -459,22 +498,16 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (!super.equals(obj) || getClass() != obj.getClass()) {
+    if (obj == null || !super.equals(obj) || getClass() != obj.getClass()) {
       return false;
     }
     final AbstractCommand<?, ?> other = (AbstractCommand<?, ?>) obj;
-    if (arguments == null && other.arguments != null || subcommands == null && other.subcommands != null
-        || aliases == null && other.aliases != null || requirements == null && other.requirements != null
-        || fullDescription == null && other.fullDescription != null
-        || shortDescription == null && other.shortDescription != null) {
-      return false;
-    }
-    return hasOptional == other.hasOptional && fullDescription.equals(other.fullDescription)
-        && shortDescription.equals(other.shortDescription)
-        && arguments.equals(other.arguments) && subcommands.equals(other.subcommands) && aliases.equals(other.aliases)
-        && requirements.equals(other.requirements);
+    return hasOptional == other.hasOptional
+        && Objects.equals(arguments, other.arguments)
+        && Objects.equals(subcommands, other.subcommands)
+        && Objects.equals(aliases, other.aliases)
+        && Objects.equals(requirements, other.requirements)
+        && Objects.equals(shortDescription, other.shortDescription)
+        && Objects.equals(fullDescription, other.fullDescription);
   }
 }

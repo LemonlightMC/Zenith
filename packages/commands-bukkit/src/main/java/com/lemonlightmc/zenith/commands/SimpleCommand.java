@@ -179,7 +179,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @return this command
    */
   @Override
-  public SimpleCommand setNamespacey(final String namespace) {
+  public SimpleCommand setNamespace(final String namespace) {
     setName(new NamespacedKey(namespace, getKey()));
     return this;
   }
@@ -192,7 +192,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   @Override
   public SimpleCommand withUsage(final String usage) {
-    this.usageDescription = usage.split("\n");
+    this.usageDescription = usage == null ? null : usage.split("\n");
     return this;
   }
 
@@ -216,7 +216,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   @Override
   public SimpleCommand withUsage(final List<String> usage) {
-    this.usageDescription = usage.toArray(String[]::new);
+    this.usageDescription = usage == null ? null : usage.toArray(String[]::new);
     return this;
   }
 
@@ -418,7 +418,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @param executor the proxy command executor
    * @return this command
    */
-  public SimpleCommand executesNative(final ProxyCommandExecutor executor) {
+  public SimpleCommand executesProxy(final ProxyCommandExecutor executor) {
     addExecutor(ExecutorType.PROXY, executor);
     return getInstance();
   }
@@ -429,7 +429,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @param info the proxy execution info handler
    * @return this command
    */
-  public SimpleCommand executesNative(final ProxyExecutionInfo info) {
+  public SimpleCommand executesProxy(final ProxyExecutionInfo info) {
     addExecutor(ExecutorType.PROXY, info);
     return getInstance();
   }
@@ -487,17 +487,21 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
       usageDescription = buildUsageString("/", this).toArray(String[]::new);
     }
     if (helpMessage == null) {
-      final StringBuilder builder = new StringBuilder(shortDescription);
+      final StringBuilder builder = new StringBuilder();
+      builder.append(shortDescription == null ? "" : shortDescription);
+      if (shortDescription != null && !shortDescription.isBlank()) {
+        builder.append('\n');
+      }
       builder.append("Description: ");
-      builder.append(fullDescription);
-      if (usageDescription != null) {
+      builder.append(fullDescription == null ? "" : fullDescription);
+      if (usageDescription != null && usageDescription.length > 0) {
         builder.append("\nUsage:");
         for (final String usageLine : usageDescription) {
           builder.append(" ");
           builder.append(usageLine);
         }
       }
-      builder.append("\nAliases: " + String.join(", ", aliases));
+      builder.append("\nAliases: ").append(String.join(", ", aliases));
       helpMessage = builder.toString();
     }
   }
@@ -518,9 +522,8 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 
   @Override
   public int hashCode() {
-    int result = 31 * super.hashCode() + key.hashCode();
+    int result = Objects.hash(super.hashCode(), key, helpMessage);
     result = 31 * result + Arrays.hashCode(usageDescription);
-    result = 31 * result + ((helpMessage == null) ? 0 : helpMessage.hashCode());
     return result;
   }
 
@@ -533,10 +536,8 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
       return false;
     }
     final SimpleCommand other = (SimpleCommand) obj;
-    if (helpMessage == null && other.helpMessage != null) {
-      return false;
-    }
-    return key.equals(other.key) && Arrays.equals(usageDescription, other.usageDescription)
+    return Objects.equals(key, other.key)
+        && Arrays.equals(usageDescription, other.usageDescription)
         && Objects.equals(helpMessage, other.helpMessage);
   }
 

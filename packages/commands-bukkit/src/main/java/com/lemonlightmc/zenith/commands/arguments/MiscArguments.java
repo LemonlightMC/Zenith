@@ -18,10 +18,10 @@ import com.lemonlightmc.zenith.additive.time.DurationParser;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
-import com.lemonlightmc.zenith.commands.argumentsbase.LookAnchor;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.math.MathOperation;
+import com.lemonlightmc.zenith.unfinished.LookAnchor;
 
 /**
  * Miscellaneous argument types for common Bukkit and utility values.

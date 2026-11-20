@@ -12,9 +12,9 @@ import org.bukkit.scoreboard.Team;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
-import com.lemonlightmc.zenith.commands.argumentsbase.ScoreboardSlot;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.unfinished.ScoreboardSlot;
 
 /**
  * Argument types for scoreboard-related values.

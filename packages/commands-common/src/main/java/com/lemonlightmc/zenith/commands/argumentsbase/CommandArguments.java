@@ -3,6 +3,7 @@ package com.lemonlightmc.zenith.commands.argumentsbase;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,9 +17,10 @@ public class CommandArguments {
 
   public CommandArguments(
       final Map<String, ParsedArgument> argsMap, final String fullInput) {
-    this.args = argsMap.values().toArray(ParsedArgument[]::new);
-    this.argsMap = argsMap;
-    this.fullInput = fullInput;
+    final Map<String, ParsedArgument> ordered = argsMap == null ? new LinkedHashMap<>() : new LinkedHashMap<>(argsMap);
+    this.args = ordered.values().toArray(ParsedArgument[]::new);
+    this.argsMap = ordered;
+    this.fullInput = fullInput == null ? "" : fullInput;
   }
 
   public String getFullInput() {
@@ -43,15 +45,15 @@ public class CommandArguments {
 
   // normal
   public Object get(final int index) {
-    if (args.length <= index) {
+    if (index < 0 || args.length <= index) {
       return null;
-    } else {
-      return args[index] == null ? null : args[index].value();
     }
+    return args[index] == null ? null : args[index].value();
   }
 
   public Object get(final String nodeName) {
-    return argsMap.get(nodeName);
+    final ParsedArgument v = argsMap.get(nodeName);
+    return v == null ? null : v.value();
   }
 
   public Object getLast() {
@@ -83,29 +85,23 @@ public class CommandArguments {
   }
 
   public Object getOrDefault(final int index, final Object defaultValue) {
-    if (args.length <= index) {
-      return defaultValue;
-    } else {
-      return args[index] == null ? null : args[index].value();
-    }
+    final Object value = get(index);
+    return value == null ? defaultValue : value;
   }
 
   public Object getOrDefault(final String nodeName, final Object defaultValue) {
-    final ParsedArgument v = argsMap.get(nodeName);
-    return v == null ? defaultValue : v.value();
+    final Object value = get(nodeName);
+    return value == null ? defaultValue : value;
   }
 
   public Object getOrDefault(final int index, final Supplier<?> defaultValue) {
-    if (args.length <= index) {
-      return defaultValue.get();
-    } else {
-      return args[index] == null ? null : args[index].value();
-    }
+    final Object value = get(index);
+    return value == null ? defaultValue.get() : value;
   }
 
   public Object getOrDefault(final String nodeName, final Supplier<?> defaultValue) {
-    final ParsedArgument v = argsMap.get(nodeName);
-    return v == null ? defaultValue.get() : v.value();
+    final Object value = get(nodeName);
+    return value == null ? defaultValue.get() : value;
   }
 
   public Object getLastOrDefault(final Object defaultValue) {
@@ -120,11 +116,10 @@ public class CommandArguments {
 
   // raw
   public String getRaw(final int index) {
-    if (args.length <= index) {
+    if (index < 0 || args.length <= index) {
       return null;
-    } else {
-      return args[index] == null ? null : args[index].raw();
     }
+    return args[index] == null ? null : args[index].raw();
   }
 
   public String getRaw(final String nodeName) {
@@ -161,31 +156,25 @@ public class CommandArguments {
   }
 
   public String getOrDefaultRaw(final int index, final String defaultValue) {
-    if (args.length <= index) {
-      return defaultValue;
-    } else {
-      return args[index] == null ? null : args[index].raw();
-    }
+    final String value = getRaw(index);
+    return value == null ? defaultValue : value;
   }
 
   public String getOrDefaultRaw(final String nodeName, final String defaultValue) {
-    final ParsedArgument v = argsMap.get(nodeName);
-    return v == null ? defaultValue : v.raw();
+    final String value = getRaw(nodeName);
+    return value == null ? defaultValue : value;
   }
 
   public String getOrDefaultRaw(final int index, final Supplier<String> defaultValue) {
-    if (args.length <= index) {
-      return defaultValue.get();
-    } else {
-      return args[index] == null ? null : args[index].raw();
-    }
+    final String value = getRaw(index);
+    return value == null ? defaultValue.get() : value;
   }
 
   public String getOrDefaultRaw(
       final String nodeName,
       final Supplier<String> defaultValue) {
-    final ParsedArgument v = argsMap.get(nodeName);
-    return v == null ? defaultValue.get() : v.raw();
+    final String value = getRaw(nodeName);
+    return value == null ? defaultValue.get() : value;
   }
 
   public String getRawLastOrDefault(final String defaultValue) {
@@ -346,10 +335,9 @@ public class CommandArguments {
       return false;
     }
     final CommandArguments other = (CommandArguments) obj;
-    if (argsMap == null && other.argsMap != null || fullInput == null && other.fullInput != null) {
-      return false;
-    }
-    return argsMap.equals(other.argsMap) && fullInput.equals(other.fullInput) && equalsArgs(args, other.args);
+    return Objects.equals(argsMap, other.argsMap)
+        && Objects.equals(fullInput, other.fullInput)
+        && Arrays.equals(args, other.args);
   }
 
   @Override
@@ -357,30 +345,7 @@ public class CommandArguments {
     return "CommandArguments [args=" + Arrays.toString(args) + ",fullInput=" + fullInput + "]";
   }
 
-  private static boolean equalsArgs(
-      final ParsedArgument[] a1,
-      final ParsedArgument[] a2) {
-    if (a1 == a2)
-      return true;
-    if (a1 == null || a2 == null)
-      return false;
-    final int length = a1.length;
-    if (a2.length != length)
-      return false;
 
-    for (int i = 0; i < length; i++) {
-      final ParsedArgument e1 = a1[i];
-      final ParsedArgument e2 = a2[i];
-
-      if (e1 == e2)
-        continue;
-      if (e1 == null)
-        return false;
-      if (!e1.equals(e2))
-        return false;
-    }
-    return true;
-  }
 
   @SuppressWarnings("unchecked")
   private static <T> T castArgument(

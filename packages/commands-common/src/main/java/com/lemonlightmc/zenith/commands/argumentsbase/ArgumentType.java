@@ -102,7 +102,10 @@ public enum ArgumentType {
   }
 
   public boolean isPrimitive() {
-    return this.name().startsWith("PRIMITIVE_");
+    return switch (this) {
+      case BOOLEAN, DOUBLE, FLOAT, INTEGER, LONG -> true;
+      default -> false;
+    };
   }
 
   public boolean isList() {

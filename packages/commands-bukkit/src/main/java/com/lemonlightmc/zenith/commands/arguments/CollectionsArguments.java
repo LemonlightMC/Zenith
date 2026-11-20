@@ -124,7 +124,7 @@ public class CollectionsArguments {
       for (final String tempKey : keys) {
         final T v = mapping.get(tempKey);
         if (v == null) {
-          throw INVALID_ENTRY.createWithContext(reader, v);
+          throw INVALID_ENTRY.createWithContext(reader, tempKey);
         }
         values.add(v);
       }
@@ -245,7 +245,7 @@ public class CollectionsArguments {
       for (final String tempKey : keys) {
         final T v = mapping.get(tempKey);
         if (v == null) {
-          throw INVALID_ENTRY.createWithContext(reader, v);
+          throw INVALID_ENTRY.createWithContext(reader, tempKey);
         }
         values.add(v);
       }

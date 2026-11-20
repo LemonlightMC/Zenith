@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.bukkit.NamespacedKey;
 
-import com.lemonlightmc.zenith.commands.executors.RootCommand;
-
 public abstract class RootCommand<T extends RootCommand<T, S>, S> extends AbstractCommand<T, S> {
 
   @Override
@@ -28,7 +26,7 @@ public abstract class RootCommand<T extends RootCommand<T, S>, S> extends Abstra
 
   public abstract T setKey(String key);
 
-  public abstract T setNamespacey(String namespace);
+  public abstract T setNamespace(String namespace);
 
   public abstract T withUsage(String usage);
 

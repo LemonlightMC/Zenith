@@ -3,6 +3,7 @@ package com.lemonlightmc.zenith.commands.argumentsbase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import com.lemonlightmc.zenith.commands.CommandRequirement;
@@ -200,35 +201,25 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
 
   @Override
   public int hashCode() {
-    int result = 31 + name.hashCode();
-    result = 31 * result + rawType.hashCode();
-    result = 31 * result + primitiveType.hashCode();
-    result = 31 * result + ((requirements == null) ? 0 : suggestions.hashCode());
-    result = 31 * result + ((suggestions == null) ? 0 : suggestions.hashCode());
-    result = 31 * result + (isOptional ? 1231 : 1237);
-    return 31 * result + (isListed ? 1231 : 1237);
+    return Objects.hash(name, rawType, primitiveType, isOptional, isListed, requirements, suggestions);
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (getInstance() == obj) {
+    if (this == obj) {
       return true;
     }
-    if (obj == null || getInstance().getClass() != obj.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     final Argument<?, ?, ?> other = (Argument<?, ?, ?>) obj;
-    if (name == null && other.name != null || rawType == null && other.rawType != null
-        || primitiveType == null && other.primitiveType != null || requirements == null && other.requirements != null
-        || suggestions == null && other.suggestions != null) {
-      return false;
-    }
-    return isListed == other.isListed && isOptional == other.isOptional
+    return isOptional == other.isOptional
+        && isListed == other.isListed
         && rawType == other.rawType
-        && name.equals(other.name) && name.equals(other.name)
-        && primitiveType.equals(other.primitiveType)
-        && requirements.equals(other.requirements)
-        && suggestions.equals(other.suggestions);
+        && Objects.equals(name, other.name)
+        && Objects.equals(primitiveType, other.primitiveType)
+        && Objects.equals(requirements, other.requirements)
+        && Objects.equals(suggestions, other.suggestions);
   }
 
   @Override

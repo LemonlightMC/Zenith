@@ -125,11 +125,11 @@ public class CommandRequirement<C extends CommandSource> implements Cloneable<Co
   }
 
   public void show() {
-    this.visible = false;
+    this.visible = true;
   }
 
   public void hide() {
-    this.visible = true;
+    this.visible = false;
   }
 
   @Override
@@ -139,9 +139,7 @@ public class CommandRequirement<C extends CommandSource> implements Cloneable<Co
 
   @Override
   public int hashCode() {
-    int result = 31 + predicate.hashCode();
-    result = 31 * result + message.hashCode();
-    return 31 * result + (visible ? 1231 : 1237);
+    return java.util.Objects.hash(predicate, message, visible);
   }
 
   @Override
@@ -153,12 +151,14 @@ public class CommandRequirement<C extends CommandSource> implements Cloneable<Co
       return false;
     }
     final CommandRequirement<?> other = (CommandRequirement<?>) obj;
-    return predicate.equals(other.predicate) && message.equals(other.message) && visible == other.visible;
+    return visible == other.visible
+        && java.util.Objects.equals(predicate, other.predicate)
+        && java.util.Objects.equals(message, other.message);
   }
 
   @Override
   public String toString() {
-    return "CommandRequirement [predicate=" + predicate + ", message=" + message + ", hide=" + visible + "]";
+    return "CommandRequirement [predicate=" + predicate + ", message=" + message + ", visible=" + visible + "]";
   }
 
 }

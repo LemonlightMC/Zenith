@@ -61,10 +61,11 @@ public class StringReader {
       symbol -> "Expected '" + symbol + "'");
 
   public StringReader(final StringReader other) {
-    if (other == null || other.string == null || other.string.length() == 0) {
-      throw new IllegalArgumentException("Cant create a new StringReader from an empty StringReader");
+    if (other == null) {
+      throw new IllegalArgumentException("Cant create a new StringReader from a null StringReader");
     }
-    this.string = other.string;
+    this.string = other.string == null ? "" : other.string;
+    this.points.addAll(other.points);
     setCursor(other.cursor);
   }
 
@@ -73,10 +74,7 @@ public class StringReader {
   }
 
   public StringReader(final String string, final int cursor) {
-    if (string == null || string.length() == 0) {
-      throw new IllegalArgumentException("String for StringReader cant be empty");
-    }
-    this.string = string;
+    this.string = string == null ? "" : string;
     setCursor(cursor);
   }
 
@@ -119,7 +117,11 @@ public class StringReader {
   }
 
   public void setCursor(final int cursor) {
-    this.cursor = cursor < 0 ? 0 : cursor;
+    if (cursor < 0) {
+      this.cursor = 0;
+    } else {
+      this.cursor = Math.min(cursor, string.length());
+    }
   }
 
   public int getCursor() {
@@ -138,11 +140,11 @@ public class StringReader {
     if (points.isEmpty()) {
       return;
     }
-    cursor = points.pollLast();
+    cursor = points.pop();
   }
 
   public int getPoint() {
-    return points.getLast();
+    return points.isEmpty() ? 0 : points.peek();
   }
 
   public Integer[] getAllPoints() {
@@ -150,7 +152,9 @@ public class StringReader {
   }
 
   public void revokePoint() {
-    points.pollLast();
+    if (!points.isEmpty()) {
+      points.pop();
+    }
   }
 
   public int getRemainingLength() {
@@ -174,7 +178,9 @@ public class StringReader {
   }
 
   public String getLastRead() {
-    return string.substring(getPoint(), cursor);
+    final int start = points.isEmpty() ? 0 : points.peek();
+    final int safeStart = Math.max(0, Math.min(start, cursor));
+    return string.substring(safeStart, cursor);
   }
 
   public boolean canRead(final int length) {
@@ -233,79 +239,82 @@ public class StringReader {
   }
 
   public long readLong() throws CommandSyntaxException {
-    point();
+    final int start = cursor;
     while (canRead() && isNumber(peek())) {
       skip();
     }
-    final String number = string.substring(getPoint(), cursor);
+    final String number = string.substring(start, cursor);
     if (number.isEmpty()) {
       throw READER_EXPECTED_LONG.createWithContext(this);
     }
     try {
       return NumberConversions.parseLong(number);
     } catch (final NumberFormatException ex) {
-      resetCursor();
+      cursor = start;
       throw READER_INVALID_LONG.createWithContext(this, number);
     }
   }
 
   public double readDouble() throws CommandSyntaxException {
-    point();
+    final int start = cursor;
     while (canRead() && isNumber(peek())) {
       skip();
     }
-    final String number = string.substring(getPoint(), cursor);
+    final String number = string.substring(start, cursor);
     if (number.isEmpty()) {
       throw READER_EXPECTED_DOUBLE.createWithContext(this);
     }
     try {
       return NumberConversions.parseDouble(number);
     } catch (final NumberFormatException ex) {
-      resetCursor();
+      cursor = start;
       throw READER_INVALID_DOUBLE.createWithContext(this, number);
     }
   }
 
   public float readFloat() throws CommandSyntaxException {
-    point();
+    final int start = cursor;
     while (canRead() && isNumber(peek())) {
       skip();
     }
-    final String number = string.substring(getPoint(), cursor);
+    final String number = string.substring(start, cursor);
     if (number.isEmpty()) {
       throw READER_EXPECTED_FLOAT.createWithContext(this);
     }
     try {
       return NumberConversions.parseFloat(number);
     } catch (final NumberFormatException ex) {
-      resetCursor();
+      cursor = start;
       throw READER_INVALID_FLOAT.createWithContext(this, number);
     }
   }
 
   public boolean readBoolean() throws CommandSyntaxException {
-    point();
+    final int start = cursor;
     final String value = readString();
     if (value.isEmpty()) {
+      cursor = start;
       throw READER_EXPECTED_BOOL.createWithContext(this);
     }
 
-    if (value.equals("true")) {
+    if ("true".equals(value)) {
       return true;
-    } else if (value.equals("false")) {
+    } else if ("false".equals(value)) {
       return false;
     } else {
-      resetCursor();
+      cursor = start;
       throw READER_INVALID_BOOL.createWithContext(this, value);
     }
   }
 
   public String readRange() throws CommandSyntaxException {
+    final int start = cursor;
     while (canRead() && isNumber(peek())) {
       skip();
     }
-    final String number = string.substring(getPoint(), cursor);
+    final String number = string.substring(start, cursor);
     if (number.isEmpty()) {
+      cursor = start;
       throw READER_EXPECTED_RANGE.createWithContext(this);
     }
     return number;
@@ -405,10 +414,9 @@ public class StringReader {
       return false;
     }
     final StringReader other = (StringReader) obj;
-    if (string == null && other.string != null) {
-      return false;
-    }
-    return cursor == other.cursor && string.equals(other.string) && points.equals(other.points);
+    return cursor == other.cursor
+        && java.util.Objects.equals(string, other.string)
+        && java.util.Objects.equals(points, other.points);
   }
 
   @Override

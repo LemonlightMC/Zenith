@@ -24,9 +24,9 @@ import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
-import com.lemonlightmc.zenith.commands.argumentsbase.ParticleData;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.unfinished.ParticleData;
 
 /**
  * Argument types that resolve values from Bukkit registries and related APIs.

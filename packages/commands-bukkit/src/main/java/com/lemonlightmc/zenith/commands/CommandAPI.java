@@ -90,6 +90,7 @@ public class CommandAPI {
   public static Map<String, Command> getKnownCommandMap() {
     if (knownCommandMap == null) {
       try {
+        getCommandMap();
         final Object obj = KNOWN_COMMANDS_FIELD.get(commandMap);
         if (obj == null || !Map.class.isAssignableFrom(obj.getClass())) {
           throw new IllegalStateException("knownCommandsMap is not available");
@@ -108,6 +109,12 @@ public class CommandAPI {
    * @return the command namespace
    */
   public static String getNamespace() {
+    if (namespace == null || namespace.isEmpty()) {
+      try {
+        namespace = ZenithProvider.instance().getKey();
+      } catch (final Exception ignored) {
+      }
+    }
     return namespace;
   }
 
@@ -180,14 +187,11 @@ public class CommandAPI {
       if (command == null) {
         throw new IllegalArgumentException("Command cannot be null");
       }
-      if (command.getAliases().size() == 0) {
+      if (command.getAliases().isEmpty()) {
         throw new IllegalArgumentException("At least one alias must be provided");
       }
-      if (!command.hasExecutors() && (!command.getSubcommands().isEmpty() || command.hasArguments())) {
-        throw new MissingCommandExecutorException(command.getName().toString());
-      }
       command.build();
-      final InternalExecutor cmd = new InternalExecutor(command, true);
+      final InternalExecutor cmd = new InternalExecutor(command, false);
       return getCommandMap().register(cmd.getLabel(), cmd.getNamespace(), cmd);
     } catch (final Exception e) {
       GlobalLogger.warn("Failed to register a command: " + (command == null ? "null" : command.getName().toString()));
@@ -208,7 +212,7 @@ public class CommandAPI {
       if (command == null) {
         throw new IllegalArgumentException("Command cannot be null");
       }
-      if (command.getAliases().size() == 0) {
+      if (command.getAliases().isEmpty()) {
         throw new IllegalArgumentException("At least one alias must be provided");
       }
       namespace = namespace == null || namespace.isEmpty() ? getNamespace() : namespace;
@@ -301,11 +305,12 @@ public class CommandAPI {
     try {
       final Command command = getCommand(key);
       if (command == null) {
+        getKnownCommandMap().remove(key);
         return true;
       }
+      final boolean result = command.unregister(getCommandMap());
       getKnownCommandMap().remove(key);
-      command.unregister(getCommandMap());
-      return true;
+      return result;
     } catch (final Exception e) {
       GlobalLogger.warn("Failed to unregister a command: " + key);
       e.printStackTrace();
@@ -334,18 +339,22 @@ public class CommandAPI {
       return true;
     }
     try {
+      final Command cmd = getCommand(command.getName().toString());
+      boolean result = true;
+      if (cmd != null) {
+        result = cmd.unregister(getCommandMap());
+      }
+
       getKnownCommandMap().remove(command.getName().toString());
       getKnownCommandMap().remove(command.getKey());
+      final String ns = command.getNamespace();
       for (final String alias : command.getAliases()) {
         getKnownCommandMap().remove(alias);
-        getKnownCommandMap().remove(toNamespaced(getNamespace(), alias));
+        if (ns != null && !ns.isEmpty()) {
+          getKnownCommandMap().remove(toNamespaced(ns, alias));
+        }
       }
-      final Command cmd = getCommand(command.getName().toString());
-      if (cmd == null) {
-        return true;
-      }
-      cmd.unregister(getCommandMap());
-      return true;
+      return result;
     } catch (final Exception e) {
       GlobalLogger.warn("Failed to unregister a command: " + command.getName().toString());
       e.printStackTrace();
@@ -366,14 +375,18 @@ public class CommandAPI {
     }
     namespace = namespace == null || namespace.isEmpty() ? getNamespace() : namespace;
     try {
+      final boolean result = command.unregister(getCommandMap());
       getKnownCommandMap().remove(command.getLabel());
-      getKnownCommandMap().remove(toNamespaced(namespace, command.getLabel()));
+      if (namespace != null && !namespace.isEmpty()) {
+        getKnownCommandMap().remove(toNamespaced(namespace, command.getLabel()));
+      }
       for (final String alias : command.getAliases()) {
         getKnownCommandMap().remove(alias);
-        getKnownCommandMap().remove(toNamespaced(namespace, alias));
+        if (namespace != null && !namespace.isEmpty()) {
+          getKnownCommandMap().remove(toNamespaced(namespace, alias));
+        }
       }
-      command.unregister(getCommandMap());
-      return true;
+      return result;
     } catch (final Exception e) {
       GlobalLogger.warn("Failed to unregister a command: " + command.getLabel());
       e.printStackTrace();

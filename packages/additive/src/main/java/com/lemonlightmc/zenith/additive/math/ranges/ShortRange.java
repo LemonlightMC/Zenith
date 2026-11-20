@@ -2,7 +2,6 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
-import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 /**
  * A {@link Range} implementation for {@link Short} values.
@@ -194,4 +193,4 @@ public class ShortRange extends Range<ShortRange, Short> {
   public ShortRange clone() {
     return new ShortRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
-}
+}

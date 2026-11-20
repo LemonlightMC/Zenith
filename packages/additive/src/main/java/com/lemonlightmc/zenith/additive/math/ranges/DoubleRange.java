@@ -2,7 +2,6 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
-import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 /**
  * A {@link Range} implementation for {@link Double} values.
@@ -193,4 +192,4 @@ public class DoubleRange extends Range<DoubleRange, Double> {
   public DoubleRange clone() {
     return new DoubleRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
-}
+}

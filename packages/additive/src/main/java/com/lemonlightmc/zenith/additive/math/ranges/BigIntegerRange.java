@@ -4,7 +4,6 @@ import java.math.BigInteger;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
-import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 /**
  * A {@link Range} implementation for {@link BigInteger} values.
@@ -196,4 +195,4 @@ public class BigIntegerRange extends Range<BigIntegerRange, BigInteger> {
   public BigIntegerRange clone() {
     return new BigIntegerRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
-}
+}

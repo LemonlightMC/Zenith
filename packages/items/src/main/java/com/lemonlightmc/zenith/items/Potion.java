@@ -15,8 +15,6 @@ import org.bukkit.potion.PotionEffectTypeCategory;
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
 import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 import com.lemonlightmc.zenith.apis.PotionAPI;
-import com.lemonlightmc.zenith.itembuilder.ItemModifier;
-import com.lemonlightmc.zenith.itembuilder.ItemStackBuilder;
 
 /**
  * Mutable representation of a custom potion definition and its effects.

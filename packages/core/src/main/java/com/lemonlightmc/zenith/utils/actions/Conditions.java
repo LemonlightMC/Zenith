@@ -21,6 +21,8 @@ import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -155,10 +157,11 @@ public class Conditions {
       try {
         final Biome biome = player.getWorld().getBiome(player.getLocation());
         final String b = biome == null ? "" : biome.toString().toLowerCase(Locale.ROOT);
-        final String key = biome != null && biome.getKey() != null ? biome.getKey().toString().toLowerCase(Locale.ROOT)
+        final String key = biome != null && biome.getKeyOrNull() != null
+            ? biome.getKeyOrNull().toString().toLowerCase(Locale.ROOT)
             : "";
-        final String keyOnly = biome != null && biome.getKey() != null
-            ? biome.getKey().getKey().toLowerCase(Locale.ROOT)
+        final String keyOnly = biome != null && biome.getKeyOrNull() != null
+            ? biome.getKeyOrNull().getKey().toLowerCase(Locale.ROOT)
             : "";
         return type.apply(biomes.contains(b) || biomes.contains(key) || biomes.contains(keyOnly));
       } catch (final Throwable ignored) {
@@ -618,11 +621,10 @@ public class Conditions {
       if (context == null || !context.isPlayer()) {
         return false;
       }
-      final Player player = context.player();
-      double value = player.getHealth();
+      double value = context.player().getHealth();
       if (percent) {
-        final double maxHealth = Math.max(1.0, player.getMaxHealth());
-        value = (value / maxHealth) * 100.0;
+        final AttributeInstance instance = context.player().getAttribute(Attribute.MAX_HEALTH);
+        value = (value /  Math.max(1.0, instance.getValue())) * 100.0;
       }
       boolean inRange = true;
       if (min != null) {
@@ -2153,6 +2155,7 @@ public class Conditions {
       return type.apply(matches(stack));
     }
 
+    @SuppressWarnings("deprecation")
     private boolean matches(final ItemStack stack) {
       if (stack == null || stack.getType() == Material.AIR) {
         return false;
@@ -2563,7 +2566,6 @@ public class Conditions {
       return type.apply(match);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Set<String> getStructureKeysAt(final Location location) {
       final Set<String> result = new HashSet<>();
       if (location == null || location.getWorld() == null) {

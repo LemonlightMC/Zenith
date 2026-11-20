@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
-import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 /**
  * A {@link Range} implementation for {@link BigDecimal} values.
@@ -199,4 +198,4 @@ public class BigDecimalRange extends Range<BigDecimalRange, BigDecimal> {
     return new BigDecimalRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
 
-}
+}

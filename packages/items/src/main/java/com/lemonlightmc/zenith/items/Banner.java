@@ -14,8 +14,6 @@ import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
-import com.lemonlightmc.zenith.itembuilder.ItemModifier;
-import com.lemonlightmc.zenith.itembuilder.ItemStackBuilder;
 
 /**
  * Mutable representation of a banner's base color and patterns.

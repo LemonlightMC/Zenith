@@ -2,7 +2,6 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
-import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 /**
  * A {@link Range} implementation for {@link Integer} values.
@@ -193,4 +192,4 @@ public class IntegerRange extends Range<IntegerRange, Integer> {
   public IntegerRange clone() {
     return new IntegerRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
-}
+}

@@ -499,7 +499,6 @@ public final class ConditionSerializer implements TypeSerializer<Condition> {
     return out;
   }
 
-  @SuppressWarnings("unchecked")
   private static Condition adaptSenderCondition(final Condition condition) {
     if (condition == null) {
       return null;
@@ -781,6 +780,7 @@ public final class ConditionSerializer implements TypeSerializer<Condition> {
         cmd, ench, minDur, maxDur, mode(node));
   }
 
+  @SuppressWarnings("deprecation")
   private static Map<Enchantment, Integer> enchantments(final ConfigurationNode n) {
     if (n == null || n.virtual() || n.isNull() || !n.isMap()) {
       return Collections.emptyMap();

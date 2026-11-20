@@ -2,7 +2,6 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
-import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 /**
  * A {@link Range} implementation for {@link Float} values.
@@ -193,4 +192,4 @@ public class FloatRange extends Range<FloatRange, Float> {
   public FloatRange clone() {
     return new FloatRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
-}
+}

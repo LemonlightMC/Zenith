@@ -9,8 +9,6 @@ import org.bukkit.Color;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import com.lemonlightmc.zenith.additive.interfaces.Cloneable;
-import com.lemonlightmc.zenith.itembuilder.ItemModifier;
-import com.lemonlightmc.zenith.itembuilder.ItemStackBuilder;
 
 // TODO: Rework FireworkEffect for 1.1
 /**

@@ -71,7 +71,6 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static Map<String, Object> toMap(final ConfigurationNode node) throws SerializationException {
     final Map<String, Object> out = new LinkedHashMap<>();
     for (final Map.Entry<Object, ? extends ConfigurationNode> entry : node.childrenMap().entrySet()) {
@@ -99,7 +98,6 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     return raw;
   }
 
-  @SuppressWarnings("unchecked")
   private static void fromMap(final Map<String, Object> map, final ConfigurationNode node) throws SerializationException {
     if (map == null) {
       node.set(null);
@@ -111,7 +109,6 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static void fromObject(final Object value, final ConfigurationNode node) throws SerializationException {
     if (value == null) {
       node.set(null);

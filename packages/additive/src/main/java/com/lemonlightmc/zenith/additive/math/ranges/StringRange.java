@@ -2,7 +2,6 @@ package com.lemonlightmc.zenith.additive.math.ranges;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 import com.lemonlightmc.zenith.additive.math.Range;
-import com.lemonlightmc.zenith.additive.math.Range.RangeStringParsed;
 
 /**
  * A {@link Range} implementation representing string length bounds.
@@ -193,4 +192,4 @@ public class StringRange extends Range<StringRange, Integer> {
   public StringRange clone() {
     return new StringRange(getMin(), isMinInclusive(), getMax(), isMaxInclusive());
   }
-}
+}

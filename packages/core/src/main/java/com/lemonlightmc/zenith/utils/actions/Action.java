@@ -80,7 +80,7 @@ public abstract class Action {
             }
         }
 
-        public ActionContext(final CommandSender sender, Player player) {
+        public ActionContext(final CommandSender sender, final Player player) {
             this.sender = sender;
             if (sender == null) {
                 throw new IllegalArgumentException("Action Sender cannot be null");

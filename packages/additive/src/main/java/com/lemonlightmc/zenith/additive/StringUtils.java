@@ -16,7 +16,7 @@ public class StringUtils {
    * Represents a placeholder replacement to apply to a string.
    *
    * @param placeholder the placeholder pattern to replace
-   * @param value the replacement value
+   * @param value       the replacement value
    */
   public record Replaceable(String placeholder, String value) {
 
@@ -35,8 +35,9 @@ public class StringUtils {
    * Formats a message pattern with a single argument.
    *
    * @param messagePattern message pattern to format
-   * @param arg1 formatting argument
-   * @return the formatted message, or an empty string if the pattern is {@code null} or empty
+   * @param arg1           formatting argument
+   * @return the formatted message, or an empty string if the pattern is
+   *         {@code null} or empty
    */
   public static String format(final String messagePattern, final Object arg1) {
     if (messagePattern == null || messagePattern.isEmpty()) {
@@ -52,9 +53,10 @@ public class StringUtils {
    * Formats a message pattern with two arguments.
    *
    * @param messagePattern message pattern to format
-   * @param arg1 first formatting argument
-   * @param arg2 second formatting argument
-   * @return the formatted message, or an empty string if the pattern is {@code null} or empty
+   * @param arg1           first formatting argument
+   * @param arg2           second formatting argument
+   * @return the formatted message, or an empty string if the pattern is
+   *         {@code null} or empty
    */
   public static String format(final String messagePattern, final Object arg1, final Object arg2) {
     if (messagePattern == null || messagePattern.isEmpty()) {
@@ -70,8 +72,9 @@ public class StringUtils {
    * Formats a message pattern with an array of arguments.
    *
    * @param messagePattern message pattern to format
-   * @param argArray formatting arguments
-   * @return the formatted message, or an empty string if the pattern is {@code null} or empty
+   * @param argArray       formatting arguments
+   * @return the formatted message, or an empty string if the pattern is
+   *         {@code null} or empty
    */
   public static String format(final String messagePattern, final Object[] argArray) {
     if (messagePattern == null || messagePattern.isEmpty()) {
@@ -87,7 +90,8 @@ public class StringUtils {
    * Checks whether the given string is {@code null} or empty.
    *
    * @param str string to check
-   * @return {@code true} if the string is {@code null} or has length zero; otherwise {@code false}
+   * @return {@code true} if the string is {@code null} or has length zero;
+   *         otherwise {@code false}
    */
   public static boolean isBlank(final String str) {
     return str == null || str.length() == 0;
@@ -104,11 +108,55 @@ public class StringUtils {
   }
 
   /**
+   * Prepares the given string by trimming whitespace and returning {@code null}
+   * if the result is empty.
+   *
+   * @param str string to prepare
+   * 
+   * @return the trimmed string, or {@code null} if the input is {@code null} or
+   *         empty after trimming
+   */
+  public static String prepare(String str) {
+    if (str == null || str.isEmpty()) {
+      return null;
+    }
+    str = str.trim();
+    return str.isEmpty() ? null : str;
+  }
+
+  /**
+   * Prepares the given string by trimming whitespace, apply Lowercase and
+   * returning {@code null}
+   * if the result is empty.
+   *
+   * @param str string to prepare
+   * 
+   * @return the trimmed string, or {@code null} if the input is {@code null} or
+   *         empty after trimming
+   */
+  public static String prepareLowercase(String str) {
+    if (str == null || str.isEmpty()) {
+      return null;
+    }
+    str = str.trim();
+    return str.isEmpty() ? null : str.toLowerCase(Locale.ROOT);
+  }
+
+  public static String lowercase(final String str) {
+    return str == null ? null : str.toLowerCase(Locale.ROOT);
+  }
+
+  public static String uppercase(final String str) {
+    return str == null ? null : str.toUpperCase(Locale.ROOT);
+  }
+
+  /**
    * Applies placeholder replacements to the given message.
    *
-   * @param message message to update
+   * @param message      message to update
    * @param replacements alternating placeholder and replacement values
-   * @return the updated message, or {@code null} if the input message is {@code null} or empty
+   * @return the updated message, or {@code null} if the input message is
+   *         {@code null} or empty
    */
   public static String applyReplacements(String message, final String... replacements) {
     if (message == null || message.length() == 0) {
@@ -127,9 +175,10 @@ public class StringUtils {
   /**
    * Applies the given replacements to the message.
    *
-   * @param message message to update
+   * @param message      message to update
    * @param replacements replacements to apply
-   * @return the updated message, or {@code null} if the input message is {@code null} or empty
+   * @return the updated message, or {@code null} if the input message is
+   *         {@code null} or empty
    */
   public static String applyReplacements(String message, final Replaceable... replacements) {
     if (message == null || message.length() == 0) {
@@ -165,7 +214,8 @@ public class StringUtils {
    * Parses a locale string in {@code language[_country[_variant]]} format.
    *
    * @param string locale string to parse
-   * @return the parsed {@link Locale}, or {@code null} if the input is {@code null}, empty, or unsupported
+   * @return the parsed {@link Locale}, or {@code null} if the input is
+   *         {@code null}, empty, or unsupported
    */
   public static Locale parseLocale(final String string) {
     if (string == null || string.isEmpty()) {
@@ -187,7 +237,7 @@ public class StringUtils {
    * Joins the given strings using the specified delimiter.
    *
    * @param delimiter delimiter to insert between elements
-   * @param strings strings to join
+   * @param strings   strings to join
    * @return the joined string
    */
   public static String join(final String delimiter, final String[] strings) {
@@ -202,8 +252,8 @@ public class StringUtils {
    * Joins a range of the given string array using the specified delimiter.
    *
    * @param delimiter delimiter to insert between elements
-   * @param strings strings to join
-   * @param begin start index, inclusive
+   * @param strings   strings to join
+   * @param begin     start index, inclusive
    * @return the joined string
    */
   public static String join(final String delimiter, final String[] strings, final int begin) {
@@ -214,9 +264,9 @@ public class StringUtils {
    * Joins a range of the given string array using the specified delimiter.
    *
    * @param delimiter delimiter to insert between elements
-   * @param strings strings to join
-   * @param begin start index, inclusive
-   * @param end end index, exclusive
+   * @param strings   strings to join
+   * @param begin     start index, inclusive
+   * @param end       end index, exclusive
    * @return the joined string
    */
   public static String join(final String delimiter, final String[] strings, final int begin, final int end) {
@@ -231,7 +281,7 @@ public class StringUtils {
    * Joins the given string collection using the specified delimiter.
    *
    * @param delimiter delimiter to insert between elements
-   * @param strings strings to join
+   * @param strings   strings to join
    * @return the joined string
    */
   public static String join(final String delimiter, final Collection<String> strings) {
@@ -246,8 +296,8 @@ public class StringUtils {
    * Joins a range of the given string list using the specified delimiter.
    *
    * @param delimiter delimiter to insert between elements
-   * @param strings strings to join
-   * @param begin start index, inclusive
+   * @param strings   strings to join
+   * @param begin     start index, inclusive
    * @return the joined string
    */
   public static String join(final String delimiter, final List<String> strings, final int begin) {
@@ -258,9 +308,9 @@ public class StringUtils {
    * Joins a range of the given string list using the specified delimiter.
    *
    * @param delimiter delimiter to insert between elements
-   * @param strings strings to join
-   * @param begin start index, inclusive
-   * @param end end index, exclusive
+   * @param strings   strings to join
+   * @param begin     start index, inclusive
+   * @param end       end index, exclusive
    * @return the joined string
    */
   public static String join(final String delimiter, final List<String> strings, final int begin, final int end) {
@@ -272,12 +322,14 @@ public class StringUtils {
   }
 
   /**
-   * Copies strings from the given iterable that start with the provided token, ignoring case.
+   * Copies strings from the given iterable that start with the provided token,
+   * ignoring case.
    *
-   * @param token token to match at the start of each string
-   * @param originals source strings to scan
-   * @param collection target collection to populate; if {@code null}, a new collection is created
-   * @param <T> collection type parameter
+   * @param token      token to match at the start of each string
+   * @param originals  source strings to scan
+   * @param collection target collection to populate; if {@code null}, a new
+   *                   collection is created
+   * @param <T>        collection type parameter
    * @return the populated collection containing matching strings
    */
   @SuppressWarnings("unchecked")
@@ -299,11 +351,13 @@ public class StringUtils {
   }
 
   /**
-   * Checks whether the given string starts with the specified prefix, ignoring case.
+   * Checks whether the given string starts with the specified prefix, ignoring
+   * case.
    *
    * @param string string to test
    * @param prefix prefix to look for
-   * @return {@code true} if the string starts with the prefix ignoring case, or if the prefix is {@code null}
+   * @return {@code true} if the string starts with the prefix ignoring case, or
+   *         if the prefix is {@code null}
    */
   public static boolean startsWithIgnoreCase(final String string, final String prefix) {
     if (prefix == null) {
@@ -316,10 +370,11 @@ public class StringUtils {
   }
 
   /**
-   * Splits the given string on the specified character using a fast index-based approach.
+   * Splits the given string on the specified character using a fast index-based
+   * approach.
    *
    * @param str string to split
-   * @param ch delimiter character
+   * @param ch  delimiter character
    * @return an array containing the split segments
    */
   public static String[] fastSplit(final String str, final char ch) {
@@ -342,10 +397,12 @@ public class StringUtils {
   }
 
   /**
-   * Escapes special characters in the given string using backslash escape sequences.
+   * Escapes special characters in the given string using backslash escape
+   * sequences.
    *
    * @param input string to escape
-   * @return the escaped string, or an empty string if the input is {@code null} or empty
+   * @return the escaped string, or an empty string if the input is {@code null}
+   *         or empty
    */
   public static String escape(final String input) {
     if (input == null || input.isEmpty()) {
@@ -379,7 +436,8 @@ public class StringUtils {
    * Unescapes backslash escape sequences in the given string.
    *
    * @param input string to unescape
-   * @return the unescaped string, or the original input if it is {@code null} or empty
+   * @return the unescaped string, or the original input if it is {@code null} or
+   *         empty
    */
   public static String unescape(final String input) {
     if (input == null || input.isEmpty()) {

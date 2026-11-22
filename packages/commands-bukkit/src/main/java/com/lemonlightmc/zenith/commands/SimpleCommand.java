@@ -20,7 +20,8 @@ import com.lemonlightmc.zenith.exceptions.PlatformException;
 import com.lemonlightmc.zenith.utils.ServerPlatform;
 
 /**
- * Bukkit-backed root command implementation for building, registering, and executing Zenith commands.
+ * Bukkit-backed root command implementation for building, registering, and
+ * executing Zenith commands.
  */
 public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
 
@@ -36,7 +37,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand(final NamespacedKey key) {
     super();
-    setName(key);
+    setKey(key);
   }
 
   /**
@@ -45,7 +46,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @return this command
    */
   @Override
-  public SimpleCommand getInstance() {
+  public SimpleCommand self() {
     return this;
   }
 
@@ -65,7 +66,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @param aliases the subcommand aliases
    * @return a new subcommand builder
    */
-  public static SimpleSubCommand<CommandSender> subCommand(final String... aliases) {
+  public static SimpleSubCommand<CommandSender> subcommand(final String... aliases) {
     return new SimpleSubCommand<CommandSender>(aliases);
   }
 
@@ -108,7 +109,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @return the command namespace
    */
   @Override
-  public String getNamespace() {
+  public String namespace() {
     return key.getNamespace();
   }
 
@@ -118,8 +119,8 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @return the command key
    */
   @Override
-  public String getKey() {
-    return key.getKey();
+  public NamespacedKey key() {
+    return key;
   }
 
   /**
@@ -128,48 +129,8 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @return the command name
    */
   @Override
-  public NamespacedKey getName() {
-    return key;
-  }
-
-  /**
-   * Sets the namespaced key for this command.
-   *
-   * @param key the new command key
-   * @return this command
-   * @throws InvalidCommandNameException if the key is invalid
-   * @throws IllegalStateException if the command is already registered
-   */
-  @Override
-  public SimpleCommand setName(final NamespacedKey key) {
-    if (this.key != null && this.key.equals(key)) {
-      return this;
-    }
-    if (key == null || key.getKey().length() == 0 || key.getKey().isBlank() || key.getNamespace().length() == 0
-        || key.getNamespace().isBlank()) {
-      throw new InvalidCommandNameException(key == null ? "null" : key.toString());
-    }
-    if (isRegistered()) {
-      throw new IllegalStateException("Cannot change the name of a registered command!");
-    }
-    if (this.key != null) {
-      removeAlias(this.key.getKey());
-    }
-    this.key = key;
-    withAliases(this.key.getKey());
-    return this;
-  }
-
-  /**
-   * Updates the key portion of this command's namespaced name.
-   *
-   * @param key the new command key
-   * @return this command
-   */
-  @Override
-  public SimpleCommand setKey(final String key) {
-    setName(new NamespacedKey(getNamespace(), key));
-    return this;
+  public String name() {
+    return key.getKey();
   }
 
   /**
@@ -180,7 +141,44 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   @Override
   public SimpleCommand setNamespace(final String namespace) {
-    setName(new NamespacedKey(namespace, getKey()));
+    setKey(new NamespacedKey(namespace, name()));
+    return this;
+  }
+
+  /**
+   * Sets the namespaced key for this command.
+   *
+   * @param key the new command key
+   * @return this command
+   * @throws InvalidCommandNameException if the key is invalid
+   * @throws IllegalStateException       if the command is already registered
+   */
+  @Override
+  public SimpleCommand setName(final String name) {
+    setKey(new NamespacedKey(namespace(), name));
+    return this;
+  }
+
+  /**
+   * Updates the key portion of this command's namespaced name.
+   *
+   * @param key the new command key
+   * @return this command
+   */
+  @Override
+  public SimpleCommand setKey(final NamespacedKey key) {
+    if (key == null) {
+      throw new IllegalArgumentException("Command key cannot be null!");
+    }
+    if (this.key.equals(key)) {
+      return this;
+    }
+    if (isRegistered()) {
+      throw new IllegalStateException("Cannot change the name of a registered command!");
+    }
+    removeAliases(this.key.getKey());
+    this.key = key;
+    withAliases(key.getKey());
     return this;
   }
 
@@ -226,7 +224,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @return the usage description lines, or {@code null} if not set
    */
   @Override
-  public String[] getUsage() {
+  public String[] usage() {
     return usageDescription;
   }
 
@@ -234,7 +232,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * Sets the short and full help descriptions for this command.
    *
    * @param shortDesc the short description
-   * @param fullDesc the full description
+   * @param fullDesc  the full description
    * @return this command
    */
   @Override
@@ -276,7 +274,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    * @return the help message lines, or {@code null} if not set
    */
   @Override
-  public List<String> getHelp() {
+  public List<String> help() {
     return helpMessage == null ? null : List.of(helpMessage.split("\n"));
   }
 
@@ -288,7 +286,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesPlayer(final PlayerCommandExecutor executor) {
     addExecutor(ExecutorType.PLAYER, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -299,7 +297,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesPlayer(final PlayerExecutionInfo info) {
     addExecutor(ExecutorType.PLAYER, info);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -310,7 +308,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesEntity(final EntityCommandExecutor executor) {
     addExecutor(ExecutorType.ENTITY, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -321,7 +319,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesEntity(final EntityExecutionInfo info) {
     addExecutor(ExecutorType.ENTITY, info);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -332,7 +330,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesCommandBlock(final CommandBlockExecutor executor) {
     addExecutor(ExecutorType.BLOCK, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -343,7 +341,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesCommandBlock(final CommandBlockExecutionInfo info) {
     addExecutor(ExecutorType.BLOCK, info);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -354,7 +352,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesConsole(final ConsoleCommandExecutor executor) {
     addExecutor(ExecutorType.CONSOLE, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -365,7 +363,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesConsole(final ConsoleExecutionInfo info) {
     addExecutor(ExecutorType.CONSOLE, info);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -376,7 +374,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesRemoteConsole(final RemoteConsoleCommandExecutor executor) {
     addExecutor(ExecutorType.REMOTE, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -387,7 +385,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesRemoteConsole(final RemoteConsoleExecutionInfo info) {
     addExecutor(ExecutorType.REMOTE, info);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -398,7 +396,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesNative(final NativeCommandExecutor executor) {
     addExecutor(ExecutorType.NATIVE, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -409,7 +407,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesNative(final NativeExecutionInfo info) {
     addExecutor(ExecutorType.NATIVE, info);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -420,7 +418,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesProxy(final ProxyCommandExecutor executor) {
     addExecutor(ExecutorType.PROXY, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -431,7 +429,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesProxy(final ProxyExecutionInfo info) {
     addExecutor(ExecutorType.PROXY, info);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -448,7 +446,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
               + ServerPlatform.detect().name() + ")!");
     }
     addExecutor(ExecutorType.FEEDBACK_FORWARDING, executor);
-    return getInstance();
+    return self();
   }
 
   /**
@@ -465,59 +463,99 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
               + ServerPlatform.detect().name() + ")!");
     }
     addExecutor(ExecutorType.FEEDBACK_FORWARDING, info);
-    return getInstance();
+    return self();
   }
 
   /**
-   * Prepares this command for registration by validating executors and populating default metadata.
+   * Prepares this command for registration by validating executors and populating
+   * default metadata.
    *
    * @throws MissingCommandExecutorException if no executors are configured
    */
   void build() {
     if (!hasAnyExecutors()) {
-      throw new MissingCommandExecutorException(getName().toString());
+      throw new MissingCommandExecutorException(name().toString());
     }
-    if (fullDescription == null) {
-      fullDescription = "The " + getKey() + " Command from " + getNamespace() + " (No Description)";
+    if (fullDescription == null || fullDescription.isBlank()) {
+      fullDescription = shortDescription == null || shortDescription.isBlank()
+          ? "Executes the " + key() + " command."
+          : shortDescription;
     }
-    if (shortDescription == null) {
-      shortDescription = "The " + getKey() + " Command from " + getNamespace() + " (No Description)";
+    if (shortDescription == null || shortDescription.isBlank()) {
+      shortDescription = fullDescription;
     }
-    if (usageDescription == null) {
-      usageDescription = buildUsageString("/", this).toArray(String[]::new);
+    if (usageDescription == null || usageDescription.length == 0) {
+      usageDescription = buildUsageString("/", this, name()).toArray(String[]::new);
     }
-    if (helpMessage == null) {
+    if (helpMessage == null || helpMessage.isBlank()) {
       final StringBuilder builder = new StringBuilder();
-      builder.append(shortDescription == null ? "" : shortDescription);
-      if (shortDescription != null && !shortDescription.isBlank()) {
-        builder.append('\n');
+      builder.append(shortDescription);
+      if (!Objects.equals(shortDescription, fullDescription)) {
+        builder.append('\n').append(fullDescription);
       }
-      builder.append("Description: ");
-      builder.append(fullDescription == null ? "" : fullDescription);
-      if (usageDescription != null && usageDescription.length > 0) {
+
+      if (usageDescription != null && usageDescription.length != 0) {
         builder.append("\nUsage:");
         for (final String usageLine : usageDescription) {
-          builder.append(" ");
-          builder.append(usageLine);
+          if (usageLine != null && !usageLine.isBlank()) {
+            builder.append("\n  ").append(usageLine);
+          }
         }
       }
-      builder.append("\nAliases: ").append(String.join(", ", aliases));
+
+      final List<String> aliasList = new ArrayList<>();
+      if (aliases != null && !aliases.isEmpty()) {
+        for (final String alias : aliases) {
+          if (alias != null && !alias.isBlank() && !alias.equalsIgnoreCase(name())) {
+            aliasList.add(alias);
+          }
+        }
+      }
+      if (!aliasList.isEmpty()) {
+        aliasList.sort(String.CASE_INSENSITIVE_ORDER);
+        builder.append("\nAliases: ").append(String.join(", ", aliasList));
+      }
+
       helpMessage = builder.toString();
     }
   }
 
-  private List<String> buildUsageString(final String str, final AbstractCommand<?, CommandSender> command) {
-    final ArrayList<String> usageList = new ArrayList<>();
-    String str2 = str + " <" + String.join("|", aliases) + ">";
-    for (final SimpleSubCommand<CommandSender> subCmd : subcommands) {
-      usageList.addAll(buildUsageString(str2, subCmd));
+  private List<String> buildUsageString(final String prefix, final AbstractCommand<?, CommandSender> command,
+      final String label) {
+    final List<String> usages = new ArrayList<>();
+    final String effectiveLabel = (label == null || label.isBlank()) ? formatAliases(command.aliases()) : label;
+    final String base = prefix + effectiveLabel;
+
+    final StringBuilder own = new StringBuilder(base);
+    if (command.arguments() != null) {
+      for (final Argument<?, ?, CommandSender> arg : command.arguments()) {
+        own.append(' ').append(arg.getHelpString());
+      }
     }
-    for (final Argument<?, ?, CommandSender> arg : command.getArguments()) {
-      str2 += " ";
-      str2 += arg.getHelpString();
+
+    if (command.hasSubcommands()) {
+      if (command.hasExecutors()) {
+        usages.add(own.toString());
+      }
+      for (final SimpleSubCommand<CommandSender> subCmd : command.subcommands().values()) {
+        usages.addAll(buildUsageString(base + " ", subCmd, formatAliases(subCmd.aliases())));
+      }
+    } else {
+      usages.add(own.toString());
     }
-    usageList.add(str2);
-    return usageList;
+    return usages;
+  }
+
+  private String formatAliases(final java.util.Collection<String> aliases) {
+    if (aliases == null || aliases.isEmpty()) {
+      return "<command>";
+    }
+    if (aliases.size() == 1) {
+      return aliases.iterator().next();
+    }
+    final List<String> sorted = new ArrayList<>(aliases);
+    sorted.sort(String.CASE_INSENSITIVE_ORDER);
+    return "<" + String.join("|", sorted) + ">";
   }
 
   @Override

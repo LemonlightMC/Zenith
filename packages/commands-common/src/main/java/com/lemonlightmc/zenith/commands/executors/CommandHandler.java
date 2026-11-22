@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.SimpleSubCommand;
@@ -52,7 +53,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     } catch (final Throwable ex) {
       throw new CommandException(
           "Exception while executing command '" +
-              (cmd == null ? "null" : cmd.getName()) +
+              (cmd == null ? "null" : cmd.name()) +
               "' in plugin " +
               ZenithProvider.instance().getFullName(),
           ex);
@@ -68,6 +69,9 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     }
     try {
       final C source = createCommandSource(sender);
+      if (!cmd.checkRequirements(source)) {
+        return List.of();
+      }
       final CommandArguments cmdArgs = parse(cmd, source, args);
       if (cmdArgs == null) {
         return List.of();
@@ -97,7 +101,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     } catch (final Throwable ex) {
       final StringBuilder message = new StringBuilder("Unhandled exception during tab completion for command '/");
       message
-          .append(cmd == null ? "null" : cmd.getName())
+          .append(cmd == null ? "null" : cmd.name())
           .append(' ')
           .append(String.join(" ", args))
           .append("' in plugin ")
@@ -119,7 +123,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     boolean hadSubcommand = true;
     while (hadSubcommand && args.length > i && thisCmd.hasSubcommands()) {
       hadSubcommand = false;
-      for (final SimpleSubCommand<S> sub : thisCmd.getSubcommands()) {
+      for (final SimpleSubCommand<S> sub : thisCmd.subcommands().values()) {
         if (_isSubCommand(args[i], sub)) {
           if (!sub.checkRequirements(source)) {
             return null;
@@ -133,7 +137,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     }
 
     final Map<String, ParsedArgument> parsedArgs = new LinkedHashMap<>();
-    for (final Argument<?, ?, S> arg : thisCmd.getArguments()) {
+    for (final Argument<?, ?, S> arg : thisCmd.arguments()) {
       if (!arg.checkRequirements(source)) {
         return null;
       }
@@ -166,7 +170,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
       return false;
     }
     final String key = arg.toLowerCase(Locale.ROOT);
-    return sub.getAliases().contains(key) || sub.getAliases().contains(arg);
+    return sub.aliases().contains(key) || sub.aliases().contains(arg);
   }
 
   private static boolean startsWithIgnoreCase(
@@ -189,7 +193,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     if (!ZenithProvider.instance().isEnabled()) {
       GlobalLogger.warn(
           "Cannot execute command '" +
-              cmd.getName() +
+              cmd.name() +
               "' in plugin " +
               ZenithProvider.instance().getDescription().getFullName() +
               " - plugin is disabled.");
@@ -198,11 +202,11 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     if (label == null || label.isBlank()) {
       return false;
     }
-    final String normalized = label.toLowerCase(Locale.ROOT);
-    final String key = cmd.getKey() == null ? null : cmd.getKey().toLowerCase(Locale.ROOT);
-    return (key != null && key.equals(normalized))
-        || cmd.getAliases().contains(normalized)
-        || cmd.getAliases().contains(label);
+    final String normalized = StringUtils.lowercase(label);
+    final String name = cmd.name() == null ? null : StringUtils.lowercase(cmd.name());
+    return (name != null && name.equals(normalized))
+        || cmd.aliases().contains(normalized)
+        || cmd.aliases().contains(label);
   }
 
 }

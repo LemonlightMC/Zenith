@@ -14,7 +14,7 @@ public class SimpleSubCommand<S> extends AbstractCommand<SimpleSubCommand<S>, S>
   }
 
   @Override
-  public SimpleSubCommand<S> getInstance() {
+  public SimpleSubCommand<S> self() {
     return this;
   }
 

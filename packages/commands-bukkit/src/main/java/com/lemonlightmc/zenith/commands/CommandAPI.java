@@ -191,14 +191,14 @@ public class CommandAPI {
       if (command == null) {
         throw new IllegalArgumentException("Command cannot be null");
       }
-      if (command.getAliases().isEmpty()) {
+      if (command.aliases().isEmpty()) {
         throw new IllegalArgumentException("At least one alias must be provided");
       }
       command.build();
       final InternalExecutor cmd = new InternalExecutor(command, false);
-      return getCommandMap().register(cmd.getLabel(), cmd.getNamespace(), cmd);
+      return getCommandMap().register(cmd.getLabel(), cmd.namespace(), cmd);
     } catch (final Exception e) {
-      GlobalLogger.warn("Failed to register a command: " + (command == null ? "null" : command.getName().toString()));
+      GlobalLogger.warn("Failed to register a command: " + (command == null ? "null" : command.name().toString()));
       e.printStackTrace();
       return false;
     }
@@ -353,16 +353,16 @@ public class CommandAPI {
       return true;
     }
     try {
-      final Command cmd = getCommand(command.getName().toString());
+      final Command cmd = getCommand(command.key().toString());
       boolean result = true;
       if (cmd != null) {
         result = cmd.unregister(getCommandMap());
       }
 
-      getKnownCommandMap().remove(command.getName().toString());
-      getKnownCommandMap().remove(command.getKey());
-      final String ns = command.getNamespace();
-      for (final String alias : command.getAliases()) {
+      getKnownCommandMap().remove(command.key().toString());
+      getKnownCommandMap().remove(command.name());
+      final String ns = command.namespace();
+      for (final String alias : command.aliases()) {
         getKnownCommandMap().remove(alias);
         if (ns != null && !ns.isEmpty()) {
           getKnownCommandMap().remove(toNamespaced(ns, alias));
@@ -370,7 +370,7 @@ public class CommandAPI {
       }
       return result;
     } catch (final Exception e) {
-      GlobalLogger.warn("Failed to unregister a command: " + command.getName().toString());
+      GlobalLogger.warn("Failed to unregister a command: " + command.key().toString());
       e.printStackTrace();
       return false;
     }
@@ -525,7 +525,7 @@ public class CommandAPI {
    * @return {@code true} if the command is registered; {@code false} otherwise
    */
   public static boolean isRegistered(final SimpleCommand command) {
-    return command == null ? false : isRegistered(command.getName().toString());
+    return command == null ? false : isRegistered(command.name().toString());
   }
 
   /**
@@ -572,7 +572,7 @@ public class CommandAPI {
     if (sender == null) {
       sender = Bukkit.getConsoleSender();
     }
-    if (!getHandler().shouldHandle(command, sender, command.getKey())) {
+    if (!getHandler().shouldHandle(command, sender, command.name())) {
       return false;
     }
     getHandler().run(command, sender, args);

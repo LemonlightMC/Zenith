@@ -5,10 +5,11 @@ import java.util.List;
 
 import org.bukkit.NamespacedKey;
 
-public abstract class RootCommand<T extends RootCommand<T, S>, S> extends AbstractCommand<T, S> {
+import com.lemonlightmc.zenith.data.KeyedBukkit;
+import com.lemonlightmc.zenith.data.Namespaced;
 
-  @Override
-  public abstract T getInstance();
+public abstract class RootCommand<T extends RootCommand<T, S>, S> extends AbstractCommand<T, S>
+    implements Namespaced, KeyedBukkit {
 
   public abstract T register();
 
@@ -16,15 +17,11 @@ public abstract class RootCommand<T extends RootCommand<T, S>, S> extends Abstra
 
   public abstract boolean isRegistered();
 
-  public abstract String getNamespace();
+  public abstract String name();
 
-  public abstract String getKey();
+  public abstract T setName(String key);
 
-  public abstract NamespacedKey getName();
-
-  public abstract T setName(NamespacedKey key);
-
-  public abstract T setKey(String key);
+  public abstract T setKey(NamespacedKey key);
 
   public abstract T setNamespace(String namespace);
 
@@ -34,7 +31,7 @@ public abstract class RootCommand<T extends RootCommand<T, S>, S> extends Abstra
 
   public abstract T withUsage(List<String> usage);
 
-  public abstract String[] getUsage();
+  public abstract String[] usage();
 
   public abstract T withHelp(String shortDesc, String fullDesc);
 
@@ -42,5 +39,5 @@ public abstract class RootCommand<T extends RootCommand<T, S>, S> extends Abstra
 
   public abstract T withHelp(String help);
 
-  public abstract List<String> getHelp();
+  public abstract List<String> help();
 }

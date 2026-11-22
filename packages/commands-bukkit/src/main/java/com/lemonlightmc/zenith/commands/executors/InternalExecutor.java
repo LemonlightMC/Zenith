@@ -12,7 +12,8 @@ import com.lemonlightmc.zenith.commands.SimpleCommand;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 
 /**
- * Bukkit {@link Command} adapter that delegates execution and tab completion to a {@link SimpleCommand}.
+ * Bukkit {@link Command} adapter that delegates execution and tab completion to
+ * a {@link SimpleCommand}.
  */
 public class InternalExecutor extends Command {
 
@@ -22,17 +23,17 @@ public class InternalExecutor extends Command {
   /**
    * Creates a new internal executor for the given simple command.
    *
-   * @param cmd the simple command to delegate to
+   * @param cmd      the simple command to delegate to
    * @param runAsync {@code true} to execute command handling asynchronously
    * @throws IllegalArgumentException if {@code cmd} is {@code null}
    */
   public InternalExecutor(final SimpleCommand cmd, final boolean runAsync) {
-    super(cmd == null ? null : cmd.getKey());
+    super(cmd == null ? null : cmd.name());
     if (cmd == null) {
       throw new IllegalArgumentException("Command cannot be null");
     }
     this.cmd = cmd;
-    super.setAliases(List.copyOf(cmd.getAliases()));
+    super.setAliases(List.copyOf(cmd.aliases()));
     this.runAsync = runAsync;
   }
 
@@ -50,8 +51,8 @@ public class InternalExecutor extends Command {
    *
    * @return the command namespace
    */
-  public String getNamespace() {
-    return cmd.getNamespace();
+  public String namespace() {
+    return cmd.namespace();
   }
 
   /**
@@ -73,7 +74,7 @@ public class InternalExecutor extends Command {
   @Override
   public boolean setLabel(final String label) {
     if (super.setLabel(label)) {
-      cmd.setKey(label);
+      cmd.setName(label);
       return true;
     }
     return false;
@@ -84,7 +85,7 @@ public class InternalExecutor extends Command {
    *
    * @param sender the command sender
    * @param label0 the command label used
-   * @param args the command arguments
+   * @param args   the command arguments
    * @return {@code true} after handling is scheduled or completed
    */
   @Override
@@ -106,9 +107,9 @@ public class InternalExecutor extends Command {
   /**
    * Provides tab-completion suggestions for this command.
    *
-   * @param sender the command sender
-   * @param label the command label used
-   * @param args the current command arguments
+   * @param sender   the command sender
+   * @param label    the command label used
+   * @param args     the current command arguments
    * @param location the sender location, if available
    * @return the tab-completion suggestions
    */
@@ -126,7 +127,7 @@ public class InternalExecutor extends Command {
 
   @Override
   public String toString() {
-    return cmd.getName().toString() + "(" + ZenithProvider.instance().getDescription().getFullName() + ")";
+    return cmd.name().toString() + "(" + ZenithProvider.instance().getDescription().getFullName() + ")";
   }
 
   @Override

@@ -13,13 +13,13 @@ public abstract class Executable<T, S> {
     executors = new EnumMap<>(ExecutorType.class);
   }
 
-  protected abstract T getInstance();
+  protected abstract T self();
 
   public boolean hasExecutors() {
-    return executors != null && !executors.isEmpty();
+    return !executors.isEmpty();
   }
 
-  public NormalExecutor<?>[] getExecutors(final ExecutorType type) {
+  public NormalExecutor<? extends S>[] getExecutors(final ExecutorType type) {
     return executors.get(type);
   }
 
@@ -66,7 +66,7 @@ public abstract class Executable<T, S> {
         });
       }
     }
-    return getInstance();
+    return self();
   }
 
   public <E extends S> T executes(final CommandExecutionInfo<E> executor, final ExecutorType... types) {
@@ -88,7 +88,7 @@ public abstract class Executable<T, S> {
         });
       }
     }
-    return getInstance();
+    return self();
   }
 
   @Override

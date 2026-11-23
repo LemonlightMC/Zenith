@@ -8,7 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.profile.PlayerProfile;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -40,7 +40,7 @@ public class EntityArguments {
      * @return this argument
      */
     @Override
-    public PlayerArgument getInstance() {
+    public PlayerArgument self() {
       return this;
     }
 
@@ -54,7 +54,7 @@ public class EntityArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Player parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Player parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return Bukkit.getPlayerExact(reader.readString());
     }
@@ -80,7 +80,7 @@ public class EntityArguments {
      * @return this argument
      */
     @Override
-    public PlayerProfileArgument getInstance() {
+    public PlayerProfileArgument self() {
       return this;
     }
 
@@ -94,7 +94,7 @@ public class EntityArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public PlayerProfile parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public PlayerProfile parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final Player player = Bukkit.getPlayerExact(reader.readString());
@@ -125,7 +125,7 @@ public class EntityArguments {
      * @return this argument
      */
     @Override
-    public EntitySelectorArgument getInstance() {
+    public EntitySelectorArgument self() {
       return this;
     }
 
@@ -139,7 +139,7 @@ public class EntityArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public List<Entity> parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public List<Entity> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String str = reader.readString();

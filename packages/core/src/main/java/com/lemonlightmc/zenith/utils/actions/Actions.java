@@ -28,7 +28,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -45,7 +45,6 @@ import com.lemonlightmc.zenith.internal.ActionSerializer;
 import com.lemonlightmc.zenith.math.MathOperation;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.scheduler.ScheduledTask;
-import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
 
 /**
  * Collection of built-in action implementations.
@@ -73,23 +72,23 @@ public class Actions {
     });
   }
 
-  public static final class StopAction extends Action {
+  public static final class StopAction extends Action<CommandSender> {
     public StopAction() {
       super(null, true);
     }
 
-    public StopAction(final Condition conditions) {
+    public StopAction(final Condition<CommandSender> conditions) {
       super(conditions, true);
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       context.stop();
       return false;
     }
   }
 
-  public static class ConsoleCommandAction extends Action {
+  public static class ConsoleCommandAction extends Action<CommandSender> {
 
     private final String command;
 
@@ -97,19 +96,19 @@ public class Actions {
       this(command, null);
     }
 
-    public ConsoleCommandAction(final String command, final Condition conditions) {
+    public ConsoleCommandAction(final String command, final Condition<CommandSender> conditions) {
       super(conditions);
       this.command = command;
     }
 
-    public ConsoleCommandAction(final String command, final Condition conditions,
+    public ConsoleCommandAction(final String command, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.command = command;
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (command == null || command.isEmpty()) {
         return true;
       }
@@ -121,7 +120,7 @@ public class Actions {
     }
   }
 
-  public static class PlayerCommandAction extends Action {
+  public static class PlayerCommandAction extends Action<CommandSender> {
 
     private final String command;
 
@@ -129,18 +128,18 @@ public class Actions {
       this(command, null);
     }
 
-    public PlayerCommandAction(final String command, final Condition conditions) {
+    public PlayerCommandAction(final String command, final Condition<CommandSender> conditions) {
       super(conditions);
       this.command = command;
     }
 
-    public PlayerCommandAction(final String command, final Condition conditions, final boolean useSync) {
+    public PlayerCommandAction(final String command, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.command = command;
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Player player = context.player();
       if (command == null || command.isEmpty() || player == null) {
         return true;
@@ -149,7 +148,7 @@ public class Actions {
     }
   }
 
-  public static class MessageAction extends Action {
+  public static class MessageAction extends Action<CommandSender> {
 
     private final boolean broadcast;
     private final String message;
@@ -162,13 +161,13 @@ public class Actions {
       this(message, broadcast, null);
     }
 
-    public MessageAction(final String message, final boolean broadcast, final Condition conditions) {
+    public MessageAction(final String message, final boolean broadcast, final Condition<CommandSender> conditions) {
       super(conditions);
       this.message = message;
       this.broadcast = broadcast;
     }
 
-    public MessageAction(final String message, final boolean broadcast, final Condition conditions,
+    public MessageAction(final String message, final boolean broadcast, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.message = message;
@@ -176,7 +175,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (broadcast) {
         ChatAPI.broadcast(message);
       } else {
@@ -186,7 +185,7 @@ public class Actions {
     }
   }
 
-  public static class TitleAction extends Action {
+  public static class TitleAction extends Action<CommandSender> {
 
     private final boolean broadcast;
     private final TitleInfo info;
@@ -199,13 +198,13 @@ public class Actions {
       this(info, broadcast, null);
     }
 
-    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition conditions) {
+    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition<CommandSender> conditions) {
       super(conditions);
       this.info = info;
       this.broadcast = broadcast;
     }
 
-    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition conditions,
+    public TitleAction(final TitleInfo info, final boolean broadcast, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.info = info;
@@ -213,7 +212,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (info == null) {
         return true;
       }
@@ -228,7 +227,7 @@ public class Actions {
     }
   }
 
-  public static class ActionbarAction extends Action {
+  public static class ActionbarAction extends Action<CommandSender> {
 
     private final boolean broadcast;
     private final String message;
@@ -242,21 +241,21 @@ public class Actions {
     }
 
     public ActionbarAction(final String message, final boolean broadcast,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.message = message;
       this.broadcast = broadcast;
     }
 
     public ActionbarAction(final String message, final boolean broadcast,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.message = message;
       this.broadcast = broadcast;
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (broadcast) {
         ActionbarAPI.broadcast(message);
       } else if (context.player() != null) {
@@ -267,7 +266,7 @@ public class Actions {
     }
   }
 
-  public static class TeleportAction extends Action {
+  public static class TeleportAction extends Action<CommandSender> {
 
     private final boolean all;
     private final Location loc;
@@ -280,13 +279,13 @@ public class Actions {
       this(loc, all, null);
     }
 
-    public TeleportAction(final Location loc, final boolean all, final Condition conditions) {
+    public TeleportAction(final Location loc, final boolean all, final Condition<CommandSender> conditions) {
       super(conditions);
       this.loc = loc;
       this.all = all;
     }
 
-    public TeleportAction(final Location loc, final boolean all, final Condition conditions,
+    public TeleportAction(final Location loc, final boolean all, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.loc = loc;
@@ -294,7 +293,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (loc == null) {
         return true;
       }
@@ -310,7 +309,7 @@ public class Actions {
     }
   }
 
-  public static class SoundAction extends Action {
+  public static class SoundAction extends Action<CommandSender> {
 
     private final String sound;
     private final Sound bukkitSound;
@@ -327,7 +326,7 @@ public class Actions {
     }
 
     public SoundAction(final String sound, final float volume, final float pitch, final boolean broadcast,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -337,7 +336,7 @@ public class Actions {
     }
 
     public SoundAction(final String sound, final float volume, final float pitch, final boolean broadcast,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -347,7 +346,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (sound == null) {
         return true;
       }
@@ -371,7 +370,7 @@ public class Actions {
     }
   }
 
-  public static class ParticleAction extends Action {
+  public static class ParticleAction extends Action<CommandSender> {
 
     private final Particle particle;
     private final int count;
@@ -387,7 +386,7 @@ public class Actions {
 
     public ParticleAction(final Particle particle, final int count, final double offsetX, final double offsetY,
         final double offsetZ, final double speed, final boolean broadcast,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.particle = particle;
       this.count = count;
@@ -400,7 +399,7 @@ public class Actions {
 
     public ParticleAction(final Particle particle, final int count, final double offsetX, final double offsetY,
         final double offsetZ, final double speed, final boolean broadcast,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.particle = particle;
       this.count = count;
@@ -412,7 +411,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (particle == null) {
         return true;
       }
@@ -428,7 +427,7 @@ public class Actions {
     }
   }
 
-  public static class GiveItemAction extends Action {
+  public static class GiveItemAction extends Action<CommandSender> {
 
     private final ItemStack item;
 
@@ -436,18 +435,18 @@ public class Actions {
       this(item, null);
     }
 
-    public GiveItemAction(final ItemStack item, final Condition conditions) {
+    public GiveItemAction(final ItemStack item, final Condition<CommandSender> conditions) {
       super(conditions);
       this.item = item;
     }
 
-    public GiveItemAction(final ItemStack item, final Condition conditions, final boolean useSync) {
+    public GiveItemAction(final ItemStack item, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.item = item;
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (item == null) {
         return true;
       }
@@ -463,7 +462,7 @@ public class Actions {
     }
   }
 
-  public static class RemoveItemAction extends Action {
+  public static class RemoveItemAction extends Action<CommandSender> {
 
     private final Material material;
     private final int amount;
@@ -472,13 +471,13 @@ public class Actions {
       this(material, amount, null);
     }
 
-    public RemoveItemAction(final Material material, final int amount, final Condition conditions) {
+    public RemoveItemAction(final Material material, final int amount, final Condition<CommandSender> conditions) {
       super(conditions);
       this.material = material;
       this.amount = Math.max(1, amount);
     }
 
-    public RemoveItemAction(final Material material, final int amount, final Condition conditions,
+    public RemoveItemAction(final Material material, final int amount, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.material = material;
@@ -486,7 +485,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (material == null) {
         return true;
       }
@@ -513,7 +512,7 @@ public class Actions {
     }
   }
 
-  public static class ExperienceAction extends Action {
+  public static class ExperienceAction extends Action<CommandSender> {
 
     private final int amount;
 
@@ -521,18 +520,18 @@ public class Actions {
       this(amount, null);
     }
 
-    public ExperienceAction(final int amount, final Condition conditions) {
+    public ExperienceAction(final int amount, final Condition<CommandSender> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public ExperienceAction(final int amount, final Condition conditions, final boolean useSync) {
+    public ExperienceAction(final int amount, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Player player = context.player();
       if (player != null) {
         player.giveExp(amount);
@@ -541,7 +540,7 @@ public class Actions {
     }
   }
 
-  public static class LevelAction extends Action {
+  public static class LevelAction extends Action<CommandSender> {
 
     private final int amount;
 
@@ -549,18 +548,18 @@ public class Actions {
       this(amount, null);
     }
 
-    public LevelAction(final int amount, final Condition conditions) {
+    public LevelAction(final int amount, final Condition<CommandSender> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public LevelAction(final int amount, final Condition conditions, final boolean useSync) {
+    public LevelAction(final int amount, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Player player = context.player();
       if (player != null) {
         player.setLevel(Math.max(0, player.getLevel() + amount));
@@ -569,7 +568,7 @@ public class Actions {
     }
   }
 
-  public static class HealthAction extends Action {
+  public static class HealthAction extends Action<CommandSender> {
 
     private final double amount;
 
@@ -577,18 +576,18 @@ public class Actions {
       this(amount, null);
     }
 
-    public HealthAction(final double amount, final Condition conditions) {
+    public HealthAction(final double amount, final Condition<CommandSender> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public HealthAction(final double amount, final Condition conditions, final boolean useSync) {
+    public HealthAction(final double amount, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -601,7 +600,7 @@ public class Actions {
     }
   }
 
-  public static class FoodAction extends Action {
+  public static class FoodAction extends Action<CommandSender> {
 
     private final int amount;
     private final float saturation;
@@ -610,13 +609,13 @@ public class Actions {
       this(amount, 0f, null);
     }
 
-    public FoodAction(final int amount, final float saturation, final Condition conditions) {
+    public FoodAction(final int amount, final float saturation, final Condition<CommandSender> conditions) {
       super(conditions);
       this.amount = amount;
       this.saturation = saturation;
     }
 
-    public FoodAction(final int amount, final float saturation, final Condition conditions,
+    public FoodAction(final int amount, final float saturation, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
@@ -624,7 +623,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -637,7 +636,7 @@ public class Actions {
     }
   }
 
-  public static class DelayAction extends Action {
+  public static class DelayAction extends Action<CommandSender> {
 
     private final long delayTicks;
 
@@ -646,7 +645,7 @@ public class Actions {
       this.delayTicks = Math.max(0L, duration.getSeconds() * 20);
     }
 
-    public DelayAction(final Duration duration, final Condition conditions) {
+    public DelayAction(final Duration duration, final Condition<CommandSender> conditions) {
       super(conditions, true);
       this.delayTicks = Math.max(0L, duration.getSeconds() * 20);
     }
@@ -656,12 +655,12 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       return true;
     }
   }
 
-  public static class StopSoundAction extends Action {
+  public static class StopSoundAction extends Action<CommandSender> {
 
     private final String sound;
     private final Sound bukkitSound;
@@ -677,7 +676,7 @@ public class Actions {
     }
 
     public StopSoundAction(final String sound, final SoundCategory category, final boolean broadcast,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -686,7 +685,7 @@ public class Actions {
     }
 
     public StopSoundAction(final String sound, final SoundCategory category, final boolean broadcast,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.sound = sound;
       this.bukkitSound = resolveCachedSound(sound);
@@ -695,7 +694,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           stop(p);
@@ -732,7 +731,7 @@ public class Actions {
     }
   }
 
-  public static class MovementAction extends Action {
+  public static class MovementAction extends Action<CommandSender> {
 
     private final Vector velocity;
     private final MathOperation operation;
@@ -744,7 +743,7 @@ public class Actions {
     }
 
     public MovementAction(final Vector velocity, final MathOperation operation, final boolean useLookDirection,
-        final boolean broadcast, final Condition conditions) {
+        final boolean broadcast, final Condition<CommandSender> conditions) {
       super(conditions);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
       this.operation = operation;
@@ -753,7 +752,7 @@ public class Actions {
     }
 
     public MovementAction(final Vector velocity, final MathOperation operation, final boolean useLookDirection,
-        final boolean broadcast, final Condition conditions, final boolean useSync) {
+        final boolean broadcast, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.velocity = velocity == null ? new Vector() : velocity.clone();
       this.operation = operation;
@@ -762,7 +761,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
@@ -787,7 +786,7 @@ public class Actions {
     }
   }
 
-  public static class GameModeAction extends Action {
+  public static class GameModeAction extends Action<CommandSender> {
 
     private final GameMode gameMode;
     private final boolean broadcast;
@@ -796,13 +795,13 @@ public class Actions {
       this(gameMode, false, null);
     }
 
-    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition conditions) {
+    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition<CommandSender> conditions) {
       super(conditions);
       this.gameMode = gameMode;
       this.broadcast = broadcast;
     }
 
-    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition conditions,
+    public GameModeAction(final GameMode gameMode, final boolean broadcast, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.gameMode = gameMode;
@@ -810,7 +809,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (gameMode == null) {
         return true;
       }
@@ -826,7 +825,7 @@ public class Actions {
     }
   }
 
-  public static class FlyAction extends Action {
+  public static class FlyAction extends Action<CommandSender> {
 
     private final boolean allowFlight;
     private final boolean flying;
@@ -837,7 +836,7 @@ public class Actions {
     }
 
     public FlyAction(final boolean allowFlight, final boolean flying, final boolean broadcast,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.allowFlight = allowFlight;
       this.flying = flying;
@@ -845,7 +844,7 @@ public class Actions {
     }
 
     public FlyAction(final boolean allowFlight, final boolean flying, final boolean broadcast,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.allowFlight = allowFlight;
       this.flying = flying;
@@ -853,7 +852,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
@@ -877,7 +876,7 @@ public class Actions {
     }
   }
 
-  public static class InvulnerableAction extends Action {
+  public static class InvulnerableAction extends Action<CommandSender> {
 
     private final boolean invulnerable;
     private final long durationTicks;
@@ -888,7 +887,7 @@ public class Actions {
     }
 
     public InvulnerableAction(final boolean invulnerable, final Duration duration, final boolean broadcast,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.invulnerable = invulnerable;
       this.durationTicks = duration == null ? -1 : duration.getSeconds() * 20;
@@ -896,7 +895,7 @@ public class Actions {
     }
 
     public InvulnerableAction(final boolean invulnerable, final Duration duration, final boolean broadcast,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.invulnerable = invulnerable;
       this.durationTicks = duration == null ? -1 : duration.getSeconds() * 20;
@@ -904,7 +903,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
@@ -937,7 +936,7 @@ public class Actions {
     }
   }
 
-  public static class SummonAction extends Action {
+  public static class SummonAction extends Action<CommandSender> {
 
     private final EntityType type;
     private final int amount;
@@ -950,7 +949,7 @@ public class Actions {
     }
 
     public SummonAction(final EntityType type, final int amount, final Location location, final boolean atPlayer,
-        final Consumer<Entity> customizer, final Condition conditions) {
+        final Consumer<Entity> customizer, final Condition<CommandSender> conditions) {
       super(conditions);
       this.type = type;
       this.amount = Math.max(1, amount);
@@ -960,7 +959,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (type == null) {
         return true;
       }
@@ -991,7 +990,7 @@ public class Actions {
     }
   }
 
-  public static class WeatherAction extends Action {
+  public static class WeatherAction extends Action<CommandSender> {
 
     public enum WeatherType {
       CLEAR,
@@ -1012,7 +1011,7 @@ public class Actions {
     }
 
     public WeatherAction(final WeatherType type, final String worldName, final int durationTicks,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.type = type == null ? WeatherType.CLEAR : type;
       this.worldName = worldName;
@@ -1020,7 +1019,7 @@ public class Actions {
     }
 
     public WeatherAction(final WeatherType type, final String worldName, final int durationTicks,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.type = type == null ? WeatherType.CLEAR : type;
       this.worldName = worldName;
@@ -1028,7 +1027,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final World world = resolveWorld(context, worldName);
       if (world == null) {
         return true;
@@ -1059,7 +1058,7 @@ public class Actions {
     }
   }
 
-  public static class TimeAction extends Action {
+  public static class TimeAction extends Action<CommandSender> {
 
     private final long time;
     private final boolean add;
@@ -1074,7 +1073,7 @@ public class Actions {
     }
 
     public TimeAction(final long time, final boolean add, final String worldName,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.time = time;
       this.add = add;
@@ -1082,7 +1081,7 @@ public class Actions {
     }
 
     public TimeAction(final long time, final boolean add, final String worldName,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.time = time;
       this.add = add;
@@ -1090,7 +1089,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final World world = resolveWorld(context, worldName);
       if (world == null) {
         return true;
@@ -1104,7 +1103,7 @@ public class Actions {
     }
   }
 
-  public static class BlockPlaceAction extends Action {
+  public static class BlockPlaceAction extends Action<CommandSender> {
 
     private final Location location;
     private final boolean atPlayer;
@@ -1125,7 +1124,7 @@ public class Actions {
     }
 
     public BlockPlaceAction(final Location location, final boolean atPlayer, final Material material,
-        final BlockData blockData, final boolean applyPhysics, final Condition conditions) {
+        final BlockData blockData, final boolean applyPhysics, final Condition<CommandSender> conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1135,7 +1134,7 @@ public class Actions {
     }
 
     public BlockPlaceAction(final Location location, final boolean atPlayer, final Material material,
-        final BlockData blockData, final boolean applyPhysics, final Condition conditions,
+        final BlockData blockData, final boolean applyPhysics, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
@@ -1146,7 +1145,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1161,7 +1160,7 @@ public class Actions {
     }
   }
 
-  public static class BlockBreakAction extends Action {
+  public static class BlockBreakAction extends Action<CommandSender> {
 
     private final Location location;
     private final boolean atPlayer;
@@ -1177,7 +1176,7 @@ public class Actions {
     }
 
     public BlockBreakAction(final Location location, final boolean atPlayer, final boolean dropItems,
-        final boolean applyPhysics, final Condition conditions) {
+        final boolean applyPhysics, final Condition<CommandSender> conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1186,7 +1185,7 @@ public class Actions {
     }
 
     public BlockBreakAction(final Location location, final boolean atPlayer, final boolean dropItems,
-        final boolean applyPhysics, final Condition conditions, final boolean useSync) {
+        final boolean applyPhysics, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1195,7 +1194,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1210,7 +1209,7 @@ public class Actions {
     }
   }
 
-  public static class BlockReplaceAction extends Action {
+  public static class BlockReplaceAction extends Action<CommandSender> {
 
     private final Location location;
     private final boolean atPlayer;
@@ -1228,7 +1227,7 @@ public class Actions {
     }
 
     public BlockReplaceAction(final Location location, final boolean atPlayer, final Material from, final Material to,
-        final BlockData toData, final boolean applyPhysics, final Condition conditions) {
+        final BlockData toData, final boolean applyPhysics, final Condition<CommandSender> conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1239,7 +1238,7 @@ public class Actions {
     }
 
     public BlockReplaceAction(final Location location, final boolean atPlayer, final Material from, final Material to,
-        final BlockData toData, final boolean applyPhysics, final Condition conditions,
+        final BlockData toData, final boolean applyPhysics, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
@@ -1251,7 +1250,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1271,7 +1270,7 @@ public class Actions {
     }
   }
 
-  public static class ExplosionAction extends Action {
+  public static class ExplosionAction extends Action<CommandSender> {
 
     private final Location location;
     private final boolean atPlayer;
@@ -1288,7 +1287,7 @@ public class Actions {
     }
 
     public ExplosionAction(final Location location, final boolean atPlayer, final float power, final boolean setFire,
-        final boolean breakBlocks, final Condition conditions) {
+        final boolean breakBlocks, final Condition<CommandSender> conditions) {
       super(conditions);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1298,7 +1297,7 @@ public class Actions {
     }
 
     public ExplosionAction(final Location location, final boolean atPlayer, final float power, final boolean setFire,
-        final boolean breakBlocks, final Condition conditions, final boolean useSync) {
+        final boolean breakBlocks, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.location = location == null ? null : location.clone();
       this.atPlayer = atPlayer;
@@ -1308,7 +1307,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1318,7 +1317,7 @@ public class Actions {
     }
   }
 
-  public static class LogAction extends Action {
+  public static class LogAction extends Action<CommandSender> {
 
     private static final Logger LOGGER = Logger.getLogger(LogAction.class.getName());
     private final String message;
@@ -1338,7 +1337,7 @@ public class Actions {
     }
 
     public LogAction(final String message, final Level level, final String loggerName,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions, true);
       this.message = message == null ? "" : message;
       this.level = level == null ? Level.INFO : level;
@@ -1346,7 +1345,7 @@ public class Actions {
     }
 
     public LogAction(final String message, final Level level, final String loggerName,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.message = message == null ? "" : message;
       this.level = level == null ? Level.INFO : level;
@@ -1354,7 +1353,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       String out = message;
       if (context.player() != null) {
         final Player player = context.player();
@@ -1368,33 +1367,36 @@ public class Actions {
     }
   }
 
-  public static class RandomAction extends Action {
+  public static class RandomAction extends Action<CommandSender> {
 
-    private final List<Action> actions;
+    private final List<Action<CommandSender>> actions;
 
-    public RandomAction(final Action... actions) {
+    @SafeVarargs
+    public RandomAction(final Action<CommandSender>... actions) {
       this(actions == null ? Collections.emptyList() : Arrays.asList(actions), null);
     }
 
-    public RandomAction(final Collection<? extends Action> actions) {
+    public RandomAction(final Collection<? extends Action<CommandSender>> actions) {
       this(actions, null);
     }
 
-    public RandomAction(final Collection<? extends Action> actions, final Condition conditions) {
+    public RandomAction(final Collection<? extends Action<CommandSender>> actions,
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
     }
 
-    public RandomAction(final Collection<? extends Action> actions, final Condition conditions,
+    public RandomAction(final Collection<? extends Action<CommandSender>> actions,
+        final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
-      final List<Action> candidates = new ArrayList<>();
-      for (final Action action : actions) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
+      final List<Action<CommandSender>> candidates = new ArrayList<>();
+      for (final Action<CommandSender> action : actions) {
         if (action != null) {
           candidates.add(action);
         }
@@ -1402,25 +1404,25 @@ public class Actions {
       if (candidates.isEmpty()) {
         return true;
       }
-      final Action chosen = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+      final Action<CommandSender> chosen = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
       return chosen.execute(context);
     }
   }
 
-  public static class WeightedRandomAction extends Action {
+  public static class WeightedRandomAction extends Action<CommandSender> {
 
     private final List<Entry> entries = new ArrayList<>();
 
     public static final class Entry {
-      private final Action action;
+      private final Action<CommandSender> action;
       private final double weight;
 
-      public Entry(final Action action, final double weight) {
+      public Entry(final Action<CommandSender> action, final double weight) {
         this.action = action;
         this.weight = weight;
       }
 
-      public Action getAction() {
+      public Action<CommandSender> getAction() {
         return action;
       }
 
@@ -1429,12 +1431,12 @@ public class Actions {
       }
     }
 
-    public WeightedRandomAction(final Map<Action, ? extends Number> weightedActions) {
+    public WeightedRandomAction(final Map<Action<CommandSender>, ? extends Number> weightedActions) {
       this(toEntries(weightedActions), null);
     }
 
-    public WeightedRandomAction(final Map<Action, ? extends Number> weightedActions,
-        final Condition conditions) {
+    public WeightedRandomAction(final Map<Action<CommandSender>, ? extends Number> weightedActions,
+        final Condition<CommandSender> conditions) {
       this(toEntries(weightedActions), conditions);
     }
 
@@ -1442,23 +1444,23 @@ public class Actions {
       this(weightedEntries, null);
     }
 
-    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition conditions) {
+    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition<CommandSender> conditions) {
       super(conditions);
       addEntries(weightedEntries);
     }
 
-    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition conditions,
+    public WeightedRandomAction(final Collection<Entry> weightedEntries, final Condition<CommandSender> conditions,
         final boolean useSync) {
       super(conditions, useSync);
       addEntries(weightedEntries);
     }
 
-    private static Collection<Entry> toEntries(final Map<Action, ? extends Number> weightedActions) {
+    private static Collection<Entry> toEntries(final Map<Action<CommandSender>, ? extends Number> weightedActions) {
       if (weightedActions == null || weightedActions.isEmpty()) {
         return Collections.emptyList();
       }
       final List<Entry> list = new ArrayList<>();
-      for (final Map.Entry<Action, ? extends Number> e : weightedActions.entrySet()) {
+      for (final Map.Entry<Action<CommandSender>, ? extends Number> e : weightedActions.entrySet()) {
         if (e.getKey() != null && e.getValue() != null) {
           list.add(new Entry(e.getKey(), Math.max(0.0, e.getValue().doubleValue())));
         }
@@ -1478,7 +1480,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (entries.isEmpty()) {
         return true;
       }
@@ -1501,27 +1503,29 @@ public class Actions {
     }
   }
 
-  public static class RepeatAction extends Action {
+  public static class RepeatAction extends Action<CommandSender> {
 
-    private final List<Action> actions;
+    private final List<Action<CommandSender>> actions;
     private final int times;
     private final long intervalTicks;
     private final long initialDelayTicks;
 
-    public RepeatAction(final Action action, final int times) {
+    public RepeatAction(final Action<CommandSender> action, final int times) {
       this(action == null ? Collections.emptyList() : Collections.singletonList(action), times, 0L, 0L, null);
     }
 
-    public RepeatAction(final int times, final Action... actions) {
+    @SafeVarargs
+    public RepeatAction(final int times, final Action<CommandSender>... actions) {
       this(actions == null ? Collections.emptyList() : Arrays.asList(actions), times, 0L, 0L, null);
     }
 
-    public RepeatAction(final Collection<? extends Action> actions, final int times) {
+    public RepeatAction(final Collection<? extends Action<CommandSender>> actions, final int times) {
       this(actions, times, 0L, 0L, null);
     }
 
-    public RepeatAction(final Collection<? extends Action> actions, final int times, final long intervalTicks,
-        final long initialDelayTicks, final Condition conditions) {
+    public RepeatAction(final Collection<? extends Action<CommandSender>> actions, final int times,
+        final long intervalTicks,
+        final long initialDelayTicks, final Condition<CommandSender> conditions) {
       super(conditions);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
       this.times = Math.max(0, times);
@@ -1529,8 +1533,9 @@ public class Actions {
       this.initialDelayTicks = Math.max(0L, initialDelayTicks);
     }
 
-    public RepeatAction(final Collection<? extends Action> actions, final int times, final long intervalTicks,
-        final long initialDelayTicks, final Condition conditions, final boolean useSync) {
+    public RepeatAction(final Collection<? extends Action<CommandSender>> actions, final int times,
+        final long intervalTicks,
+        final long initialDelayTicks, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.actions = actions == null ? Collections.emptyList() : new ArrayList<>(actions);
       this.times = Math.max(0, times);
@@ -1539,7 +1544,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (times <= 0 || actions.isEmpty() || context == null) {
         return true;
       }
@@ -1586,8 +1591,8 @@ public class Actions {
       return true;
     }
 
-    private boolean runOnce(final ActionContext context) {
-      for (final Action action : actions) {
+    private boolean runOnce(final ConditionContext<CommandSender> context) {
+      for (final Action<CommandSender> action : actions) {
         if (context.isStopped()) {
           return false;
         }
@@ -1603,7 +1608,7 @@ public class Actions {
     }
   }
 
-  private static World resolveWorld(final ActionContext context, final String worldName) {
+  private static World resolveWorld(final ConditionContext<CommandSender> context, final String worldName) {
     if (worldName != null && !worldName.isEmpty()) {
       return Bukkit.getWorld(worldName);
     }
@@ -1611,7 +1616,7 @@ public class Actions {
     return player == null ? null : player.getWorld();
   }
 
-  private static Location resolveLocation(final ActionContext context, final Location location,
+  private static Location resolveLocation(final ConditionContext<CommandSender> context, final Location location,
       final boolean atPlayer) {
     if (atPlayer) {
       final Player player = context.player();

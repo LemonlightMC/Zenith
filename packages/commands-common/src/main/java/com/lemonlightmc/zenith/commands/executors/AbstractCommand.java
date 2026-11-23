@@ -1,8 +1,6 @@
 package com.lemonlightmc.zenith.commands.executors;
 
 import com.lemonlightmc.zenith.additive.StringUtils;
-import com.lemonlightmc.zenith.commands.CommandRequirement;
-import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.SimpleSubCommand;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
@@ -13,6 +11,10 @@ import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.executors.Executors.NormalExecutor;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
+import com.lemonlightmc.zenith.utils.actions.Condition;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.utils.actions.Conditions;
+import com.lemonlightmc.zenith.utils.actions.Condition.ConditionSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +24,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extends Executable<T, S> {
+import org.bukkit.command.CommandSender;
+
+public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends CommandSender>
+    extends Executable<T, S> {
 
   // List instead of Set due n being small and dublicate check is
   // in the Command Building Phase
@@ -31,7 +36,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   // per alias mapping - keep initalialized to null when empty
   protected Map<String, SimpleSubCommand<S>> subcommands = null;
   // keep initalialized to null when empty
-  protected List<CommandRequirement<CommandSource<S>>> requirements = null;
+  protected ConditionSet<S> requirements = null;
 
   protected String shortDescription;
   protected String fullDescription;
@@ -147,50 +152,25 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
   }
 
   // ============ Requirements ============
-  public T withRequirements(final CommandRequirement<CommandSource<S>> requirement) {
-    if (requirement == null) {
-      return self();
-    }
-    if (requirements == null) {
-      requirements = new ArrayList<>();
-    }
-    requirements.add(requirement);
+  public T withRequirements(final Condition<S> condition) {
+    requirements().add(condition);
     return self();
   }
 
   @SafeVarargs
-  public final T withRequirements(final CommandRequirement<CommandSource<S>>... requirements) {
-    if (requirements == null || requirements.length == 0) {
-      return self();
-    }
-    if (this.requirements == null) {
-      this.requirements = new ArrayList<>();
-    }
-    for (final CommandRequirement<CommandSource<S>> requirement : requirements) {
-      if (requirement != null) {
-        this.requirements.add(requirement);
-      }
-    }
+  public final T withRequirements(final Condition<S>... conditions) {
+    requirements().addAll(conditions);
     return self();
   }
 
-  public T withRequirements(final Collection<CommandRequirement<CommandSource<S>>> requirements) {
-    if (requirements != null && requirements.isEmpty()) {
-      return self();
-    }
-    if (this.requirements == null) {
-      this.requirements = new ArrayList<>();
-    }
-    for (final CommandRequirement<CommandSource<S>> requirement : requirements) {
-      if (requirement != null) {
-        this.requirements.add(requirement);
-      }
-    }
+  public T withRequirements(final Collection<Condition<S>> conditions) {
+    requirements().addAll(conditions);
     return self();
   }
 
-  public T withRequirements(final Predicate<CommandSource<S>> requirement) {
-    return withRequirements(requirement == null ? null : CommandRequirement.from(requirement));
+  public T withRequirements(final Predicate<ConditionContext<S>> predicate) {
+    requirements().add(Condition.of(predicate));
+    return self();
   }
 
   public T withPermissions(String permission) {
@@ -198,10 +178,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     if (permission == null) {
       return self();
     }
-    if (this.requirements == null) {
-      this.requirements = new ArrayList<>();
-    }
-    this.requirements.add(CommandRequirement.permission(permission));
+    requirements().add(Conditions.PermissionConditions.allowed(permission));
     return self();
   }
 
@@ -209,13 +186,10 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     if (permissions == null || permissions.length == 0) {
       return self();
     }
-    if (this.requirements == null) {
-      this.requirements = new ArrayList<>();
-    }
     for (String perm : permissions) {
       perm = StringUtils.prepare(perm);
       if (perm != null) {
-        this.requirements.add(CommandRequirement.permission(perm));
+        requirements().add(Conditions.PermissionConditions.allowed(perm));
       }
     }
     return self();
@@ -225,19 +199,16 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     if (permissions == null || permissions.isEmpty()) {
       return self();
     }
-    if (this.requirements == null) {
-      this.requirements = new ArrayList<>();
-    }
     for (String perm : permissions) {
       perm = StringUtils.prepare(perm);
       if (perm != null) {
-        this.requirements.add(CommandRequirement.permission(perm));
+        requirements().add(Conditions.PermissionConditions.allowed(perm));
       }
     }
     return self();
   }
 
-  public T setRequirements(final List<CommandRequirement<CommandSource<S>>> requirements) {
+  public T setRequirements(final List<Condition<S>> requirements) {
     if (requirements == null) {
       return self();
     }
@@ -245,16 +216,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
       this.requirements = null;
       return self();
     }
-    if (this.requirements == null) {
-      this.requirements = new ArrayList<>();
-    } else {
-      this.requirements.clear();
-    }
-    for (final CommandRequirement<CommandSource<S>> requirement : requirements) {
-      if (requirement != null) {
-        this.requirements.add(requirement);
-      }
-    }
+    requirements().addAll(requirements);
     return self();
   }
 
@@ -269,25 +231,18 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     return self();
   }
 
-  public List<CommandRequirement<CommandSource<S>>> requirements() {
+  public ConditionSet<S> requirements() {
+    if (requirements == null) {
+      requirements = new ConditionSet<S>();
+    }
     return requirements;
   }
 
-  public boolean checkRequirements(final CommandSource<S> source) {
+  public boolean checkRequirements(final ConditionContext<S> source) {
     if (requirements == null) {
       return true;
     }
-    final int len = requirements.size();
-    if (len == 0) {
-      requirements = null;
-      return true;
-    }
-    for (int i = 0; i < len; i++) {
-      if (!requirements.get(i).test(source)) {
-        return false;
-      }
-    }
-    return true;
+    return requirements.test(source);
   }
 
   // ============ Arguments ============
@@ -615,16 +570,17 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S> extend
     return false;
   }
 
-  protected void run(final ExecutionInfo<S> info, final int idx) throws CommandException {
+  protected void run(final ExecutionInfo<S> info, final int idx, final ExecutorType executorType)
+      throws CommandException {
     final SimpleSubCommand<S> sub = getSubcommand(info.args().getRaw(idx));
     if (sub != null) {
-      sub.run(info, idx + 1);
+      sub.run(info, idx + 1, executorType);
       return;
     }
     if (executors.isEmpty()) {
       return;
     }
-    NormalExecutor<? extends S>[] ex = getExecutors(info.source().executorType());
+    NormalExecutor<? extends S>[] ex = getExecutors(executorType);
     if (ex == null) {
       ex = getExecutors(ExecutorType.NATIVE);
     }

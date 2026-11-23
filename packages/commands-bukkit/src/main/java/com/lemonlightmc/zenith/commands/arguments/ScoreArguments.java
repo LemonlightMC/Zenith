@@ -9,7 +9,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -43,7 +43,7 @@ public class ScoreArguments {
      * @return this argument
      */
     @Override
-    public TeamArgument getInstance() {
+    public TeamArgument self() {
       return this;
     }
 
@@ -57,7 +57,7 @@ public class ScoreArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Team parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Team parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(reader.readString());
     }
@@ -84,7 +84,7 @@ public class ScoreArguments {
      * @return this argument
      */
     @Override
-    public ScoreboardSlotArgument getInstance() {
+    public ScoreboardSlotArgument self() {
       return this;
     }
 
@@ -98,7 +98,7 @@ public class ScoreArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ScoreboardSlot parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public ScoreboardSlot parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return ScoreboardSlot.of(reader.readString());
@@ -127,7 +127,7 @@ public class ScoreArguments {
      * @return this argument
      */
     @Override
-    public ObjectiveArgument getInstance() {
+    public ObjectiveArgument self() {
       return this;
     }
 
@@ -141,7 +141,7 @@ public class ScoreArguments {
      * @throws CommandSyntaxException if parsing fails or the objective cannot be resolved
      */
     @Override
-    public Objective parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public Objective parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
@@ -185,7 +185,7 @@ public class ScoreArguments {
      * @return this argument
      */
     @Override
-    public CriteriaArgument getInstance() {
+    public CriteriaArgument self() {
       return this;
     }
 
@@ -199,7 +199,7 @@ public class ScoreArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Criteria parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public Criteria parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Criteria.create(reader.readString()));

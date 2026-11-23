@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -88,7 +88,7 @@ public class CollectionsArguments {
      * @return this argument
      */
     @Override
-    public DynamicListArgument<T> getInstance() {
+    public DynamicListArgument<T> self() {
       return this;
     }
 
@@ -113,7 +113,7 @@ public class CollectionsArguments {
     }
 
     @Override
-    public List<T> parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final Set<String> keys = parseKeys(reader);
       final HashMap<String, T> mapping = new HashMap<>();
@@ -207,7 +207,7 @@ public class CollectionsArguments {
      * @return this argument
      */
     @Override
-    public StaticListArgument<T> getInstance() {
+    public StaticListArgument<T> self() {
       return this;
     }
 
@@ -238,7 +238,7 @@ public class CollectionsArguments {
     }
 
     @Override
-    public List<T> parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final Set<String> keys = parseKeys(reader);
       final List<T> values = new ArrayList<>();

@@ -17,6 +17,9 @@ import org.bukkit.WorldType;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.BlockPopulator;
@@ -28,7 +31,8 @@ import org.bukkit.util.Vector;
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
 
 /**
- * Utility methods for working with worlds, locations, and world generation helpers.
+ * Utility methods for working with worlds, locations, and world generation
+ * helpers.
  */
 public class WorldUtils {
   public static World[] getWorlds() {
@@ -258,6 +262,32 @@ public class WorldUtils {
     return Math.abs(loc1.getBlockX() - loc2.getBlockX()) < 0.0001
         && Math.abs(loc1.getBlockY() - loc2.getBlockY()) < 0.0001
         && Math.abs(loc1.getBlockZ() - loc2.getBlockZ()) < 0.0001;
+  }
+
+  public static Location getLocation(final CommandSender sender) {
+    return switch (sender) {
+      case final Player player -> player.getLocation();
+      case final Entity entity -> entity.getLocation();
+      case final BlockCommandSender block -> block.getBlock().getLocation();
+      default -> null;
+    };
+  }
+
+  public static Entity getEntity(final CommandSender sender) {
+    return switch (sender) {
+      case final Player player -> player;
+      case final Entity entity -> entity;
+      default -> null;
+    };
+  }
+
+  public static World getWorld(final CommandSender sender) {
+    return switch (sender) {
+      case final Player player -> player.getLocation().getWorld();
+      case final Entity entity -> entity.getWorld();
+      case final BlockCommandSender block -> block.getBlock().getWorld();
+      default -> null;
+    };
   }
 
   /**

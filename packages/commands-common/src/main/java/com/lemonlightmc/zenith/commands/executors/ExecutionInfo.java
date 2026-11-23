@@ -1,9 +1,11 @@
 package com.lemonlightmc.zenith.commands.executors;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
-import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
+import org.bukkit.command.CommandSender;
 
-public record ExecutionInfo<S>(CommandSource<S> source,
+import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+
+public record ExecutionInfo<S extends CommandSender>(ConditionContext<S> source,
     CommandArguments args) {
 
   public S sender() {
@@ -11,7 +13,7 @@ public record ExecutionInfo<S>(CommandSource<S> source,
   }
 
   public <T extends S> ExecutionInfo<T> copyFor(final T newSender) {
-    return new ExecutionInfo<>(source.copyFor(newSender), args);
+    return new ExecutionInfo<T>(source.copyFor(newSender), args);
   }
 
   public ExecutionInfo<S> copy() {

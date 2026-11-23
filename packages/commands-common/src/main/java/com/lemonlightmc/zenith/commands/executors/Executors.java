@@ -1,8 +1,10 @@
 package com.lemonlightmc.zenith.commands.executors;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
+import org.bukkit.command.CommandSender;
+
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 
 public class Executors {
 
@@ -30,8 +32,8 @@ public class Executors {
     FEEDBACK_FORWARDING,
   }
 
-  public interface NormalExecutor<S> {
-    void run(CommandSource<S> source, CommandArguments args) throws CommandException;
+  public interface NormalExecutor<S extends CommandSender> {
+    void run(ConditionContext<S> source, CommandArguments args) throws CommandException;
 
     default void run(
         final ExecutionInfo<S> info)
@@ -40,9 +42,9 @@ public class Executors {
     }
 
     @SuppressWarnings("unchecked")
-    default int executeWith(final CommandSource<?> source, final CommandArguments args)
+    default int executeWith(final ConditionContext<?> source, final CommandArguments args)
         throws CommandException {
-      this.run((CommandSource<S>) source, args);
+      this.run((ConditionContext<S>) source, args);
       return 1;
     }
 
@@ -58,13 +60,13 @@ public class Executors {
     }
   }
 
-  public interface NormalExecutorInfo<S> extends NormalExecutor<S> {
+  public interface NormalExecutorInfo<S extends CommandSender> extends NormalExecutor<S> {
     @Override
     void run(ExecutionInfo<S> info) throws CommandException;
 
     @Override
     default void run(
-        final CommandSource<S> source, final CommandArguments args)
+        final ConditionContext<S> source, final CommandArguments args)
         throws CommandException {
       this.run(new ExecutionInfo<>(source, args));
     }
@@ -76,12 +78,10 @@ public class Executors {
   }
 
   @FunctionalInterface
-  public interface CommandExecutor<S>
-      extends
-      NormalExecutor<S> {
+  public interface CommandExecutor<S extends CommandSender> extends NormalExecutor<S> {
 
     @Override
-    void run(CommandSource<S> source, CommandArguments args) throws CommandException;
+    void run(ConditionContext<S> source, CommandArguments args) throws CommandException;
 
     @Override
     default ExecutorType getType() {
@@ -90,9 +90,7 @@ public class Executors {
   }
 
   @FunctionalInterface
-  public interface CommandExecutionInfo<S>
-      extends
-      NormalExecutorInfo<S> {
+  public interface CommandExecutionInfo<S extends CommandSender> extends NormalExecutorInfo<S> {
 
     @Override
     void run(ExecutionInfo<S> info) throws CommandException;

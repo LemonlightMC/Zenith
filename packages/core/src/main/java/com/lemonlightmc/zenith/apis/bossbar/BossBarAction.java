@@ -16,11 +16,14 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.utils.actions.Action;
 import com.lemonlightmc.zenith.utils.actions.Condition;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 
 /**
  * Action implementation that creates and displays a boss bar for players.
  *
- * <p>The action can target a specific player context or broadcast to all online players, and optionally remove the
+ * <p>
+ * The action can target a specific player context or broadcast to all online
+ * players, and optionally remove the
  * created bar after a configured duration.
  */
 public class BossBarAction extends Action {
@@ -46,12 +49,14 @@ public class BossBarAction extends Action {
   /**
    * Creates a boss bar action with default targeting and conditions.
    *
-   * @param key the boss bar key, or {@code null} to derive one from the title
-   * @param title the boss bar title
-   * @param color the boss bar color
-   * @param style the boss bar style
-   * @param progress the initial progress value
-   * @param durationTicks the display duration in ticks, or a non-positive value to keep the bar
+   * @param key           the boss bar key, or {@code null} to derive one from the
+   *                      title
+   * @param title         the boss bar title
+   * @param color         the boss bar color
+   * @param style         the boss bar style
+   * @param progress      the initial progress value
+   * @param durationTicks the display duration in ticks, or a non-positive value
+   *                      to keep the bar
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks) {
@@ -61,14 +66,17 @@ public class BossBarAction extends Action {
   /**
    * Creates a boss bar action with broadcast and condition settings.
    *
-   * @param key the boss bar key, or {@code null} to derive one from the title
-   * @param title the boss bar title
-   * @param color the boss bar color
-   * @param style the boss bar style
-   * @param progress the initial progress value
-   * @param durationTicks the display duration in ticks, or a non-positive value to keep the bar
-   * @param broadcast whether the boss bar should be shown to all online players
-   * @param conditions the conditions required for execution
+   * @param key           the boss bar key, or {@code null} to derive one from the
+   *                      title
+   * @param title         the boss bar title
+   * @param color         the boss bar color
+   * @param style         the boss bar style
+   * @param progress      the initial progress value
+   * @param durationTicks the display duration in ticks, or a non-positive value
+   *                      to keep the bar
+   * @param broadcast     whether the boss bar should be shown to all online
+   *                      players
+   * @param conditions    the conditions required for execution
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
@@ -84,17 +92,21 @@ public class BossBarAction extends Action {
   }
 
   /**
-   * Creates a boss bar action with broadcast, condition, and synchronization settings.
+   * Creates a boss bar action with broadcast, condition, and synchronization
+   * settings.
    *
-   * @param key the boss bar key, or {@code null} to derive one from the title
-   * @param title the boss bar title
-   * @param color the boss bar color
-   * @param style the boss bar style
-   * @param progress the initial progress value
-   * @param durationTicks the display duration in ticks, or a non-positive value to keep the bar
-   * @param broadcast whether the boss bar should be shown to all online players
-   * @param conditions the conditions required for execution
-   * @param useSync whether execution should be synchronized
+   * @param key           the boss bar key, or {@code null} to derive one from the
+   *                      title
+   * @param title         the boss bar title
+   * @param color         the boss bar color
+   * @param style         the boss bar style
+   * @param progress      the initial progress value
+   * @param durationTicks the display duration in ticks, or a non-positive value
+   *                      to keep the bar
+   * @param broadcast     whether the boss bar should be shown to all online
+   *                      players
+   * @param conditions    the conditions required for execution
+   * @param useSync       whether execution should be synchronized
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
@@ -116,7 +128,7 @@ public class BossBarAction extends Action {
    * @return {@code true} after the action has been applied
    */
   @Override
-  protected boolean run(final Action.ActionContext context) {
+  protected boolean run(final ConditionContext context) {
     final NamespacedKey effectiveKey = key != null ? key
         : NamespacedKey.minecraft("zenith_action_" + Math.abs(title.hashCode()));
     BossbarAPI.removeBar(effectiveKey);
@@ -126,7 +138,7 @@ public class BossBarAction extends Action {
         BossbarAPI.addBar(p, bar);
       }
     } else if (context.player() != null) {
-        final Player player = context.player();
+      final Player player = context.player();
       BossbarAPI.addBar(player, bar);
     }
     if (durationTicks > 0) {
@@ -149,10 +161,10 @@ public class BossBarAction extends Action {
     /**
      * Deserializes a boss bar action with explicit execution settings.
      *
-     * @param type the target type
-     * @param node the source configuration node
+     * @param type      the target type
+     * @param node      the source configuration node
      * @param condition the condition applied to the action
-     * @param useSync whether the action should execute synchronously
+     * @param useSync   whether the action should execute synchronously
      * @param broadcast whether the action should broadcast to all players
      * @return the deserialized boss bar action
      * @throws SerializationException if deserialization fails
@@ -232,12 +244,13 @@ public class BossBarAction extends Action {
     }
 
     /**
-     * Parses an enum value from configuration input using a case-insensitive fallback strategy.
+     * Parses an enum value from configuration input using a case-insensitive
+     * fallback strategy.
      *
-     * @param <E> the enum type
+     * @param <E>   the enum type
      * @param value the raw configuration value
-     * @param type the enum class to parse
-     * @param def the default value to return when parsing fails
+     * @param type  the enum class to parse
+     * @param def   the default value to return when parsing fails
      * @return the parsed enum value, or {@code def} if parsing fails
      */
     private static <E extends Enum<E>> E parseEnum(final String value, final Class<E> type, final E def) {

@@ -8,22 +8,22 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.utils.actions.Action.ActionContext;
 import com.lemonlightmc.zenith.utils.actions.Actions.DelayAction;
 
-public record ActionHolder(List<Action> actions, Condition condition, String conditionFailureMsg) {
-    public ActionHolder(final List<Action> actions, final Condition condition, final String conditionFailureMsg) {
+public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Condition<S> condition,
+        String conditionFailureMsg) {
+    public ActionHolder(final List<Action<S>> actions, final Condition<S> condition, final String conditionFailureMsg) {
         this.actions = actions != null && actions.isEmpty() ? null : actions;
         this.condition = condition;
         this.conditionFailureMsg = conditionFailureMsg != null && conditionFailureMsg.isBlank() ? null
                 : conditionFailureMsg;
     }
 
-    public ActionHolder(final List<Action> actions, final Condition condition) {
+    public ActionHolder(final List<Action<S>> actions, final Condition<S> condition) {
         this(actions != null && actions.isEmpty() ? null : actions, condition, null);
     }
 
-    public ActionHolder(final List<Action> actions) {
+    public ActionHolder(final List<Action<S>> actions) {
         this(actions != null && actions.isEmpty() ? null : actions, null, null);
     }
 
@@ -31,48 +31,52 @@ public record ActionHolder(List<Action> actions, Condition condition, String con
         this(List.of(), null, null);
     }
 
-    public void execute(final ActionContext context) {
+    public void execute(final ConditionContext<S> context) {
         if (context == null || context.isStopped()) {
             return;
         }
         GlobalScheduler.runLater(() -> runFrom(context, 0), 1);
     }
 
-    public void execute(final CommandSender sender) {
+    public void execute(final S sender) {
         if (sender == null) {
             return;
         }
-        GlobalScheduler.runLater(() -> runFrom(new ActionContext(sender), 0), 1);
+        GlobalScheduler.runLater(() -> runFrom(new ConditionContext<S>(sender), 0), 1);
     }
 
-    public void execute(final CommandSender sender, final Player player) {
+    public void execute(final S sender, final Player player) {
         if (sender == null) {
             return;
         }
-        GlobalScheduler.runLater(() -> runFrom(new ActionContext(sender, player), 0), 1);
+        GlobalScheduler.runLater(() -> runFrom(new ConditionContext<S>(sender, player), 0), 1);
     }
 
-    void runFrom(final ActionContext context, final int startIndex) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    void runFrom(final ConditionContext<S> context, final int startIndex) {
+        if (actions == null || actions.isEmpty()) {
+            return;
+        }
         final int len = actions.size();
-        if (len == 0) {
+        if (condition != null && !condition.test(context)) {
+            if (conditionFailureMsg != null) {
+                context.sendMessage(conditionFailureMsg);
+            }
             return;
-        }
-        if (!condition.test(context)) {
-
         }
         for (int i = startIndex; i < len; i++) {
             if (context.isStopped()) {
                 return;
             }
-            final Action action = actions.get(i);
+            final Action<S> action = actions.get(i);
             if (action == null) {
                 continue;
             }
 
             // Delay actions are handled by the manager to preserve ordered execution.
-            if (action instanceof DelayAction) {
-                final DelayAction delay = (DelayAction) action;
-                if (delay.condition() == null || delay.condition().test(context)) {
+            if (action instanceof DelayAction delay) {
+                final Condition<CommandSender> delayCondition = delay.condition();
+                if (delayCondition == null || ((Condition) delayCondition).test(context)) {
                     final int next = i + 1;
                     if (next < len) {
                         GlobalScheduler.runLater(() -> runFrom(context, next), delay.getDelayTicks());
@@ -97,7 +101,7 @@ public record ActionHolder(List<Action> actions, Condition condition, String con
         }
     }
 
-    private boolean safeExecute(final ActionContext context, final Action action) {
+    private boolean safeExecute(final ConditionContext<S> context, final Action<S> action) {
         try {
             if (action.condition() != null && !action.condition().test(context)) {
                 return true;
@@ -113,8 +117,8 @@ public record ActionHolder(List<Action> actions, Condition condition, String con
         }
     }
 
-    public ActionHolder addActions(final Action action) {
-        if (action == null) {
+    public ActionHolder<S> addActions(final Action<S> action) {
+        if (action == null || actions == null) {
             return this;
         }
         actions.add(action);
@@ -122,24 +126,24 @@ public record ActionHolder(List<Action> actions, Condition condition, String con
     }
 
     @SafeVarargs
-    public final ActionHolder addActions(final Action... toAdd) {
-        if (toAdd == null || toAdd.length == 0) {
+    public final ActionHolder<S> addActions(final Action<S>... toAdd) {
+        if (toAdd == null || toAdd.length == 0 || actions == null) {
             return this;
         }
         actions.addAll(List.of(toAdd));
         return this;
     }
 
-    public ActionHolder addActions(final Collection<? extends Action> toAdd) {
-        if (toAdd == null || toAdd.isEmpty()) {
+    public ActionHolder<S> addActions(final Collection<? extends Action<S>> toAdd) {
+        if (toAdd == null || toAdd.isEmpty() || actions == null) {
             return this;
         }
         actions.addAll(toAdd);
         return this;
     }
 
-    public ActionHolder removeActions(final Action action) {
-        if (action == null || !actions.contains(action)) {
+    public ActionHolder<S> removeActions(final Action<S> action) {
+        if (action == null || actions == null) {
             return this;
         }
         actions.remove(action);
@@ -147,47 +151,46 @@ public record ActionHolder(List<Action> actions, Condition condition, String con
     }
 
     @SafeVarargs
-    public final ActionHolder removeActions(final Action... actions) {
-        if (actions == null || actions.length == 0) {
+    public final ActionHolder<S> removeActions(final Action<S>... toRemove) {
+        if (toRemove == null || toRemove.length == 0 || actions == null) {
             return this;
         }
-        this.actions.removeAll(List.of(actions));
+        this.actions.removeAll(List.of(toRemove));
         return this;
     }
 
-    public ActionHolder removeActions(final Collection<? extends Action> actions) {
-        if (actions == null || actions.isEmpty()) {
+    public ActionHolder<S> removeActions(final Collection<? extends Action<S>> toRemove) {
+        if (toRemove == null || toRemove.isEmpty() || actions == null) {
             return this;
         }
-        actions.removeAll(actions);
+        actions.removeAll(toRemove);
         return this;
     }
 
-    public ActionHolder clearActions() {
-        actions.clear();
-        return this;
-    }
-
-    public boolean hasAction(final Action action) {
-        if (action == null) {
-            return false;
+    public ActionHolder<S> clearActions() {
+        if (actions != null) {
+            actions.clear();
         }
-        return action != null && actions.contains(action);
+        return this;
+    }
+
+    public boolean hasAction(final Action<S> action) {
+        return action != null && actions != null && actions.contains(action);
     }
 
     public boolean hasActions() {
-        return !actions.isEmpty();
+        return actions != null && !actions.isEmpty();
     }
 
     public boolean isEmpty() {
-        return actions.isEmpty();
+        return actions == null || actions.isEmpty();
     }
 
-    public List<Action> actions() {
-        return Collections.unmodifiableList(actions);
+    public List<Action<S>> actions() {
+        return actions == null ? List.of() : Collections.unmodifiableList(actions);
     }
 
     public int size() {
-        return actions.size();
+        return actions == null ? 0 : actions.size();
     }
 }

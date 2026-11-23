@@ -375,41 +375,37 @@ public final class ConditionSerializer implements TypeSerializer<Condition> {
       }, n.delegate());
       return;
     }
-    if (obj instanceof ConditionSet) {
-      final ConditionSet set = (ConditionSet) obj;
+    if (obj instanceof ConditionSet<?> set) {
       node.node("type").set("all");
       final ConfigurationNode arr = node.node("conditions");
-      for (final Condition child : set.children()) {
+      for (final Condition<?> child : set.children()) {
         arr.appendListNode().set(new io.leangen.geantyref.TypeToken<Condition>() {
-        }, child);
+        }, (Condition) child);
       }
       return;
     }
-    if (obj instanceof AndCondition) {
-      final AndCondition c = (AndCondition) obj;
+    if (obj instanceof AndCondition<?> c) {
       node.node("type").set("all");
       node.node("conditions").appendListNode().set(new io.leangen.geantyref.TypeToken<Condition>() {
-      }, c.left());
+      }, (Condition) c.left());
       node.node("conditions").appendListNode().set(new io.leangen.geantyref.TypeToken<Condition>() {
-      }, c.right());
+      }, (Condition) c.right());
       return;
     }
-    if (obj instanceof OrCondition) {
-      final OrCondition c = (OrCondition) obj;
+    if (obj instanceof OrCondition<?> c) {
       node.node("type").set("any");
       node.node("conditions").appendListNode().set(new io.leangen.geantyref.TypeToken<Condition>() {
-      }, c.left());
+      }, (Condition) c.left());
       node.node("conditions").appendListNode().set(new io.leangen.geantyref.TypeToken<Condition>() {
-      }, c.right());
+      }, (Condition) c.right());
       return;
     }
-    if (obj instanceof XorCondition) {
-      final XorCondition c = (XorCondition) obj;
+    if (obj instanceof XorCondition<?> c) {
       node.node("type").set("xor");
       node.node("left").set(new io.leangen.geantyref.TypeToken<Condition>() {
-      }, c.left());
+      }, (Condition) c.left());
       node.node("right").set(new io.leangen.geantyref.TypeToken<Condition>() {
-      }, c.right());
+      }, (Condition) c.right());
       return;
     }
     throw new SerializationException(node, Condition.class,

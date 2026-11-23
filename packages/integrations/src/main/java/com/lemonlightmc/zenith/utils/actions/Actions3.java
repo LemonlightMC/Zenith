@@ -3,6 +3,7 @@ package com.lemonlightmc.zenith.utils.actions;
 import java.math.BigDecimal;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
@@ -15,7 +16,7 @@ import net.milkbowl.vault2.economy.Economy;
 
 public class Actions3 {
 
-  public static class AddCurrencyAction extends Action {
+  public static class AddCurrencyAction extends Action<CommandSender> {
 
     private final double amount;
 
@@ -23,12 +24,12 @@ public class Actions3 {
       this(amount, null);
     }
 
-    public AddCurrencyAction(final double amount, final Condition conditions) {
+    public AddCurrencyAction(final double amount, final Condition<CommandSender> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public AddCurrencyAction(final double amount, final Condition conditions, final boolean useSync) {
+    public AddCurrencyAction(final double amount, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -38,7 +39,7 @@ public class Actions3 {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -52,7 +53,7 @@ public class Actions3 {
     }
   }
 
-  public static class RemoveCurrencyAction extends Action {
+  public static class RemoveCurrencyAction extends Action<CommandSender> {
 
     private final double amount;
 
@@ -60,12 +61,12 @@ public class Actions3 {
       this(amount, null);
     }
 
-    public RemoveCurrencyAction(final double amount, final Condition conditions) {
+    public RemoveCurrencyAction(final double amount, final Condition<CommandSender> conditions) {
       super(conditions);
       this.amount = amount;
     }
 
-    public RemoveCurrencyAction(final double amount, final Condition conditions, final boolean useSync) {
+    public RemoveCurrencyAction(final double amount, final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.amount = amount;
     }
@@ -75,7 +76,7 @@ public class Actions3 {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -89,7 +90,7 @@ public class Actions3 {
     }
   }
 
-  public static class PermissionAction extends Action {
+  public static class PermissionAction extends Action<CommandSender> {
 
     public enum Mode {
       GRANT,
@@ -110,7 +111,7 @@ public class Actions3 {
     }
 
     public PermissionAction(final String permission, final Mode mode, final boolean value,
-        final Condition conditions) {
+        final Condition<CommandSender> conditions) {
       super(conditions);
       this.permission = permission;
       this.mode = mode == null ? Mode.GRANT : mode;
@@ -118,7 +119,7 @@ public class Actions3 {
     }
 
     public PermissionAction(final String permission, final Mode mode, final boolean value,
-        final Condition conditions, final boolean useSync) {
+        final Condition<CommandSender> conditions, final boolean useSync) {
       super(conditions, useSync);
       this.permission = permission;
       this.mode = mode == null ? Mode.GRANT : mode;
@@ -126,7 +127,7 @@ public class Actions3 {
     }
 
     @Override
-    protected boolean run(final ActionContext context) {
+    protected boolean run(final ConditionContext<CommandSender> context) {
       if (permission == null || permission.isEmpty()) {
         return true;
       }

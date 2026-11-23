@@ -1,26 +1,53 @@
 package com.lemonlightmc.zenith.commands.argumentsbase;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
+import org.bukkit.command.CommandSender;
 
-public interface CommandResult<C, S> {
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+
+public interface CommandResult<C, S extends CommandSender> {
+
+  /**
+   * Executes this command for the given sender.
+   *
+   * @param sender the command sender
+   * @return {@code true} if execution succeeds; {@code false} otherwise
+   */
   public boolean execute(final S sender);
 
-  public boolean execute(final CommandSource<S> source);
+  /**
+   * Executes this command using the sender from the given command source.
+   *
+   * @param source the command source providing the sender
+   * @return {@code true} if execution succeeds; {@code false} otherwise
+   */
+  public boolean execute(final ConditionContext<S> source);
 
+  /**
+   * Returns the command associated with this result.
+   *
+   * @return the command
+   */
   public C command();
 
+  /**
+   * Returns the arguments associated with this result.
+   *
+   * @return the arguments
+   */
   public String[] args();
 
-  public int getArgumentCount();
+  /**
+   * Returns the number of arguments stored in this result.
+   *
+   * @return the argument count
+   */
+  public int argumentCount();
 
+  /**
+   * Replaces the argument at the specified index.
+   *
+   * @param idx   the argument index to modify
+   * @param value the new argument value
+   */
   public void modifyArguments(int idx, String value);
-
-  @Override
-  public boolean equals(final Object o);
-
-  @Override
-  public int hashCode();
-
-  @Override
-  public String toString();
 }

@@ -1,10 +1,12 @@
 package com.lemonlightmc.zenith.commands.suggestions;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
-import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
+import org.bukkit.command.CommandSender;
 
-public record SuggestionInfo<S>(
-        CommandSource<S> source,
-        CommandArguments args,
-        String currentInput) {
+import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+
+public record SuggestionInfo<S extends CommandSender>(
+                ConditionContext<S> source,
+                CommandArguments args,
+                String currentInput) {
 }

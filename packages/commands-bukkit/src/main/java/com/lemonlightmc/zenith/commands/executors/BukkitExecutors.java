@@ -8,13 +8,14 @@ import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.executors.Executors.*;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 
 /**
- * Bukkit-specific executor interfaces for handling commands from different sender types.
+ * Bukkit-specific executor interfaces for handling commands from different
+ * sender types.
  */
 public class BukkitExecutors {
 
@@ -22,18 +23,17 @@ public class BukkitExecutors {
    * Executor for commands run by a {@link Player}.
    */
   @FunctionalInterface
-  public interface PlayerCommandExecutor
-      extends NormalExecutor<Player> {
+  public interface PlayerCommandExecutor extends NormalExecutor<Player> {
 
     /**
      * Executes the command for a player source.
      *
      * @param source the player command source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(CommandSource<Player> source, CommandArguments args) throws CommandException;
+    void run(ConditionContext<Player> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for player commands.
@@ -84,11 +84,11 @@ public class BukkitExecutors {
      * Executes the command for an entity source.
      *
      * @param source the entity command source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(CommandSource<Entity> source, CommandArguments args) throws CommandException;
+    void run(ConditionContext<Entity> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for entity commands.
@@ -139,11 +139,11 @@ public class BukkitExecutors {
      * Executes the command for a command block source.
      *
      * @param source the command block source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(CommandSource<BlockCommandSender> source, CommandArguments args)
+    void run(ConditionContext<BlockCommandSender> source, CommandArguments args)
         throws CommandException;
 
     /**
@@ -196,11 +196,11 @@ public class BukkitExecutors {
      * Executes the command for a console source.
      *
      * @param source the console command source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      * @throws CommandException if command execution fails
      */
     @Override
-    abstract void run(CommandSource<ConsoleCommandSender> source, CommandArguments args)
+    abstract void run(ConditionContext<ConsoleCommandSender> source, CommandArguments args)
         throws CommandException;
 
     /**
@@ -253,11 +253,11 @@ public class BukkitExecutors {
      * Executes the command for a remote console source.
      *
      * @param source the remote console command source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(CommandSource<RemoteConsoleCommandSender> source, CommandArguments args)
+    void run(ConditionContext<RemoteConsoleCommandSender> source, CommandArguments args)
         throws CommandException;
 
     /**
@@ -272,7 +272,8 @@ public class BukkitExecutors {
   }
 
   /**
-   * Execution info handler for commands run by a {@link RemoteConsoleCommandSender}.
+   * Execution info handler for commands run by a
+   * {@link RemoteConsoleCommandSender}.
    */
   @FunctionalInterface
   public interface RemoteConsoleExecutionInfo
@@ -339,10 +340,10 @@ public class BukkitExecutors {
      * Executes the command for a feedback-forwarding source.
      *
      * @param source the command source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      */
     @Override
-    void run(CommandSource<CommandSender> source, CommandArguments args);
+    void run(ConditionContext<CommandSender> source, CommandArguments args);
 
     /**
      * Returns the executor type for feedback-forwarding commands.
@@ -366,11 +367,11 @@ public class BukkitExecutors {
      * Executes the command for a proxied source.
      *
      * @param source the proxied command source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(CommandSource<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
+    void run(ConditionContext<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for proxied commands.
@@ -420,11 +421,11 @@ public class BukkitExecutors {
      * Executes the command for a native proxied source.
      *
      * @param source the proxied command source
-     * @param args the parsed command arguments
+     * @param args   the parsed command arguments
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(CommandSource<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
+    void run(ConditionContext<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for native commands.

@@ -2,6 +2,8 @@ package com.lemonlightmc.zenith.commands.exceptions;
 
 import java.util.List;
 
+import org.bukkit.command.CommandSender;
+
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 
 public class GreedyArgumentException extends CommandException {
@@ -12,9 +14,9 @@ public class GreedyArgumentException extends CommandException {
         + " Found arguments: " + str);
   }
 
-  public static <T> String buildArgsStr(final List<Argument<?, ?, T>> arguments) {
+  public static <S extends CommandSender> String buildArgsStr(final List<Argument<?, ?, S>> arguments) {
     final StringBuilder builder = new StringBuilder();
-    for (final Argument<?, ?, T> arg : arguments) {
+    for (final Argument<?, ?, S> arg : arguments) {
       builder.append(arg.getName()).append("<").append(arg.getClass().getSimpleName()).append("> ");
     }
     return builder.toString();

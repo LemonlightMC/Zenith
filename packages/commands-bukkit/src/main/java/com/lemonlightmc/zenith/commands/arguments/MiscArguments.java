@@ -15,7 +15,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.loot.LootTables;
 
 import com.lemonlightmc.zenith.additive.time.DurationParser;
-import com.lemonlightmc.zenith.commands.CommandSource;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -54,7 +54,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public WorldArgument getInstance() {
+    public WorldArgument self() {
       return this;
     }
 
@@ -68,7 +68,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public World parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public World parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Bukkit.getWorld(reader.readString()));
     }
@@ -95,7 +95,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public TimeArgument getInstance() {
+    public TimeArgument self() {
       return this;
     }
 
@@ -109,7 +109,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Duration parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public Duration parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Duration.ofMillis(DurationParser.parse(reader.readString()));
@@ -136,7 +136,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public NamespacedKeyArgument getInstance() {
+    public NamespacedKeyArgument self() {
       return this;
     }
 
@@ -150,7 +150,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public NamespacedKey parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public NamespacedKey parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(NamespacedKey.fromString(reader.readString()));
@@ -177,7 +177,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public BlockStateArgument getInstance() {
+    public BlockStateArgument self() {
       return this;
     }
 
@@ -191,7 +191,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public BlockState parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public BlockState parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects
@@ -219,7 +219,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public BlockDataArgument getInstance() {
+    public BlockDataArgument self() {
       return this;
     }
 
@@ -233,7 +233,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public BlockData parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public BlockData parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Bukkit.createBlockData(reader.readString()));
@@ -264,7 +264,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public LootTableArgument getInstance() {
+    public LootTableArgument self() {
       return this;
     }
 
@@ -278,7 +278,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public LootTable parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public LootTable parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Objects.requireNonNull(LootTables.valueOf(reader.readString())).getLootTable());
@@ -309,7 +309,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public EnvironmentArgument getInstance() {
+    public EnvironmentArgument self() {
       return this;
     }
 
@@ -323,7 +323,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Environment parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public Environment parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Environment.valueOf(reader.readString()));
@@ -354,7 +354,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public GameModeArgument getInstance() {
+    public GameModeArgument self() {
       return this;
     }
 
@@ -368,7 +368,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public GameMode parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public GameMode parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(GameMode.valueOf(reader.readString()));
@@ -399,7 +399,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public LookAnchorArgument getInstance() {
+    public LookAnchorArgument self() {
       return this;
     }
 
@@ -413,7 +413,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public LookAnchor parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public LookAnchor parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(LookAnchor.valueOf(reader.readString()));
@@ -444,7 +444,7 @@ public class MiscArguments {
      * @return this argument
      */
     @Override
-    public MathOperationArgument getInstance() {
+    public MathOperationArgument self() {
       return this;
     }
 
@@ -458,7 +458,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public MathOperation parseArgument(final CommandSource<CommandSender> source,
+    public MathOperation parseArgument(final ConditionContext<CommandSender> source,
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {

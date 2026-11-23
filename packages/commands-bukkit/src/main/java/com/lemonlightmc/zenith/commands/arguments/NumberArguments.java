@@ -11,7 +11,7 @@ import com.lemonlightmc.zenith.additive.math.ranges.DoubleRange;
 import com.lemonlightmc.zenith.additive.math.ranges.FloatRange;
 import com.lemonlightmc.zenith.additive.math.ranges.IntegerRange;
 import com.lemonlightmc.zenith.additive.math.ranges.LongRange;
-import com.lemonlightmc.zenith.commands.CommandSource;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -52,7 +52,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public BoolArgument getInstance() {
+    public BoolArgument self() {
       return this;
     }
 
@@ -66,7 +66,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Boolean parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       reader.point();
       try {
@@ -124,7 +124,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public IntegerArgument getInstance() {
+    public IntegerArgument self() {
       return this;
     }
 
@@ -138,7 +138,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Integer parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Integer parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final int value = reader.readInt();
       if (range.isLower(value)) {
@@ -213,7 +213,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public LongArgument getInstance() {
+    public LongArgument self() {
       return this;
     }
 
@@ -227,7 +227,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Long parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Long parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final long value = reader.readLong();
       if (range.isLower(value)) {
@@ -302,7 +302,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public FloatArgument getInstance() {
+    public FloatArgument self() {
       return this;
     }
 
@@ -316,7 +316,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Float parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Float parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final float value = reader.readFloat();
       if (range.isLower(value)) {
@@ -391,7 +391,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public DoubleArgument getInstance() {
+    public DoubleArgument self() {
       return this;
     }
 
@@ -405,7 +405,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Double parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Double parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final double value = reader.readDouble();
       if (range.isLower(value)) {
@@ -457,7 +457,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public IntegerRangeArgument getInstance() {
+    public IntegerRangeArgument self() {
       return this;
     }
 
@@ -483,7 +483,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public IntegerRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public IntegerRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return IntegerRange.from(reader.readRange());
@@ -510,7 +510,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public LongRangeArgument getInstance() {
+    public LongRangeArgument self() {
       return this;
     }
 
@@ -536,7 +536,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public LongRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public LongRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return LongRange.from(reader.readRange());
@@ -563,7 +563,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public FloatRangeArgument getInstance() {
+    public FloatRangeArgument self() {
       return this;
     }
 
@@ -589,7 +589,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public FloatRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public FloatRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return FloatRange.from(reader.readRange());
@@ -616,7 +616,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public DoubleRangeArgument getInstance() {
+    public DoubleRangeArgument self() {
       return this;
     }
 
@@ -642,7 +642,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public DoubleRange parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public DoubleRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return DoubleRange.from(reader.readRange());
@@ -701,7 +701,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public LocationArgument getInstance() {
+    public LocationArgument self() {
       return this;
     }
 
@@ -738,7 +738,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or coordinates are out of bounds
      */
     @Override
-    public Location parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public Location parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final double x = centerPos(reader.readDouble(), centered);
@@ -754,7 +754,8 @@ public class NumberArguments {
       if (z > MAX_COORDINATE || z < -MAX_COORDINATE) {
         throw OUTOFBOUNDS_LOCATION.createWithContext(reader, z);
       }
-      return new Location(source.world(), x, y, z);
+      final org.bukkit.Location base = source.location();
+      return new Location(base == null ? null : base.getWorld(), x, y, z);
     }
 
     @Override
@@ -799,7 +800,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public AxisArgument getInstance() {
+    public AxisArgument self() {
       return this;
     }
 
@@ -813,7 +814,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Axis parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Axis parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return Axis.valueOf(reader.readString());
     }
@@ -841,7 +842,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public MultiAxisArgument getInstance() {
+    public MultiAxisArgument self() {
       return this;
     }
 
@@ -855,7 +856,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public EnumSet<Axis> parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public EnumSet<Axis> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
@@ -888,7 +889,7 @@ public class NumberArguments {
      * @return this argument
      */
     @Override
-    public RotationArgument getInstance() {
+    public RotationArgument self() {
       return this;
     }
 
@@ -902,7 +903,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Rotation parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public Rotation parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return new Rotation(reader.readDouble(), reader.readDouble());

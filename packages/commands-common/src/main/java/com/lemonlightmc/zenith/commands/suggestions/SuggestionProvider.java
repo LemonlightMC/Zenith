@@ -2,7 +2,9 @@ package com.lemonlightmc.zenith.commands.suggestions;
 
 import java.util.List;
 
-public interface SuggestionProvider<S> {
+import org.bukkit.command.CommandSender;
+
+public interface SuggestionProvider<S extends CommandSender> {
 
   public List<String> getSuggestions(SuggestionInfo<S> info);
 }

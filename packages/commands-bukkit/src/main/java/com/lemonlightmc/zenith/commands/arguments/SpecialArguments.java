@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.BukkitCommandResult;
 import com.lemonlightmc.zenith.commands.CommandAPI;
-import com.lemonlightmc.zenith.commands.CommandSource;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandResult;
@@ -78,7 +78,7 @@ public class SpecialArguments {
      * @return this argument
      */
     @Override
-    public BranchArgument getInstance() {
+    public BranchArgument self() {
       return this;
     }
 
@@ -185,7 +185,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Boolean parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return null;
     }
@@ -238,7 +238,7 @@ public class SpecialArguments {
      * @return this argument
      */
     @Override
-    public CommandArgument getInstance() {
+    public CommandArgument self() {
       return this;
     }
 
@@ -252,7 +252,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public CommandResult<Command, CommandSender> parseArgument(final CommandSource<CommandSender> source,
+    public CommandResult<Command, CommandSender> parseArgument(final ConditionContext<CommandSender> source,
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {
@@ -328,7 +328,7 @@ public class SpecialArguments {
      * @return this argument
      */
     @Override
-    public LiteralArgument getInstance() {
+    public LiteralArgument self() {
       return this;
     }
 
@@ -361,7 +361,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if the input does not match the literal
      */
     @Override
-    public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
       if (literal.equalsIgnoreCase(value)) {
@@ -455,7 +455,7 @@ public class SpecialArguments {
      * @return this argument
      */
     @Override
-    public MultiLiteralArgument getInstance() {
+    public MultiLiteralArgument self() {
       return this;
     }
 
@@ -478,7 +478,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if the input does not match any literal
      */
     @Override
-    public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
       for (final String literal : literals) {
@@ -515,7 +515,7 @@ public class SpecialArguments {
   public static class DynamicMultiLiteralArgument extends Argument<String, DynamicMultiLiteralArgument, CommandSender>
       implements LiteralArgumentType {
 
-    private final Function<CommandSource<CommandSender>, Collection<String>> literals;
+    private final Function<ConditionContext<CommandSender>, Collection<String>> literals;
 
     /**
      * Creates a new dynamic multi-literal argument.
@@ -525,7 +525,7 @@ public class SpecialArguments {
      * @throws IllegalArgumentException if {@code literals} is {@code null}
      */
     public DynamicMultiLiteralArgument(final String nodeName,
-        final Function<CommandSource<CommandSender>, Collection<String>> literals) {
+        final Function<ConditionContext<CommandSender>, Collection<String>> literals) {
       super(nodeName, String.class, ArgumentType.MULTI_LITERAL);
 
       if (literals == null) {
@@ -545,7 +545,7 @@ public class SpecialArguments {
      * @return a new dynamic multi-literal argument
      */
     public static DynamicMultiLiteralArgument of(final String nodeName,
-        final Function<CommandSource<CommandSender>, Collection<String>> literal) {
+        final Function<ConditionContext<CommandSender>, Collection<String>> literal) {
       return new DynamicMultiLiteralArgument(nodeName, literal);
     }
 
@@ -555,7 +555,7 @@ public class SpecialArguments {
      * @return this argument
      */
     @Override
-    public DynamicMultiLiteralArgument getInstance() {
+    public DynamicMultiLiteralArgument self() {
       return this;
     }
 
@@ -564,7 +564,7 @@ public class SpecialArguments {
      *
      * @return the literal supplier function
      */
-    public Function<CommandSource<CommandSender>, Collection<String>> getLiteralsFunction() {
+    public Function<ConditionContext<CommandSender>, Collection<String>> getLiteralsFunction() {
       return literals;
     }
 
@@ -578,7 +578,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if the input does not match any supplied literal
      */
     @Override
-    public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
       if (literals.apply(source).contains(value)) {
@@ -676,7 +676,7 @@ public class SpecialArguments {
      * @return this argument
      */
     @Override
-    public SwitchArgument getInstance() {
+    public SwitchArgument self() {
       return this;
     }
 
@@ -699,7 +699,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public List<String> parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public List<String> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final List<String> foundSwitches = new ArrayList<>();
@@ -806,7 +806,7 @@ public class SpecialArguments {
      * @return this argument
      */
     @Override
-    public FlagArgument getInstance() {
+    public FlagArgument self() {
       return this;
     }
 
@@ -829,7 +829,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public HashMap<String, String> parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public HashMap<String, String> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final HashMap<String, String> foundFlags = new HashMap<>();

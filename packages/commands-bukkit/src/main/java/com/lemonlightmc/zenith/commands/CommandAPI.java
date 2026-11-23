@@ -24,6 +24,7 @@ import com.lemonlightmc.zenith.commands.executors.CommandHandler;
 import com.lemonlightmc.zenith.commands.executors.InternalExecutor;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 
 /**
  * Central entry point for registering, resolving, dispatching, and managing
@@ -40,10 +41,8 @@ public class CommandAPI {
   private volatile static CommandMap commandMap;
   private volatile static Map<String, Command> knownCommandMap;
 
-  /** The namespace used for command registration. */
   public volatile static String namespace;
-  /** The shared command handler used for simple command dispatch. */
-  public volatile static CommandHandler<CommandSender, BukkitCommandSource<CommandSender>> handler;
+  public volatile static CommandHandler<CommandSender> handler;
 
   static {
     try {
@@ -137,9 +136,9 @@ public class CommandAPI {
    *
    * @return the command handler
    */
-  public static CommandHandler<CommandSender, BukkitCommandSource<CommandSender>> getHandler() {
+  public static CommandHandler<CommandSender> getHandler() {
     if (handler == null) {
-      handler = new CommandHandler<CommandSender, BukkitCommandSource<CommandSender>>(s -> BukkitCommandSource.from(s));
+      handler = new CommandHandler<CommandSender>(s -> new ConditionContext<>(s), null);
     }
     return handler;
   }

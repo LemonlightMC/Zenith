@@ -4,14 +4,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.ProxiedCommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.ZenithProvider;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
-import com.lemonlightmc.zenith.commands.CommandSource;
 import com.lemonlightmc.zenith.commands.SimpleSubCommand;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
@@ -19,35 +25,39 @@ import com.lemonlightmc.zenith.commands.argumentsbase.ParsedArgument;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 
-public class CommandHandler<S, C extends CommandSource<S>> {
-  public static final int MAX_TABCOMPLETIONS = 512;
+public class CommandHandler<S extends CommandSender> {
+  public static final int MAX_TABCOMPLETIONS = 128;
 
-  private final Function<S, C> sourceFactory;
+  public final String requirementFailedMessage; // TODO: Localize
+  private final Function<S, ConditionContext<S>> sourceFactory;
 
-  public CommandHandler(final Function<S, C> sourceFactory) {
+  public CommandHandler(final Function<S, ConditionContext<S>> sourceFactory, final String requirementFailedMessage) {
     this.sourceFactory = sourceFactory;
+    this.requirementFailedMessage = requirementFailedMessage;
   }
 
-  public C createCommandSource(final S sender) {
+  public ConditionContext<S> createCommandSource(final S sender) {
     try {
       return sourceFactory.apply(sender);
     } catch (final Exception e) {
-      throw new CommandException("Failed to create CommandSource for Sender " + sender);
+      throw new CommandException("Failed to create ConditionContext for Sender " + sender);
     }
   }
 
   public void run(final RootCommand<?, S> cmd, final S sender, final String[] args) {
     try {
-      final C source = createCommandSource(sender);
+      final ConditionContext<S> source = createCommandSource(sender);
       final CommandArguments cmdArgs = parse(cmd, source, args == null ? new String[0] : args);
       if (cmdArgs == null) {
         return;
       }
       final ExecutionInfo<S> info = new ExecutionInfo<S>(source, cmdArgs);
-      cmd.run(info, 0);
+      cmd.run(info, 0, getExecutorType(sender));
     } catch (final CommandException ex) {
       throw ex;
     } catch (final Throwable ex) {
@@ -68,7 +78,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
       args = new String[0];
     }
     try {
-      final C source = createCommandSource(sender);
+      final ConditionContext<S> source = createCommandSource(sender);
       if (!cmd.checkRequirements(source)) {
         return List.of();
       }
@@ -110,35 +120,26 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     }
   }
 
-  private CommandArguments parse(final RootCommand<?, S> cmd, final CommandSource<S> source,
+  private CommandArguments parse(AbstractCommand<?, S> thisCmd, final ConditionContext<S> source,
       final String[] args) {
     final StringReader reader = new StringReader(String.join(" ", args));
-    return _parseArguments(cmd, reader, source, args);
-  }
-
-  private CommandArguments _parseArguments(AbstractCommand<?, S> thisCmd,
-      final StringReader reader,
-      final CommandSource<S> source, final String[] args) {
     int i = 0;
-    boolean hadSubcommand = true;
-    while (hadSubcommand && args.length > i && thisCmd.hasSubcommands()) {
-      hadSubcommand = false;
-      for (final SimpleSubCommand<S> sub : thisCmd.subcommands().values()) {
-        if (_isSubCommand(args[i], sub)) {
-          if (!sub.checkRequirements(source)) {
-            return null;
-          }
-          thisCmd = sub;
-          i++;
-          hadSubcommand = true;
-          break;
-        }
+    while (i++ < args.length) {
+      final SimpleSubCommand<S> sub = thisCmd.getSubcommand(args[i]);
+      if (sub == null) {
+        break;
       }
+      if (!sub.checkRequirements(source)) {
+        source.sendMessage(requirementFailedMessage);
+        return null;
+      }
+      thisCmd = sub;
     }
 
     final Map<String, ParsedArgument> parsedArgs = new LinkedHashMap<>();
     for (final Argument<?, ?, S> arg : thisCmd.arguments()) {
       if (!arg.checkRequirements(source)) {
+        source.sendMessage(requirementFailedMessage);
         return null;
       }
       reader.skipWhitespace();
@@ -148,7 +149,7 @@ public class CommandHandler<S, C extends CommandSource<S>> {
     return new CommandArguments(parsedArgs, reader.getString());
   }
 
-  private Object _parseArg(final StringReader reader, final CommandSource<S> source,
+  private Object _parseArg(final StringReader reader, final ConditionContext<S> source,
       final Argument<?, ?, S> arg) {
     reader.point();
     try {
@@ -163,14 +164,6 @@ public class CommandHandler<S, C extends CommandSource<S>> {
       reader.resetCursor();
     }
     return null;
-  }
-
-  private boolean _isSubCommand(final String arg, final AbstractCommand<?, S> sub) {
-    if (arg == null) {
-      return false;
-    }
-    final String key = arg.toLowerCase(Locale.ROOT);
-    return sub.aliases().contains(key) || sub.aliases().contains(arg);
   }
 
   private static boolean startsWithIgnoreCase(
@@ -209,4 +202,29 @@ public class CommandHandler<S, C extends CommandSource<S>> {
         || cmd.aliases().contains(label);
   }
 
+  /**
+   * Resolves the executor type for a command sender.
+   *
+   * @param sender the command sender to inspect
+   * @return the matching executor type, or {@link ExecutorType#ALL} if unknown or
+   *         {@code null}
+   */
+  public static ExecutorType getExecutorType(final CommandSender sender) {
+    if (sender == null) {
+      return ExecutorType.ALL;
+    } else if (sender instanceof Player) {
+      return ExecutorType.PLAYER;
+    } else if (sender instanceof Entity) {
+      return ExecutorType.ENTITY;
+    } else if (sender instanceof ConsoleCommandSender) {
+      return ExecutorType.CONSOLE;
+    } else if (sender instanceof BlockCommandSender) {
+      return ExecutorType.BLOCK;
+    } else if (sender instanceof ProxiedCommandSender) {
+      return ExecutorType.PROXY;
+    } else if (sender instanceof RemoteConsoleCommandSender) {
+      return ExecutorType.REMOTE;
+    }
+    return ExecutorType.ALL;
+  }
 }

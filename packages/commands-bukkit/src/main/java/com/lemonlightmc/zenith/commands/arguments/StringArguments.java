@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.commands.CommandSource;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -96,7 +96,7 @@ public class StringArguments {
      * @return this argument
      */
     @Override
-    public StringArgument getInstance() {
+    public StringArgument self() {
       return this;
     }
 
@@ -110,7 +110,7 @@ public class StringArguments {
     }
 
     @Override
-    public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       if (type == StringType.GREEDY_PHRASE) {
         final String text = reader.getRemaining();
@@ -185,7 +185,7 @@ public class StringArguments {
      * @return this argument
      */
     @Override
-    public TextArgument getInstance() {
+    public TextArgument self() {
       return this;
     }
 
@@ -199,7 +199,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return reader.readString();
     }
@@ -225,7 +225,7 @@ public class StringArguments {
      * @return this argument
      */
     @Override
-    public GreedyStringArgument getInstance() {
+    public GreedyStringArgument self() {
       return this;
     }
 
@@ -239,7 +239,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final String text = reader.getRemaining();
       reader.setCursor(reader.getTotalLength());
@@ -272,7 +272,7 @@ public class StringArguments {
      * @return this argument
      */
     @Override
-    public ChatColorArgument getInstance() {
+    public ChatColorArgument self() {
       return this;
     }
 
@@ -286,7 +286,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ChatColor parseArgument(final CommandSource<CommandSender> source, final StringReader reader,
+    public ChatColor parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return ChatColor.valueOf(reader.readUnquotedString());
@@ -313,7 +313,7 @@ public class StringArguments {
      * @return this argument
      */
     @Override
-    public ChatArgument getInstance() {
+    public ChatArgument self() {
       return this;
     }
 
@@ -327,7 +327,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final CommandSource<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final String text = reader.getRemaining();
       reader.setCursor(reader.getTotalLength());

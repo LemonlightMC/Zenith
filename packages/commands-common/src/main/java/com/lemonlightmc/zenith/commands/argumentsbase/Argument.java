@@ -6,18 +6,23 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import com.lemonlightmc.zenith.commands.CommandRequirement;
-import com.lemonlightmc.zenith.commands.CommandSource;
+import org.bukkit.command.CommandSender;
+
+import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
+import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.utils.actions.Conditions;
+import com.lemonlightmc.zenith.utils.actions.Condition;
+import com.lemonlightmc.zenith.utils.actions.Condition.ConditionSet;
 
-public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>, S> {
+public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>, S extends CommandSender> {
   protected String name;
   protected ArgumentType rawType;
   protected Class<Type> primitiveType;
   protected boolean isOptional = false;
   protected boolean isListed = true;
-  protected List<CommandRequirement<CommandSource<S>>> requirements;
+  protected ConditionSet<S> requirements;
   protected List<Suggestions<S>> suggestions = new ArrayList<>(4);
 
   protected Argument(final String name, final Class<Type> primitiveType, final ArgumentType rawType) {
@@ -35,14 +40,14 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
     this.primitiveType = primitiveType;
   }
 
-  public abstract ArgType getInstance();
+  public abstract ArgType self();
 
   public CommandSyntaxException createError(final StringReader reader, final String value) {
     return new CommandSyntaxException(reader,
         "Invalid Value '" + value + "' for " + rawType.getName() + " Argument '" + name + "'");
   }
 
-  public abstract Type parseArgument(CommandSource<S> source, StringReader reader, String key)
+  public abstract Type parseArgument(ConditionContext<S> source, StringReader reader, String key)
       throws CommandSyntaxException;
 
   public String getName() {
@@ -68,7 +73,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
 
   public ArgType setListed(final boolean listed) {
     this.isListed = listed;
-    return getInstance();
+    return self();
   }
 
   // Optional
@@ -78,89 +83,97 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
 
   public ArgType setOptional(final boolean optional) {
     this.isOptional = optional;
-    return getInstance();
+    return self();
   }
 
   // Suggestions
 
   public ArgType withSuggestions(final Suggestions<S> func) {
     this.suggestions.add(func);
-    return getInstance();
+    return self();
   }
 
   public ArgType withSuggestions(final String... suggestions) {
     this.suggestions.add(Suggestions.from(suggestions));
-    return getInstance();
+    return self();
   }
 
   public ArgType withSuggestions(final Collection<String> suggestions) {
     this.suggestions.add(Suggestions.from(suggestions));
-    return getInstance();
+    return self();
   }
 
   public List<Suggestions<S>> getSuggestions() {
     return this.suggestions;
   }
 
-  // requirements
-
-  public ArgType withRequirement(final CommandRequirement<CommandSource<S>> requirement) {
-    if (requirement == null) {
-      return getInstance();
-    }
-    if (requirements == null) {
-      requirements = new ArrayList<>();
-    }
-    requirements.add(requirement);
-    return getInstance();
+  // ============ Requirements ============
+  public ArgType withRequirements(final Condition<S> condition) {
+    requirements().add(condition);
+    return self();
   }
 
   @SafeVarargs
-  public final ArgType withRequirement(final CommandRequirement<CommandSource<S>>... requirements) {
-    if (requirements != null && requirements.length != 0) {
-      for (final CommandRequirement<CommandSource<S>> requirement : requirements) {
-        withRequirement(requirement);
-      }
-    }
-    return getInstance();
+  public final ArgType withRequirements(final Condition<S>... conditions) {
+    requirements().addAll(conditions);
+    return self();
   }
 
-  public ArgType withRequirement(final Collection<CommandRequirement<CommandSource<S>>> requirements) {
-    if (requirements != null && !requirements.isEmpty()) {
-      for (final CommandRequirement<CommandSource<S>> requirement : requirements) {
-        withRequirement(requirement);
-      }
-    }
-    return getInstance();
+  public ArgType withRequirements(final Collection<Condition<S>> conditions) {
+    requirements().addAll(conditions);
+    return self();
   }
 
-  public ArgType withRequirement(final Predicate<CommandSource<S>> requirement) {
-    return withRequirement(requirement == null ? null : CommandRequirement.from(requirement));
+  public ArgType withRequirements(final Predicate<ConditionContext<S>> predicate) {
+    requirements().add(Condition.of(predicate));
+    return self();
+  }
+
+  public ArgType withPermissions(String permission) {
+    permission = StringUtils.prepare(permission);
+    if (permission == null) {
+      return self();
+    }
+    requirements().add(Conditions.PermissionConditions.allowed(permission));
+    return self();
   }
 
   public ArgType withPermissions(final String... permissions) {
-    if (permissions != null && permissions.length != 0) {
-      for (final String perm : permissions) {
-        withRequirement(CommandRequirement.permission(perm));
+    if (permissions == null || permissions.length == 0) {
+      return self();
+    }
+    for (String perm : permissions) {
+      perm = StringUtils.prepare(perm);
+      if (perm != null) {
+        requirements().add(Conditions.PermissionConditions.allowed(perm));
       }
     }
-    return getInstance();
+    return self();
   }
 
   public ArgType withPermissions(final Collection<String> permissions) {
-    if (permissions != null && !permissions.isEmpty()) {
-      for (final String perm : permissions) {
-        withRequirement(CommandRequirement.permission(perm));
+    if (permissions == null || permissions.isEmpty()) {
+      return self();
+    }
+    for (String perm : permissions) {
+      perm = StringUtils.prepare(perm);
+      if (perm != null) {
+        requirements().add(Conditions.PermissionConditions.allowed(perm));
       }
     }
-    return getInstance();
+    return self();
   }
 
-  public ArgType setRequirements(final List<CommandRequirement<CommandSource<S>>> requirements) {
-    if (requirements != null && !requirements.isEmpty()) {
-      this.requirements = requirements;
+  public ArgType setRequirements(final List<Condition<S>> requirements) {
+    if (requirements == null) {
+      return self();
     }
-    return getInstance();
+    if (requirements.isEmpty()) {
+      this.requirements = null;
+      return self();
+    }
+    requirements().addAll(requirements);
+    return self();
   }
 
   public boolean hasRequirements() {
@@ -170,25 +183,22 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
   public ArgType clearRequirements() {
     if (requirements != null) {
       requirements.clear();
-      requirements = null;
     }
-    return getInstance();
+    return self();
   }
 
-  public List<CommandRequirement<CommandSource<S>>> getRequirements() {
+  public ConditionSet<S> requirements() {
+    if (requirements == null) {
+      requirements = new ConditionSet<S>();
+    }
     return requirements;
   }
 
-  public boolean checkRequirements(final CommandSource<S> source) {
-    if (requirements == null || requirements.isEmpty()) {
+  public boolean checkRequirements(final ConditionContext<S> source) {
+    if (requirements == null) {
       return true;
     }
-    for (final CommandRequirement<CommandSource<S>> requirement : requirements) {
-      if (!requirement.test(source)) {
-        return false;
-      }
-    }
-    return true;
+    return requirements.test(source);
   }
 
   // Help
@@ -228,7 +238,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
   }
 
   public String toStringWithMore(final String str) {
-    return getInstance().getClass().getName() + " [name=" + name + ", rawType=" + rawType + ", primitiveType="
+    return self().getClass().getName() + " [name=" + name + ", rawType=" + rawType + ", primitiveType="
         + primitiveType + ", isOptional="
         + isOptional + ", isListed=" + isListed + ", requirements=" + requirements
         + ", suggestions=" + suggestions + (str == null || str.isEmpty() ? "]" : ", " + str + "]");

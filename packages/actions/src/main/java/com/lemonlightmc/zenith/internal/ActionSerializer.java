@@ -13,65 +13,64 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.data.BlockData;
-
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
 import com.lemonlightmc.zenith.math.MathOperation;
-import com.lemonlightmc.zenith.utils.actions.Action;
-import com.lemonlightmc.zenith.utils.actions.Condition;
-import com.lemonlightmc.zenith.utils.actions.Actions.ActionbarAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.BlockBreakAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.BlockPlaceAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.BlockReplaceAction;
-import com.lemonlightmc.zenith.apis.bossbar.BossBarAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.ConsoleCommandAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.DelayAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.ExperienceAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.ExplosionAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.FlyAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.FoodAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.GameModeAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.GiveItemAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.HealthAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.InvulnerableAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.LevelAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.LogAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.MessageAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.MovementAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.ParticleAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.PlayerCommandAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.RandomAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.RemoveItemAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.RepeatAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.SoundAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.StopAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.StopSoundAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.SummonAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.TeleportAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.TimeAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.TitleAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.WeatherAction;
-import com.lemonlightmc.zenith.utils.actions.Actions.WeightedRandomAction;
+import com.lemonlightmc.zenith.actions.Action;
+import com.lemonlightmc.zenith.actions.Condition;
+import com.lemonlightmc.zenith.actions.Actions.ActionbarAction;
+import com.lemonlightmc.zenith.actions.Actions.BlockBreakAction;
+import com.lemonlightmc.zenith.actions.Actions.BlockPlaceAction;
+import com.lemonlightmc.zenith.actions.Actions.BlockReplaceAction;
+import com.lemonlightmc.zenith.actions.Actions.ConsoleCommandAction;
+import com.lemonlightmc.zenith.actions.Actions.DelayAction;
+import com.lemonlightmc.zenith.actions.Actions.ExperienceAction;
+import com.lemonlightmc.zenith.actions.Actions.ExplosionAction;
+import com.lemonlightmc.zenith.actions.Actions.FlyAction;
+import com.lemonlightmc.zenith.actions.Actions.FoodAction;
+import com.lemonlightmc.zenith.actions.Actions.GameModeAction;
+import com.lemonlightmc.zenith.actions.Actions.GiveItemAction;
+import com.lemonlightmc.zenith.actions.Actions.HealthAction;
+import com.lemonlightmc.zenith.actions.Actions.InvulnerableAction;
+import com.lemonlightmc.zenith.actions.Actions.LevelAction;
+import com.lemonlightmc.zenith.actions.Actions.LogAction;
+import com.lemonlightmc.zenith.actions.Actions.MessageAction;
+import com.lemonlightmc.zenith.actions.Actions.MovementAction;
+import com.lemonlightmc.zenith.actions.Actions.ParticleAction;
+import com.lemonlightmc.zenith.actions.Actions.PlayerCommandAction;
+import com.lemonlightmc.zenith.actions.Actions.RandomAction;
+import com.lemonlightmc.zenith.actions.Actions.RemoveItemAction;
+import com.lemonlightmc.zenith.actions.Actions.RepeatAction;
+import com.lemonlightmc.zenith.actions.Actions.SoundAction;
+import com.lemonlightmc.zenith.actions.Actions.StopAction;
+import com.lemonlightmc.zenith.actions.Actions.StopSoundAction;
+import com.lemonlightmc.zenith.actions.Actions.SummonAction;
+import com.lemonlightmc.zenith.actions.Actions.TeleportAction;
+import com.lemonlightmc.zenith.actions.Actions.TimeAction;
+import com.lemonlightmc.zenith.actions.Actions.TitleAction;
+import com.lemonlightmc.zenith.actions.Actions.WeatherAction;
+import com.lemonlightmc.zenith.actions.Actions.WeightedRandomAction;
+import com.lemonlightmc.zenith.actions.BossBarAction;
 
 import io.leangen.geantyref.TypeToken;
 
 /**
  * Serializes and deserializes {@link Action} instances from configuration data.
  */
-public final class ActionSerializer implements TypeSerializer<Action> {
+public final class ActionSerializer implements TypeSerializer<Action<CommandSender>> {
 
   /**
    * Shared singleton instance of this serializer.
    */
   public static final ActionSerializer INSTANCE = new ActionSerializer();
-  private static final TypeToken<Condition> CONDITION_TYPE = new TypeToken<Condition>() {
+  private static final TypeToken<Condition<CommandSender>> CONDITION_TYPE = new TypeToken<Condition<CommandSender>>() {
   };
 
   private ActionSerializer() {
@@ -86,7 +85,8 @@ public final class ActionSerializer implements TypeSerializer<Action> {
    * @throws SerializationException if the action cannot be parsed
    */
   @Override
-  public Action deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
+  public Action<CommandSender> deserialize(final Type type, final ConfigurationNode node)
+      throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
       return null;
     }
@@ -99,7 +99,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
       throw new SerializationException(node, Action.class, "Action requires a 'type'");
     }
 
-    final Condition condition = readCondition(node);
+    final Condition<CommandSender> condition = readCondition(node);
     // useSync defaults to true for most actions; Delay/Stop manage their own
     // semantics
     final boolean useSync = node.node("sync").getBoolean(node.node("use-sync").getBoolean(true));
@@ -367,12 +367,13 @@ public final class ActionSerializer implements TypeSerializer<Action> {
    * Serializes an action to a configuration node.
    *
    * @param type the source type
-   * @param obj the action to serialize
+   * @param obj  the action to serialize
    * @param node the configuration node to write
-   * @throws SerializationException if serialization fails or is unsupported for the action type
+   * @throws SerializationException if serialization fails or is unsupported for
+   *                                the action type
    */
   @Override
-  public void serialize(final Type type, final @Nullable Action obj, final ConfigurationNode node)
+  public void serialize(final Type type, final Action<CommandSender> obj, final ConfigurationNode node)
       throws SerializationException {
     if (obj == null) {
       node.set(null);
@@ -414,7 +415,7 @@ public final class ActionSerializer implements TypeSerializer<Action> {
 
   // ----------------- helpers -----------------
 
-  private Condition readCondition(final ConfigurationNode node) throws SerializationException {
+  private Condition<CommandSender> readCondition(final ConfigurationNode node) throws SerializationException {
     ConfigurationNode c = node.node("condition");
     if (!c.virtual() && !c.isNull()) {
       return c.get(CONDITION_TYPE);

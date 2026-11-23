@@ -6,7 +6,7 @@ import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 
 import java.util.List;
 

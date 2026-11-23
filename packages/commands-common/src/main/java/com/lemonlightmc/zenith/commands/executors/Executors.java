@@ -4,7 +4,7 @@ import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 
 public class Executors {
 

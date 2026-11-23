@@ -5,7 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandResult;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 
 /**
  * Represents a parsed Bukkit command invocation ready for execution.

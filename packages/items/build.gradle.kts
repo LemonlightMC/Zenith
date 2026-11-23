@@ -8,6 +8,7 @@ dependencies {
     //compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     implementation(project(":zenith-core"))
     implementation(project(":zenith-additive"))
+    implementation(project(":zenith-actions"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-items"

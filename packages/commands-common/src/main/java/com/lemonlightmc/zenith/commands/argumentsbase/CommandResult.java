@@ -2,7 +2,7 @@ package com.lemonlightmc.zenith.commands.argumentsbase;
 
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 
 public interface CommandResult<C, S extends CommandSender> {
 

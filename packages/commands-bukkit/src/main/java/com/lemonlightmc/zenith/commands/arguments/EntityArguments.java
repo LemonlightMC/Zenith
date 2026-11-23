@@ -8,7 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.profile.PlayerProfile;
 
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -49,12 +49,13 @@ public class EntityArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the resolved player, or {@code null} if not found
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Player parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Player parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       return Bukkit.getPlayerExact(reader.readString());
     }
@@ -89,8 +90,9 @@ public class EntityArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
-     * @return the resolved player profile, or {@code null} if the player is not found
+     * @param key    the argument key
+     * @return the resolved player profile, or {@code null} if the player is not
+     *         found
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
@@ -103,7 +105,8 @@ public class EntityArguments {
   }
 
   /**
-   * Argument that resolves entities from an exact player name or a Bukkit entity selector.
+   * Argument that resolves entities from an exact player name or a Bukkit entity
+   * selector.
    */
   @SuppressWarnings("rawtypes")
   public static class EntitySelectorArgument extends Argument<List, EntitySelectorArgument, CommandSender> {
@@ -134,7 +137,7 @@ public class EntityArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the selected entities
      * @throws CommandSyntaxException if parsing fails
      */

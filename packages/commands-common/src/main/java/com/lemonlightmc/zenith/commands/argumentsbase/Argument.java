@@ -11,10 +11,10 @@ import org.bukkit.command.CommandSender;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
-import com.lemonlightmc.zenith.utils.actions.Conditions;
-import com.lemonlightmc.zenith.utils.actions.Condition;
-import com.lemonlightmc.zenith.utils.actions.Condition.ConditionSet;
+import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.Conditions;
+import com.lemonlightmc.zenith.actions.Condition;
+import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
 
 public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>, S extends CommandSender> {
   protected String name;

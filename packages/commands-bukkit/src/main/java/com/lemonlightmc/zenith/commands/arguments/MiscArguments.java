@@ -15,7 +15,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.loot.LootTables;
 
 import com.lemonlightmc.zenith.additive.time.DurationParser;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -63,12 +63,13 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed world
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public World parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public World parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Bukkit.getWorld(reader.readString()));
     }
@@ -104,7 +105,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed duration
      * @throws CommandSyntaxException if parsing fails
      */
@@ -145,7 +146,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed namespaced key
      * @throws CommandSyntaxException if parsing fails
      */
@@ -186,7 +187,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed block state
      * @throws CommandSyntaxException if parsing fails
      */
@@ -228,7 +229,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed block data
      * @throws CommandSyntaxException if parsing fails
      */
@@ -273,7 +274,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed loot table
      * @throws CommandSyntaxException if parsing fails
      */
@@ -318,7 +319,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed environment
      * @throws CommandSyntaxException if parsing fails
      */
@@ -363,7 +364,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed game mode
      * @throws CommandSyntaxException if parsing fails
      */
@@ -408,7 +409,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed look anchor
      * @throws CommandSyntaxException if parsing fails
      */
@@ -453,7 +454,7 @@ public class MiscArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed math operation
      * @throws CommandSyntaxException if parsing fails
      */
@@ -470,7 +471,7 @@ public class MiscArguments {
    * Maps an array of values to their string representations.
    *
    * @param registry the values to map
-   * @param <T> the value type
+   * @param <T>      the value type
    * @return an array of string representations
    */
   public static <T> String[] _mapArray(final T[] registry) {

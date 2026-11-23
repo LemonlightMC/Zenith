@@ -24,7 +24,7 @@ import com.lemonlightmc.zenith.commands.executors.CommandHandler;
 import com.lemonlightmc.zenith.commands.executors.InternalExecutor;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 
 /**
  * Central entry point for registering, resolving, dispatching, and managing

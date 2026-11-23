@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.utils.actions;
+package com.lemonlightmc.zenith.actions;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.items.Firework;
 import com.lemonlightmc.zenith.items.Potion;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
+import com.lemonlightmc.zenith.actions.Condition;
 
 /**
  * Collection of action implementations related to items and effects.
@@ -41,7 +42,7 @@ public class Actions2 {
          * @param conditions conditions that must be met before execution
          */
         public PotionEffectAction(final Potion potion, final boolean clear,
-                final boolean broadcast, final Condition<CommandSender> conditions) {
+                final boolean broadcast, final ConditionSet<CommandSender> conditions) {
             super(conditions);
             this.potion = potion;
             this.clear = clear;

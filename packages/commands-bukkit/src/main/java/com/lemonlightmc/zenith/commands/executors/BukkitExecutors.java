@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.executors.Executors.*;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 
 /**
  * Bukkit-specific executor interfaces for handling commands from different

@@ -11,7 +11,7 @@ import com.lemonlightmc.zenith.additive.math.ranges.DoubleRange;
 import com.lemonlightmc.zenith.additive.math.ranges.FloatRange;
 import com.lemonlightmc.zenith.additive.math.ranges.IntegerRange;
 import com.lemonlightmc.zenith.additive.math.ranges.LongRange;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -61,12 +61,13 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed boolean value
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       reader.point();
       try {
@@ -100,7 +101,7 @@ public class NumberArguments {
      * Creates a new integer argument with a minimum bound.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
+     * @param min  the minimum allowed value
      */
     public IntegerArgument(final String name, final int min) {
       this(name, min, Integer.MAX_VALUE);
@@ -110,8 +111,8 @@ public class NumberArguments {
      * Creates a new integer argument with minimum and maximum bounds.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
-     * @param max the maximum allowed value
+     * @param min  the minimum allowed value
+     * @param max  the maximum allowed value
      */
     public IntegerArgument(final String name, final int min, final int max) {
       super(name, Integer.class, ArgumentType.INTEGER);
@@ -133,12 +134,13 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed integer value
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Integer parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Integer parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final int value = reader.readInt();
       if (range.isLower(value)) {
@@ -189,7 +191,7 @@ public class NumberArguments {
      * Creates a new long argument with a minimum bound.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
+     * @param min  the minimum allowed value
      */
     public LongArgument(final String name, final long min) {
       this(name, min, Long.MAX_VALUE);
@@ -199,8 +201,8 @@ public class NumberArguments {
      * Creates a new long argument with minimum and maximum bounds.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
-     * @param max the maximum allowed value
+     * @param min  the minimum allowed value
+     * @param max  the maximum allowed value
      */
     public LongArgument(final String name, final long min, final long max) {
       super(name, Long.class, ArgumentType.LONG);
@@ -222,7 +224,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed long value
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
@@ -278,7 +280,7 @@ public class NumberArguments {
      * Creates a new float argument with a minimum bound.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
+     * @param min  the minimum allowed value
      */
     public FloatArgument(final String name, final float min) {
       this(name, min, Float.MAX_VALUE);
@@ -288,8 +290,8 @@ public class NumberArguments {
      * Creates a new float argument with minimum and maximum bounds.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
-     * @param max the maximum allowed value
+     * @param min  the minimum allowed value
+     * @param max  the maximum allowed value
      */
     public FloatArgument(final String name, final float min, final float max) {
       super(name, Float.class, ArgumentType.FLOAT);
@@ -311,12 +313,13 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed float value
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Float parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Float parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final float value = reader.readFloat();
       if (range.isLower(value)) {
@@ -367,7 +370,7 @@ public class NumberArguments {
      * Creates a new double argument with a minimum bound.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
+     * @param min  the minimum allowed value
      */
     public DoubleArgument(final String name, final double min) {
       this(name, min, Double.MAX_VALUE);
@@ -377,8 +380,8 @@ public class NumberArguments {
      * Creates a new double argument with minimum and maximum bounds.
      *
      * @param name the argument name
-     * @param min the minimum allowed value
-     * @param max the maximum allowed value
+     * @param min  the minimum allowed value
+     * @param max  the maximum allowed value
      */
     public DoubleArgument(final String name, final double min, final double max) {
       super(name, Double.class, ArgumentType.DOUBLE);
@@ -400,12 +403,13 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed double value
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Double parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Double parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final double value = reader.readDouble();
       if (range.isLower(value)) {
@@ -465,7 +469,7 @@ public class NumberArguments {
      * Creates a syntax exception for an invalid range value.
      *
      * @param reader the string reader providing parse context
-     * @param value the invalid value
+     * @param value  the invalid value
      * @return the created syntax exception
      */
     @Override
@@ -478,7 +482,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed integer range
      * @throws CommandSyntaxException if parsing fails
      */
@@ -518,7 +522,7 @@ public class NumberArguments {
      * Creates a syntax exception for an invalid range value.
      *
      * @param reader the string reader providing parse context
-     * @param value the invalid value
+     * @param value  the invalid value
      * @return the created syntax exception
      */
     @Override
@@ -531,7 +535,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed long range
      * @throws CommandSyntaxException if parsing fails
      */
@@ -571,7 +575,7 @@ public class NumberArguments {
      * Creates a syntax exception for an invalid range value.
      *
      * @param reader the string reader providing parse context
-     * @param value the invalid value
+     * @param value  the invalid value
      * @return the created syntax exception
      */
     @Override
@@ -584,7 +588,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed float range
      * @throws CommandSyntaxException if parsing fails
      */
@@ -624,7 +628,7 @@ public class NumberArguments {
      * Creates a syntax exception for an invalid range value.
      *
      * @param reader the string reader providing parse context
-     * @param value the invalid value
+     * @param value  the invalid value
      * @return the created syntax exception
      */
     @Override
@@ -637,7 +641,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed double range
      * @throws CommandSyntaxException if parsing fails
      */
@@ -675,7 +679,7 @@ public class NumberArguments {
      * Creates a new location argument with the specified location type.
      *
      * @param nodeName the argument name
-     * @param type the location type
+     * @param type     the location type
      */
     public LocationArgument(final String nodeName, final LocationType type) {
       this(nodeName, type, true);
@@ -684,9 +688,10 @@ public class NumberArguments {
     /**
      * Creates a new location argument.
      *
-     * @param nodeName the argument name
-     * @param type the location type
-     * @param centerPosition {@code true} to center block-aligned coordinates when applicable
+     * @param nodeName       the argument name
+     * @param type           the location type
+     * @param centerPosition {@code true} to center block-aligned coordinates when
+     *                       applicable
      */
     public LocationArgument(final String nodeName, final LocationType type, final boolean centerPosition) {
       super(nodeName, Location.class, ArgumentType.LOCATION);
@@ -733,9 +738,10 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed location
-     * @throws CommandSyntaxException if parsing fails or coordinates are out of bounds
+     * @throws CommandSyntaxException if parsing fails or coordinates are out of
+     *                                bounds
      */
     @Override
     public Location parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
@@ -809,7 +815,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed axis
      * @throws CommandSyntaxException if parsing fails
      */
@@ -851,7 +857,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed axis set
      * @throws CommandSyntaxException if parsing fails
      */
@@ -898,7 +904,7 @@ public class NumberArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed rotation
      * @throws CommandSyntaxException if parsing fails
      */

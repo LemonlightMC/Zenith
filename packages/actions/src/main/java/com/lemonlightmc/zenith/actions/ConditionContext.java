@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.utils.actions;
+package com.lemonlightmc.zenith.actions;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;

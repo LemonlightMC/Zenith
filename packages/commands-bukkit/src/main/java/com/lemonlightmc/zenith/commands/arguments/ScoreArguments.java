@@ -9,7 +9,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -52,7 +52,7 @@ public class ScoreArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed team
      * @throws CommandSyntaxException if parsing fails
      */
@@ -93,7 +93,7 @@ public class ScoreArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed scoreboard slot
      * @throws CommandSyntaxException if parsing fails
      */
@@ -136,9 +136,10 @@ public class ScoreArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed objective
-     * @throws CommandSyntaxException if parsing fails or the objective cannot be resolved
+     * @throws CommandSyntaxException if parsing fails or the objective cannot be
+     *                                resolved
      */
     @Override
     public Objective parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
@@ -194,7 +195,7 @@ public class ScoreArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed criteria
      * @throws CommandSyntaxException if parsing fails
      */

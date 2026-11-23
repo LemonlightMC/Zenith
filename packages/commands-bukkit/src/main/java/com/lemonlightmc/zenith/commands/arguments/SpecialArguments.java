@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.BukkitCommandResult;
 import com.lemonlightmc.zenith.commands.CommandAPI;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandResult;
@@ -23,7 +23,8 @@ import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.exceptions.InvalidArgumentBranchException;
 
 /**
- * Specialized argument types for branching, commands, literals, switches, and flags.
+ * Specialized argument types for branching, commands, literals, switches, and
+ * flags.
  */
 public class SpecialArguments {
 
@@ -180,12 +181,13 @@ public class SpecialArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return {@code null} because branch parsing is handled externally
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       return null;
     }
@@ -247,7 +249,7 @@ public class SpecialArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed command result, or {@code null} if no command is present
      * @throws CommandSyntaxException if parsing fails
      */
@@ -287,7 +289,7 @@ public class SpecialArguments {
      * Creates a new literal argument.
      *
      * @param nodeName the argument name
-     * @param literal the literal value
+     * @param literal  the literal value
      * @throws IllegalArgumentException if {@code literal} is {@code null} or blank
      */
     public LiteralArgument(final String nodeName, final String literal) {
@@ -315,7 +317,7 @@ public class SpecialArguments {
      * Creates a literal argument.
      *
      * @param nodeName the argument name
-     * @param literal the literal value
+     * @param literal  the literal value
      * @return a new literal argument
      */
     public static LiteralArgument of(final String nodeName, final String literal) {
@@ -356,12 +358,13 @@ public class SpecialArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the matched literal
      * @throws CommandSyntaxException if the input does not match the literal
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
       if (literal.equalsIgnoreCase(value)) {
@@ -442,7 +445,7 @@ public class SpecialArguments {
      * Creates a multi-literal argument.
      *
      * @param nodeName the argument name
-     * @param literal the literal values
+     * @param literal  the literal values
      * @return a new multi-literal argument
      */
     public static MultiLiteralArgument of(final String nodeName, final String... literal) {
@@ -473,12 +476,13 @@ public class SpecialArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the matched literal
      * @throws CommandSyntaxException if the input does not match any literal
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
       for (final String literal : literals) {
@@ -541,7 +545,7 @@ public class SpecialArguments {
      * Creates a dynamic multi-literal argument.
      *
      * @param nodeName the argument name
-     * @param literal the function supplying allowed literal values
+     * @param literal  the function supplying allowed literal values
      * @return a new dynamic multi-literal argument
      */
     public static DynamicMultiLiteralArgument of(final String nodeName,
@@ -573,12 +577,14 @@ public class SpecialArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the matched literal
-     * @throws CommandSyntaxException if the input does not match any supplied literal
+     * @throws CommandSyntaxException if the input does not match any supplied
+     *                                literal
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
       if (literals.apply(source).contains(value)) {
@@ -694,7 +700,7 @@ public class SpecialArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the matched switch tokens
      * @throws CommandSyntaxException if parsing fails
      */
@@ -738,7 +744,8 @@ public class SpecialArguments {
   }
 
   /**
-   * Argument that parses flag-style tokens and optional values from command input.
+   * Argument that parses flag-style tokens and optional values from command
+   * input.
    */
   @SuppressWarnings("rawtypes")
   public static class FlagArgument extends Argument<HashMap, FlagArgument, CommandSender>
@@ -750,7 +757,7 @@ public class SpecialArguments {
      * Creates a new flag argument from a set of flag names.
      *
      * @param nodeName the argument name
-     * @param flags the flag names
+     * @param flags    the flag names
      */
     public FlagArgument(final String nodeName, final Set<String> flags) {
       this(nodeName, flags.toArray(String[]::new));
@@ -760,7 +767,7 @@ public class SpecialArguments {
      * Creates a new flag argument.
      *
      * @param nodeName the argument name
-     * @param flags the flag names
+     * @param flags    the flag names
      * @throws IllegalArgumentException if {@code flags} is {@code null} or empty
      */
     public FlagArgument(final String nodeName, final String... flags) {
@@ -793,7 +800,7 @@ public class SpecialArguments {
      * Creates a flag argument.
      *
      * @param nodeName the argument name
-     * @param flags the flag names
+     * @param flags    the flag names
      * @return a new flag argument
      */
     public static FlagArgument of(final String nodeName, final String... flags) {
@@ -824,12 +831,13 @@ public class SpecialArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return a map of matched flag tokens to parsed values
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public HashMap<String, String> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public HashMap<String, String> parseArgument(final ConditionContext<CommandSender> source,
+        final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final HashMap<String, String> foundFlags = new HashMap<>();

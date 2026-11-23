@@ -23,10 +23,10 @@ import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
 import com.lemonlightmc.zenith.apis.bossbar.BossBar;
 import com.lemonlightmc.zenith.apis.bossbar.BossBarBuilder;
 import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
-import com.lemonlightmc.zenith.utils.actions.Action;
-import com.lemonlightmc.zenith.utils.actions.Actions;
-import com.lemonlightmc.zenith.utils.actions.Condition;
-import com.lemonlightmc.zenith.utils.actions.Conditions;
+import com.lemonlightmc.zenith.actions.Action;
+import com.lemonlightmc.zenith.actions.Actions;
+import com.lemonlightmc.zenith.actions.Condition;
+import com.lemonlightmc.zenith.actions.Conditions;
 
 import io.leangen.geantyref.TypeToken;
 

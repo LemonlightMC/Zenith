@@ -3,7 +3,7 @@ package com.lemonlightmc.zenith.commands.executors;
 import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 
 public record ExecutionInfo<S extends CommandSender>(ConditionContext<S> source,
     CommandArguments args) {

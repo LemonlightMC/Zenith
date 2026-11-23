@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.utils.actions;
+package com.lemonlightmc.zenith.actions;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.utils.actions.Actions.DelayAction;
+import com.lemonlightmc.zenith.actions.Actions.DelayAction;
 
 public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Condition<S> condition,
         String conditionFailureMsg) {

@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -37,9 +37,9 @@ public class CollectionsArguments {
     /**
      * Creates a new list argument.
      *
-     * @param name the argument name
+     * @param name          the argument name
      * @param primitiveType the list class type
-     * @param rawType the raw argument type
+     * @param rawType       the raw argument type
      */
     protected ListArgument(final String name, final Class<List> primitiveType, final ArgumentType rawType) {
       super(name, primitiveType, rawType);
@@ -61,12 +61,13 @@ public class CollectionsArguments {
     /**
      * Creates a new dynamic list argument.
      *
-     * @param nodeName the argument name
-     * @param delimiter the delimiter separating list entries
-     * @param allowDuplicates {@code true} to allow duplicate entries
-     * @param supplier the supplier of allowed values
-     * @param suggestionsMapper the mapper used to convert values to suggestion strings
-     * @param type the raw argument type
+     * @param nodeName          the argument name
+     * @param delimiter         the delimiter separating list entries
+     * @param allowDuplicates   {@code true} to allow duplicate entries
+     * @param supplier          the supplier of allowed values
+     * @param suggestionsMapper the mapper used to convert values to suggestion
+     *                          strings
+     * @param type              the raw argument type
      */
     public DynamicListArgument(final String nodeName, final char delimiter, final boolean allowDuplicates,
         final Supplier<List<T>> supplier,
@@ -113,7 +114,8 @@ public class CollectionsArguments {
     }
 
     @Override
-    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final Set<String> keys = parseKeys(reader);
       final HashMap<String, T> mapping = new HashMap<>();
@@ -178,12 +180,13 @@ public class CollectionsArguments {
     /**
      * Creates a new static list argument.
      *
-     * @param nodeName the argument name
-     * @param delimiter the delimiter separating list entries
+     * @param nodeName        the argument name
+     * @param delimiter       the delimiter separating list entries
      * @param allowDuplicates {@code true} to allow duplicate entries
-     * @param values the allowed values
-     * @param mapper the mapper used to convert values to suggestion strings
-     * @param type the raw argument type
+     * @param values          the allowed values
+     * @param mapper          the mapper used to convert values to suggestion
+     *                        strings
+     * @param type            the raw argument type
      */
     public StaticListArgument(final String nodeName, final char delimiter, final boolean allowDuplicates,
         final List<T> values, final Function<T, String> mapper, final ArgumentType type) {
@@ -215,7 +218,7 @@ public class CollectionsArguments {
      * Creates a syntax exception for an invalid list value.
      *
      * @param reader the string reader providing parse context
-     * @param value the invalid value
+     * @param value  the invalid value
      * @return the created syntax exception
      */
     @Override
@@ -238,7 +241,8 @@ public class CollectionsArguments {
     }
 
     @Override
-    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final Set<String> keys = parseKeys(reader);
       final List<T> values = new ArrayList<>();
@@ -314,7 +318,7 @@ public class CollectionsArguments {
     /**
      * Creates a new list argument builder.
      *
-     * @param name the argument name
+     * @param name      the argument name
      * @param delimiter the delimiter separating list entries
      */
     public ListArgumentBuilder(final String name, final char delimiter) {

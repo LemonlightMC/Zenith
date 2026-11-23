@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -110,7 +110,8 @@ public class StringArguments {
     }
 
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       if (type == StringType.GREEDY_PHRASE) {
         final String text = reader.getRemaining();
@@ -194,12 +195,13 @@ public class StringArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed text value
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       return reader.readString();
     }
@@ -234,12 +236,13 @@ public class StringArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the remaining input
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final String text = reader.getRemaining();
       reader.setCursor(reader.getTotalLength());
@@ -281,7 +284,7 @@ public class StringArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed chat color
      * @throws CommandSyntaxException if parsing fails
      */
@@ -322,12 +325,13 @@ public class StringArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the remaining chat text
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       final String text = reader.getRemaining();
       reader.setCursor(reader.getTotalLength());

@@ -1,4 +1,4 @@
-package com.lemonlightmc.zenith.apis.bossbar;
+package com.lemonlightmc.zenith.actions;
 
 import java.lang.reflect.Type;
 import java.util.Locale;
@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -14,9 +15,8 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.utils.actions.Action;
-import com.lemonlightmc.zenith.utils.actions.Condition;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.apis.bossbar.BossBar;
+import com.lemonlightmc.zenith.apis.bossbar.BossbarAPI;
 
 /**
  * Action implementation that creates and displays a boss bar for players.
@@ -26,7 +26,7 @@ import com.lemonlightmc.zenith.utils.actions.ConditionContext;
  * players, and optionally remove the
  * created bar after a configured duration.
  */
-public class BossBarAction extends Action {
+public class BossBarAction extends Action<CommandSender> {
 
   /** Serializer for boss bar action configuration nodes. */
   public static final BossBarActionSerializer SERIALIZER = new BossBarActionSerializer();
@@ -80,7 +80,7 @@ public class BossBarAction extends Action {
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
-      final Condition conditions) {
+      final Condition<CommandSender> conditions) {
     super(conditions);
     this.key = key;
     this.title = title == null ? "" : title;
@@ -110,7 +110,7 @@ public class BossBarAction extends Action {
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
-      final Condition conditions, final boolean useSync) {
+      final Condition<CommandSender> conditions, final boolean useSync) {
     super(conditions, useSync);
     this.key = key;
     this.title = title == null ? "" : title;
@@ -128,7 +128,7 @@ public class BossBarAction extends Action {
    * @return {@code true} after the action has been applied
    */
   @Override
-  protected boolean run(final ConditionContext context) {
+  protected boolean run(final ConditionContext<CommandSender> context) {
     final NamespacedKey effectiveKey = key != null ? key
         : NamespacedKey.minecraft("zenith_action_" + Math.abs(title.hashCode()));
     BossbarAPI.removeBar(effectiveKey);
@@ -170,7 +170,7 @@ public class BossBarAction extends Action {
      * @throws SerializationException if deserialization fails
      */
     public BossBarAction deserialize(final Type type, final ConfigurationNode node,
-        final Condition condition, final boolean useSync, final boolean broadcast)
+        final Condition<CommandSender> condition, final boolean useSync, final boolean broadcast)
         throws SerializationException {
       final ConfigurationNode keyNode = firstNonEmpty(node, "key", "id", "name");
       final String title = str(node, "title", "text", "message");

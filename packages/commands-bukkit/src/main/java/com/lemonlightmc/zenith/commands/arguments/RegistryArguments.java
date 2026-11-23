@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ConditionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -65,12 +65,13 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed biome
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Biome parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Biome parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       return Registry.BIOME.getOrThrow(NamespacedKey.fromString(reader.readString()));
     }
@@ -109,12 +110,13 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed sound
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Sound parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Sound parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+        final String key)
         throws CommandSyntaxException {
       return Registry.SOUNDS.getOrThrow(NamespacedKey.fromString(reader.readString()));
     }
@@ -154,7 +156,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed particle data
      * @throws CommandSyntaxException if parsing fails
      */
@@ -199,7 +201,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed potion effect type
      * @throws CommandSyntaxException if parsing fails
      */
@@ -244,7 +246,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed enchantment
      * @throws CommandSyntaxException if parsing fails
      */
@@ -290,7 +292,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed advancement
      * @throws CommandSyntaxException if parsing fails
      */
@@ -304,7 +306,8 @@ public class RegistryArguments {
   }
 
   /**
-   * Argument that resolves an {@link ItemStack} by material name and optional amount.
+   * Argument that resolves an {@link ItemStack} by material name and optional
+   * amount.
    */
   public static class ItemStackArgument extends Argument<ItemStack, ItemStackArgument, CommandSender> {
 
@@ -336,7 +339,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed item stack
      * @throws CommandSyntaxException if parsing fails
      */
@@ -390,7 +393,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed material
      * @throws CommandSyntaxException if parsing fails
      */
@@ -435,7 +438,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed structure
      * @throws CommandSyntaxException if parsing fails
      */
@@ -480,7 +483,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed attribute
      * @throws CommandSyntaxException if parsing fails
      */
@@ -493,7 +496,8 @@ public class RegistryArguments {
   }
 
   /**
-   * Argument that resolves a {@link StructureType} from the structure type registry.
+   * Argument that resolves a {@link StructureType} from the structure type
+   * registry.
    */
   public static class StructureTypeArgument extends Argument<StructureType, StructureTypeArgument, CommandSender> {
 
@@ -525,7 +529,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed structure type
      * @throws CommandSyntaxException if parsing fails
      */
@@ -570,7 +574,7 @@ public class RegistryArguments {
      *
      * @param source the command source
      * @param reader the string reader
-     * @param key the argument key
+     * @param key    the argument key
      * @return the parsed entity type
      * @throws CommandSyntaxException if parsing fails
      */
@@ -587,7 +591,7 @@ public class RegistryArguments {
    * Maps registry entries to their string keys.
    *
    * @param registry the registry to map
-   * @param <T> the keyed registry entry type
+   * @param <T>      the keyed registry entry type
    * @return an array of registry key strings
    */
   public final static <T extends Keyed> String[] _mapRegistry(final Registry<T> registry) {

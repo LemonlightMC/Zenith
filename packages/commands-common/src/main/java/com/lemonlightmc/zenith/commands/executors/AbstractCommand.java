@@ -11,10 +11,10 @@ import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.executors.Executors.NormalExecutor;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.utils.actions.Condition;
-import com.lemonlightmc.zenith.utils.actions.ConditionContext;
-import com.lemonlightmc.zenith.utils.actions.Conditions;
-import com.lemonlightmc.zenith.utils.actions.Condition.ConditionSet;
+import com.lemonlightmc.zenith.actions.Condition;
+import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.Conditions;
+import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
 
 import java.util.ArrayList;
 import java.util.Collection;

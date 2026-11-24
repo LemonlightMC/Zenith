@@ -22,14 +22,14 @@ public class ActionManager<S extends CommandSender> {
   }
 
   public boolean execute(final String key, final S sender) {
-    return execute(key, new ConditionContext<S>(sender));
+    return execute(key, new ExecutionContext<S>(sender));
   }
 
   public boolean execute(final String key, final S sender, final Player player) {
-    return execute(key, new ConditionContext<S>(sender, player));
+    return execute(key, new ExecutionContext<S>(sender, player));
   }
 
-  public boolean execute(final String key, final ConditionContext<S> context) {
+  public boolean execute(final String key, final ExecutionContext<S> context) {
     if (key == null || key.isEmpty()) {
       return false;
     }

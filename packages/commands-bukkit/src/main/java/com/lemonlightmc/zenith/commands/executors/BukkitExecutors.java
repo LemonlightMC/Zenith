@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.executors.Executors.*;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 /**
  * Bukkit-specific executor interfaces for handling commands from different
@@ -33,7 +33,7 @@ public class BukkitExecutors {
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(ConditionContext<Player> source, CommandArguments args) throws CommandException;
+    void run(ExecutionContext<Player> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for player commands.
@@ -61,7 +61,7 @@ public class BukkitExecutors {
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(ConditionContext<Entity> source, CommandArguments args) throws CommandException;
+    void run(ExecutionContext<Entity> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for entity commands.
@@ -89,7 +89,7 @@ public class BukkitExecutors {
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(ConditionContext<BlockCommandSender> source, CommandArguments args)
+    void run(ExecutionContext<BlockCommandSender> source, CommandArguments args)
         throws CommandException;
 
     /**
@@ -118,7 +118,7 @@ public class BukkitExecutors {
      * @throws CommandException if command execution fails
      */
     @Override
-    abstract void run(ConditionContext<ConsoleCommandSender> source, CommandArguments args)
+    abstract void run(ExecutionContext<ConsoleCommandSender> source, CommandArguments args)
         throws CommandException;
 
     /**
@@ -148,7 +148,7 @@ public class BukkitExecutors {
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(ConditionContext<RemoteConsoleCommandSender> source, CommandArguments args)
+    void run(ExecutionContext<RemoteConsoleCommandSender> source, CommandArguments args)
         throws CommandException;
 
     /**
@@ -177,7 +177,7 @@ public class BukkitExecutors {
      * @param args   the parsed command arguments
      */
     @Override
-    void run(ConditionContext<CommandSender> source, CommandArguments args);
+    void run(ExecutionContext<CommandSender> source, CommandArguments args);
 
     /**
      * Returns the executor type for feedback-forwarding commands.
@@ -205,7 +205,7 @@ public class BukkitExecutors {
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(ConditionContext<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
+    void run(ExecutionContext<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for proxied commands.
@@ -233,7 +233,7 @@ public class BukkitExecutors {
      * @throws CommandException if command execution fails
      */
     @Override
-    void run(ConditionContext<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
+    void run(ExecutionContext<ProxiedCommandSender> source, CommandArguments args) throws CommandException;
 
     /**
      * Returns the executor type for native commands.

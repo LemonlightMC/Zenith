@@ -4,7 +4,7 @@ import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 public class Executors {
 
@@ -33,12 +33,12 @@ public class Executors {
   }
 
   public interface NormalExecutor<S extends CommandSender> {
-    void run(ConditionContext<S> source, CommandArguments args) throws CommandException;
+    void run(ExecutionContext<S> source, CommandArguments args) throws CommandException;
 
     @SuppressWarnings("unchecked")
-    default int executeWith(final ConditionContext<?> source, final CommandArguments args)
+    default int executeWith(final ExecutionContext<?> source, final CommandArguments args)
         throws CommandException {
-      this.run((ConditionContext<S>) source, args);
+      this.run((ExecutionContext<S>) source, args);
       return 1;
     }
 
@@ -51,7 +51,7 @@ public class Executors {
   public interface CommandExecutor<S extends CommandSender> extends NormalExecutor<S> {
 
     @Override
-    void run(ConditionContext<S> source, CommandArguments args) throws CommandException;
+    void run(ExecutionContext<S> source, CommandArguments args) throws CommandException;
 
     @Override
     default ExecutorType getType() {

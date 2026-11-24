@@ -128,7 +128,7 @@ public class BossBarAction extends Action<CommandSender> {
    * @return {@code true} after the action has been applied
    */
   @Override
-  protected boolean run(final ConditionContext<CommandSender> context) {
+  protected boolean run(final ExecutionContext<CommandSender> context) {
     final NamespacedKey effectiveKey = key != null ? key
         : NamespacedKey.minecraft("zenith_action_" + Math.abs(title.hashCode()));
     BossbarAPI.removeBar(effectiveKey);

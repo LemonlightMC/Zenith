@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -114,7 +114,7 @@ public class CollectionsArguments {
     }
 
     @Override
-    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public List<T> parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final Set<String> keys = parseKeys(reader);
@@ -241,7 +241,7 @@ public class CollectionsArguments {
     }
 
     @Override
-    public List<T> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public List<T> parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final Set<String> keys = parseKeys(reader);

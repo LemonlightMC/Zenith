@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -70,7 +70,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Biome parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Biome parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.BIOME.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -115,7 +115,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Sound parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Sound parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.SOUNDS.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -161,7 +161,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ParticleData<?> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public ParticleData<?> parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return new ParticleData<>(Registry.PARTICLE_TYPE.getOrThrow(NamespacedKey.fromString(reader.readString())), null);
@@ -206,7 +206,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public PotionEffectType parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public PotionEffectType parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.EFFECT.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -251,7 +251,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Enchantment parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Enchantment parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.ENCHANTMENT.getOrThrow(Objects.requireNonNull(NamespacedKey.fromString(reader.readString())));
@@ -297,7 +297,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Advancement parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Advancement parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects
@@ -344,7 +344,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ItemStack parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public ItemStack parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String[] value = reader.readList(':');
@@ -398,7 +398,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Material parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Material parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Material.getMaterial(reader.readString()));
@@ -443,7 +443,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Structure parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Structure parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.STRUCTURE.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -488,7 +488,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Attribute parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Attribute parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.ATTRIBUTE.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -534,7 +534,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public StructureType parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public StructureType parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.STRUCTURE_TYPE.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -579,7 +579,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public EntityType parseArgument(final ConditionContext<CommandSender> source,
+    public EntityType parseArgument(final ExecutionContext<CommandSender> source,
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {

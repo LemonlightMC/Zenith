@@ -28,30 +28,30 @@ import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 public class CommandHandler<S extends CommandSender> {
   public static final int MAX_TABCOMPLETIONS = 128;
 
   public final String requirementFailedMessage; // TODO: Localize
-  private final Function<S, ConditionContext<S>> sourceFactory;
+  private final Function<S, ExecutionContext<S>> sourceFactory;
 
-  public CommandHandler(final Function<S, ConditionContext<S>> sourceFactory, final String requirementFailedMessage) {
+  public CommandHandler(final Function<S, ExecutionContext<S>> sourceFactory, final String requirementFailedMessage) {
     this.sourceFactory = sourceFactory;
     this.requirementFailedMessage = requirementFailedMessage;
   }
 
-  public ConditionContext<S> createCommandSource(final S sender) {
+  public ExecutionContext<S> createCommandSource(final S sender) {
     try {
       return sourceFactory.apply(sender);
     } catch (final Exception e) {
-      throw new CommandException("Failed to create ConditionContext for Sender " + sender);
+      throw new CommandException("Failed to create ExecutionContext for Sender " + sender);
     }
   }
 
   public void run(final RootCommand<?, S> cmd, final S sender, final String[] args) {
     try {
-      final ConditionContext<S> source = createCommandSource(sender);
+      final ExecutionContext<S> source = createCommandSource(sender);
       final CommandArguments cmdArgs = parse(cmd, source, args == null ? new String[0] : args);
       if (cmdArgs == null) {
         return;
@@ -77,7 +77,7 @@ public class CommandHandler<S extends CommandSender> {
       args = new String[0];
     }
     try {
-      final ConditionContext<S> source = createCommandSource(sender);
+      final ExecutionContext<S> source = createCommandSource(sender);
       if (!cmd.checkRequirements(source)) {
         return List.of();
       }
@@ -119,7 +119,7 @@ public class CommandHandler<S extends CommandSender> {
     }
   }
 
-  private CommandArguments parse(AbstractCommand<?, S> thisCmd, final ConditionContext<S> source,
+  private CommandArguments parse(AbstractCommand<?, S> thisCmd, final ExecutionContext<S> source,
       final String[] args) {
     final StringReader reader = new StringReader(String.join(" ", args));
     int i = 0;
@@ -148,7 +148,7 @@ public class CommandHandler<S extends CommandSender> {
     return new CommandArguments(parsedArgs, reader.getString());
   }
 
-  private Object _parseArg(final StringReader reader, final ConditionContext<S> source,
+  private Object _parseArg(final StringReader reader, final ExecutionContext<S> source,
       final Argument<?, ?, S> arg) {
     reader.point();
     try {

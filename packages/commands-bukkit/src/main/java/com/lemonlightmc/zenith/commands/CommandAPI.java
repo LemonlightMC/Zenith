@@ -24,7 +24,7 @@ import com.lemonlightmc.zenith.commands.executors.CommandHandler;
 import com.lemonlightmc.zenith.commands.executors.InternalExecutor;
 import com.lemonlightmc.zenith.messages.MessageFormatter;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 /**
  * Central entry point for registering, resolving, dispatching, and managing
@@ -138,7 +138,7 @@ public class CommandAPI {
    */
   public static CommandHandler<CommandSender> getHandler() {
     if (handler == null) {
-      handler = new CommandHandler<CommandSender>(s -> new ConditionContext<>(s), null);
+      handler = new CommandHandler<CommandSender>(s -> new ExecutionContext<>(s), null);
     }
     return handler;
   }

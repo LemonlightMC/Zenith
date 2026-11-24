@@ -8,13 +8,13 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.apis.ChatAPI;
 import com.lemonlightmc.zenith.utils.WorldUtils;
 
-public class ConditionContext<S extends CommandSender> {
+public class ExecutionContext<S extends CommandSender> {
 
     private volatile boolean stopped;
     private final S sender;
     private final Player player;
 
-    public ConditionContext(final S sender) {
+    public ExecutionContext(final S sender) {
         if (sender == null) {
             throw new IllegalArgumentException("Action Sender cannot be null");
         }
@@ -26,7 +26,7 @@ public class ConditionContext<S extends CommandSender> {
         }
     }
 
-    public ConditionContext(final S sender, final Player player) {
+    public ExecutionContext(final S sender, final Player player) {
         this.sender = sender;
         if (sender == null) {
             throw new IllegalArgumentException("Action Sender cannot be null");
@@ -116,8 +116,8 @@ public class ConditionContext<S extends CommandSender> {
      * @param newSender the sender to associate with the copied context
      * @return a copied context for the new sender
      */
-    public <T extends S> ConditionContext<T> copyFor(final T newSender) {
-        return new ConditionContext<>(newSender);
+    public <T extends S> ExecutionContext<T> copyFor(final T newSender) {
+        return new ExecutionContext<>(newSender);
     }
 
     /**
@@ -125,8 +125,8 @@ public class ConditionContext<S extends CommandSender> {
      *
      * @return a copied context
      */
-    public ConditionContext<S> copy() {
-        return new ConditionContext<>(sender, player);
+    public ExecutionContext<S> copy() {
+        return new ExecutionContext<>(sender, player);
     }
 
 }

@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.actions.Conditions;
 import com.lemonlightmc.zenith.actions.Condition;
 import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
@@ -47,7 +47,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
         "Invalid Value '" + value + "' for " + rawType.getName() + " Argument '" + name + "'");
   }
 
-  public abstract Type parseArgument(ConditionContext<S> source, StringReader reader, String key)
+  public abstract Type parseArgument(ExecutionContext<S> source, StringReader reader, String key)
       throws CommandSyntaxException;
 
   public String getName() {
@@ -124,7 +124,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
     return self();
   }
 
-  public ArgType withRequirements(final Predicate<ConditionContext<S>> predicate) {
+  public ArgType withRequirements(final Predicate<ExecutionContext<S>> predicate) {
     requirements().add(Condition.of(predicate));
     return self();
   }
@@ -194,7 +194,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
     return requirements;
   }
 
-  public boolean checkRequirements(final ConditionContext<S> source) {
+  public boolean checkRequirements(final ExecutionContext<S> source) {
     if (requirements == null) {
       return true;
     }

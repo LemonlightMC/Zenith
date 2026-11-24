@@ -82,7 +82,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       context.stop();
       return false;
     }
@@ -108,7 +108,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (command == null || command.isEmpty()) {
         return true;
       }
@@ -139,7 +139,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Player player = context.player();
       if (command == null || command.isEmpty() || player == null) {
         return true;
@@ -175,7 +175,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (broadcast) {
         ChatAPI.broadcast(message);
       } else {
@@ -212,7 +212,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (info == null) {
         return true;
       }
@@ -255,7 +255,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (broadcast) {
         ActionbarAPI.broadcast(message);
       } else if (context.player() != null) {
@@ -293,7 +293,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (loc == null) {
         return true;
       }
@@ -346,7 +346,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (sound == null) {
         return true;
       }
@@ -411,7 +411,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (particle == null) {
         return true;
       }
@@ -446,7 +446,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (item == null) {
         return true;
       }
@@ -485,7 +485,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (material == null) {
         return true;
       }
@@ -531,7 +531,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Player player = context.player();
       if (player != null) {
         player.giveExp(amount);
@@ -559,7 +559,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Player player = context.player();
       if (player != null) {
         player.setLevel(Math.max(0, player.getLevel() + amount));
@@ -587,7 +587,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -623,7 +623,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -655,7 +655,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       return true;
     }
   }
@@ -694,7 +694,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           stop(p);
@@ -761,7 +761,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
@@ -809,7 +809,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (gameMode == null) {
         return true;
       }
@@ -852,7 +852,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
@@ -903,7 +903,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (broadcast) {
         for (final Player p : Bukkit.getOnlinePlayers()) {
           apply(p);
@@ -959,7 +959,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (type == null) {
         return true;
       }
@@ -1027,7 +1027,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final World world = resolveWorld(context, worldName);
       if (world == null) {
         return true;
@@ -1089,7 +1089,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final World world = resolveWorld(context, worldName);
       if (world == null) {
         return true;
@@ -1145,7 +1145,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1194,7 +1194,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1250,7 +1250,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1307,7 +1307,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Location base = resolveLocation(context, location, atPlayer);
       if (base == null || base.getWorld() == null) {
         return true;
@@ -1353,7 +1353,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       String out = message;
       if (context.player() != null) {
         final Player player = context.player();
@@ -1394,7 +1394,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final List<Action<CommandSender>> candidates = new ArrayList<>();
       for (final Action<CommandSender> action : actions) {
         if (action != null) {
@@ -1480,7 +1480,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (entries.isEmpty()) {
         return true;
       }
@@ -1544,7 +1544,7 @@ public class Actions {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (times <= 0 || actions.isEmpty() || context == null) {
         return true;
       }
@@ -1591,7 +1591,7 @@ public class Actions {
       return true;
     }
 
-    private boolean runOnce(final ConditionContext<CommandSender> context) {
+    private boolean runOnce(final ExecutionContext<CommandSender> context) {
       for (final Action<CommandSender> action : actions) {
         if (context.isStopped()) {
           return false;
@@ -1608,7 +1608,7 @@ public class Actions {
     }
   }
 
-  private static World resolveWorld(final ConditionContext<CommandSender> context, final String worldName) {
+  private static World resolveWorld(final ExecutionContext<CommandSender> context, final String worldName) {
     if (worldName != null && !worldName.isEmpty()) {
       return Bukkit.getWorld(worldName);
     }
@@ -1616,7 +1616,7 @@ public class Actions {
     return player == null ? null : player.getWorld();
   }
 
-  private static Location resolveLocation(final ConditionContext<CommandSender> context, final Location location,
+  private static Location resolveLocation(final ExecutionContext<CommandSender> context, final Location location,
       final boolean atPlayer) {
     if (atPlayer) {
       final Player player = context.player();

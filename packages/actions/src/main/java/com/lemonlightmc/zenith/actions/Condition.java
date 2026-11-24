@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
  */
 public interface Condition<S extends CommandSender> {
 
-    boolean test(ConditionContext<S> context);
+    boolean test(ExecutionContext<S> context);
 
     default Condition<S> and(final Condition<S> other) {
         return other == null || other instanceof AlwaysCondition ? this : AndCondition.of(this, other);
@@ -46,7 +46,7 @@ public interface Condition<S extends CommandSender> {
         return NeverCondition.of();
     }
 
-    public static <S extends CommandSender> Condition<S> of(final Predicate<ConditionContext<S>> predicate) {
+    public static <S extends CommandSender> Condition<S> of(final Predicate<ExecutionContext<S>> predicate) {
         return PredicateCondition.of(predicate);
     }
 
@@ -201,7 +201,7 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             if (children.isEmpty()) {
                 return true;
             }
@@ -305,7 +305,7 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             return left.test(context) && right.test(context);
         }
     }
@@ -331,7 +331,7 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             return left.test(context) || right.test(context);
         }
     }
@@ -357,7 +357,7 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             return left.test(context) ^ right.test(context);
         }
     }
@@ -382,7 +382,7 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             return !delegate.test(context);
         }
 
@@ -426,7 +426,7 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             return true;
         }
 
@@ -454,7 +454,7 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             return false;
         }
 
@@ -471,18 +471,18 @@ public interface Condition<S extends CommandSender> {
 
     /** Adapts a predicate into a condition leaf. */
     final class PredicateCondition<S extends CommandSender> implements Condition<S> {
-        private final Predicate<ConditionContext<S>> predicate;
+        private final Predicate<ExecutionContext<S>> predicate;
 
-        private PredicateCondition(final Predicate<ConditionContext<S>> predicate) {
+        private PredicateCondition(final Predicate<ExecutionContext<S>> predicate) {
             this.predicate = predicate;
         }
 
-        public static <S extends CommandSender> Condition<S> of(final Predicate<ConditionContext<S>> predicate) {
+        public static <S extends CommandSender> Condition<S> of(final Predicate<ExecutionContext<S>> predicate) {
             return predicate == null ? AlwaysCondition.of() : new PredicateCondition<>(predicate);
         }
 
         @Override
-        public boolean test(final ConditionContext<S> context) {
+        public boolean test(final ExecutionContext<S> context) {
             return predicate != null && predicate.test(context);
         }
 

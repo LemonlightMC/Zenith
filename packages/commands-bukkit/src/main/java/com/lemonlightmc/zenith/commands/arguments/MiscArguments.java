@@ -15,7 +15,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.loot.LootTables;
 
 import com.lemonlightmc.zenith.additive.time.DurationParser;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -68,7 +68,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public World parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public World parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Bukkit.getWorld(reader.readString()));
@@ -110,7 +110,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Duration parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Duration parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Duration.ofMillis(DurationParser.parse(reader.readString()));
@@ -151,7 +151,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public NamespacedKey parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public NamespacedKey parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(NamespacedKey.fromString(reader.readString()));
@@ -192,7 +192,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public BlockState parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public BlockState parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects
@@ -234,7 +234,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public BlockData parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public BlockData parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Bukkit.createBlockData(reader.readString()));
@@ -279,7 +279,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public LootTable parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public LootTable parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Objects.requireNonNull(LootTables.valueOf(reader.readString())).getLootTable());
@@ -324,7 +324,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Environment parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Environment parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Environment.valueOf(reader.readString()));
@@ -369,7 +369,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public GameMode parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public GameMode parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(GameMode.valueOf(reader.readString()));
@@ -414,7 +414,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public LookAnchor parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public LookAnchor parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(LookAnchor.valueOf(reader.readString()));
@@ -459,7 +459,7 @@ public class MiscArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public MathOperation parseArgument(final ConditionContext<CommandSender> source,
+    public MathOperation parseArgument(final ExecutionContext<CommandSender> source,
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {

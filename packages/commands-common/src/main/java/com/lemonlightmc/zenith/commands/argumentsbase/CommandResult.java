@@ -2,7 +2,7 @@ package com.lemonlightmc.zenith.commands.argumentsbase;
 
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 public interface CommandResult<C, S extends CommandSender> {
 
@@ -20,7 +20,7 @@ public interface CommandResult<C, S extends CommandSender> {
    * @param source the command source providing the sender
    * @return {@code true} if execution succeeds; {@code false} otherwise
    */
-  public boolean execute(final ConditionContext<S> source);
+  public boolean execute(final ExecutionContext<S> source);
 
   /**
    * Returns the command associated with this result.

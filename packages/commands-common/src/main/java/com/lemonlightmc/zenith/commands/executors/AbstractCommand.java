@@ -13,7 +13,7 @@ import com.lemonlightmc.zenith.commands.executors.Executors.NormalExecutor;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
 import com.lemonlightmc.zenith.actions.Condition;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.actions.Conditions;
 import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
 
@@ -169,7 +169,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return self();
   }
 
-  public T withRequirements(final Predicate<ConditionContext<S>> predicate) {
+  public T withRequirements(final Predicate<ExecutionContext<S>> predicate) {
     requirements().add(Condition.of(predicate));
     return self();
   }
@@ -239,7 +239,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return requirements;
   }
 
-  public boolean checkRequirements(final ConditionContext<S> source) {
+  public boolean checkRequirements(final ExecutionContext<S> source) {
     if (requirements == null) {
       return true;
     }
@@ -571,7 +571,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return false;
   }
 
-  protected void run(ConditionContext<S> source, CommandArguments args, final int idx,
+  protected void run(ExecutionContext<S> source, CommandArguments args, final int idx,
       final ExecutorType executorType)
       throws CommandException {
     final SimpleSubCommand<S> sub = getSubcommand(args.getRaw(idx));

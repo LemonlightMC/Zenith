@@ -108,7 +108,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (!context.isPlayer()) {
         return false;
       }
@@ -148,7 +148,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -202,7 +202,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -246,7 +246,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -294,7 +294,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -354,7 +354,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -422,7 +422,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -475,7 +475,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null) {
         return false;
       }
@@ -540,7 +540,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || context.sender() == null) {
         return false;
       }
@@ -594,7 +594,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -633,7 +633,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -681,7 +681,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -722,7 +722,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -773,7 +773,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -811,7 +811,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -838,7 +838,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -865,7 +865,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -892,7 +892,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -919,7 +919,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -961,7 +961,7 @@ public class Conditions {
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1028,7 +1028,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1075,7 +1075,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1121,7 +1121,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1169,7 +1169,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1212,7 +1212,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1271,7 +1271,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1335,7 +1335,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1379,7 +1379,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1448,7 +1448,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1527,7 +1527,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1594,7 +1594,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1629,7 +1629,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1733,7 +1733,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1868,7 +1868,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1944,7 +1944,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1989,7 +1989,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2030,7 +2030,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2065,7 +2065,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2092,7 +2092,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2119,7 +2119,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2171,7 +2171,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2299,7 +2299,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2342,7 +2342,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2394,7 +2394,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2455,7 +2455,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2526,7 +2526,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2576,7 +2576,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2710,7 +2710,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null) {
         return false;
       }
@@ -2774,7 +2774,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2842,7 +2842,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2897,7 +2897,7 @@ public class Conditions {
     }
 
     @Override
-    public boolean test(final ConditionContext<S> context) {
+    public boolean test(final ExecutionContext<S> context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }

@@ -31,7 +31,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         this(List.of(), null, null);
     }
 
-    public void execute(final ConditionContext<S> context) {
+    public void execute(final ExecutionContext<S> context) {
         if (context == null || context.isStopped()) {
             return;
         }
@@ -42,18 +42,18 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         if (sender == null) {
             return;
         }
-        GlobalScheduler.runLater(() -> runFrom(new ConditionContext<S>(sender), 0), 1);
+        GlobalScheduler.runLater(() -> runFrom(new ExecutionContext<S>(sender), 0), 1);
     }
 
     public void execute(final S sender, final Player player) {
         if (sender == null) {
             return;
         }
-        GlobalScheduler.runLater(() -> runFrom(new ConditionContext<S>(sender, player), 0), 1);
+        GlobalScheduler.runLater(() -> runFrom(new ExecutionContext<S>(sender, player), 0), 1);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    void runFrom(final ConditionContext<S> context, final int startIndex) {
+    void runFrom(final ExecutionContext<S> context, final int startIndex) {
         if (actions == null || actions.isEmpty()) {
             return;
         }
@@ -101,7 +101,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         }
     }
 
-    private boolean safeExecute(final ConditionContext<S> context, final Action<S> action) {
+    private boolean safeExecute(final ExecutionContext<S> context, final Action<S> action) {
         try {
             if (action.condition() != null && !action.condition().test(context)) {
                 return true;

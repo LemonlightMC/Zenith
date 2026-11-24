@@ -8,7 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.profile.PlayerProfile;
 
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -54,7 +54,7 @@ public class EntityArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Player parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Player parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Bukkit.getPlayerExact(reader.readString());
@@ -96,7 +96,7 @@ public class EntityArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public PlayerProfile parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public PlayerProfile parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final Player player = Bukkit.getPlayerExact(reader.readString());
@@ -142,7 +142,7 @@ public class EntityArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public List<Entity> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public List<Entity> parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String str = reader.readString();

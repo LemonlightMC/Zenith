@@ -11,7 +11,7 @@ import com.lemonlightmc.zenith.additive.math.ranges.DoubleRange;
 import com.lemonlightmc.zenith.additive.math.ranges.FloatRange;
 import com.lemonlightmc.zenith.additive.math.ranges.IntegerRange;
 import com.lemonlightmc.zenith.additive.math.ranges.LongRange;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -66,7 +66,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Boolean parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       reader.point();
@@ -139,7 +139,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Integer parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Integer parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final int value = reader.readInt();
@@ -229,7 +229,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Long parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Long parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       final long value = reader.readLong();
       if (range.isLower(value)) {
@@ -318,7 +318,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Float parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Float parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final float value = reader.readFloat();
@@ -408,7 +408,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails or the value is out of range
      */
     @Override
-    public Double parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Double parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final double value = reader.readDouble();
@@ -487,7 +487,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public IntegerRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public IntegerRange parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return IntegerRange.from(reader.readRange());
@@ -540,7 +540,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public LongRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public LongRange parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return LongRange.from(reader.readRange());
@@ -593,7 +593,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public FloatRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public FloatRange parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return FloatRange.from(reader.readRange());
@@ -646,7 +646,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public DoubleRange parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public DoubleRange parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return DoubleRange.from(reader.readRange());
@@ -744,7 +744,7 @@ public class NumberArguments {
      *                                bounds
      */
     @Override
-    public Location parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Location parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final double x = centerPos(reader.readDouble(), centered);
@@ -820,7 +820,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Axis parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Axis parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return Axis.valueOf(reader.readString());
     }
@@ -862,7 +862,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public EnumSet<Axis> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public EnumSet<Axis> parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
@@ -909,7 +909,7 @@ public class NumberArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Rotation parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Rotation parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return new Rotation(reader.readDouble(), reader.readDouble());

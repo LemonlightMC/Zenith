@@ -37,9 +37,9 @@ public class Actions2 {
         /**
          * Creates a configurable potion action.
          *
-         * @param potion the potion to apply or clear
-         * @param clear whether the action should clear instead of apply
-         * @param broadcast whether the action should affect all online players
+         * @param potion     the potion to apply or clear
+         * @param clear      whether the action should clear instead of apply
+         * @param broadcast  whether the action should affect all online players
          * @param conditions conditions that must be met before execution
          */
         public PotionEffectAction(final Potion potion, final boolean clear,
@@ -53,11 +53,11 @@ public class Actions2 {
         /**
          * Creates a configurable potion action with an explicit synchronization mode.
          *
-         * @param potion the potion to apply or clear
-         * @param clear whether the action should clear instead of apply
-         * @param broadcast whether the action should affect all online players
+         * @param potion     the potion to apply or clear
+         * @param clear      whether the action should clear instead of apply
+         * @param broadcast  whether the action should affect all online players
          * @param conditions conditions that must be met before execution
-         * @param useSync whether the action should run synchronously
+         * @param useSync    whether the action should run synchronously
          */
         public PotionEffectAction(final Potion potion, final boolean clear,
                 final boolean broadcast, final Condition<CommandSender> conditions, final boolean useSync) {
@@ -78,7 +78,8 @@ public class Actions2 {
         }
 
         /**
-         * Creates an action that clears all active potion effects from the target player.
+         * Creates an action that clears all active potion effects from the target
+         * player.
          *
          * @return a new action that clears all potion effects
          */
@@ -90,7 +91,7 @@ public class Actions2 {
          * {@inheritDoc}
          */
         @Override
-        protected boolean run(final ConditionContext<CommandSender> context) {
+        protected boolean run(final ExecutionContext<CommandSender> context) {
             final Player player = context.player();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {
@@ -140,8 +141,8 @@ public class Actions2 {
         /**
          * Creates a configurable firework action.
          *
-         * @param firework the firework to spawn
-         * @param broadcast whether the action should affect all online players
+         * @param firework   the firework to spawn
+         * @param broadcast  whether the action should affect all online players
          * @param conditions conditions that must be met before execution
          */
         public FireworkAction(
@@ -154,10 +155,10 @@ public class Actions2 {
         /**
          * Creates a configurable firework action with an explicit synchronization mode.
          *
-         * @param firework the firework to spawn
-         * @param broadcast whether the action should affect all online players
+         * @param firework   the firework to spawn
+         * @param broadcast  whether the action should affect all online players
          * @param conditions conditions that must be met before execution
-         * @param useSync whether the action should run synchronously
+         * @param useSync    whether the action should run synchronously
          */
         public FireworkAction(
                 final Firework firework, final boolean broadcast, final Condition<CommandSender> conditions,
@@ -171,7 +172,7 @@ public class Actions2 {
          * {@inheritDoc}
          */
         @Override
-        protected boolean run(final ConditionContext<CommandSender> context) {
+        protected boolean run(final ExecutionContext<CommandSender> context) {
             final Player player = context.player();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {

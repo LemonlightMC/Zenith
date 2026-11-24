@@ -5,7 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandResult;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 /**
  * Represents a parsed Bukkit command invocation ready for execution.
@@ -23,7 +23,7 @@ public record BukkitCommandResult<S extends CommandSender>(Command command, Stri
   }
 
   @Override
-  public boolean execute(final ConditionContext<S> source) {
+  public boolean execute(final ExecutionContext<S> source) {
     return command.execute(source.sender(), command.getLabel(), args);
   }
 

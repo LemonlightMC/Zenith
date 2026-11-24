@@ -25,7 +25,7 @@ public abstract class Action<S extends CommandSender> {
         this.useSync = useSync;
     }
 
-    protected abstract boolean run(ConditionContext<S> context);
+    protected abstract boolean run(ExecutionContext<S> context);
 
     public Condition<S> condition() {
         return condition;
@@ -36,21 +36,21 @@ public abstract class Action<S extends CommandSender> {
     }
 
     public boolean execute(final S sender) {
-        return execute(new ConditionContext<S>(sender));
+        return execute(new ExecutionContext<S>(sender));
     }
 
     public boolean execute(final S sender, final Player player) {
-        return execute(new ConditionContext<S>(sender, player));
+        return execute(new ExecutionContext<S>(sender, player));
     }
 
-    public boolean shouldRun(final ConditionContext<S> context) {
+    public boolean shouldRun(final ExecutionContext<S> context) {
         if (context == null || context.isStopped()) {
             return false;
         }
         return condition == null || condition.test(context);
     }
 
-    public boolean execute(final ConditionContext<S> context) {
+    public boolean execute(final ExecutionContext<S> context) {
         if (context == null || context.isStopped()) {
             return false;
         }

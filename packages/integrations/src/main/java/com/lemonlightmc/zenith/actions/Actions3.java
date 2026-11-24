@@ -39,7 +39,7 @@ public class Actions3 {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -76,7 +76,7 @@ public class Actions3 {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       final Player player = context.player();
       if (player == null) {
         return false;
@@ -127,7 +127,7 @@ public class Actions3 {
     }
 
     @Override
-    protected boolean run(final ConditionContext<CommandSender> context) {
+    protected boolean run(final ExecutionContext<CommandSender> context) {
       if (permission == null || permission.isEmpty()) {
         return true;
       }

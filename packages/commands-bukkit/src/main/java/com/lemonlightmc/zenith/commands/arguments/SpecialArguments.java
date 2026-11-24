@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.BukkitCommandResult;
 import com.lemonlightmc.zenith.commands.CommandAPI;
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandResult;
@@ -186,7 +186,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Boolean parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Boolean parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return null;
@@ -254,7 +254,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public CommandResult<Command, CommandSender> parseArgument(final ConditionContext<CommandSender> source,
+    public CommandResult<Command, CommandSender> parseArgument(final ExecutionContext<CommandSender> source,
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {
@@ -363,7 +363,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if the input does not match the literal
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public String parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
@@ -481,7 +481,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if the input does not match any literal
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public String parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
@@ -519,7 +519,7 @@ public class SpecialArguments {
   public static class DynamicMultiLiteralArgument extends Argument<String, DynamicMultiLiteralArgument, CommandSender>
       implements LiteralArgumentType {
 
-    private final Function<ConditionContext<CommandSender>, Collection<String>> literals;
+    private final Function<ExecutionContext<CommandSender>, Collection<String>> literals;
 
     /**
      * Creates a new dynamic multi-literal argument.
@@ -529,7 +529,7 @@ public class SpecialArguments {
      * @throws IllegalArgumentException if {@code literals} is {@code null}
      */
     public DynamicMultiLiteralArgument(final String nodeName,
-        final Function<ConditionContext<CommandSender>, Collection<String>> literals) {
+        final Function<ExecutionContext<CommandSender>, Collection<String>> literals) {
       super(nodeName, String.class, ArgumentType.MULTI_LITERAL);
 
       if (literals == null) {
@@ -549,7 +549,7 @@ public class SpecialArguments {
      * @return a new dynamic multi-literal argument
      */
     public static DynamicMultiLiteralArgument of(final String nodeName,
-        final Function<ConditionContext<CommandSender>, Collection<String>> literal) {
+        final Function<ExecutionContext<CommandSender>, Collection<String>> literal) {
       return new DynamicMultiLiteralArgument(nodeName, literal);
     }
 
@@ -568,7 +568,7 @@ public class SpecialArguments {
      *
      * @return the literal supplier function
      */
-    public Function<ConditionContext<CommandSender>, Collection<String>> getLiteralsFunction() {
+    public Function<ExecutionContext<CommandSender>, Collection<String>> getLiteralsFunction() {
       return literals;
     }
 
@@ -583,7 +583,7 @@ public class SpecialArguments {
      *                                literal
      */
     @Override
-    public String parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public String parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
@@ -705,7 +705,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public List<String> parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public List<String> parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final List<String> foundSwitches = new ArrayList<>();
@@ -836,7 +836,7 @@ public class SpecialArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public HashMap<String, String> parseArgument(final ConditionContext<CommandSender> source,
+    public HashMap<String, String> parseArgument(final ExecutionContext<CommandSender> source,
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {

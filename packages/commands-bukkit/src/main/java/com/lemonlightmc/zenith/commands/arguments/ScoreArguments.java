@@ -9,7 +9,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
-import com.lemonlightmc.zenith.actions.ConditionContext;
+import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -57,7 +57,7 @@ public class ScoreArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Team parseArgument(final ConditionContext<CommandSender> source, final StringReader reader, final String key)
+    public Team parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
       return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(reader.readString());
     }
@@ -98,7 +98,7 @@ public class ScoreArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ScoreboardSlot parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public ScoreboardSlot parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return ScoreboardSlot.of(reader.readString());
@@ -142,7 +142,7 @@ public class ScoreArguments {
      *                                resolved
      */
     @Override
-    public Objective parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Objective parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
@@ -200,7 +200,7 @@ public class ScoreArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Criteria parseArgument(final ConditionContext<CommandSender> source, final StringReader reader,
+    public Criteria parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Criteria.create(reader.readString()));

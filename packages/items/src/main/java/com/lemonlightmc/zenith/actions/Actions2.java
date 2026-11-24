@@ -9,6 +9,7 @@ import com.lemonlightmc.zenith.items.Firework;
 import com.lemonlightmc.zenith.items.Potion;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.actions.Condition;
+import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
 
 /**
  * Collection of action implementations related to items and effects.

@@ -1,7 +1,10 @@
 package com.lemonlightmc.zenith.actions;
 
+import java.util.UUID;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -13,6 +16,10 @@ public class ExecutionContext<S extends CommandSender> {
     private volatile boolean stopped;
     private final S sender;
     private final Player player;
+    private Entity entity;
+    private Location location;
+
+    private static final UUID CONSOLE_UUID = UUID.nameUUIDFromBytes("zenith-console".getBytes());
 
     public ExecutionContext(final S sender) {
         if (sender == null) {
@@ -24,6 +31,8 @@ public class ExecutionContext<S extends CommandSender> {
         } else {
             this.player = null;
         }
+        this.location = WorldUtils.getLocation(sender);
+        this.entity = WorldUtils.getEntity(sender);
     }
 
     public ExecutionContext(final S sender, final Player player) {
@@ -65,6 +74,10 @@ public class ExecutionContext<S extends CommandSender> {
         return player != null;
     }
 
+    public boolean isConsole() {
+        return sender instanceof ConsoleCommandSender;
+    }
+
     public boolean isStopped() {
         return stopped;
     }
@@ -74,16 +87,19 @@ public class ExecutionContext<S extends CommandSender> {
     }
 
     public Location location() {
-        return WorldUtils.getLocation(sender);
+        return location;
     }
 
     public org.bukkit.World world() {
-        final Location loc = location();
-        return loc == null ? null : loc.getWorld();
+        return location == null ? null : location.getWorld();
     }
 
     public Entity entity() {
-        return WorldUtils.getEntity(sender);
+        return entity;
+    }
+
+    public UUID uuid() {
+        return this.isConsole() ? CONSOLE_UUID : this.player().getUniqueId();
     }
 
     public boolean hasPermission(final String perm) {

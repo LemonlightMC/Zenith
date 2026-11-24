@@ -56,8 +56,7 @@ public class CommandHandler<S extends CommandSender> {
       if (cmdArgs == null) {
         return;
       }
-      final ExecutionInfo<S> info = new ExecutionInfo<S>(source, cmdArgs);
-      cmd.run(info, 0, getExecutorType(sender));
+      cmd.run(source, cmdArgs, 0, getExecutorType(sender));
     } catch (final CommandException ex) {
       throw ex;
     } catch (final Throwable ex) {

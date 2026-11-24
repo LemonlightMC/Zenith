@@ -290,17 +290,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
   }
 
   /**
-   * Registers an execution info handler for player senders.
-   *
-   * @param info the player execution info handler
-   * @return this command
-   */
-  public SimpleCommand executesPlayer(final PlayerExecutionInfo info) {
-    addExecutor(ExecutorType.PLAYER, info);
-    return self();
-  }
-
-  /**
    * Registers an executor for entity senders.
    *
    * @param executor the entity command executor
@@ -308,17 +297,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesEntity(final EntityCommandExecutor executor) {
     addExecutor(ExecutorType.ENTITY, executor);
-    return self();
-  }
-
-  /**
-   * Registers an execution info handler for entity senders.
-   *
-   * @param info the entity execution info handler
-   * @return this command
-   */
-  public SimpleCommand executesEntity(final EntityExecutionInfo info) {
-    addExecutor(ExecutorType.ENTITY, info);
     return self();
   }
 
@@ -334,17 +312,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
   }
 
   /**
-   * Registers an execution info handler for command block senders.
-   *
-   * @param info the command block execution info handler
-   * @return this command
-   */
-  public SimpleCommand executesCommandBlock(final CommandBlockExecutionInfo info) {
-    addExecutor(ExecutorType.BLOCK, info);
-    return self();
-  }
-
-  /**
    * Registers an executor for console senders.
    *
    * @param executor the console command executor
@@ -352,17 +319,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesConsole(final ConsoleCommandExecutor executor) {
     addExecutor(ExecutorType.CONSOLE, executor);
-    return self();
-  }
-
-  /**
-   * Registers an execution info handler for console senders.
-   *
-   * @param info the console execution info handler
-   * @return this command
-   */
-  public SimpleCommand executesConsole(final ConsoleExecutionInfo info) {
-    addExecutor(ExecutorType.CONSOLE, info);
     return self();
   }
 
@@ -378,17 +334,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
   }
 
   /**
-   * Registers an execution info handler for remote console senders.
-   *
-   * @param info the remote console execution info handler
-   * @return this command
-   */
-  public SimpleCommand executesRemoteConsole(final RemoteConsoleExecutionInfo info) {
-    addExecutor(ExecutorType.REMOTE, info);
-    return self();
-  }
-
-  /**
    * Registers an executor for native senders.
    *
    * @param executor the native command executor
@@ -400,17 +345,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
   }
 
   /**
-   * Registers an execution info handler for native senders.
-   *
-   * @param info the native execution info handler
-   * @return this command
-   */
-  public SimpleCommand executesNative(final NativeExecutionInfo info) {
-    addExecutor(ExecutorType.NATIVE, info);
-    return self();
-  }
-
-  /**
    * Registers an executor for proxied senders.
    *
    * @param executor the proxy command executor
@@ -418,17 +352,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
    */
   public SimpleCommand executesProxy(final ProxyCommandExecutor executor) {
     addExecutor(ExecutorType.PROXY, executor);
-    return self();
-  }
-
-  /**
-   * Registers an execution info handler for proxied senders.
-   *
-   * @param info the proxy execution info handler
-   * @return this command
-   */
-  public SimpleCommand executesProxy(final ProxyExecutionInfo info) {
-    addExecutor(ExecutorType.PROXY, info);
     return self();
   }
 
@@ -446,23 +369,6 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
               + ServerPlatform.detect().name() + ")!");
     }
     addExecutor(ExecutorType.FEEDBACK_FORWARDING, executor);
-    return self();
-  }
-
-  /**
-   * Registers a feedback-forwarding execution info handler for Paper platforms.
-   *
-   * @param info the feedback-forwarding execution info handler
-   * @return this command
-   * @throws PlatformException if called on a non-Paper platform
-   */
-  public SimpleCommand executesFeedbackForwarding(final FeedbackForwardingExecutionInfo info) {
-    if (!ServerPlatform.isPaper()) {
-      throw new PlatformException(
-          "Attempted to use a FeedbackForwardingExecutionInfo on a non-paper platform ("
-              + ServerPlatform.detect().name() + ")!");
-    }
-    addExecutor(ExecutorType.FEEDBACK_FORWARDING, info);
     return self();
   }
 

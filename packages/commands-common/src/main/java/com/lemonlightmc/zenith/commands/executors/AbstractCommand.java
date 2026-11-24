@@ -3,6 +3,7 @@ package com.lemonlightmc.zenith.commands.executors;
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.commands.SimpleSubCommand;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
+import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.exceptions.DuplicateArgumentException;
 import com.lemonlightmc.zenith.commands.exceptions.GreedyArgumentException;
@@ -570,11 +571,12 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return false;
   }
 
-  protected void run(final ExecutionInfo<S> info, final int idx, final ExecutorType executorType)
+  protected void run(ConditionContext<S> source, CommandArguments args, final int idx,
+      final ExecutorType executorType)
       throws CommandException {
-    final SimpleSubCommand<S> sub = getSubcommand(info.args().getRaw(idx));
+    final SimpleSubCommand<S> sub = getSubcommand(args.getRaw(idx));
     if (sub != null) {
-      sub.run(info, idx + 1, executorType);
+      sub.run(source, args, idx + 1, executorType);
       return;
     }
     if (executors.isEmpty()) {
@@ -591,7 +593,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
       return;
     }
     for (final NormalExecutor<? extends S> normalExecutor : ex) {
-      normalExecutor.executeWith(info);
+      normalExecutor.executeWith(source, args);
     }
   }
 

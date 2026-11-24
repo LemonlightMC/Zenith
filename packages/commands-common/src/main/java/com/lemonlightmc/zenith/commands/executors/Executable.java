@@ -4,8 +4,6 @@ import java.lang.reflect.Array;
 import java.util.EnumMap;
 
 import org.bukkit.command.CommandSender;
-
-import com.lemonlightmc.zenith.commands.exceptions.CommandException;
 import com.lemonlightmc.zenith.commands.executors.Executors.*;
 
 public abstract class Executable<T, S extends CommandSender> {
@@ -55,39 +53,7 @@ public abstract class Executable<T, S extends CommandSender> {
       addExecutor(ExecutorType.ALL, executor);
     } else {
       for (final ExecutorType type : types) {
-        addExecutor(type, new CommandExecutionInfo<E>() {
-          @Override
-          public ExecutorType getType() {
-            return type;
-          }
-
-          @Override
-          public void run(final ExecutionInfo<E> info) throws CommandException {
-            executor.run(info);
-          }
-        });
-      }
-    }
-    return self();
-  }
-
-  public <E extends S> T executes(final CommandExecutionInfo<E> executor, final ExecutorType... types) {
-    if (types == null || types.length == 0) {
-      addExecutor(ExecutorType.ALL, executor);
-    } else {
-      for (final ExecutorType type : types) {
-        addExecutor(type, new CommandExecutionInfo<E>() {
-
-          @Override
-          public ExecutorType getType() {
-            return type;
-          }
-
-          @Override
-          public void run(final ExecutionInfo<E> info) throws CommandException {
-            executor.run(info);
-          }
-        });
+        addExecutor(type, executor);
       }
     }
     return self();

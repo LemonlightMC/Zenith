@@ -35,12 +35,6 @@ public class Executors {
   public interface NormalExecutor<S extends CommandSender> {
     void run(ConditionContext<S> source, CommandArguments args) throws CommandException;
 
-    default void run(
-        final ExecutionInfo<S> info)
-        throws CommandException {
-      this.run(info.source(), info.args());
-    }
-
     @SuppressWarnings("unchecked")
     default int executeWith(final ConditionContext<?> source, final CommandArguments args)
         throws CommandException {
@@ -48,30 +42,6 @@ public class Executors {
       return 1;
     }
 
-    @SuppressWarnings("unchecked")
-    default int executeWith(final ExecutionInfo<?> info)
-        throws CommandException {
-      this.run((ExecutionInfo<S>) info);
-      return 1;
-    }
-
-    default ExecutorType getType() {
-      return ExecutorType.ALL;
-    }
-  }
-
-  public interface NormalExecutorInfo<S extends CommandSender> extends NormalExecutor<S> {
-    @Override
-    void run(ExecutionInfo<S> info) throws CommandException;
-
-    @Override
-    default void run(
-        final ConditionContext<S> source, final CommandArguments args)
-        throws CommandException {
-      this.run(new ExecutionInfo<>(source, args));
-    }
-
-    @Override
     default ExecutorType getType() {
       return ExecutorType.ALL;
     }
@@ -82,18 +52,6 @@ public class Executors {
 
     @Override
     void run(ConditionContext<S> source, CommandArguments args) throws CommandException;
-
-    @Override
-    default ExecutorType getType() {
-      return ExecutorType.ALL;
-    }
-  }
-
-  @FunctionalInterface
-  public interface CommandExecutionInfo<S extends CommandSender> extends NormalExecutorInfo<S> {
-
-    @Override
-    void run(ExecutionInfo<S> info) throws CommandException;
 
     @Override
     default ExecutorType getType() {

@@ -7,7 +7,6 @@ dependencies {
     implementation("org.spongepowered:configurate-yaml:4.2.0")
     //compileOnly("net.milkbowl.vault:VaultUnblockedAPI:2.19")
     implementation(project(":zenith-additive"))
-    implementation(project(":zenith-actions"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-core"

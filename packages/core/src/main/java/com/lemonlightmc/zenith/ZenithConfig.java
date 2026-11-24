@@ -1,34 +1,15 @@
 package com.lemonlightmc.zenith;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.event.Level;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.ObjectMapper;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
-import org.spongepowered.configurate.objectmapping.meta.NodeResolver;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
-import org.spongepowered.configurate.serialize.TypeSerializer;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
-import java.lang.reflect.Type;
 
 import com.lemonlightmc.zenith.additive.StringUtils;
-import com.lemonlightmc.zenith.apis.TitleAPI;
-import com.lemonlightmc.zenith.apis.TitleAPI.TitleInfo;
-import com.lemonlightmc.zenith.apis.bossbar.BossBar;
-import com.lemonlightmc.zenith.apis.bossbar.BossBarBuilder;
-import com.lemonlightmc.zenith.exceptions.ConfigParsingException;
-import com.lemonlightmc.zenith.actions.Action;
-import com.lemonlightmc.zenith.actions.Actions;
-import com.lemonlightmc.zenith.actions.Condition;
-import com.lemonlightmc.zenith.actions.Conditions;
-
-import io.leangen.geantyref.TypeToken;
 
 /**
  * The global Zenith configuration, mapped directly from the {@code config.yml}
@@ -88,153 +69,6 @@ public class ZenithConfig {
         @Setting("cache-interval")
         @Comment("Cache Flush Interval (seconds)\nHow often cached data is written to database\nLower = frequent saves, more CPU usage | Higher = better performance, slight crash risk\nRecommendations: <20 players: 30s | 20-50: 60s | 50-100: 120-180s | 100+: 300s")
         public int cacheInterval = 30;
-
-        /**
-         * Loads a Zenith configuration from the given YAML file path.
-         *
-         * <p>
-         * If the file does not exist, defaults are copied and saved. Missing values in
-         * existing files are merged with
-         * defaults according to the loader configuration.
-         *
-         * @param path the configuration file path to load
-         * @return the loaded configuration
-         * @throws ConfigParsingException if the configuration cannot be loaded or
-         *                                parsed
-         */
-        public static ZenithConfig from(final Path path) {
-                final ObjectMapper.Factory customFactory = ObjectMapper.factoryBuilder()
-                                .addNodeResolver(NodeResolver.onlyWithSetting())
-                                .build();
-
-                final YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
-                                .path(path)
-                                .indent(2)
-                                .defaultOptions((opts) -> opts
-                                                .shouldCopyDefaults(true)
-                                                .serializers(build -> build
-                                                                .register(TypeToken.get(Locale.class),
-                                                                                new LocaleSerializer())
-                                                                .register(TypeToken.get(BossBar.class),
-                                                                                BossBarBuilder.SERIALIZER)
-                                                                .register(TypeToken.get(TitleAPI.TitleInfo.class),
-                                                                                TitleInfo.SERIALIZER)
-                                                                .register(TypeToken.get(Action.class),
-                                                                                Actions.SERIALIZER)
-                                                                .register(new TypeToken<Condition>() {
-                                                                }, Conditions.SERIALIZER)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.math.MathOperation.class),
-                                                                                com.lemonlightmc.zenith.math.MathOperation.MathOperationSerializer.INSTANCE)
-                                                                .register(TypeToken.get(java.time.Duration.class),
-                                                                                com.lemonlightmc.zenith.internal.DurationSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.math.Position.class),
-                                                                                com.lemonlightmc.zenith.math.Position.PositionSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.math.Rotation.class),
-                                                                                com.lemonlightmc.zenith.math.Rotation.RotationSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.math.Region.class),
-                                                                                com.lemonlightmc.zenith.math.Region.RegionSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.additive.version.Version.class),
-                                                                                com.lemonlightmc.zenith.internal.VersionSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.additive.math.Range.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(
-                                                                                TypeToken.get(com.lemonlightmc.zenith.additive.math.ranges.IntegerRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.additive.math.ranges.LongRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.additive.math.ranges.DoubleRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.additive.math.ranges.FloatRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.additive.math.ranges.ShortRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(TypeToken.get(
-                                                                                com.lemonlightmc.zenith.additive.math.ranges.ByteRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(
-                                                                                TypeToken.get(
-                                                                                                com.lemonlightmc.zenith.additive.math.ranges.BigIntegerRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(
-                                                                                TypeToken.get(
-                                                                                                com.lemonlightmc.zenith.additive.math.ranges.BigDecimalRange.class),
-                                                                                com.lemonlightmc.zenith.internal.RangeSerializer.INSTANCE)
-                                                                .register(TypeToken.get(org.bukkit.Location.class),
-                                                                                com.lemonlightmc.zenith.internal.LocationSerializer.INSTANCE)
-                                                                .register(TypeToken.get(org.bukkit.util.Vector.class),
-                                                                                com.lemonlightmc.zenith.internal.VectorSerializer.INSTANCE)
-                                                                .register(TypeToken.get(org.bukkit.NamespacedKey.class),
-                                                                                com.lemonlightmc.zenith.internal.NamespacedKeySerializer.INSTANCE)
-                                                                .register(TypeToken.get(java.util.UUID.class),
-                                                                                com.lemonlightmc.zenith.internal.UUIDSerializer.INSTANCE)
-                                                                .register(TypeToken.get(java.util.regex.Pattern.class),
-                                                                                com.lemonlightmc.zenith.internal.PatternSerializer.INSTANCE)
-                                                                .register(TypeToken.get(java.nio.file.Path.class),
-                                                                                com.lemonlightmc.zenith.internal.PathSerializer.INSTANCE)
-                                                                .register(TypeToken.get(java.net.URI.class),
-                                                                                com.lemonlightmc.zenith.internal.URISerializer.INSTANCE)
-                                                                .register(TypeToken.get(org.bukkit.Color.class),
-                                                                                com.lemonlightmc.zenith.internal.ColorSerializer.INSTANCE)
-                                                                .register(TypeToken.get(org.bukkit.World.class),
-                                                                                com.lemonlightmc.zenith.internal.WorldNameSerializer.INSTANCE)
-                                                                .register(TypeToken.get(org.bukkit.Material.class),
-                                                                                com.lemonlightmc.zenith.internal.MaterialSerializer.INSTANCE)
-                                                                .registerAnnotatedObjects(customFactory)))
-                                .build();
-                final CommentedConfigurationNode root;
-                try {
-                        root = loader.load();
-                        final ZenithConfig config = root.get(ZenithConfig.class);
-                        if (Files.notExists(path)) {
-                                loader.save(root);
-                        }
-                        return config;
-                } catch (final Exception e) {
-                        throw new ConfigParsingException(
-                                        "An error occurred while loading this configuration: " + e.getMessage(),
-                                        e);
-                }
-        }
-
-        /**
-         * Serializes {@link Locale} objects to and from the config file as
-         * BCP-47 language
-         * tags (e.g. {@code en}, {@code en-US}). Configurate 4.2.0 ships no built-in
-         * {@code Locale}
-         * serializer, so one is registered explicitly in {@link #from(Path)}.
-         */
-        private static final class LocaleSerializer implements TypeSerializer<Locale> {
-                /**
-                 * {@inheritDoc}
-                 */
-                @Override
-                public Locale deserialize(final Type type, final ConfigurationNode node) {
-                        final String value = node.getString();
-                        if (value == null || value.isEmpty()) {
-                                return Locale.ENGLISH;
-                        }
-                        return StringUtils.parseLocale(value);
-                }
-
-                /**
-                 * {@inheritDoc}
-                 */
-                @Override
-                public void serialize(final Type type, final Locale obj, final ConfigurationNode node)
-                                throws org.spongepowered.configurate.serialize.SerializationException {
-                        node.set(obj.toLanguageTag());
-                }
-        }
 
         /**
          * The localization section. Controls how (and in which language) messages are

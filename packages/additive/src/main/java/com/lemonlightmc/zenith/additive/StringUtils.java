@@ -221,7 +221,7 @@ public class StringUtils {
     if (string == null || string.isEmpty()) {
       return null;
     }
-    final String[] segments = string.split("_", 3); // language_country_variant
+    final String[] segments = string.trim().split("_", 3); // language_country_variant
     final int length = segments.length;
     if (length == 1) {
       return Locale.of(string); // language

@@ -49,8 +49,8 @@ public abstract class ZenithPlugin extends JavaPlugin
     this.scheduler = new BukkitScheduler();
     logger = GlobalLogger.getLogger(super.getLogger().getName());
     messageAPI = new MessageAPI();
-    if (!ZenithProvider.hasInstance()) {
-      ZenithProvider.setInstance(this);
+    if (!ZenithProvider.hasBackend()) {
+      ZenithProvider.install(new ZenithBackend(this));
     }
   }
 

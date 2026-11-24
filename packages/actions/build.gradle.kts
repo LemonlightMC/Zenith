@@ -4,6 +4,7 @@ dependencies {
     compileOnly("net.kyori:adventure-api:4.17.0")
     compileOnly("net.kyori:adventure-text-serializer-legacy:4.17.0")
     compileOnly("org.spongepowered:configurate-core:4.2.0")
+    compileOnly("org.slf4j:slf4j-api:2.0.7")
     //compileOnly("com.github.Traqueur-dev:RecipesAPI:2.0.2")
     //compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     implementation(project(":zenith-core"))

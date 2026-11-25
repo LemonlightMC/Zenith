@@ -19,11 +19,11 @@ public abstract class Executable<T, S extends CommandSender> {
     return !executors.isEmpty();
   }
 
-  public NormalExecutor<? extends S>[] getExecutors(final ExecutorType type) {
+  public NormalExecutor<? extends S>[] executors(final ExecutorType type) {
     return executors.get(type);
   }
 
-  public EnumMap<ExecutorType, NormalExecutor<? extends S>[]> getExecutors() {
+  public EnumMap<ExecutorType, NormalExecutor<? extends S>[]> executors() {
     return executors;
   }
 

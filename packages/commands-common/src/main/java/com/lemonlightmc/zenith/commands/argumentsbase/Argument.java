@@ -44,25 +44,25 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
 
   public CommandSyntaxException createError(final StringReader reader, final String value) {
     return new CommandSyntaxException(reader,
-        "Invalid Value '" + value + "' for " + rawType.getName() + " Argument '" + name + "'");
+        "Invalid Value '" + value + "' for " + rawType.name() + " Argument '" + name + "'");
   }
 
   public abstract Type parseArgument(ExecutionContext<S> source, StringReader reader, String key)
       throws CommandSyntaxException;
 
-  public String getName() {
+  public String name() {
     return name;
   }
 
-  public ArgumentType getType() {
+  public ArgumentType type() {
     return rawType;
   }
 
-  public Class<Type> getPrimitiveType() {
+  public Class<Type> primitiveType() {
     return primitiveType;
   }
 
-  public ArgumentType getArgumentType() {
+  public ArgumentType argumentType() {
     return rawType;
   }
 
@@ -103,7 +103,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
     return self();
   }
 
-  public List<Suggestions<S>> getSuggestions() {
+  public List<Suggestions<S>> suggestions() {
     return this.suggestions;
   }
 
@@ -202,7 +202,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
   }
 
   // Help
-  public String getHelpString() {
+  public String helpString() {
     if (!isListed) {
       return name;
     }

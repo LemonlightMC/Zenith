@@ -170,8 +170,8 @@ public class SpecialArguments {
       if (type == null) {
         throw new IllegalArgumentException("Invalid Argument Branch Type: " + type);
       }
-      if (args[0].getArgumentType().equals(ArgumentType.LITERAL)) {
-        throw new InvalidArgumentBranchException("invalid literal", args[0].getName());
+      if (args[0].argumentType().equals(ArgumentType.LITERAL)) {
+        throw new InvalidArgumentBranchException("invalid literal", args[0].name());
       }
       branches.add(new ArgumentBranch(List.of(args), type));
     }
@@ -349,7 +349,7 @@ public class SpecialArguments {
      * @return the literal help string
      */
     @Override
-    public String getHelpString() {
+    public String helpString() {
       return literal;
     }
 

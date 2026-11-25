@@ -251,12 +251,12 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     if (arg == null) {
       return self();
     }
-    if (!arguments.isEmpty() && arguments.get(arguments.size() - 1).getType().isGreedy()) {
-      throw new GreedyArgumentException(arg.getName(), GreedyArgumentException.buildArgsStr(arguments));
+    if (!arguments.isEmpty() && arguments.get(arguments.size() - 1).type().isGreedy()) {
+      throw new GreedyArgumentException(arg.name(), GreedyArgumentException.buildArgsStr(arguments));
     }
     for (final Argument<?, ?, S> tempArg : arguments) {
-      if (tempArg.getName().equals(arg.getName())) {
-        throw new DuplicateArgumentException(arg.getName());
+      if (tempArg.name().equals(arg.name())) {
+        throw new DuplicateArgumentException(arg.name());
       }
     }
     if (optional != null) {
@@ -270,9 +270,9 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
       final Argument<?, ?, S> lastOptional = arguments.stream().filter(Argument::isOptional).reduce((a, b) -> b)
           .orElse(null);
       if (lastOptional != null) {
-        throw new OptionalArgumentException(arg.getName(), lastOptional.getName());
+        throw new OptionalArgumentException(arg.name(), lastOptional.name());
       }
-      throw new OptionalArgumentException(arg.getName());
+      throw new OptionalArgumentException(arg.name());
     } else {
       hasOptional = seenOptional;
     }
@@ -582,12 +582,12 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     if (executors.isEmpty()) {
       return;
     }
-    NormalExecutor<? extends S>[] ex = getExecutors(executorType);
+    NormalExecutor<? extends S>[] ex = executors(executorType);
     if (ex == null) {
-      ex = getExecutors(ExecutorType.NATIVE);
+      ex = executors(ExecutorType.NATIVE);
     }
     if (ex == null) {
-      ex = getExecutors(ExecutorType.ALL);
+      ex = executors(ExecutorType.ALL);
     }
     if (ex == null) {
       return;
@@ -638,7 +638,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     if (arg == null || !arg.checkRequirements(info.source())) {
       return null;
     }
-    return arg.getSuggestions();
+    return arg.suggestions();
   }
 
   @Override

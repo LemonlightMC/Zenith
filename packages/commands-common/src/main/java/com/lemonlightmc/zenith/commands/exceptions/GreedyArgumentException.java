@@ -17,7 +17,7 @@ public class GreedyArgumentException extends CommandException {
   public static <S extends CommandSender> String buildArgsStr(final List<Argument<?, ?, S>> arguments) {
     final StringBuilder builder = new StringBuilder();
     for (final Argument<?, ?, S> arg : arguments) {
-      builder.append(arg.getName()).append("<").append(arg.getClass().getSimpleName()).append("> ");
+      builder.append(arg.name()).append("<").append(arg.getClass().getSimpleName()).append("> ");
     }
     return builder.toString();
   }

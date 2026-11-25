@@ -262,9 +262,9 @@ public class CommandArguments {
   // byArgument
   public <T> T getByArgument(final Argument<T, ?, ?> argumentType) {
     return castArgument(
-        get(argumentType.getName()),
-        argumentType.getPrimitiveType(),
-        argumentType.getName());
+        get(argumentType.name()),
+        argumentType.primitiveType(),
+        argumentType.name());
   }
 
   public <T> Optional<T> getByArgumentOptional(final Argument<T, ?, ?> argumentType) {
@@ -344,8 +344,6 @@ public class CommandArguments {
   public String toString() {
     return "CommandArguments [args=" + Arrays.toString(args) + ",fullInput=" + fullInput + "]";
   }
-
-
 
   @SuppressWarnings("unchecked")
   private static <T> T castArgument(

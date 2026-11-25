@@ -143,7 +143,7 @@ public class CommandHandler<S extends CommandSender> {
       }
       reader.skipWhitespace();
       final Object value = _parseArg(reader, source, arg);
-      parsedArgs.put(arg.getName(), new ParsedArgument(arg.getName(), reader.getLastRead(), value));
+      parsedArgs.put(arg.name(), new ParsedArgument(arg.name(), reader.getLastRead(), value));
     }
     return new CommandArguments(parsedArgs, reader.getString());
   }
@@ -152,7 +152,7 @@ public class CommandHandler<S extends CommandSender> {
       final Argument<?, ?, S> arg) {
     reader.point();
     try {
-      final Object value = arg.parseArgument(source, reader, arg.getName());
+      final Object value = arg.parseArgument(source, reader, arg.name());
       reader.revokePoint();
       return value;
     } catch (final CommandSyntaxException e) {

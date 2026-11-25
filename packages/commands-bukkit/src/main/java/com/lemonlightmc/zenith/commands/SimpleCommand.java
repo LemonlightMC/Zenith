@@ -435,7 +435,7 @@ public class SimpleCommand extends RootCommand<SimpleCommand, CommandSender> {
     final StringBuilder own = new StringBuilder(base);
     if (command.arguments() != null) {
       for (final Argument<?, ?, CommandSender> arg : command.arguments()) {
-        own.append(' ').append(arg.getHelpString());
+        own.append(' ').append(arg.helpString());
       }
     }
 

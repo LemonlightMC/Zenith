@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;

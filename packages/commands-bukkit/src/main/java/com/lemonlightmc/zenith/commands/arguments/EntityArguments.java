@@ -11,7 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.profile.PlayerProfile;
 
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -60,7 +60,12 @@ public class EntityArguments {
     public Player parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Bukkit.getPlayerExact(reader.readString());
+      final String raw = reader.readString();
+      final Player player = Bukkit.getPlayerExact(raw);
+      if (player == null) {
+        throw createError(reader, raw);
+      }
+      return player;
     }
   }
 
@@ -102,8 +107,12 @@ public class EntityArguments {
     public PlayerProfile parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      final Player player = Bukkit.getPlayerExact(reader.readString());
-      return player == null ? null : player.getPlayerProfile();
+      final String raw = reader.readString();
+      final Player player = Bukkit.getPlayerExact(raw);
+      if (player == null) {
+        throw createError(reader, raw);
+      }
+      return player.getPlayerProfile();
     }
   }
 
@@ -153,7 +162,11 @@ public class EntityArguments {
       if (player != null) {
         return List.of(player);
       }
-      return Bukkit.selectEntities(source.sender(), str);
+      try {
+        return Bukkit.selectEntities(source.sender(), str);
+      } catch (final IllegalArgumentException ex) {
+        throw createError(reader, str);
+      }
     }
   }
 

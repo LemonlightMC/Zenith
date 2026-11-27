@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.commands.BukkitCommandResult;
 import com.lemonlightmc.zenith.commands.CommandAPI;
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandResult;
@@ -69,7 +69,7 @@ public class SpecialArguments {
      * @param name the argument name
      */
     public BranchArgument(final String name) {
-      super(name, null, ArgumentType.BRANCH);
+      super(name, Boolean.class, ArgumentType.BRANCH);
       branches = new ArrayList<>();
     }
 
@@ -258,11 +258,16 @@ public class SpecialArguments {
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      final String[] args = reader.getRemaining().split(" ");
+      final String remaining = reader.getRemaining();
+      final String[] args = remaining.trim().isEmpty() ? new String[0] : remaining.trim().split("\\s+");
       if (args.length == 0) {
-        return null;
+        throw createError(reader, "");
       }
-      final Command cmd = Objects.requireNonNull(CommandAPI.getCommandMap().getCommand(args[0]));
+      final Command cmd = CommandAPI.getCommandMap().getCommand(args[0]);
+      if (cmd == null) {
+        throw createError(reader, args[0]);
+      }
+      reader.setCursor(reader.getTotalLength());
       return new BukkitCommandResult<CommandSender>(cmd,
           args.length == 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length));
     }
@@ -587,8 +592,10 @@ public class SpecialArguments {
         final String key)
         throws CommandSyntaxException {
       final String value = reader.readString();
-      if (literals.apply(source).contains(value)) {
-        return value;
+      for (final String literal : literals.apply(source)) {
+        if (literal.equalsIgnoreCase(value)) {
+          return literal;
+        }
       }
       throw createError(reader, value);
     }
@@ -647,7 +654,7 @@ public class SpecialArguments {
       }
       for (int i = 0; i < switches.length; i++) {
         switches[i] = switches[i].trim();
-        if (!switches[i].startsWith("--") || !switches[i].startsWith("-")) {
+        if (!switches[i].startsWith("-")) {
           switches[i] = "-" + switches[i];
         }
       }
@@ -709,15 +716,21 @@ public class SpecialArguments {
         final String key)
         throws CommandSyntaxException {
       final List<String> foundSwitches = new ArrayList<>();
-      int switchLen = 0;
-      for (final String sw : switches) {
-        switchLen = sw.length();
-        if (reader.canRead(switchLen)
-            && reader.getRemaining().startsWith(sw)
-            && (reader.getRemaining().length() == switchLen
-                || Character.isWhitespace(reader.getRemaining().charAt(switchLen)))) {
-          foundSwitches.add(sw);
-          reader.setCursor(reader.getCursor() + switchLen);
+      boolean matched = true;
+      while (matched && reader.canRead()) {
+        reader.skipWhitespace();
+        matched = false;
+        for (final String sw : switches) {
+          final int switchLen = sw.length();
+          final String remaining = reader.getRemaining();
+          if (reader.canRead(switchLen)
+              && remaining.startsWith(sw)
+              && (remaining.length() == switchLen || Character.isWhitespace(remaining.charAt(switchLen)))) {
+            foundSwitches.add(sw);
+            reader.setCursor(reader.getCursor() + switchLen);
+            matched = true;
+            break;
+          }
         }
       }
       return foundSwitches;
@@ -778,7 +791,7 @@ public class SpecialArguments {
       }
       for (int i = 0; i < flags.length; i++) {
         flags[i] = flags[i].trim();
-        if (!flags[i].startsWith("--") || !flags[i].startsWith("-")) {
+        if (!flags[i].startsWith("-")) {
           flags[i] = "-" + flags[i];
         }
       }
@@ -841,27 +854,40 @@ public class SpecialArguments {
         final String key)
         throws CommandSyntaxException {
       final HashMap<String, String> foundFlags = new HashMap<>();
-      int flagLen = 0;
-      String remaining;
-      for (final String flag : flags) {
-        flagLen = flag.length();
-        remaining = reader.getRemaining();
-        if (!reader.canRead(flagLen)
-            || !remaining.startsWith(flag)) {
-          continue;
-        }
-        if (remaining.length() == flagLen) {
-          reader.setCursor(reader.getCursor() + flagLen);
-          foundFlags.put(flag, "true");
-        } else if (Character.isWhitespace(remaining.charAt(flagLen))
-            || remaining.charAt(flagLen) == '=') {
-          reader.setCursor(reader.getCursor() + flagLen);
-          String value = "true";
-          if (reader.canRead() && (reader.peek() == '=' || Character.isWhitespace(reader.peek()))) {
-            reader.skip();
-            value = reader.readString();
+      boolean matched = true;
+      while (matched && reader.canRead()) {
+        reader.skipWhitespace();
+        matched = false;
+        for (final String flag : flags) {
+          final int flagLen = flag.length();
+          final String remaining = reader.getRemaining();
+          if (!reader.canRead(flagLen) || !remaining.startsWith(flag)) {
+            continue;
           }
-          foundFlags.put(flag, value);
+          if (remaining.length() == flagLen) {
+            reader.setCursor(reader.getCursor() + flagLen);
+            foundFlags.put(flag, "true");
+            matched = true;
+            break;
+          } else if (Character.isWhitespace(remaining.charAt(flagLen)) || remaining.charAt(flagLen) == '=') {
+            reader.setCursor(reader.getCursor() + flagLen);
+            String value = "true";
+            if (reader.canRead() && reader.peek() == '=') {
+              reader.skip();
+              value = reader.readString();
+            } else if (reader.canRead() && Character.isWhitespace(reader.peek())) {
+              final int before = reader.getCursor();
+              reader.skipWhitespace();
+              if (reader.canRead() && reader.peek() != '-') {
+                value = reader.readString();
+              } else {
+                reader.setCursor(before);
+              }
+            }
+            foundFlags.put(flag, value);
+            matched = true;
+            break;
+          }
         }
       }
       return foundFlags;

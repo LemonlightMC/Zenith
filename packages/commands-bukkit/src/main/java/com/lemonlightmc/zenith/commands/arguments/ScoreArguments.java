@@ -9,7 +9,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -59,7 +59,12 @@ public class ScoreArguments {
     @Override
     public Team parseArgument(final CommandContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
-      return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(reader.readString());
+      final String raw = reader.readString();
+      final Team team = Bukkit.getScoreboardManager().getMainScoreboard().getTeam(raw);
+      if (team == null) {
+        throw createError(reader, raw);
+      }
+      return team;
     }
   }
 
@@ -101,7 +106,12 @@ public class ScoreArguments {
     public ScoreboardSlot parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return ScoreboardSlot.of(reader.readString());
+      final String raw = reader.readString();
+      final ScoreboardSlot slot = ScoreboardSlot.of(raw);
+      if (slot == null) {
+        throw createError(reader, raw);
+      }
+      return slot;
     }
   }
 
@@ -203,7 +213,12 @@ public class ScoreArguments {
     public Criteria parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(Criteria.create(reader.readString()));
+      final String raw = reader.readString();
+      final Criteria criteria = Criteria.create(raw);
+      if (criteria == null) {
+        throw createError(reader, raw);
+      }
+      return criteria;
     }
   }
 }

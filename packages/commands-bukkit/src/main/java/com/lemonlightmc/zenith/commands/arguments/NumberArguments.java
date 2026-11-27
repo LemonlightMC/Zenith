@@ -11,7 +11,7 @@ import com.lemonlightmc.zenith.additive.math.ranges.DoubleRange;
 import com.lemonlightmc.zenith.additive.math.ranges.FloatRange;
 import com.lemonlightmc.zenith.additive.math.ranges.IntegerRange;
 import com.lemonlightmc.zenith.additive.math.ranges.LongRange;
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -77,7 +77,8 @@ public class NumberArguments {
         throw e;
       } catch (final Exception e) {
         reader.resetCursor();
-        throw e;
+        final String raw = reader.canRead() ? String.valueOf(reader.peek()) : "";
+        throw createError(reader, raw);
       }
     }
   }
@@ -94,7 +95,7 @@ public class NumberArguments {
      * @param name the argument name
      */
     public IntegerArgument(final String name) {
-      this(name, Integer.MAX_VALUE, Integer.MAX_VALUE);
+      this(name, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
     /**
@@ -184,7 +185,7 @@ public class NumberArguments {
      * @param name the argument name
      */
     public LongArgument(final String name) {
-      this(name, Long.MAX_VALUE, Long.MAX_VALUE);
+      this(name, Long.MIN_VALUE, Long.MAX_VALUE);
     }
 
     /**
@@ -273,7 +274,7 @@ public class NumberArguments {
      * @param name the argument name
      */
     public FloatArgument(final String name) {
-      this(name, Float.MAX_VALUE, Float.MAX_VALUE);
+      this(name, -Float.MAX_VALUE, Float.MAX_VALUE);
     }
 
     /**
@@ -363,7 +364,7 @@ public class NumberArguments {
      * @param name the argument name
      */
     public DoubleArgument(final String name) {
-      this(name, Double.MAX_VALUE, Double.MAX_VALUE);
+      this(name, -Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     /**
@@ -748,7 +749,9 @@ public class NumberArguments {
         final String key)
         throws CommandSyntaxException {
       final double x = centerPos(reader.readDouble(), centered);
+      reader.skipWhitespace();
       final double y = centerPos(reader.readDouble(), false);
+      reader.skipWhitespace();
       final double z = centerPos(reader.readDouble(), centered);
       if (x > MAX_COORDINATE || x < -MAX_COORDINATE) {
         throw OUTOFBOUNDS_LOCATION.createWithContext(reader, x);
@@ -756,7 +759,6 @@ public class NumberArguments {
       if (y > MAX_COORDINATE || y < -MAX_COORDINATE) {
         throw OUTOFBOUNDS_LOCATION.createWithContext(reader, y);
       }
-
       if (z > MAX_COORDINATE || z < -MAX_COORDINATE) {
         throw OUTOFBOUNDS_LOCATION.createWithContext(reader, z);
       }
@@ -822,7 +824,12 @@ public class NumberArguments {
     @Override
     public Axis parseArgument(final CommandContext<CommandSender> source, final StringReader reader, final String key)
         throws CommandSyntaxException {
-      return Axis.valueOf(reader.readString());
+      final String raw = reader.readString();
+      try {
+        return Axis.valueOf(raw.toUpperCase(java.util.Locale.ROOT));
+      } catch (final IllegalArgumentException ex) {
+        throw createError(reader, raw);
+      }
     }
   }
 
@@ -868,7 +875,15 @@ public class NumberArguments {
       final String value = reader.readString();
       final EnumSet<Axis> set = EnumSet.noneOf(Axis.class);
       for (int i = 0; i < value.length(); i++) {
-        set.add(Objects.requireNonNull(Axis.valueOf(value.substring(i, i + 1))));
+        final String token = value.substring(i, i + 1).toUpperCase(java.util.Locale.ROOT);
+        try {
+          set.add(Axis.valueOf(token));
+        } catch (final IllegalArgumentException ex) {
+          throw createError(reader, value);
+        }
+      }
+      if (set.isEmpty()) {
+        throw createError(reader, value);
       }
       return set;
     }
@@ -912,7 +927,10 @@ public class NumberArguments {
     public Rotation parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return new Rotation(reader.readDouble(), reader.readDouble());
+      final double yaw = reader.readDouble();
+      reader.skipWhitespace();
+      final double pitch = reader.readDouble();
+      return new Rotation(yaw, pitch);
     }
   }
 

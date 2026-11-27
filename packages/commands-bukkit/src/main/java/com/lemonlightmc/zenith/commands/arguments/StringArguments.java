@@ -1,10 +1,11 @@
 package com.lemonlightmc.zenith.commands.arguments;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -54,10 +55,10 @@ public class StringArguments {
      */
     public StringArgument(final String name, final StringType type) {
       super(name, String.class, ArgumentType.STRING);
-      this.type = type;
       if (type == null) {
         throw new IllegalArgumentException("String Type cant be null");
       }
+      this.type = type;
     }
 
     /**
@@ -292,7 +293,12 @@ public class StringArguments {
     public ChatColor parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return ChatColor.valueOf(reader.readUnquotedString());
+      final String raw = reader.readUnquotedString();
+      try {
+        return ChatColor.valueOf(raw.toUpperCase(java.util.Locale.ROOT));
+      } catch (final IllegalArgumentException ex) {
+        throw createError(reader, raw);
+      }
     }
   }
 

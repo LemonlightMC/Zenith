@@ -19,7 +19,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.loot.LootTable;
 import org.bukkit.util.Vector;
 
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -40,7 +40,7 @@ public class MiscArguments {
     /** Suggestion names for currently loaded worlds. */
     public static final String[] NAMES = Bukkit.getWorlds().stream().map((final World w) -> {
       return w == null ? null : w.getName();
-    }).toArray(String[]::new);
+    }).filter(Objects::nonNull).toArray(String[]::new);
 
     /**
      * Creates a new world argument.
@@ -49,7 +49,7 @@ public class MiscArguments {
      */
     public WorldArgument(final String name) {
       super(name, World.class, ArgumentType.WORLD);
-      withSuggestions(NAMES);
+      withSuggestions(info -> Bukkit.getWorlds().stream().map(World::getName).filter(Objects::nonNull).toList());
     }
 
     /**
@@ -75,7 +75,12 @@ public class MiscArguments {
     public World parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(Bukkit.getWorld(reader.readString()));
+      final String raw = reader.readString();
+      final World world = Bukkit.getWorld(raw);
+      if (world == null) {
+        throw createError(reader, raw);
+      }
+      return world;
     }
   }
 
@@ -506,7 +511,13 @@ public class MiscArguments {
     public Environment parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(Environment.valueOf(reader.readString()));
+      final String raw = reader.readString();
+      for (final Environment env : Environment.values()) {
+        if (env.name().equalsIgnoreCase(raw)) {
+          return env;
+        }
+      }
+      throw createError(reader, raw);
     }
   }
 
@@ -551,7 +562,13 @@ public class MiscArguments {
     public GameMode parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(GameMode.valueOf(reader.readString()));
+      final String raw = reader.readString();
+      for (final GameMode mode : GameMode.values()) {
+        if (mode.name().equalsIgnoreCase(raw)) {
+          return mode;
+        }
+      }
+      throw createError(reader, raw);
     }
   }
 
@@ -596,7 +613,13 @@ public class MiscArguments {
     public LookAnchor parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(LookAnchor.valueOf(reader.readString()));
+      final String raw = reader.readString();
+      for (final LookAnchor anchor : LookAnchor.values()) {
+        if (anchor.name().equalsIgnoreCase(raw)) {
+          return anchor;
+        }
+      }
+      throw createError(reader, raw);
     }
   }
 
@@ -615,7 +638,7 @@ public class MiscArguments {
      */
     public MathOperationArgument(final String name) {
       super(name, MathOperation.class, ArgumentType.MATH_OPERATION);
-      withSuggestions("true", "false");
+      withSuggestions(NAMES);
     }
 
     /**
@@ -642,7 +665,12 @@ public class MiscArguments {
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(MathOperation.fromString(reader.readString()));
+      final String raw = reader.readString();
+      final MathOperation op = MathOperation.fromString(raw);
+      if (op == null) {
+        throw createError(reader, raw);
+      }
+      return op;
     }
   }
 

@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
-import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.arguments.MiscArguments.TimeArgument;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
@@ -75,7 +75,7 @@ public class RegistryArguments {
     public Biome parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Registry.BIOME.getOrThrow(NamespacedKey.fromString(reader.readString()));
+      return resolveRegistry(Registry.BIOME, reader, this);
     }
   }
 
@@ -120,7 +120,7 @@ public class RegistryArguments {
     public Sound parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Registry.SOUNDS.getOrThrow(NamespacedKey.fromString(reader.readString()));
+      return resolveRegistry(Registry.SOUNDS, reader, this);
     }
   }
 
@@ -166,7 +166,7 @@ public class RegistryArguments {
     public ParticleData<?> parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return new ParticleData<>(Registry.PARTICLE_TYPE.getOrThrow(NamespacedKey.fromString(reader.readString())), null);
+      return new ParticleData<>(resolveRegistry(Registry.PARTICLE_TYPE, reader, this), null);
     }
   }
 
@@ -332,7 +332,7 @@ public class RegistryArguments {
     public Enchantment parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Registry.ENCHANTMENT.getOrThrow(Objects.requireNonNull(NamespacedKey.fromString(reader.readString())));
+      return resolveRegistry(Registry.ENCHANTMENT, reader, this);
     }
   }
 
@@ -378,8 +378,16 @@ public class RegistryArguments {
     public Advancement parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects
-          .requireNonNull(Bukkit.getAdvancement(Objects.requireNonNull(NamespacedKey.fromString(reader.readString()))));
+      final String raw = reader.readString();
+      final NamespacedKey keyNs = NamespacedKey.fromString(raw.toLowerCase(java.util.Locale.ROOT));
+      if (keyNs == null) {
+        throw createError(reader, raw);
+      }
+      final Advancement advancement = Bukkit.getAdvancement(keyNs);
+      if (advancement == null) {
+        throw createError(reader, raw);
+      }
+      return advancement;
     }
   }
 
@@ -556,7 +564,18 @@ public class RegistryArguments {
     public Material parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(Material.getMaterial(reader.readString()));
+      final String raw = reader.readString();
+      Material material = Material.matchMaterial(raw);
+      if (material == null) {
+        final NamespacedKey namespacedKey = NamespacedKey.fromString(raw.toLowerCase(java.util.Locale.ROOT));
+        if (namespacedKey != null) {
+          material = Registry.MATERIAL.get(namespacedKey);
+        }
+      }
+      if (material == null) {
+        throw createError(reader, raw);
+      }
+      return material;
     }
   }
 
@@ -601,7 +620,7 @@ public class RegistryArguments {
     public Structure parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Registry.STRUCTURE.getOrThrow(NamespacedKey.fromString(reader.readString()));
+      return resolveRegistry(Registry.STRUCTURE, reader, this);
     }
   }
 
@@ -646,7 +665,7 @@ public class RegistryArguments {
     public Attribute parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Registry.ATTRIBUTE.getOrThrow(NamespacedKey.fromString(reader.readString()));
+      return resolveRegistry(Registry.ATTRIBUTE, reader, this);
     }
   }
 
@@ -692,7 +711,7 @@ public class RegistryArguments {
     public StructureType parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Registry.STRUCTURE_TYPE.getOrThrow(NamespacedKey.fromString(reader.readString()));
+      return resolveRegistry(Registry.STRUCTURE_TYPE, reader, this);
     }
   }
 
@@ -738,8 +757,34 @@ public class RegistryArguments {
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Objects.requireNonNull(EntityType.valueOf(reader.readString()));
+      final String raw = reader.readString();
+      final NamespacedKey namespacedKey = NamespacedKey.fromString(raw.toLowerCase(java.util.Locale.ROOT));
+      EntityType type = namespacedKey != null ? Registry.ENTITY_TYPE.get(namespacedKey) : null;
+      if (type == null) {
+        try {
+          type = EntityType.valueOf(raw.toUpperCase(java.util.Locale.ROOT));
+        } catch (final IllegalArgumentException ignored) {
+        }
+      }
+      if (type == null) {
+        throw createError(reader, raw);
+      }
+      return type;
     }
+  }
+
+  private static <T extends Keyed> T resolveRegistry(final Registry<T> registry, final StringReader reader,
+      final Argument<?, ?, CommandSender> arg) throws CommandSyntaxException {
+    final String raw = reader.readString();
+    final NamespacedKey key = NamespacedKey.fromString(raw.toLowerCase(java.util.Locale.ROOT));
+    if (key == null) {
+      throw arg.createError(reader, raw);
+    }
+    final T value = registry.get(key);
+    if (value == null) {
+      throw arg.createError(reader, raw);
+    }
+    return value;
   }
 
   /**

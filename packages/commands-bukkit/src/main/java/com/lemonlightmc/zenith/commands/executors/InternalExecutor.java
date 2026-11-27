@@ -94,12 +94,12 @@ public class InternalExecutor extends Command {
       return true;
     }
     if (!runAsync) {
-      CommandAPI.getHandler().run(cmd, sender, args);
+      CommandAPI.getHandler().run(cmd, label0, sender, args);
       return true;
     }
     GlobalScheduler
         .runAsync(() -> {
-          CommandAPI.getHandler().run(cmd, sender, args);
+          CommandAPI.getHandler().run(cmd, label0, sender, args);
         });
     return true;
   }
@@ -122,7 +122,7 @@ public class InternalExecutor extends Command {
     if (!CommandAPI.getHandler().shouldHandle(cmd, sender, label)) {
       return List.of();
     }
-    return CommandAPI.getHandler().tabComplete(cmd, sender, args);
+    return CommandAPI.getHandler().tabComplete(cmd, label, sender, args);
   }
 
   @Override

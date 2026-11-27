@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -15,7 +13,9 @@ import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import com.lemonlightmc.zenith.ZenithConfig;
 import com.lemonlightmc.zenith.ZenithProvider;
+
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.commands.SimpleSubCommand;
@@ -28,30 +28,170 @@ import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
 import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 public class CommandHandler<S extends CommandSender> {
-  public static final int MAX_TABCOMPLETIONS = 128;
+  public static final int DEFAULT_MAX_TABCOMPLETIONS = 128;
 
-  public final String requirementFailedMessage; // TODO: Localize
-  private final Function<S, ExecutionContext<S>> sourceFactory;
+  private static volatile Object vault;
+  private static volatile boolean vaultAttempted;
 
-  public CommandHandler(final Function<S, ExecutionContext<S>> sourceFactory, final String requirementFailedMessage) {
+  private final CommandContextFactory<S> sourceFactory;
+
+  public CommandHandler(final CommandContextFactory<S> sourceFactory) {
     this.sourceFactory = sourceFactory;
-    this.requirementFailedMessage = requirementFailedMessage;
   }
 
-  public ExecutionContext<S> createCommandSource(final S sender) {
+  public interface CommandContextFactory<S extends CommandSender> {
+    public CommandContext<S> create(final RootCommand<?, S> cmd, String label, final S sender);
+  }
+
+  private static Object getVault() {
+    final Object current = vault;
+    if (current != null) {
+      return current;
+    }
+    return discoverVault();
+  }
+
+  private static synchronized Object discoverVault() {
+    if (vault != null || vaultAttempted) {
+      return vault;
+    }
+    vaultAttempted = true;
     try {
-      return sourceFactory.apply(sender);
-    } catch (final Exception e) {
-      throw new CommandException("Failed to create ExecutionContext for Sender " + sender);
+      final Class<?> cls = Class.forName("com.lemonlightmc.zenith.integrations.vault.SimpleVault");
+      final boolean hasVault = (boolean) cls.getMethod("hasVault").invoke(null);
+      if (hasVault) {
+        final Object created = cls.getMethod("create").invoke(null);
+        final Object economy = cls.getMethod("getEconomy").invoke(created);
+        if (economy != null) {
+          vault = created;
+        }
+      }
+    } catch (final Throwable ignored) {
+      // Vault/Integrations not available
+    }
+    return vault;
+  }
+
+  public static boolean isEconomyAvailable() {
+    final Object v = getVault();
+    if (v == null) {
+      return false;
+    }
+    try {
+      return v.getClass().getMethod("getEconomy").invoke(v) != null;
+    } catch (final Throwable ignored) {
+      return false;
     }
   }
 
-  public void run(final RootCommand<?, S> cmd, final S sender, final String[] args) {
+  public static boolean hasFunds(final Player player, final double amount) {
+    final Object v = getVault();
+    if (v == null || player == null) {
+      return false;
+    }
     try {
-      final ExecutionContext<S> source = createCommandSource(sender);
+      final Object economy = v.getClass().getMethod("getEconomy").invoke(v);
+      if (economy == null) {
+        return false;
+      }
+      return (boolean) v.getClass().getMethod("checkMoney", Player.class, double.class).invoke(v, player, amount);
+    } catch (final Throwable ignored) {
+      return false;
+    }
+  }
+
+  public static double getBalance(final Player player) {
+    final Object v = getVault();
+    if (v == null || player == null) {
+      return 0.0D;
+    }
+    try {
+      final Object economy = v.getClass().getMethod("getEconomy").invoke(v);
+      if (economy == null) {
+        return 0.0D;
+      }
+      final Object money = v.getClass().getMethod("getMoney", org.bukkit.OfflinePlayer.class).invoke(v, player);
+      if (money instanceof final java.math.BigDecimal bd) {
+        return bd.doubleValue();
+      }
+      return 0.0D;
+    } catch (final Throwable ignored) {
+      return 0.0D;
+    }
+  }
+
+  public static boolean withdraw(final Player player, final double amount) {
+    final Object v = getVault();
+    if (v == null || player == null) {
+      return false;
+    }
+    try {
+      final Object economy = v.getClass().getMethod("getEconomy").invoke(v);
+      if (economy == null) {
+        return false;
+      }
+      final boolean has = (boolean) v.getClass().getMethod("checkMoney", Player.class, double.class)
+          .invoke(v, player, amount);
+      if (!has) {
+        return false;
+      }
+      final Object response = v.getClass().getMethod("removeMoney", Player.class, double.class)
+          .invoke(v, player, amount);
+      if (response == null) {
+        return false;
+      }
+      return (boolean) response.getClass().getMethod("transactionSuccess").invoke(response);
+    } catch (final Throwable ignored) {
+      return false;
+    }
+  }
+
+  private static int maxTabCompletions() {
+    try {
+      if (!ZenithProvider.hasBackend()) {
+        return DEFAULT_MAX_TABCOMPLETIONS;
+      }
+      final ZenithConfig config = ZenithProvider.config();
+      final ZenithConfig.Commands commands = config == null ? null : config.commands;
+      if (commands == null || commands.maxTabCompletions <= 0) {
+        return DEFAULT_MAX_TABCOMPLETIONS;
+      }
+      return commands.maxTabCompletions;
+    } catch (final Throwable ignored) {
+      return DEFAULT_MAX_TABCOMPLETIONS;
+    }
+  }
+
+  private static String requirementFailedMessage() {
+    try {
+      if (!ZenithProvider.hasBackend()) {
+        return null;
+      }
+      final ZenithConfig config = ZenithProvider.config();
+      final ZenithConfig.Commands commands = config == null ? null : config.commands;
+      if (commands == null || commands.requirementFailedMessage == null
+          || commands.requirementFailedMessage.isBlank()) {
+        return null;
+      }
+      return commands.requirementFailedMessage;
+    } catch (final Throwable ignored) {
+      return null;
+    }
+  }
+
+  public CommandContext<S> createCommandSource(final RootCommand<?, S> cmd, final String label, final S sender) {
+    try {
+      return sourceFactory.create(cmd, label, sender);
+    } catch (final Exception e) {
+      throw new CommandException("Failed to create CommandContext for Sender " + sender);
+    }
+  }
+
+  public void run(final RootCommand<?, S> cmd, final String label, final S sender, final String[] args) {
+    try {
+      final CommandContext<S> source = createCommandSource(cmd, label, sender);
       final CommandArguments cmdArgs = parse(cmd, source, args == null ? new String[0] : args);
       if (cmdArgs == null) {
         return;
@@ -71,13 +211,14 @@ public class CommandHandler<S extends CommandSender> {
 
   public List<String> tabComplete(
       final RootCommand<?, S> cmd,
+      final String label,
       final S sender,
       String[] args) {
     if (args == null) {
       args = new String[0];
     }
     try {
-      final ExecutionContext<S> source = createCommandSource(sender);
+      final CommandContext<S> source = createCommandSource(cmd, label, sender);
       if (!cmd.checkRequirements(source)) {
         return List.of();
       }
@@ -102,11 +243,13 @@ public class CommandHandler<S extends CommandSender> {
         }
       }
       tabCompletions.removeIf(s -> s == null || s.isEmpty() || !startsWithIgnoreCase(s, token));
-      if (tabCompletions.size() > MAX_TABCOMPLETIONS) {
-        return new ArrayList<>(tabCompletions.subList(0, MAX_TABCOMPLETIONS));
+      final int maxTabCompletions = maxTabCompletions();
+      if (tabCompletions.size() > maxTabCompletions) {
+        return new ArrayList<>(tabCompletions.subList(0, maxTabCompletions));
       } else {
         return tabCompletions;
       }
+
     } catch (final Throwable ex) {
       final StringBuilder message = new StringBuilder("Unhandled exception during tab completion for command '/");
       message
@@ -119,7 +262,7 @@ public class CommandHandler<S extends CommandSender> {
     }
   }
 
-  private CommandArguments parse(AbstractCommand<?, S> thisCmd, final ExecutionContext<S> source,
+  private CommandArguments parse(AbstractCommand<?, S> thisCmd, final CommandContext<S> source,
       final String[] args) {
     final StringReader reader = new StringReader(String.join(" ", args));
     int i = 0;
@@ -129,18 +272,26 @@ public class CommandHandler<S extends CommandSender> {
         break;
       }
       if (!sub.checkRequirements(source)) {
-        source.sendMessage(requirementFailedMessage);
+        final String requirementFailedMessage = requirementFailedMessage();
+        if (requirementFailedMessage != null) {
+          source.sendMessage(requirementFailedMessage);
+        }
         return null;
       }
+
       thisCmd = sub;
     }
 
     final Map<String, ParsedArgument> parsedArgs = new LinkedHashMap<>();
     for (final Argument<?, ?, S> arg : thisCmd.arguments()) {
       if (!arg.checkRequirements(source)) {
-        source.sendMessage(requirementFailedMessage);
+        final String requirementFailedMessage = requirementFailedMessage();
+        if (requirementFailedMessage != null) {
+          source.sendMessage(requirementFailedMessage);
+        }
         return null;
       }
+
       reader.skipWhitespace();
       final Object value = _parseArg(reader, source, arg);
       parsedArgs.put(arg.name(), new ParsedArgument(arg.name(), reader.getLastRead(), value));
@@ -148,7 +299,7 @@ public class CommandHandler<S extends CommandSender> {
     return new CommandArguments(parsedArgs, reader.getString());
   }
 
-  private Object _parseArg(final StringReader reader, final ExecutionContext<S> source,
+  private Object _parseArg(final StringReader reader, final CommandContext<S> source,
       final Argument<?, ?, S> arg) {
     reader.point();
     try {

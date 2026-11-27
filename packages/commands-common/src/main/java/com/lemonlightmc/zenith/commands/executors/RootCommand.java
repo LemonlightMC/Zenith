@@ -4,12 +4,11 @@ package com.lemonlightmc.zenith.commands.executors;
 import java.util.List;
 
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.data.KeyedBukkit;
 import com.lemonlightmc.zenith.data.Namespaced;
 
-public abstract class RootCommand<T extends RootCommand<T, S>, S extends CommandSender> extends AbstractCommand<T, S>
+public abstract class RootCommand<T extends RootCommand<T, S>, S> extends AbstractCommand<T, S>
     implements Namespaced, KeyedBukkit {
 
   public abstract T register();

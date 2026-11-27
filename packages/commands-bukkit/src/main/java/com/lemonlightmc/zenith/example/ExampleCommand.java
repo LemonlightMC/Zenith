@@ -4,9 +4,9 @@ import com.lemonlightmc.zenith.commands.SimpleCommand;
 import com.lemonlightmc.zenith.commands.arguments.NumberArguments.*;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class ExampleCommand extends SimpleCommand {
    * @param args   the parsed command arguments
    * @throws CommandException if command execution fails
    */
-  public static void executes2(final ExecutionContext<Player> sender, final CommandArguments args)
+  public static void executes2(final CommandContext<Player> sender, final CommandArguments args)
       throws CommandException {
   }
 
@@ -60,7 +60,7 @@ public class ExampleCommand extends SimpleCommand {
    * @throws CommandException if command execution fails
    */
   public static void executesConsole2(
-      final ExecutionContext<ConsoleCommandSender> sender,
+      final CommandContext<ConsoleCommandSender> sender,
       final CommandArguments args) throws CommandException {
   }
 }

@@ -1,10 +1,7 @@
 package com.lemonlightmc.zenith.commands.executors;
 
-import org.bukkit.command.CommandSender;
-
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
 import com.lemonlightmc.zenith.commands.exceptions.CommandException;
-import com.lemonlightmc.zenith.actions.ExecutionContext;
 
 public class Executors {
 
@@ -32,13 +29,13 @@ public class Executors {
     FEEDBACK_FORWARDING,
   }
 
-  public interface NormalExecutor<S extends CommandSender> {
-    void run(ExecutionContext<S> source, CommandArguments args) throws CommandException;
+  public interface NormalExecutor<S> {
+    void run(CommandContext<S> source, CommandArguments args) throws CommandException;
 
     @SuppressWarnings("unchecked")
-    default int executeWith(final ExecutionContext<?> source, final CommandArguments args)
+    default int executeWith(final CommandContext<?> source, final CommandArguments args)
         throws CommandException {
-      this.run((ExecutionContext<S>) source, args);
+      this.run((CommandContext<S>) source, args);
       return 1;
     }
 
@@ -48,10 +45,10 @@ public class Executors {
   }
 
   @FunctionalInterface
-  public interface CommandExecutor<S extends CommandSender> extends NormalExecutor<S> {
+  public interface CommandExecutor<S> extends NormalExecutor<S> {
 
     @Override
-    void run(ExecutionContext<S> source, CommandArguments args) throws CommandException;
+    void run(CommandContext<S> source, CommandArguments args) throws CommandException;
 
     @Override
     default ExecutorType getType() {

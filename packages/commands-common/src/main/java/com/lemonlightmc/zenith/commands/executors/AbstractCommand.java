@@ -1,6 +1,13 @@
 package com.lemonlightmc.zenith.commands.executors;
 
+import com.lemonlightmc.zenith.ZenithConfig;
+import com.lemonlightmc.zenith.ZenithProvider;
+import com.lemonlightmc.zenith.actions.ActionContext;
+import com.lemonlightmc.zenith.actions.Condition;
+import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
+import com.lemonlightmc.zenith.actions.Conditions;
 import com.lemonlightmc.zenith.additive.StringUtils;
+import com.lemonlightmc.zenith.additive.time.PolyTimeUnit;
 import com.lemonlightmc.zenith.commands.SimpleSubCommand;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.CommandArguments;
@@ -12,42 +19,66 @@ import com.lemonlightmc.zenith.commands.executors.Executors.ExecutorType;
 import com.lemonlightmc.zenith.commands.executors.Executors.NormalExecutor;
 import com.lemonlightmc.zenith.commands.suggestions.SuggestionInfo;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.actions.Condition;
-import com.lemonlightmc.zenith.actions.ExecutionContext;
-import com.lemonlightmc.zenith.actions.Conditions;
-import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
+import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
+import com.lemonlightmc.zenith.utils.CooldownStore;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends CommandSender>
+public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S>
     extends Executable<T, S> {
 
-  // List instead of Set due n being small and dublicate check is
-  // in the Command Building Phase
   protected List<String> aliases = new ArrayList<>();
   protected List<Argument<?, ?, S>> arguments = new ArrayList<>();
   // per alias mapping - keep initalialized to null when empty
   protected Map<String, SimpleSubCommand<S>> subcommands = null;
   // keep initalialized to null when empty
-  protected ConditionSet<S> requirements = null;
+  protected ConditionSet requirements = null;
 
   protected String shortDescription;
   protected String fullDescription;
   private boolean hasOptional = false;
 
+  // -1 means use config default; 0 disables.
+  protected double cost = -1.0D;
+  protected Duration cooldown = null; // null means config default
+  protected Duration delay = null; // null means config default
+  protected CooldownStore<UUID> cooldownStore = null;
+
+  public AbstractCommand() {
+    if (ZenithProvider.config().commands == null) {
+      return;
+    }
+    this.cost = ZenithProvider.config().commands.defaultCost;
+    this.cooldown = ZenithProvider.config().commands.defaultCooldown;
+    this.delay = ZenithProvider.config().commands.defaultDelay;
+  }
+
+  public AbstractCommand(final String[] aliases) {
+    super();
+    withAliases(aliases);
+  }
+
+  public AbstractCommand(final Collection<String> aliases) {
+    super();
+    withAliases(aliases);
+  }
+
   @Override
   public abstract T self();
 
   // ============ Usage ============
-  public String getShortDescription() {
+  public String shortDescription() {
     return shortDescription;
   }
 
@@ -56,7 +87,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return self();
   }
 
-  public String getFullDescription() {
+  public String fullDescription() {
     return fullDescription;
   }
 
@@ -153,23 +184,23 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
   }
 
   // ============ Requirements ============
-  public T withRequirements(final Condition<S> condition) {
+  public T withRequirements(final Condition condition) {
     requirements().add(condition);
     return self();
   }
 
   @SafeVarargs
-  public final T withRequirements(final Condition<S>... conditions) {
+  public final T withRequirements(final Condition... conditions) {
     requirements().addAll(conditions);
     return self();
   }
 
-  public T withRequirements(final Collection<Condition<S>> conditions) {
+  public T withRequirements(final Collection<Condition> conditions) {
     requirements().addAll(conditions);
     return self();
   }
 
-  public T withRequirements(final Predicate<ExecutionContext<S>> predicate) {
+  public T withRequirements(final Predicate<ActionContext> predicate) {
     requirements().add(Condition.of(predicate));
     return self();
   }
@@ -209,7 +240,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return self();
   }
 
-  public T setRequirements(final List<Condition<S>> requirements) {
+  public T setRequirements(final List<Condition> requirements) {
     if (requirements == null) {
       return self();
     }
@@ -232,14 +263,14 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return self();
   }
 
-  public ConditionSet<S> requirements() {
+  public ConditionSet requirements() {
     if (requirements == null) {
-      requirements = new ConditionSet<S>();
+      requirements = new ConditionSet();
     }
     return requirements;
   }
 
-  public boolean checkRequirements(final ExecutionContext<S> source) {
+  public boolean checkRequirements(final CommandContext<S> source) {
     if (requirements == null) {
       return true;
     }
@@ -555,6 +586,66 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return subcommands;
   }
 
+  // ============ Cost/Cooldown/Delay ============
+
+  public double cost() {
+    return cost;
+  }
+
+  public T withCost(final double cost) {
+    this.cost = cost < 0.0D ? -1.0D : cost;
+    return self();
+  }
+
+  public Duration cooldown() {
+    return cooldown;
+  }
+
+  public T withCooldown(final Duration cooldown) {
+    if (cooldown == null || cooldown.isNegative() || cooldown.isZero()) {
+      this.cooldown = Duration.ZERO;
+    } else {
+      this.cooldown = cooldown;
+    }
+    return self();
+  }
+
+  public T withCooldown(final long ticks) {
+    return withCooldown(ticks <= 0L ? Duration.ZERO : Duration.ofMillis(ticks * 50));
+  }
+
+  public T withCooldown(final long amount, final PolyTimeUnit unit) {
+    return withCooldown(amount <= 0L ? Duration.ZERO : Duration.ofMillis(unit.toMillis(amount)));
+  }
+
+  public Duration delay() {
+    return delay;
+  }
+
+  public T withDelay(final Duration delay) {
+    if (delay == null || delay.isNegative() || delay.isZero()) {
+      this.delay = Duration.ZERO;
+    } else {
+      this.delay = delay;
+    }
+    return self();
+  }
+
+  public T withDelay(final long ticks) {
+    return withDelay(ticks <= 0L ? Duration.ZERO : Duration.ofMillis(ticks * 50L));
+  }
+
+  public T withDelay(final long amount, final PolyTimeUnit unit) {
+    return withDelay(amount <= 0L ? Duration.ZERO : Duration.ofMillis(unit.toMillis(amount)));
+  }
+
+  protected CooldownStore<UUID> cooldownStore() {
+    if (cooldownStore == null) {
+      cooldownStore = new CooldownStore<UUID>(0L);
+    }
+    return cooldownStore;
+  }
+
   // ============ execution ============
   protected boolean hasAnyExecutors() {
     if (hasExecutors()) {
@@ -571,7 +662,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     return false;
   }
 
-  protected void run(ExecutionContext<S> source, CommandArguments args, final int idx,
+  protected void run(final CommandContext<S> source, final CommandArguments args, final int idx,
       final ExecutorType executorType)
       throws CommandException {
     final SimpleSubCommand<S> sub = getSubcommand(args.getRaw(idx));
@@ -582,6 +673,7 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     if (executors.isEmpty()) {
       return;
     }
+
     NormalExecutor<? extends S>[] ex = executors(executorType);
     if (ex == null) {
       ex = executors(ExecutorType.NATIVE);
@@ -592,9 +684,106 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     if (ex == null) {
       return;
     }
-    for (final NormalExecutor<? extends S> normalExecutor : ex) {
-      normalExecutor.executeWith(source, args);
+    if (!checkCooldown(source) || !checkCost(source)) {
+      return;
     }
+
+    final long delayMillis = delay.toMillis();
+    if (delayMillis > 0L) {
+      if (!checkCooldown(source) || !checkCost(source)) {
+        return;
+      }
+      source.sendMessage(ZenithProvider.config().commands.delayMessage,
+          null, formatDuration(delayMillis), null, null);
+      GlobalScheduler.runLater(() -> {
+        executeResolved(source, args, ex);
+      }, Math.max(1L, (delayMillis + 49L) / 50L));
+      return;
+    }
+
+    executeResolved(source, args, ex);
+  }
+
+  private void executeResolved(final CommandContext<S> source, final CommandArguments args,
+      final NormalExecutor<? extends S>[] ex) throws CommandException {
+    try {
+      for (final NormalExecutor<? extends S> normalExecutor : ex) {
+        normalExecutor.executeWith(source, args);
+      }
+    } catch (final CommandException e) {
+      source.sendError(e);
+    } catch (final Throwable t) {
+      source
+          .sendError(new CommandException("Exception while executing command '" + source.label() + "'", t));
+    }
+
+    if (!source.isPlayer()) {
+      return;
+    }
+    if (!cooldown.isNegative()) {
+      cooldownStore().set(source.player().getUniqueId(), cooldown.toMillis());
+    }
+    chargeCostOnSuccess(source);
+  }
+
+  private boolean checkCooldown(final CommandContext<S> source) {
+    if (cooldown.isNegative() || !source.isPlayer()) {
+      return true;
+    }
+    final UUID uuid = source.player().getUniqueId();
+    final CooldownStore<UUID> store = cooldownStore();
+    if (!store.isOnCooldown(uuid)) {
+      return true;
+    }
+    final long remaining = Math.max(0L, store.getRemaining(uuid));
+    source.sendMessage(ZenithProvider.config().commands.cooldownMessage,
+        formatDuration(remaining), null, null, null);
+    return false;
+  }
+
+  private boolean checkCost(final CommandContext<S> source) {
+    if (cost <= 0.0D || !source.isPlayer() || !CommandHandler.isEconomyAvailable()) {
+      return true;
+    }
+    if (CommandHandler.hasFunds(source.player(), cost)) {
+      return true;
+    }
+    final double balance = CommandHandler.getBalance(source.player());
+    source.sendMessage(ZenithProvider.config().commands.insufficientFundsMessage,
+        null, null, formatAmount(cost), formatAmount(balance));
+    return false;
+  }
+
+  private void chargeCostOnSuccess(final CommandContext<S> source) {
+    if (cost <= 0.0D || !source.isPlayer() || !CommandHandler.isEconomyAvailable()) {
+      return;
+    }
+    if (!CommandHandler.withdraw(source.player(), cost)) {
+      final double balance = CommandHandler.getBalance(source.player());
+      source.sendMessage(ZenithProvider.config().commands.insufficientFundsMessage,
+          null, null, formatAmount(cost), formatAmount(balance));
+    }
+  }
+
+  private static String formatAmount(final double amount) {
+    if (amount == (long) amount) {
+      return Long.toString((long) amount);
+    }
+    return String.format(java.util.Locale.ROOT, "%.2f", amount);
+  }
+
+  private static String formatDuration(final long millis) {
+    final long totalSeconds = Math.max(0L, (millis + 999L) / 1000L);
+    final long hours = totalSeconds / 3600L;
+    final long minutes = (totalSeconds % 3600L) / 60L;
+    final long seconds = totalSeconds % 60L;
+    if (hours > 0L) {
+      return hours + "h " + minutes + "m " + seconds + "s";
+    }
+    if (minutes > 0L) {
+      return minutes + "m " + seconds + "s";
+    }
+    return seconds + "s";
   }
 
   public List<Suggestions<S>> tabComplete(final SuggestionInfo<S> info, int idx) {
@@ -644,14 +833,15 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
   @Override
   public String toString() {
     return "AbstractCommand [arguments=" + arguments + ", subcommands=" + subcommands + ", aliases=" + aliases
-        + ", executors=" + executors + ", requirements=" + requirements + "]";
+        + ", executors=" + executors + ", requirements=" + requirements + ", cost=" + cost + ", cooldown=" + cooldown
+        + ", delay=" + delay + "]";
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), arguments, subcommands, aliases, requirements, shortDescription,
         fullDescription,
-        hasOptional);
+        hasOptional, cost, cooldown, delay);
   }
 
   @Override
@@ -664,11 +854,14 @@ public abstract class AbstractCommand<T extends AbstractCommand<T, S>, S extends
     }
     final AbstractCommand<?, ?> other = (AbstractCommand<?, ?>) obj;
     return hasOptional == other.hasOptional
+        && Double.compare(cost, other.cost) == 0
         && Objects.equals(arguments, other.arguments)
         && Objects.equals(subcommands, other.subcommands)
         && Objects.equals(aliases, other.aliases)
         && Objects.equals(requirements, other.requirements)
         && Objects.equals(shortDescription, other.shortDescription)
-        && Objects.equals(fullDescription, other.fullDescription);
+        && Objects.equals(fullDescription, other.fullDescription)
+        && Objects.equals(cooldown, other.cooldown)
+        && Objects.equals(delay, other.delay);
   }
 }

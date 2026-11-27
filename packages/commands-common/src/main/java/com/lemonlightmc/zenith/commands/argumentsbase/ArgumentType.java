@@ -21,6 +21,7 @@ public enum ArgumentType {
   CHAT("Chat"), // Not implemented
   CHAT_COMPONENT("ChatComponent"), // Not implemented
   CHATCOLOR("ChatColor"),
+  COLOR("Color"),
 
   ENTITY_SELECTOR("EntitySelector"),
   ENTITY_TYPE("EntityType"),
@@ -62,6 +63,7 @@ public enum ArgumentType {
   SCOREBOARD_SLOT("ScoreboardSlot"),
 
   SOUND("Sound"),
+  SOUND_CATEGORY("SoundCategory"),
   PARTICLE("Particle"), // unfinished implemented
   ENCHANTMENT("Enchantment"),
   LOOT_TABLE("LootTable"),
@@ -72,11 +74,13 @@ public enum ArgumentType {
 
   LOCATION("Location"),
   LOCATION_2D("Location2D"),
+  VECTOR("Vector"),
   TIME("Time"),
   BIOME("Biome"),
   WORLD("World"),
   ENVIRONMENT("Environment"),
   DIMENSION("Dimension"), // wont implemented
+  DIFFICULTY("Difficulty"),
   LOOK_ANCHOR("LookAnchor"),
   GAME_MODE("GameMode"),
   STRUCTURE("Structure"),
@@ -84,7 +88,8 @@ public enum ArgumentType {
   ATTRIBUTE("Attribute"),
 
   COMMAND("Command"),
-  CUSTOM("Custom"), // Not implemented
+  CUSTOM("Custom"),
+  ENUM("Enum"),
   FLAG("Flag"),
   SWITCH("Switch"),
   LITERAL("Literal"),

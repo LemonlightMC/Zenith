@@ -10,19 +10,19 @@ import org.bukkit.command.CommandSender;
 
 import com.lemonlightmc.zenith.additive.StringUtils;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.commands.executors.CommandContext;
 import com.lemonlightmc.zenith.commands.suggestions.Suggestions;
-import com.lemonlightmc.zenith.actions.ExecutionContext;
 import com.lemonlightmc.zenith.actions.Conditions;
 import com.lemonlightmc.zenith.actions.Condition;
 import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
 
-public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>, S extends CommandSender> {
+public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>, S> {
   protected String name;
   protected ArgumentType rawType;
   protected Class<Type> primitiveType;
   protected boolean isOptional = false;
   protected boolean isListed = true;
-  protected ConditionSet<S> requirements;
+  protected ConditionSet<CommandContext<S>> requirements;
   protected List<Suggestions<S>> suggestions = new ArrayList<>(4);
 
   protected Argument(final String name, final Class<Type> primitiveType, final ArgumentType rawType) {
@@ -47,7 +47,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
         "Invalid Value '" + value + "' for " + rawType.name() + " Argument '" + name + "'");
   }
 
-  public abstract Type parseArgument(ExecutionContext<S> source, StringReader reader, String key)
+  public abstract Type parseArgument(CommandContext<S> source, StringReader reader, String key)
       throws CommandSyntaxException;
 
   public String name() {
@@ -108,23 +108,23 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
   }
 
   // ============ Requirements ============
-  public ArgType withRequirements(final Condition<S> condition) {
+  public ArgType withRequirements(final Condition<CommandContext<S>> condition) {
     requirements().add(condition);
     return self();
   }
 
   @SafeVarargs
-  public final ArgType withRequirements(final Condition<S>... conditions) {
+  public final ArgType withRequirements(final Condition<CommandContext<S>>... conditions) {
     requirements().addAll(conditions);
     return self();
   }
 
-  public ArgType withRequirements(final Collection<Condition<S>> conditions) {
+  public ArgType withRequirements(final Collection<Condition<CommandContext<S>>> conditions) {
     requirements().addAll(conditions);
     return self();
   }
 
-  public ArgType withRequirements(final Predicate<ExecutionContext<S>> predicate) {
+  public ArgType withRequirements(final Predicate<CommandContext<S>> predicate) {
     requirements().add(Condition.of(predicate));
     return self();
   }
@@ -164,7 +164,7 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
     return self();
   }
 
-  public ArgType setRequirements(final List<Condition<S>> requirements) {
+  public ArgType setRequirements(final List<Condition<CommandContext<S>>> requirements) {
     if (requirements == null) {
       return self();
     }
@@ -187,14 +187,14 @@ public abstract class Argument<Type, ArgType extends Argument<Type, ArgType, S>,
     return self();
   }
 
-  public ConditionSet<S> requirements() {
+  public ConditionSet<CommandContext<S>> requirements() {
     if (requirements == null) {
-      requirements = new ConditionSet<S>();
+      requirements = new ConditionSet<CommandContext<S>>();
     }
     return requirements;
   }
 
-  public boolean checkRequirements(final ExecutionContext<S> source) {
+  public boolean checkRequirements(final CommandContext<S> source) {
     if (requirements == null) {
       return true;
     }

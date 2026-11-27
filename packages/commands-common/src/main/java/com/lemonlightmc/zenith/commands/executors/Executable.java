@@ -3,10 +3,9 @@ package com.lemonlightmc.zenith.commands.executors;
 import java.lang.reflect.Array;
 import java.util.EnumMap;
 
-import org.bukkit.command.CommandSender;
 import com.lemonlightmc.zenith.commands.executors.Executors.*;
 
-public abstract class Executable<T, S extends CommandSender> {
+public abstract class Executable<T, S> {
   protected EnumMap<ExecutorType, NormalExecutor<? extends S>[]> executors;
 
   public Executable() {

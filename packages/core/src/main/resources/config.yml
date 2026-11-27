@@ -46,6 +46,25 @@ logging:
     updater: "INFO"
     plugin: "INFO"
 
+# Command System Settings
+commands:
+  # Maximum number of tab completions returned for a command.
+  max-tab-completions: 128
+  # Message sent when a sender fails command requirements. Leave empty to disable.
+  requirement-failed-message: ""
+  # Default Vault money cost for commands. 0 disables cost. Players are only charged on successful execution.
+  default-cost: 0.0
+  # Default cooldown for commands. 0 disables cooldown.
+  default-cooldown: 0s
+  # Default execution delay for commands. 0 disables delay.
+  default-delay: 0s
+  # Message sent when a sender is on command cooldown. Leave empty to disable. Placeholders: {remaining}, {command}
+  cooldown-message: "&cYou must wait {remaining} before using /{command} again."
+  # Message sent when a player cannot afford a command. Leave empty to disable. Placeholders: {cost}, {balance}, {command}
+  insufficient-funds-message: "&cYou need {cost} to use /{command}. Your balance: {balance}."
+  # Message sent when a command execution is delayed. Leave empty to disable. Placeholders: {delay}, {command}
+  delay-message: "&7Executing /{command} in {delay}..."
+
 # Formatting Strings - Customize date, money, location displays
 # WARNING: Only edit if you know what you're doing!
 formatters:

@@ -51,8 +51,6 @@ public class SimpleVault {
     return economy;
   }
 
-  // get
-
   public BigDecimal getMoney(OfflinePlayer player) {
     return getMoney(player.getUniqueId());
   }
@@ -64,8 +62,6 @@ public class SimpleVault {
       return BigDecimal.ZERO;
     }
   }
-
-  // check
 
   public boolean checkMoney(OfflinePlayer player, double amount) {
     return getMoney(player.getUniqueId()).compareTo(new BigDecimal(amount)) >= 0;
@@ -83,8 +79,6 @@ public class SimpleVault {
     return getMoney(player).compareTo(new BigDecimal(amount)) >= 0;
   }
 
-  // remove
-
   public EconomyResponse removeMoney(OfflinePlayer player, double amount) {
     return economy.withdraw(name, player.getUniqueId(), new BigDecimal(amount));
   }
@@ -100,8 +94,6 @@ public class SimpleVault {
   public EconomyResponse removeMoney(UUID player, double amount) {
     return economy.withdraw(name, player, new BigDecimal(amount));
   }
-
-  // add
 
   public EconomyResponse addMoney(OfflinePlayer player, double amount) {
     return economy.deposit(name, player.getUniqueId(), new BigDecimal(amount));

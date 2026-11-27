@@ -5,6 +5,7 @@ dependencies {
     implementation(project(":zenith-commands-common"))
     implementation(project(":zenith-additive"))
     implementation(project(":zenith-actions"))
+    implementation(project(":zenith-items"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-commands-bukkit"

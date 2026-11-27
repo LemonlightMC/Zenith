@@ -221,9 +221,9 @@ public class ZenithBackend implements com.lemonlightmc.zenith.ZenithBackend {
                     BossBarBuilder.SERIALIZER)
                 .register(TypeToken.get(TitleAPI.TitleInfo.class),
                     TitleInfo.SERIALIZER)
-                .register(new TypeToken<Action<CommandSender>>() {
+                .register(new TypeToken<Action>() {
                 }, Actions.SERIALIZER)
-                .register(new TypeToken<Condition<CommandSender>>() {
+                .register(new TypeToken<Condition>() {
                 }, Conditions.SERIALIZER)
                 .register(TypeToken.get(
                     com.lemonlightmc.zenith.math.MathOperation.class),

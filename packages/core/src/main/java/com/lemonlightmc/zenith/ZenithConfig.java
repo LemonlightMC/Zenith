@@ -1,5 +1,6 @@
 package com.lemonlightmc.zenith;
 
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
 
@@ -43,6 +44,12 @@ public class ZenithConfig {
         @Setting("logging")
         @Comment("Logging Settings")
         public Logging logging;
+
+        /** Command system settings. */
+        @Setting("commands")
+        @Comment("Command System Settings")
+        public Commands commands;
+
 
         /**
          * Formatting strings - customize date, money, location and pagination displays.
@@ -322,10 +329,54 @@ public class ZenithConfig {
                         @Setting("keepalive-time")
                         @Comment("This setting controls how frequently the pool will 'ping' a connection in order to prevent it from being timed out, measured in milliseconds.\n- The value should be less than maximum-lifetime and greater than 30000 (30 seconds).\n- Setting the value to zero will disable the keepalive functionality.")
                         public int keepaliveTime = 0;
-                        /** The maximum wait time for acquiring a pooled connection in milliseconds. */
-                        @Setting("connection-timeout")
-                        @Comment("This setting controls the maximum number of milliseconds that the plugin will wait for a connection from the pool, before timing out.\n- Default: 5000 (5 seconds)")
-                        public int connectionTimeout = 5000;
-                }
+                /** The maximum wait time for acquiring a pooled connection in milliseconds. */
+                @Setting("connection-timeout")
+                @Comment("This setting controls the maximum number of milliseconds that the plugin will wait for a connection from the pool, before timing out.\n- Default: 5000 (5 seconds)")
+                public int connectionTimeout = 5000;
+        }
+        }
+
+        /** Command system settings. */
+        @ConfigSerializable
+        public static class Commands {
+                /** Maximum number of tab completions returned for a command. */
+                @Setting("max-tab-completions")
+                @Comment("Maximum number of tab completions returned for a command.")
+                public int maxTabCompletions = 128;
+
+                /** Message sent when a sender fails command requirements. Empty disables the message. */
+                @Setting("requirement-failed-message")
+                @Comment("Message sent when a sender fails command requirements. Leave empty to disable.")
+                public String requirementFailedMessage = "";
+
+                /** Default Vault money cost for commands. 0 disables cost. */
+                @Setting("default-cost")
+                @Comment("Default Vault money cost for commands. 0 disables cost. Players are only charged on successful execution.")
+                public double defaultCost = 0.0D;
+
+                /** Default cooldown for commands. 0 disables cooldown. */
+                @Setting("default-cooldown")
+                @Comment("Default cooldown for commands. 0 disables cooldown.")
+                public Duration defaultCooldown = Duration.ZERO;
+
+                /** Default execution delay for commands. 0 disables delay. */
+                @Setting("default-delay")
+                @Comment("Default execution delay for commands. 0 disables delay.")
+                public Duration defaultDelay = Duration.ZERO;
+
+                /** Message sent when a sender is on command cooldown. Placeholders: {remaining}, {command}. */
+                @Setting("cooldown-message")
+                @Comment("Message sent when a sender is on command cooldown. Leave empty to disable. Placeholders: {remaining}, {command}")
+                public String cooldownMessage = "&cYou must wait {remaining} before using /{command} again.";
+
+                /** Message sent when a player cannot afford a command. Placeholders: {cost}, {balance}, {command}. */
+                @Setting("insufficient-funds-message")
+                @Comment("Message sent when a player cannot afford a command. Leave empty to disable. Placeholders: {cost}, {balance}, {command}")
+                public String insufficientFundsMessage = "&cYou need {cost} to use /{command}. Your balance: {balance}.";
+
+                /** Message sent when a command execution is delayed. Placeholders: {delay}, {command}. */
+                @Setting("delay-message")
+                @Comment("Message sent when a command execution is delayed. Leave empty to disable. Placeholders: {delay}, {command}")
+                public String delayMessage = "&7Executing /{command} in {delay}...";
         }
 }

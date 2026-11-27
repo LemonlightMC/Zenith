@@ -1,17 +1,13 @@
-package com.lemonlightmc.zenith.actions;
+package com.lemonlightmc.zenith.actions.common;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import com.lemonlightmc.zenith.internal.ActionSerializer;
 
 /**
  * Represents an executable action that can be conditionally run for a player
  * context.
  */
 public abstract class Action {
-
-    public static final ActionSerializer SERIALIZER = ActionSerializer.INSTANCE;
 
     private final Condition condition;
     private final boolean useSync;

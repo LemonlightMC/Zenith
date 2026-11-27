@@ -1,4 +1,10 @@
-package com.lemonlightmc.zenith.actions;
+package com.lemonlightmc.zenith.actions.bukkit;
+
+import com.lemonlightmc.zenith.actions.common.ActionContext;
+import com.lemonlightmc.zenith.actions.common.Condition;
+import com.lemonlightmc.zenith.actions.common.Condition.AlwaysCondition;
+import com.lemonlightmc.zenith.actions.common.Condition.NeverCondition;
+import com.lemonlightmc.zenith.actions.common.ConditionListType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -55,23 +61,6 @@ public class Conditions {
 
   public static final ConditionSerializer SERIALIZER = ConditionSerializer.INSTANCE;
 
-  /**
-   * Defines whether a condition list acts as a whitelist or blacklist.
-   */
-  public static enum ConditionListType {
-    WHITELIST(false),
-    BLACKLIST(true);
-
-    private final boolean negate;
-
-    private ConditionListType(final boolean negate) {
-      this.negate = negate;
-    }
-
-    public boolean apply(final boolean value) {
-      return negate ? !value : value;
-    }
-  }
 
   // -------------------- Existing conditions
 

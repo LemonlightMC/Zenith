@@ -30,17 +30,18 @@ import com.lemonlightmc.zenith.math.Region;
 
 import io.leangen.geantyref.TypeToken;
 
-import com.lemonlightmc.zenith.actions.Condition;
-import com.lemonlightmc.zenith.actions.Conditions;
-import com.lemonlightmc.zenith.actions.Condition.AlwaysCondition;
-import com.lemonlightmc.zenith.actions.Condition.AndCondition;
-import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
-import com.lemonlightmc.zenith.actions.Condition.NeverCondition;
-import com.lemonlightmc.zenith.actions.Condition.NotCondition;
-import com.lemonlightmc.zenith.actions.Condition.OrCondition;
-import com.lemonlightmc.zenith.actions.Condition.XorCondition;
-import com.lemonlightmc.zenith.actions.Conditions.*;
-import com.lemonlightmc.zenith.actions.Conditions.LightLevelConditions.LightType;
+import com.lemonlightmc.zenith.actions.common.Condition;
+import com.lemonlightmc.zenith.actions.bukkit.Conditions;
+import com.lemonlightmc.zenith.actions.common.ConditionListType;
+import com.lemonlightmc.zenith.actions.common.Condition.AlwaysCondition;
+import com.lemonlightmc.zenith.actions.common.Condition.AndCondition;
+import com.lemonlightmc.zenith.actions.common.Condition.ConditionSet;
+import com.lemonlightmc.zenith.actions.common.Condition.NeverCondition;
+import com.lemonlightmc.zenith.actions.common.Condition.NotCondition;
+import com.lemonlightmc.zenith.actions.common.Condition.OrCondition;
+import com.lemonlightmc.zenith.actions.common.Condition.XorCondition;
+import com.lemonlightmc.zenith.actions.bukkit.Conditions.*;
+import com.lemonlightmc.zenith.actions.bukkit.Conditions.LightLevelConditions.LightType;
 
 /**
  * Serializes and deserializes player {@link Condition} instances from

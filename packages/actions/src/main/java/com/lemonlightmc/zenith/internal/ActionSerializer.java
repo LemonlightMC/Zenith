@@ -64,13 +64,13 @@ import io.leangen.geantyref.TypeToken;
 /**
  * Serializes and deserializes {@link Action} instances from configuration data.
  */
-public final class ActionSerializer implements TypeSerializer<Action<CommandSender>> {
+public final class ActionSerializer implements TypeSerializer<Action> {
 
   /**
    * Shared singleton instance of this serializer.
    */
   public static final ActionSerializer INSTANCE = new ActionSerializer();
-  private static final TypeToken<Condition<CommandSender>> CONDITION_TYPE = new TypeToken<Condition<CommandSender>>() {
+  private static final TypeToken<Condition> CONDITION_TYPE = new TypeToken<Condition>() {
   };
 
   private ActionSerializer() {
@@ -85,7 +85,7 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
    * @throws SerializationException if the action cannot be parsed
    */
   @Override
-  public Action<CommandSender> deserialize(final Type type, final ConfigurationNode node)
+  public Action deserialize(final Type type, final ConfigurationNode node)
       throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
       return null;
@@ -99,7 +99,7 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
       throw new SerializationException(node, Action.class, "Action requires a 'type'");
     }
 
-    final Condition<CommandSender> condition = readCondition(node);
+    final Condition condition = readCondition(node);
     // useSync defaults to true for most actions; Delay/Stop manage their own
     // semantics
     final boolean useSync = node.node("sync").getBoolean(node.node("use-sync").getBoolean(true));
@@ -343,9 +343,9 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
 
       case "repeat":
       case "loop": {
-        final List<Action<org.bukkit.command.CommandSender>> actions = readActionList(node);
+        final List<Action> actions = readActionList(node);
         if (actions.isEmpty()) {
-          final Action<org.bukkit.command.CommandSender> single = readSingleAction(node, "action", "then", "do");
+          final Action single = readSingleAction(node, "action", "then", "do");
           if (single != null) {
             actions.add(single);
           }
@@ -373,7 +373,7 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
    *                                the action type
    */
   @Override
-  public void serialize(final Type type, final Action<CommandSender> obj, final ConfigurationNode node)
+  public void serialize(final Type type, final Action obj, final ConfigurationNode node)
       throws SerializationException {
     if (obj == null) {
       node.set(null);
@@ -415,7 +415,7 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
 
   // ----------------- helpers -----------------
 
-  private Condition<CommandSender> readCondition(final ConfigurationNode node) throws SerializationException {
+  private Condition readCondition(final ConfigurationNode node) throws SerializationException {
     ConfigurationNode c = node.node("condition");
     if (!c.virtual() && !c.isNull()) {
       return c.get(CONDITION_TYPE);
@@ -428,7 +428,7 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
   }
 
   @SuppressWarnings("unchecked")
-  private static List<Action<org.bukkit.command.CommandSender>> readActionList(final ConfigurationNode node)
+  private static List<Action> readActionList(final ConfigurationNode node)
       throws SerializationException {
     ConfigurationNode n = node.node("actions");
     if (n.virtual()) {
@@ -437,12 +437,12 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
     if (n.virtual()) {
       n = node.node("then");
     }
-    final List<Action<org.bukkit.command.CommandSender>> out = new ArrayList<>();
+    final List<Action> out = new ArrayList<>();
     if (!n.virtual() && n.isList()) {
       for (final ConfigurationNode c : n.childrenList()) {
-        final Action<?> a = INSTANCE.deserialize((Type) null, c);
+        final Action a = INSTANCE.deserialize((Type) null, c);
         if (a != null) {
-          out.add((Action<org.bukkit.command.CommandSender>) a);
+          out.add((Action) a);
         }
       }
     }
@@ -450,13 +450,13 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
   }
 
   @SuppressWarnings("unchecked")
-  private static Action<org.bukkit.command.CommandSender> readSingleAction(final ConfigurationNode node,
+  private static Action readSingleAction(final ConfigurationNode node,
       final String... keys) throws SerializationException {
     for (final String k : keys) {
       final ConfigurationNode c = node.node(k);
       if (!c.virtual() && c.isMap()) {
-        final Action<?> a = INSTANCE.deserialize((Type) null, c);
-        return a == null ? null : (Action<org.bukkit.command.CommandSender>) a;
+        final Action a = INSTANCE.deserialize((Type) null, c);
+        return a == null ? null : (Action) a;
       }
     }
     return null;
@@ -480,9 +480,9 @@ public final class ActionSerializer implements TypeSerializer<Action<CommandSend
         // allow inline action fields alongside weight
         aNode = c;
       }
-      final Action<?> a = INSTANCE.deserialize((Type) null, aNode);
+      final Action a = INSTANCE.deserialize((Type) null, aNode);
       if (a != null) {
-        out.add(new WeightedRandomAction.Entry((Action<org.bukkit.command.CommandSender>) a, weight));
+        out.add(new WeightedRandomAction.Entry((Action) a, weight));
       }
     }
     return out;

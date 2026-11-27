@@ -26,7 +26,7 @@ import com.lemonlightmc.zenith.apis.bossbar.BossbarAPI;
  * players, and optionally remove the
  * created bar after a configured duration.
  */
-public class BossBarAction extends Action<CommandSender> {
+public class BossBarAction extends Action {
 
   /** Serializer for boss bar action configuration nodes. */
   public static final BossBarActionSerializer SERIALIZER = new BossBarActionSerializer();
@@ -80,7 +80,7 @@ public class BossBarAction extends Action<CommandSender> {
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
-      final Condition<CommandSender> conditions) {
+      final Condition conditions) {
     super(conditions);
     this.key = key;
     this.title = title == null ? "" : title;
@@ -110,7 +110,7 @@ public class BossBarAction extends Action<CommandSender> {
    */
   public BossBarAction(final NamespacedKey key, final String title, final BarColor color, final BarStyle style,
       final double progress, final int durationTicks, final boolean broadcast,
-      final Condition<CommandSender> conditions, final boolean useSync) {
+      final Condition conditions, final boolean useSync) {
     super(conditions, useSync);
     this.key = key;
     this.title = title == null ? "" : title;
@@ -128,7 +128,7 @@ public class BossBarAction extends Action<CommandSender> {
    * @return {@code true} after the action has been applied
    */
   @Override
-  protected boolean run(final ExecutionContext<CommandSender> context) {
+  protected boolean run(final ActionContext context) {
     final NamespacedKey effectiveKey = key != null ? key
         : NamespacedKey.minecraft("zenith_action_" + Math.abs(title.hashCode()));
     BossbarAPI.removeBar(effectiveKey);
@@ -170,7 +170,7 @@ public class BossBarAction extends Action<CommandSender> {
      * @throws SerializationException if deserialization fails
      */
     public BossBarAction deserialize(final Type type, final ConfigurationNode node,
-        final Condition<CommandSender> condition, final boolean useSync, final boolean broadcast)
+        final Condition condition, final boolean useSync, final boolean broadcast)
         throws SerializationException {
       final ConfigurationNode keyNode = firstNonEmpty(node, "key", "id", "name");
       final String title = str(node, "title", "text", "message");

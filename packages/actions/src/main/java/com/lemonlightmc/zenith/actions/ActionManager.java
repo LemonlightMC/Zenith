@@ -13,30 +13,30 @@ import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
 /**
  * Manages and executes named action chains for player contexts.
  */
-public class ActionManager<S extends CommandSender> {
+public class ActionManager {
   static final LoggerAdapter LOGGER = GlobalLogger.getLogger(ActionManager.class.getName());
 
-  private final Map<String, ActionHolder<S>> actionsMap = new ConcurrentHashMap<>();
+  private final Map<String, ActionHolder> actionsMap = new ConcurrentHashMap<>();
 
   public ActionManager() {
   }
 
-  public boolean execute(final String key, final S sender) {
-    return execute(key, new ExecutionContext<S>(sender));
+  public boolean execute(final String key, final CommandSender sender) {
+    return execute(key, new ActionContext(sender));
   }
 
-  public boolean execute(final String key, final S sender, final Player player) {
-    return execute(key, new ExecutionContext<S>(sender, player));
+  public boolean execute(final String key, final CommandSender sender, final Player player) {
+    return execute(key, new ActionContext(sender, player));
   }
 
-  public boolean execute(final String key, final ExecutionContext<S> context) {
+  public boolean execute(final String key, final ActionContext context) {
     if (key == null || key.isEmpty()) {
       return false;
     }
     if (context == null || context.isStopped()) {
       return false;
     }
-    final ActionHolder<S> snapshot = actionsMap.get(key);
+    final ActionHolder snapshot = actionsMap.get(key);
     if (snapshot == null) {
       return true;
     }
@@ -44,11 +44,11 @@ public class ActionManager<S extends CommandSender> {
     return true;
   }
 
-  public Map<String, ActionHolder<S>> actions() {
+  public Map<String, ActionHolder> actions() {
     return Collections.unmodifiableMap(actionsMap);
   }
 
-  public ActionHolder<S> getHolder(final String key) {
+  public ActionHolder getHolder(final String key) {
     return actionsMap.get(key);
   }
 
@@ -57,7 +57,7 @@ public class ActionManager<S extends CommandSender> {
   }
 
   public boolean isEmpty(final String key) {
-    final ActionHolder<S> snapshot = actionsMap.get(key);
+    final ActionHolder snapshot = actionsMap.get(key);
     return snapshot == null || snapshot.isEmpty();
   }
 
@@ -66,11 +66,11 @@ public class ActionManager<S extends CommandSender> {
   }
 
   public int size(final String key) {
-    final ActionHolder<S> snapshot = actionsMap.get(key);
+    final ActionHolder snapshot = actionsMap.get(key);
     return snapshot == null ? 0 : snapshot.size();
   }
 
-  public ActionManager<S> addAction(final String key, final ActionHolder<S> holder) {
+  public ActionManager addAction(final String key, final ActionHolder holder) {
     if (key == null || key.isEmpty() || holder == null) {
       return this;
     }
@@ -78,7 +78,7 @@ public class ActionManager<S extends CommandSender> {
     return this;
   }
 
-  public ActionManager<S> removeActions(final String key) {
+  public ActionManager removeActions(final String key) {
     if (key == null || key.isEmpty()) {
       return this;
     }
@@ -87,16 +87,16 @@ public class ActionManager<S extends CommandSender> {
   }
 
   public boolean hasActions(final String key) {
-    final ActionHolder<S> snapshot = key == null || key.isEmpty() ? null : actionsMap.get(key);
+    final ActionHolder snapshot = key == null || key.isEmpty() ? null : actionsMap.get(key);
     return snapshot != null && snapshot.hasActions();
   }
 
-  public ActionManager<S> clearActions() {
+  public ActionManager clearActions() {
     actionsMap.clear();
     return this;
   }
 
-  public ActionManager<S> clearActions(final String key) {
+  public ActionManager clearActions(final String key) {
     if (key != null) {
       actionsMap.remove(key);
     }

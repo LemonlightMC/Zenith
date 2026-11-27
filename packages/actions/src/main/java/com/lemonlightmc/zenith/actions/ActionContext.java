@@ -11,17 +11,17 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.apis.ChatAPI;
 import com.lemonlightmc.zenith.utils.WorldUtils;
 
-public class ExecutionContext<S extends CommandSender> {
+public class ActionContext {
 
     private volatile boolean stopped;
-    private final S sender;
+    private final CommandSender sender;
     private final Player player;
     private Entity entity;
     private Location location;
 
     private static final UUID CONSOLE_UUID = UUID.nameUUIDFromBytes("zenith-console".getBytes());
 
-    public ExecutionContext(final S sender) {
+    public ActionContext(final CommandSender sender) {
         if (sender == null) {
             throw new IllegalArgumentException("Action Sender cannot be null");
         }
@@ -35,7 +35,7 @@ public class ExecutionContext<S extends CommandSender> {
         this.entity = WorldUtils.getEntity(sender);
     }
 
-    public ExecutionContext(final S sender, final Player player) {
+    public ActionContext(final CommandSender sender, final Player player) {
         this.sender = sender;
         if (sender == null) {
             throw new IllegalArgumentException("Action Sender cannot be null");
@@ -58,7 +58,7 @@ public class ExecutionContext<S extends CommandSender> {
      *
      * @return the command sender
      */
-    public S sender() {
+    public CommandSender sender() {
         return sender;
     }
 
@@ -132,8 +132,8 @@ public class ExecutionContext<S extends CommandSender> {
      * @param newSender the sender to associate with the copied context
      * @return a copied context for the new sender
      */
-    public <T extends S> ExecutionContext<T> copyFor(final T newSender) {
-        return new ExecutionContext<>(newSender);
+    public <T extends CommandSender> ActionContext copyFor(final T newSender) {
+        return new ActionContext(newSender);
     }
 
     /**
@@ -141,8 +141,8 @@ public class ExecutionContext<S extends CommandSender> {
      *
      * @return a copied context
      */
-    public ExecutionContext<S> copy() {
-        return new ExecutionContext<>(sender, player);
+    public ActionContext copy() {
+        return new ActionContext(sender, player);
     }
 
 }

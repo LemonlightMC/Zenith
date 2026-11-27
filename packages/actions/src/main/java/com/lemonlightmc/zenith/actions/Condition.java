@@ -7,126 +7,126 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import org.bukkit.command.CommandSender;
-
 /**
  * A composable condition tree.
  */
-public interface Condition<S extends CommandSender> {
+public interface Condition {
 
-    boolean test(ExecutionContext<S> context);
+    boolean test(ActionContext context);
 
-    default Condition<S> and(final Condition<S> other) {
+    default Condition and(final Condition other) {
         return other == null || other instanceof AlwaysCondition ? this : AndCondition.of(this, other);
     }
 
-    default Condition<S> or(final Condition<S> other) {
+    default Condition or(final Condition other) {
         if (other == null || other instanceof NeverCondition) {
             return this;
         }
         return other instanceof AlwaysCondition ? AlwaysCondition.of() : OrCondition.of(this, other);
     }
 
-    default Condition<S> xor(final Condition<S> other) {
+    default Condition xor(final Condition other) {
         if (other == null || other instanceof NeverCondition || other instanceof AlwaysCondition) {
             return NotCondition.of(this);
         }
         return XorCondition.of(this, other);
     }
 
-    default Condition<S> negate() {
+    default Condition negate() {
         return NotCondition.of(this);
     }
 
-    public static <S extends CommandSender> Condition<S> always() {
+    public static Condition always() {
         return AlwaysCondition.of();
     }
 
-    public static <S extends CommandSender> Condition<S> never() {
+    public static Condition never() {
         return NeverCondition.of();
     }
 
-    public static <S extends CommandSender> Condition<S> of(final Predicate<ExecutionContext<S>> predicate) {
+    public static Condition of(final Predicate<ActionContext> predicate) {
         return PredicateCondition.of(predicate);
     }
 
-    public static <S extends CommandSender> Condition<S> of(final Collection<? extends Condition<S>> children) {
-        return new ConditionSet<>(children);
+    public static Condition of(final Collection<? extends Condition> children) {
+        return new ConditionSet(children);
     }
 
     @SafeVarargs
-    public static <S extends CommandSender> Condition<S> of(final Condition<S>... children) {
-        return new ConditionSet<>(children);
+    public static Condition of(final Condition... children) {
+        return new ConditionSet(children);
     }
 
-    public static <S extends CommandSender> Condition<S> and(final Condition<S> left, final Condition<S> right) {
+    public static Condition and(final Condition left, final Condition right) {
         return AndCondition.of(left, right);
     }
 
-    public static <S extends CommandSender> Condition<S> or(final Condition<S> left, final Condition<S> right) {
+    public static Condition or(final Condition left, final Condition right) {
         return OrCondition.of(left, right);
     }
 
-    public static <S extends CommandSender> Condition<S> xor(final Condition<S> left, final Condition<S> right) {
+    public static Condition xor(final Condition left, final Condition right) {
         return XorCondition.of(left, right);
     }
 
-    public static <S extends CommandSender> Condition<S> not(final Condition<S> delegate) {
+    public static Condition not(final Condition delegate) {
         return NotCondition.of(delegate);
     }
 
-    public static <S extends CommandSender> ConditionSet<S> set() {
-        return new ConditionSet<S>();
+    public static ConditionSet set() {
+        return new ConditionSet();
     }
 
-    public static <S extends CommandSender> ConditionSet<S> set(final Collection<? extends Condition<S>> children) {
-        return new ConditionSet<S>(children);
+    public static ConditionSet set(
+            final Collection<? extends Condition> children) {
+        return new ConditionSet(children);
     }
 
     @SafeVarargs
-    public static <S extends CommandSender> ConditionSet<S> set(final Condition<S>... children) {
-        return new ConditionSet<S>(children);
+    public static ConditionSet set(final Condition... children) {
+        return new ConditionSet(children);
     }
 
     /**
      * Mutable root/container node that requires all child conditions to pass.
      */
-    public final class ConditionSet<S extends CommandSender> implements Condition<S> {
-        private final List<Condition<S>> children = new ArrayList<>();
+    public final class ConditionSet implements Condition {
+        private final List<Condition> children = new ArrayList<>();
 
         public ConditionSet() {
         }
 
-        public ConditionSet(final Collection<? extends Condition<S>> children) {
+        public ConditionSet(final Collection<? extends Condition> children) {
             addAll(children);
         }
 
         @SafeVarargs
-        public ConditionSet(final Condition<S>... children) {
+        public ConditionSet(final Condition... children) {
             addAll(children);
         }
 
-        public static <S extends CommandSender> ConditionSet<S> of(final Collection<? extends Condition<S>> children) {
-            return new ConditionSet<>(children);
+        public static ConditionSet of(
+                final Collection<? extends Condition> children) {
+            return new ConditionSet(children);
         }
 
         @SafeVarargs
-        public static <S extends CommandSender> ConditionSet<S> of(final Condition<S>... children) {
-            return new ConditionSet<>(children);
+        public static ConditionSet of(final Condition... children) {
+            return new ConditionSet(children);
         }
 
-        public ConditionSet<S> add(final Condition<S> condition) {
+        public ConditionSet add(final Condition condition) {
             if (condition != null) {
                 children.add(condition);
             }
             return this;
         }
 
-        public ConditionSet<S> addAll(final Collection<? extends Condition<S>> conditions) {
+        public ConditionSet addAll(final Collection<? extends Condition> conditions) {
             if (conditions == null || conditions.isEmpty()) {
                 return this;
             }
-            for (final Condition<S> condition : conditions) {
+            for (final Condition condition : conditions) {
                 if (condition != null) {
                     children.add(condition);
                 }
@@ -135,11 +135,11 @@ public interface Condition<S extends CommandSender> {
         }
 
         @SafeVarargs
-        public final ConditionSet<S> addAll(final Condition<S>... conditions) {
+        public final ConditionSet addAll(final Condition... conditions) {
             if (conditions == null || conditions.length == 0) {
                 return this;
             }
-            for (final Condition<S> condition : conditions) {
+            for (final Condition condition : conditions) {
                 if (condition != null) {
                     children.add(condition);
                 }
@@ -147,18 +147,18 @@ public interface Condition<S extends CommandSender> {
             return this;
         }
 
-        public ConditionSet<S> remove(final Condition<S> condition) {
+        public ConditionSet remove(final Condition condition) {
             if (condition != null) {
                 children.remove(condition);
             }
             return this;
         }
 
-        public ConditionSet<S> removeAll(final Collection<Condition<S>> conditions) {
+        public ConditionSet removeAll(final Collection<Condition> conditions) {
             if (conditions == null || conditions.isEmpty()) {
                 return this;
             }
-            for (final Condition<S> condition : conditions) {
+            for (final Condition condition : conditions) {
                 if (condition != null) {
                     children.remove(condition);
                 }
@@ -167,11 +167,11 @@ public interface Condition<S extends CommandSender> {
         }
 
         @SafeVarargs
-        public final ConditionSet<S> removeAll(final Condition<S>... conditions) {
+        public final ConditionSet removeAll(final Condition... conditions) {
             if (conditions == null || conditions.length == 0) {
                 return this;
             }
-            for (final Condition<S> condition : conditions) {
+            for (final Condition condition : conditions) {
                 if (condition != null) {
                     children.remove(condition);
                 }
@@ -179,7 +179,7 @@ public interface Condition<S extends CommandSender> {
             return this;
         }
 
-        public boolean has(final Condition<S> condition) {
+        public boolean has(final Condition condition) {
             return children.contains(condition);
         }
 
@@ -187,12 +187,12 @@ public interface Condition<S extends CommandSender> {
             children.clear();
         }
 
-        public List<Condition<S>> children() {
+        public List<Condition> children() {
             return Collections.unmodifiableList(children);
         }
 
         public boolean isEmpty() {
-            for (final Condition<S> child : children) {
+            for (final Condition child : children) {
                 if (child != null) {
                     return false;
                 }
@@ -201,11 +201,11 @@ public interface Condition<S extends CommandSender> {
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             if (children.isEmpty()) {
                 return true;
             }
-            for (final Condition<S> child : children) {
+            for (final Condition child : children) {
                 if (child != null && !child.test(context)) {
                     return false;
                 }
@@ -238,11 +238,11 @@ public interface Condition<S extends CommandSender> {
     /**
      * Base node for logical operator conditions in the tree.
      */
-    abstract class ConditionOperator<S extends CommandSender> implements Condition<S> {
-        protected final Condition<S> left;
-        protected final Condition<S> right;
+    abstract class ConditionOperator implements Condition {
+        protected final Condition left;
+        protected final Condition right;
 
-        protected ConditionOperator(final Condition<S> left, final Condition<S> right) {
+        protected ConditionOperator(final Condition left, final Condition right) {
             if (left == null) {
                 throw new IllegalArgumentException("Left condition cannot be null or empty");
             }
@@ -253,11 +253,11 @@ public interface Condition<S extends CommandSender> {
             this.right = right;
         }
 
-        public Condition<S> left() {
+        public Condition left() {
             return left;
         }
 
-        public Condition<S> right() {
+        public Condition right() {
             return right;
         }
 
@@ -274,7 +274,7 @@ public interface Condition<S extends CommandSender> {
             if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            final ConditionOperator<?> other = (ConditionOperator<?>) obj;
+            final ConditionOperator other = (ConditionOperator) obj;
             return Objects.equals(left, other.left) && Objects.equals(right, other.right);
         }
 
@@ -285,13 +285,14 @@ public interface Condition<S extends CommandSender> {
     }
 
     /** Logical AND operator node. */
-    final class AndCondition<S extends CommandSender> extends ConditionOperator<S> {
+    final class AndCondition extends ConditionOperator {
 
-        private AndCondition(final Condition<S> left, final Condition<S> right) {
+        private AndCondition(final Condition left, final Condition right) {
             super(left, right);
         }
 
-        public static <S extends CommandSender> Condition<S> of(final Condition<S> left, final Condition<S> right) {
+        public static Condition of(final Condition left,
+                final Condition right) {
             if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
@@ -301,23 +302,24 @@ public interface Condition<S extends CommandSender> {
             if (right == null) {
                 return left;
             }
-            return new AndCondition<S>(left, right);
+            return new AndCondition(left, right);
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             return left.test(context) && right.test(context);
         }
     }
 
     /** Logical OR operator node. */
-    final class OrCondition<S extends CommandSender> extends ConditionOperator<S> {
+    final class OrCondition extends ConditionOperator {
 
-        private OrCondition(final Condition<S> left, final Condition<S> right) {
+        private OrCondition(final Condition left, final Condition right) {
             super(left, right);
         }
 
-        public static <S extends CommandSender> Condition<S> of(final Condition<S> left, final Condition<S> right) {
+        public static Condition of(final Condition left,
+                final Condition right) {
             if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
@@ -327,23 +329,24 @@ public interface Condition<S extends CommandSender> {
             if (right == null) {
                 return left;
             }
-            return new OrCondition<>(left, right);
+            return new OrCondition(left, right);
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             return left.test(context) || right.test(context);
         }
     }
 
     /** Logical XOR operator node. */
-    final class XorCondition<S extends CommandSender> extends ConditionOperator<S> {
+    final class XorCondition extends ConditionOperator {
 
-        private XorCondition(final Condition<S> left, final Condition<S> right) {
+        private XorCondition(final Condition left, final Condition right) {
             super(left, right);
         }
 
-        public static <S extends CommandSender> Condition<S> of(final Condition<S> left, final Condition<S> right) {
+        public static Condition of(final Condition left,
+                final Condition right) {
             if (left == null && right == null) {
                 return AlwaysCondition.of();
             }
@@ -353,41 +356,41 @@ public interface Condition<S extends CommandSender> {
             if (right == null) {
                 return left;
             }
-            return new XorCondition<S>(left, right);
+            return new XorCondition(left, right);
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             return left.test(context) ^ right.test(context);
         }
     }
 
     /** Negates a child condition. */
-    final class NotCondition<S extends CommandSender> implements Condition<S> {
-        private final Condition<S> delegate;
+    final class NotCondition implements Condition {
+        private final Condition delegate;
 
-        private NotCondition(final Condition<S> delegate) {
+        private NotCondition(final Condition delegate) {
             this.delegate = delegate;
         }
 
-        public static <S extends CommandSender> Condition<S> of(final Condition<S> delegate) {
+        public static Condition of(final Condition delegate) {
             if (delegate == null) {
                 return NeverCondition.of();
             }
-            return new NotCondition<S>(delegate);
+            return new NotCondition(delegate);
         }
 
-        public Condition<S> delegate() {
+        public Condition delegate() {
             return delegate;
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             return !delegate.test(context);
         }
 
         @Override
-        public Condition<S> negate() {
+        public Condition negate() {
             return delegate;
         }
 
@@ -414,24 +417,23 @@ public interface Condition<S extends CommandSender> {
     }
 
     /** Always-true condition. */
-    final class AlwaysCondition<S extends CommandSender> implements Condition<S> {
-        private static final AlwaysCondition<?> INSTANCE = new AlwaysCondition<>();
+    final class AlwaysCondition implements Condition {
+        private static final AlwaysCondition INSTANCE = new AlwaysCondition();
 
         private AlwaysCondition() {
         }
 
-        @SuppressWarnings("unchecked")
-        public static <S extends CommandSender> Condition<S> of() {
-            return (AlwaysCondition<S>) INSTANCE;
+        public static Condition of() {
+            return INSTANCE;
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             return true;
         }
 
         @Override
-        public Condition<S> negate() {
+        public Condition negate() {
             return NeverCondition.of();
         }
 
@@ -442,24 +444,23 @@ public interface Condition<S extends CommandSender> {
     }
 
     /** Always-false condition. */
-    final class NeverCondition<S extends CommandSender> implements Condition<S> {
-        private static final NeverCondition<?> INSTANCE = new NeverCondition<>();
+    final class NeverCondition implements Condition {
+        private static final NeverCondition INSTANCE = new NeverCondition();
 
         private NeverCondition() {
         }
 
-        @SuppressWarnings("unchecked")
-        public static <S extends CommandSender> Condition<S> of() {
-            return (NeverCondition<S>) INSTANCE;
+        public static Condition of() {
+            return INSTANCE;
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             return false;
         }
 
         @Override
-        public Condition<S> negate() {
+        public Condition negate() {
             return AlwaysCondition.of();
         }
 
@@ -470,19 +471,19 @@ public interface Condition<S extends CommandSender> {
     }
 
     /** Adapts a predicate into a condition leaf. */
-    final class PredicateCondition<S extends CommandSender> implements Condition<S> {
-        private final Predicate<ExecutionContext<S>> predicate;
+    final class PredicateCondition implements Condition {
+        private final Predicate<ActionContext> predicate;
 
-        private PredicateCondition(final Predicate<ExecutionContext<S>> predicate) {
+        private PredicateCondition(final Predicate<ActionContext> predicate) {
             this.predicate = predicate;
         }
 
-        public static <S extends CommandSender> Condition<S> of(final Predicate<ExecutionContext<S>> predicate) {
-            return predicate == null ? AlwaysCondition.of() : new PredicateCondition<>(predicate);
+        public static Condition of(final Predicate<ActionContext> predicate) {
+            return predicate == null ? AlwaysCondition.of() : new PredicateCondition(predicate);
         }
 
         @Override
-        public boolean test(final ExecutionContext<S> context) {
+        public boolean test(final ActionContext context) {
             return predicate != null && predicate.test(context);
         }
 

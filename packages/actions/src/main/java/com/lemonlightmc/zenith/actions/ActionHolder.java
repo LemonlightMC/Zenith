@@ -10,20 +10,20 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
 import com.lemonlightmc.zenith.actions.Actions.DelayAction;
 
-public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Condition<S> condition,
+public record ActionHolder(List<Action> actions, Condition condition,
         String conditionFailureMsg) {
-    public ActionHolder(final List<Action<S>> actions, final Condition<S> condition, final String conditionFailureMsg) {
+    public ActionHolder(final List<Action> actions, final Condition condition, final String conditionFailureMsg) {
         this.actions = actions != null && actions.isEmpty() ? null : actions;
         this.condition = condition;
         this.conditionFailureMsg = conditionFailureMsg != null && conditionFailureMsg.isBlank() ? null
                 : conditionFailureMsg;
     }
 
-    public ActionHolder(final List<Action<S>> actions, final Condition<S> condition) {
+    public ActionHolder(final List<Action> actions, final Condition condition) {
         this(actions != null && actions.isEmpty() ? null : actions, condition, null);
     }
 
-    public ActionHolder(final List<Action<S>> actions) {
+    public ActionHolder(final List<Action> actions) {
         this(actions != null && actions.isEmpty() ? null : actions, null, null);
     }
 
@@ -31,29 +31,28 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         this(List.of(), null, null);
     }
 
-    public void execute(final ExecutionContext<S> context) {
+    public void execute(final ActionContext context) {
         if (context == null || context.isStopped()) {
             return;
         }
         GlobalScheduler.runLater(() -> runFrom(context, 0), 1);
     }
 
-    public void execute(final S sender) {
+    public void execute(final CommandSender sender) {
         if (sender == null) {
             return;
         }
-        GlobalScheduler.runLater(() -> runFrom(new ExecutionContext<S>(sender), 0), 1);
+        GlobalScheduler.runLater(() -> runFrom(new ActionContext(sender), 0), 1);
     }
 
-    public void execute(final S sender, final Player player) {
+    public void execute(final CommandSender sender, final Player player) {
         if (sender == null) {
             return;
         }
-        GlobalScheduler.runLater(() -> runFrom(new ExecutionContext<S>(sender, player), 0), 1);
+        GlobalScheduler.runLater(() -> runFrom(new ActionContext(sender, player), 0), 1);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    void runFrom(final ExecutionContext<S> context, final int startIndex) {
+    void runFrom(final ActionContext context, final int startIndex) {
         if (actions == null || actions.isEmpty()) {
             return;
         }
@@ -68,14 +67,14 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
             if (context.isStopped()) {
                 return;
             }
-            final Action<S> action = actions.get(i);
+            final Action action = actions.get(i);
             if (action == null) {
                 continue;
             }
 
             // Delay actions are handled by the manager to preserve ordered execution.
             if (action instanceof DelayAction delay) {
-                final Condition<CommandSender> delayCondition = delay.condition();
+                final Condition delayCondition = delay.condition();
                 if (delayCondition == null || ((Condition) delayCondition).test(context)) {
                     final int next = i + 1;
                     if (next < len) {
@@ -101,7 +100,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         }
     }
 
-    private boolean safeExecute(final ExecutionContext<S> context, final Action<S> action) {
+    private boolean safeExecute(final ActionContext context, final Action action) {
         try {
             if (action.condition() != null && !action.condition().test(context)) {
                 return true;
@@ -117,7 +116,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         }
     }
 
-    public ActionHolder<S> addActions(final Action<S> action) {
+    public ActionHolder addActions(final Action action) {
         if (action == null || actions == null) {
             return this;
         }
@@ -126,7 +125,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
     }
 
     @SafeVarargs
-    public final ActionHolder<S> addActions(final Action<S>... toAdd) {
+    public final ActionHolder addActions(final Action... toAdd) {
         if (toAdd == null || toAdd.length == 0 || actions == null) {
             return this;
         }
@@ -134,7 +133,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         return this;
     }
 
-    public ActionHolder<S> addActions(final Collection<? extends Action<S>> toAdd) {
+    public ActionHolder addActions(final Collection<? extends Action> toAdd) {
         if (toAdd == null || toAdd.isEmpty() || actions == null) {
             return this;
         }
@@ -142,7 +141,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         return this;
     }
 
-    public ActionHolder<S> removeActions(final Action<S> action) {
+    public ActionHolder removeActions(final Action action) {
         if (action == null || actions == null) {
             return this;
         }
@@ -151,7 +150,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
     }
 
     @SafeVarargs
-    public final ActionHolder<S> removeActions(final Action<S>... toRemove) {
+    public final ActionHolder removeActions(final Action... toRemove) {
         if (toRemove == null || toRemove.length == 0 || actions == null) {
             return this;
         }
@@ -159,7 +158,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         return this;
     }
 
-    public ActionHolder<S> removeActions(final Collection<? extends Action<S>> toRemove) {
+    public ActionHolder removeActions(final Collection<? extends Action> toRemove) {
         if (toRemove == null || toRemove.isEmpty() || actions == null) {
             return this;
         }
@@ -167,14 +166,14 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         return this;
     }
 
-    public ActionHolder<S> clearActions() {
+    public ActionHolder clearActions() {
         if (actions != null) {
             actions.clear();
         }
         return this;
     }
 
-    public boolean hasAction(final Action<S> action) {
+    public boolean hasAction(final Action action) {
         return action != null && actions != null && actions.contains(action);
     }
 
@@ -186,7 +185,7 @@ public record ActionHolder<S extends CommandSender>(List<Action<S>> actions, Con
         return actions == null || actions.isEmpty();
     }
 
-    public List<Action<S>> actions() {
+    public List<Action> actions() {
         return actions == null ? List.of() : Collections.unmodifiableList(actions);
     }
 

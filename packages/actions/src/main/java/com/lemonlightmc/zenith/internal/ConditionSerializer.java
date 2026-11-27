@@ -46,7 +46,7 @@ import com.lemonlightmc.zenith.actions.Conditions.LightLevelConditions.LightType
  * Serializes and deserializes player {@link Condition} instances from
  * configuration data.
  */
-public final class ConditionSerializer implements TypeSerializer<Condition<CommandSender>> {
+public final class ConditionSerializer implements TypeSerializer<Condition> {
 
   /**
    * Shared singleton instance of this serializer.
@@ -65,7 +65,7 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
    * @throws SerializationException if the condition cannot be parsed
    */
   @Override
-  public Condition<CommandSender> deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
+  public Condition deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
     if (node == null || node.virtual() || node.isNull()) {
       return null;
     }
@@ -356,7 +356,7 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void serialize(final Type type, final Condition<CommandSender> obj, final ConfigurationNode node)
+  public void serialize(final Type type, final Condition obj, final ConfigurationNode node)
       throws SerializationException {
     if (obj == null) {
       node.set(null);
@@ -373,43 +373,43 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
       return;
     }
     if (obj instanceof NotCondition) {
-      final NotCondition<CommandSender> n = (NotCondition<CommandSender>) obj;
+      final NotCondition n = (NotCondition) obj;
       node.node("type").set("not");
-      node.node("condition").set(new TypeToken<Condition<CommandSender>>() {
+      node.node("condition").set(new TypeToken<Condition>() {
       }, n.delegate());
       return;
     }
-    if (obj instanceof final ConditionSet<?> set) {
+    if (obj instanceof final ConditionSet set) {
       node.node("type").set("all");
       final ConfigurationNode arr = node.node("conditions");
-      for (final Condition<?> child : set.children()) {
-        arr.appendListNode().set(new TypeToken<Condition<CommandSender>>() {
-        }, (Condition<CommandSender>) child);
+      for (final Condition child : set.children()) {
+        arr.appendListNode().set(new TypeToken<Condition>() {
+        }, (Condition) child);
       }
       return;
     }
-    if (obj instanceof final AndCondition<?> c) {
+    if (obj instanceof final AndCondition c) {
       node.node("type").set("all");
-      node.node("conditions").appendListNode().set(new TypeToken<Condition<CommandSender>>() {
-      }, (Condition<CommandSender>) c.left());
-      node.node("conditions").appendListNode().set(new TypeToken<Condition<CommandSender>>() {
-      }, (Condition<CommandSender>) c.right());
+      node.node("conditions").appendListNode().set(new TypeToken<Condition>() {
+      }, (Condition) c.left());
+      node.node("conditions").appendListNode().set(new TypeToken<Condition>() {
+      }, (Condition) c.right());
       return;
     }
-    if (obj instanceof final OrCondition<?> c) {
+    if (obj instanceof final OrCondition c) {
       node.node("type").set("any");
-      node.node("conditions").appendListNode().set(new TypeToken<Condition<CommandSender>>() {
-      }, (Condition<CommandSender>) c.left());
-      node.node("conditions").appendListNode().set(new TypeToken<Condition<CommandSender>>() {
-      }, (Condition<CommandSender>) c.right());
+      node.node("conditions").appendListNode().set(new TypeToken<Condition>() {
+      }, (Condition) c.left());
+      node.node("conditions").appendListNode().set(new TypeToken<Condition>() {
+      }, (Condition) c.right());
       return;
     }
-    if (obj instanceof final XorCondition<?> c) {
+    if (obj instanceof final XorCondition c) {
       node.node("type").set("xor");
-      node.node("left").set(new TypeToken<Condition<CommandSender>>() {
-      }, (Condition<CommandSender>) c.left());
-      node.node("right").set(new TypeToken<Condition<CommandSender>>() {
-      }, (Condition<CommandSender>) c.right());
+      node.node("left").set(new TypeToken<Condition>() {
+      }, (Condition) c.left());
+      node.node("right").set(new TypeToken<Condition>() {
+      }, (Condition) c.right());
       return;
     }
     throw new SerializationException(node, Condition.class,
@@ -419,37 +419,37 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
 
   // ----------------- builders/helpers -----------------
 
-  private Condition<CommandSender> buildAll(final ConfigurationNode node) throws SerializationException {
-    final List<Condition<CommandSender>> children = readChildren(node);
+  private Condition buildAll(final ConfigurationNode node) throws SerializationException {
+    final List<Condition> children = readChildren(node);
     if (children.size() == 1) {
       return children.get(0);
     }
-    final ConditionSet<CommandSender> set = ConditionSet.of();
-    for (final Condition<CommandSender> c : children) {
+    final ConditionSet set = ConditionSet.of();
+    for (final Condition c : children) {
       set.add(c);
     }
     return set;
   }
 
-  private Condition<CommandSender> buildAny(final ConfigurationNode node) throws SerializationException {
-    final List<Condition<CommandSender>> children = readChildren(node);
+  private Condition buildAny(final ConfigurationNode node) throws SerializationException {
+    final List<Condition> children = readChildren(node);
     if (children.isEmpty()) {
       return NeverCondition.of();
     }
-    Condition<CommandSender> acc = children.get(0);
+    Condition acc = children.get(0);
     for (int i = 1; i < children.size(); i++) {
       acc = OrCondition.of(acc, children.get(i));
     }
     return acc;
   }
 
-  private Condition<CommandSender> buildXor(final ConfigurationNode node) throws SerializationException {
+  private Condition buildXor(final ConfigurationNode node) throws SerializationException {
     final ConfigurationNode leftN = node.node("left");
     final ConfigurationNode rightN = node.node("right");
     if (!leftN.virtual() && !rightN.virtual()) {
       return XorCondition.of(deserialize((Type) null, leftN), deserialize((Type) null, rightN));
     }
-    final List<Condition<CommandSender>> children = readChildren(node);
+    final List<Condition> children = readChildren(node);
     if (children.size() == 2) {
       return XorCondition.of(children.get(0), children.get(1));
     }
@@ -457,7 +457,7 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
         "xor condition requires 'left'/'right' or exactly 2 children");
   }
 
-  private Condition<CommandSender> readSingleChild(final ConfigurationNode node, final String... keys)
+  private Condition readSingleChild(final ConfigurationNode node, final String... keys)
       throws SerializationException {
     for (final String k : keys) {
       final ConfigurationNode c = node.node(k);
@@ -465,14 +465,14 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
         return deserialize((Type) null, c);
       }
     }
-    final List<Condition<CommandSender>> children = readChildren(node);
+    final List<Condition> children = readChildren(node);
     if (children.size() == 1) {
       return children.get(0);
     }
     throw new SerializationException(node, Condition.class, "Expected a single child condition");
   }
 
-  private List<Condition<CommandSender>> readChildren(final ConfigurationNode node) throws SerializationException {
+  private List<Condition> readChildren(final ConfigurationNode node) throws SerializationException {
     ConfigurationNode listNode = node.node("conditions");
     if (listNode.virtual()) {
       listNode = node.node("children");
@@ -480,17 +480,17 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
     if (listNode.virtual()) {
       listNode = node.node("values");
     }
-    final List<Condition<CommandSender>> out = new ArrayList<>();
+    final List<Condition> out = new ArrayList<>();
     if (!listNode.virtual()) {
       if (listNode.isList()) {
         for (final ConfigurationNode child : listNode.childrenList()) {
-          final Condition<CommandSender> c = deserialize((Type) null, child);
+          final Condition c = deserialize((Type) null, child);
           if (c != null) {
             out.add(c);
           }
         }
       } else if (listNode.isMap() || !listNode.isNull()) {
-        final Condition<CommandSender> c = deserialize((Type) null, listNode);
+        final Condition c = deserialize((Type) null, listNode);
         if (c != null) {
           out.add(c);
         }
@@ -499,13 +499,8 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
     return out;
   }
 
-  private static Condition<CommandSender> adaptSenderCondition(final Condition<CommandSender> condition) {
-    if (condition == null) {
-      return null;
-    }
-    // Condition is contravariant-friendly at runtime for Player; wrap to satisfy
-    // generic type
-    return (Condition<CommandSender>) condition;
+  private static Condition adaptSenderCondition(final Condition condition) {
+    return condition;
   }
 
   private static ConditionListType mode(final ConfigurationNode node) {
@@ -752,7 +747,7 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
     return out;
   }
 
-  private static Condition<CommandSender> parseStatistic(final ConfigurationNode node) {
+  private static Condition parseStatistic(final ConfigurationNode node) {
     final Statistic stat = parseEnum(node.node("statistic").getString(node.node("stat").getString()), Statistic.class,
         null);
     final Material material = parseEnum(node.node("material").getString(), Material.class, null);
@@ -765,7 +760,7 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
     return Conditions.StatisticConditions.from(stat, material, entity, target, op, mode(node));
   }
 
-  private static Condition<CommandSender> parseHeldItemDetail(final ConfigurationNode node) throws SerializationException {
+  private static Condition parseHeldItemDetail(final ConfigurationNode node) throws SerializationException {
     final Set<Material> materials = enumSet(node, Material.class, "materials", "material", "values", "value");
     final HandSlot slot = handSlot(node);
     final String displayName = node.node("display-name").getString(node.node("name").getString());
@@ -796,14 +791,14 @@ public final class ConditionSerializer implements TypeSerializer<Condition<Comma
     return out;
   }
 
-  private static Condition<CommandSender> parseSpecificSlot(final ConfigurationNode node) throws SerializationException {
+  private static Condition parseSpecificSlot(final ConfigurationNode node) throws SerializationException {
     final int slot = node.node("slot").getInt(node.node("index").getInt(0));
     final boolean requireEmpty = node.node("empty").getBoolean(node.node("require-empty").getBoolean(false));
     final Set<Material> materials = enumSet(node, Material.class, "materials", "material", "values", "value");
     return Conditions.SpecificSlotConditions.from(slot, materials, requireEmpty, mode(node));
   }
 
-  private static Condition<CommandSender> parseBlockAt(final ConfigurationNode node) throws SerializationException {
+  private static Condition parseBlockAt(final ConfigurationNode node) throws SerializationException {
     final Conditions.BlockAtLocationConditions.Position pos = parseEnum(
         node.node("position").getString(node.node("at").getString()),
         Conditions.BlockAtLocationConditions.Position.class, Conditions.BlockAtLocationConditions.Position.FEET);

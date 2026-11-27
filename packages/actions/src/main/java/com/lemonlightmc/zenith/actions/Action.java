@@ -9,25 +9,25 @@ import com.lemonlightmc.zenith.internal.ActionSerializer;
  * Represents an executable action that can be conditionally run for a player
  * context.
  */
-public abstract class Action<S extends CommandSender> {
+public abstract class Action {
 
     public static final ActionSerializer SERIALIZER = ActionSerializer.INSTANCE;
 
-    private final Condition<S> condition;
+    private final Condition condition;
     private final boolean useSync;
 
-    public Action(final Condition<S> conditions) {
+    public Action(final Condition conditions) {
         this(conditions, true);
     }
 
-    public Action(final Condition<S> condition, final boolean useSync) {
+    public Action(final Condition condition, final boolean useSync) {
         this.condition = condition;
         this.useSync = useSync;
     }
 
-    protected abstract boolean run(ExecutionContext<S> context);
+    protected abstract boolean run(ActionContext context);
 
-    public Condition<S> condition() {
+    public Condition condition() {
         return condition;
     }
 
@@ -35,22 +35,22 @@ public abstract class Action<S extends CommandSender> {
         return useSync;
     }
 
-    public boolean execute(final S sender) {
-        return execute(new ExecutionContext<S>(sender));
+    public boolean execute(final CommandSender sender) {
+        return execute(new ActionContext(sender));
     }
 
-    public boolean execute(final S sender, final Player player) {
-        return execute(new ExecutionContext<S>(sender, player));
+    public boolean execute(final CommandSender sender, final Player player) {
+        return execute(new ActionContext(sender, player));
     }
 
-    public boolean shouldRun(final ExecutionContext<S> context) {
+    public boolean shouldRun(final ActionContext context) {
         if (context == null || context.isStopped()) {
             return false;
         }
         return condition == null || condition.test(context);
     }
 
-    public boolean execute(final ExecutionContext<S> context) {
+    public boolean execute(final ActionContext context) {
         if (context == null || context.isStopped()) {
             return false;
         }

@@ -19,7 +19,7 @@ public class Actions2 {
     /**
      * Action that applies or clears potion effects for a target player.
      */
-    public static class PotionEffectAction extends Action<CommandSender> {
+    public static class PotionEffectAction extends Action {
 
         private final Potion potion;
         private final boolean clear;
@@ -43,7 +43,7 @@ public class Actions2 {
          * @param conditions conditions that must be met before execution
          */
         public PotionEffectAction(final Potion potion, final boolean clear,
-                final boolean broadcast, final ConditionSet<CommandSender> conditions) {
+                final boolean broadcast, final ConditionSet conditions) {
             super(conditions);
             this.potion = potion;
             this.clear = clear;
@@ -60,7 +60,7 @@ public class Actions2 {
          * @param useSync    whether the action should run synchronously
          */
         public PotionEffectAction(final Potion potion, final boolean clear,
-                final boolean broadcast, final Condition<CommandSender> conditions, final boolean useSync) {
+                final boolean broadcast, final Condition conditions, final boolean useSync) {
             super(conditions, useSync);
             this.potion = potion;
             this.clear = clear;
@@ -91,7 +91,7 @@ public class Actions2 {
          * {@inheritDoc}
          */
         @Override
-        protected boolean run(final ExecutionContext<CommandSender> context) {
+        protected boolean run(final ActionContext context) {
             final Player player = context.player();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {
@@ -124,7 +124,7 @@ public class Actions2 {
     /**
      * Action that spawns a firework at a target player's location.
      */
-    public static class FireworkAction extends Action<CommandSender> {
+    public static class FireworkAction extends Action {
 
         private final Firework firework;
         private final boolean broadcast;
@@ -146,7 +146,7 @@ public class Actions2 {
          * @param conditions conditions that must be met before execution
          */
         public FireworkAction(
-                final Firework firework, final boolean broadcast, final Condition<CommandSender> conditions) {
+                final Firework firework, final boolean broadcast, final Condition conditions) {
             super(conditions);
             this.firework = firework;
             this.broadcast = broadcast;
@@ -161,7 +161,7 @@ public class Actions2 {
          * @param useSync    whether the action should run synchronously
          */
         public FireworkAction(
-                final Firework firework, final boolean broadcast, final Condition<CommandSender> conditions,
+                final Firework firework, final boolean broadcast, final Condition conditions,
                 final boolean useSync) {
             super(conditions, useSync);
             this.firework = firework;
@@ -172,7 +172,7 @@ public class Actions2 {
          * {@inheritDoc}
          */
         @Override
-        protected boolean run(final ExecutionContext<CommandSender> context) {
+        protected boolean run(final ActionContext context) {
             final Player player = context.player();
             if (broadcast) {
                 for (final Player p : Bukkit.getOnlinePlayers()) {

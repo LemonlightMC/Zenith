@@ -25,7 +25,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -76,7 +75,7 @@ public class Conditions {
 
   // -------------------- Existing conditions
 
-  public static class WorldConditions<S extends CommandSender> implements Condition<S> {
+  public static class WorldConditions implements Condition {
 
     private final Set<String> worlds;
     private final ConditionListType type;
@@ -86,29 +85,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<String> allowed_worlds) {
+    public static Condition allowed(final Set<String> allowed_worlds) {
       if (allowed_worlds == null || allowed_worlds.isEmpty()) {
         return NeverCondition.of();
       }
-      return new WorldConditions<>(allowed_worlds, ConditionListType.WHITELIST);
+      return new WorldConditions(allowed_worlds, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<String> denied_worlds) {
+    public static Condition denied(final Set<String> denied_worlds) {
       if (denied_worlds == null || denied_worlds.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new WorldConditions<>(denied_worlds, ConditionListType.BLACKLIST);
+      return new WorldConditions(denied_worlds, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<String> worlds, final ConditionListType type) {
+    public static Condition from(final Set<String> worlds,
+        final ConditionListType type) {
       if (worlds == null || worlds.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new WorldConditions<>(worlds, type);
+      return new WorldConditions(worlds, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (!context.isPlayer()) {
         return false;
       }
@@ -116,7 +116,7 @@ public class Conditions {
     }
   }
 
-  public static class BiomeConditions<S extends CommandSender> implements Condition<S> {
+  public static class BiomeConditions implements Condition {
 
     private final Set<String> biomes;
     private final ConditionListType type;
@@ -126,29 +126,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<String> allowed_biomes) {
+    public static Condition allowed(final Set<String> allowed_biomes) {
       if (allowed_biomes == null || allowed_biomes.isEmpty()) {
         return NeverCondition.of();
       }
-      return new BiomeConditions<>(allowed_biomes, ConditionListType.WHITELIST);
+      return new BiomeConditions(allowed_biomes, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<String> denied_biomes) {
+    public static Condition denied(final Set<String> denied_biomes) {
       if (denied_biomes == null || denied_biomes.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new BiomeConditions<>(denied_biomes, ConditionListType.BLACKLIST);
+      return new BiomeConditions(denied_biomes, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<String> biomes, final ConditionListType type) {
+    public static Condition from(final Set<String> biomes,
+        final ConditionListType type) {
       if (biomes == null || biomes.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new BiomeConditions<>(biomes, type);
+      return new BiomeConditions(biomes, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -169,7 +170,7 @@ public class Conditions {
     }
   }
 
-  public static class WeatherConditions<S extends CommandSender> implements Condition<S> {
+  public static class WeatherConditions implements Condition {
 
     private final Set<String> weathers;
     private final ConditionListType type;
@@ -179,30 +180,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<String> allowed_weathers) {
+    public static Condition allowed(final Set<String> allowed_weathers) {
       if (allowed_weathers == null || allowed_weathers.isEmpty()) {
         return NeverCondition.of();
       }
-      return new WeatherConditions<>(allowed_weathers, ConditionListType.WHITELIST);
+      return new WeatherConditions(allowed_weathers, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<String> denied_weathers) {
+    public static Condition denied(final Set<String> denied_weathers) {
       if (denied_weathers == null || denied_weathers.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new WeatherConditions<>(denied_weathers, ConditionListType.BLACKLIST);
+      return new WeatherConditions(denied_weathers, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<String> weathers,
+    public static Condition from(final Set<String> weathers,
         final ConditionListType type) {
       if (weathers == null || weathers.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new WeatherConditions<>(weathers, type);
+      return new WeatherConditions(weathers, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -213,7 +214,7 @@ public class Conditions {
     }
   }
 
-  public static class MoonConditions<S extends CommandSender> implements Condition<S> {
+  public static class MoonConditions implements Condition {
 
     private final Set<Integer> moonPhases;
     private final ConditionListType type;
@@ -223,30 +224,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<Integer> moonPhases) {
+    public static Condition allowed(final Set<Integer> moonPhases) {
       if (moonPhases == null || moonPhases.isEmpty()) {
         return NeverCondition.of();
       }
-      return new MoonConditions<>(moonPhases, ConditionListType.WHITELIST);
+      return new MoonConditions(moonPhases, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<Integer> moonPhases) {
+    public static Condition denied(final Set<Integer> moonPhases) {
       if (moonPhases == null || moonPhases.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new MoonConditions<>(moonPhases, ConditionListType.BLACKLIST);
+      return new MoonConditions(moonPhases, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<Integer> moonPhases,
+    public static Condition from(final Set<Integer> moonPhases,
         final ConditionListType type) {
       if (moonPhases == null || moonPhases.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new MoonConditions<>(moonPhases, type);
+      return new MoonConditions(moonPhases, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -261,7 +262,7 @@ public class Conditions {
     }
   }
 
-  public static class TimeRangeConditions<S extends CommandSender> implements Condition<S> {
+  public static class TimeRangeConditions implements Condition {
 
     private final Set<TimeRange> timeRanges;
     private final ConditionListType type;
@@ -271,30 +272,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<TimeRange> timeRanges) {
+    public static Condition allowed(final Set<TimeRange> timeRanges) {
       if (timeRanges == null || timeRanges.isEmpty()) {
         return NeverCondition.of();
       }
-      return new TimeRangeConditions<>(timeRanges, ConditionListType.WHITELIST);
+      return new TimeRangeConditions(timeRanges, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<TimeRange> timeRanges) {
+    public static Condition denied(final Set<TimeRange> timeRanges) {
       if (timeRanges == null || timeRanges.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new TimeRangeConditions<>(timeRanges, ConditionListType.BLACKLIST);
+      return new TimeRangeConditions(timeRanges, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<TimeRange> timeRanges,
+    public static Condition from(final Set<TimeRange> timeRanges,
         final ConditionListType type) {
       if (timeRanges == null || timeRanges.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new TimeRangeConditions<>(timeRanges, type);
+      return new TimeRangeConditions(timeRanges, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -311,7 +312,7 @@ public class Conditions {
     }
   }
 
-  public static class AdvancementConditions<S extends CommandSender> implements Condition<S> {
+  public static class AdvancementConditions implements Condition {
 
     private final Set<String> advancements;
     private final ConditionListType type;
@@ -331,30 +332,30 @@ public class Conditions {
       this.cachedKeys = java.util.Collections.unmodifiableList(keys);
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<String> advancements) {
+    public static Condition allowed(final Set<String> advancements) {
       if (advancements == null || advancements.isEmpty()) {
         return NeverCondition.of();
       }
-      return new AdvancementConditions<>(advancements, ConditionListType.WHITELIST);
+      return new AdvancementConditions(advancements, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<String> advancements) {
+    public static Condition denied(final Set<String> advancements) {
       if (advancements == null || advancements.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new AdvancementConditions<>(advancements, ConditionListType.BLACKLIST);
+      return new AdvancementConditions(advancements, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<String> advancements,
+    public static Condition from(final Set<String> advancements,
         final ConditionListType type) {
       if (advancements == null || advancements.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new AdvancementConditions<>(advancements, type);
+      return new AdvancementConditions(advancements, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -379,7 +380,7 @@ public class Conditions {
     }
   }
 
-  public static class RecipeConditions<S extends CommandSender> implements Condition<S> {
+  public static class RecipeConditions implements Condition {
 
     private final Set<String> recipes;
     private final ConditionListType type;
@@ -400,29 +401,30 @@ public class Conditions {
       this.cachedKeys = java.util.Collections.unmodifiableList(keys);
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<String> recipes) {
+    public static Condition allowed(final Set<String> recipes) {
       if (recipes == null || recipes.isEmpty()) {
         return NeverCondition.of();
       }
-      return new RecipeConditions<>(recipes, ConditionListType.WHITELIST);
+      return new RecipeConditions(recipes, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<String> recipes) {
+    public static Condition denied(final Set<String> recipes) {
       if (recipes == null || recipes.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new RecipeConditions<>(recipes, ConditionListType.BLACKLIST);
+      return new RecipeConditions(recipes, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<String> recipes, final ConditionListType type) {
+    public static Condition from(final Set<String> recipes,
+        final ConditionListType type) {
       if (recipes == null || recipes.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new RecipeConditions<>(recipes, type);
+      return new RecipeConditions(recipes, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -443,7 +445,7 @@ public class Conditions {
     }
   }
 
-  public static class PluginConditions<S extends CommandSender> implements Condition<S> {
+  public static class PluginConditions implements Condition {
 
     private final Set<String> plugins;
     private final ConditionListType type;
@@ -453,29 +455,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<String> plugins) {
+    public static Condition allowed(final Set<String> plugins) {
       if (plugins == null || plugins.isEmpty()) {
         return NeverCondition.of();
       }
-      return new PluginConditions<>(plugins, ConditionListType.WHITELIST);
+      return new PluginConditions(plugins, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<String> plugins) {
+    public static Condition denied(final Set<String> plugins) {
       if (plugins == null || plugins.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new PluginConditions<>(plugins, ConditionListType.BLACKLIST);
+      return new PluginConditions(plugins, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<String> plugins, final ConditionListType type) {
+    public static Condition from(final Set<String> plugins,
+        final ConditionListType type) {
       if (plugins == null || plugins.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new PluginConditions<>(plugins, type);
+      return new PluginConditions(plugins, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null) {
         return false;
       }
@@ -495,7 +498,7 @@ public class Conditions {
     }
   }
 
-  public static class PermissionConditions<S extends CommandSender> implements Condition<S> {
+  public static class PermissionConditions implements Condition {
 
     private final String[] permissions;
     private final ConditionListType type;
@@ -510,47 +513,46 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final String... permissions) {
+    public static Condition allowed(final String... permissions) {
       if (permissions == null || permissions.length == 0) {
         return NeverCondition.of();
       }
-      return new PermissionConditions<>(permissions, ConditionListType.WHITELIST);
+      return new PermissionConditions(permissions, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Collection<String> permissions) {
+    public static Condition allowed(final Collection<String> permissions) {
       if (permissions == null || permissions.isEmpty()) {
         return NeverCondition.of();
       }
-      return new PermissionConditions<>(permissions, ConditionListType.WHITELIST);
+      return new PermissionConditions(permissions, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Collection<String> permissions) {
+    public static Condition denied(final Collection<String> permissions) {
       if (permissions == null || permissions.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new PermissionConditions<>(permissions, ConditionListType.BLACKLIST);
+      return new PermissionConditions(permissions, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Collection<String> permissions,
+    public static Condition from(final Collection<String> permissions,
         final ConditionListType type) {
       if (permissions == null || permissions.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new PermissionConditions<>(permissions, type);
+      return new PermissionConditions(permissions, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || context.sender() == null) {
         return false;
       }
-      final CommandSender sender = context.sender();
       boolean value = true;
       boolean evaluated = false;
       for (final String permission : permissions) {
         if (permission == null || permission.isEmpty())
           continue;
-        final boolean hasPerm = sender.hasPermission(permission);
+        final boolean hasPerm = context.hasPermission(permission);
         value = value && type.apply(hasPerm);
         if (!value) {
           return false;
@@ -563,7 +565,7 @@ public class Conditions {
 
   // -------------------- New requested conditions --------------------
 
-  public static class GameModeConditions<S extends CommandSender> implements Condition<S> {
+  public static class GameModeConditions implements Condition {
     private final Set<GameMode> modes;
     private final ConditionListType type;
 
@@ -572,29 +574,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<GameMode> modes) {
+    public static Condition allowed(final Set<GameMode> modes) {
       if (modes == null || modes.isEmpty()) {
         return NeverCondition.of();
       }
-      return new GameModeConditions<>(modes, ConditionListType.WHITELIST);
+      return new GameModeConditions(modes, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<GameMode> modes) {
+    public static Condition denied(final Set<GameMode> modes) {
       if (modes == null || modes.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new GameModeConditions<>(modes, ConditionListType.BLACKLIST);
+      return new GameModeConditions(modes, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<GameMode> modes, final ConditionListType type) {
+    public static Condition from(final Set<GameMode> modes,
+        final ConditionListType type) {
       if (modes == null || modes.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new GameModeConditions<>(modes, type);
+      return new GameModeConditions(modes, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -603,7 +606,7 @@ public class Conditions {
     }
   }
 
-  public static class HealthConditions<S extends CommandSender> implements Condition<S> {
+  public static class HealthConditions implements Condition {
     private final Double min;
     private final Double max;
     private final boolean percent;
@@ -616,24 +619,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> range(final double min, final double max) {
-      return new HealthConditions<>(min, max, false, ConditionListType.WHITELIST);
+    public static Condition range(final double min, final double max) {
+      return new HealthConditions(min, max, false, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> percentRange(final double min, final double max) {
-      return new HealthConditions<>(min, max, true, ConditionListType.WHITELIST);
+    public static Condition percentRange(final double min, final double max) {
+      return new HealthConditions(min, max, true, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Double min, final Double max, final boolean percent,
+    public static Condition from(final Double min, final Double max,
+        final boolean percent,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new HealthConditions<>(min, max, percent, type);
+      return new HealthConditions(min, max, percent, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -653,7 +657,7 @@ public class Conditions {
     }
   }
 
-  public static class LevelConditions<S extends CommandSender> implements Condition<S> {
+  public static class LevelConditions implements Condition {
     private final Integer min;
     private final Integer max;
     private final ConditionListType type;
@@ -664,24 +668,24 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> range(final int min, final int max) {
-      return new LevelConditions<>(min, max, ConditionListType.WHITELIST);
+    public static Condition range(final int min, final int max) {
+      return new LevelConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> atLeast(final int min) {
-      return new LevelConditions<>(min, null, ConditionListType.WHITELIST);
+    public static Condition atLeast(final int min) {
+      return new LevelConditions(min, null, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Integer min, final Integer max,
+    public static Condition from(final Integer min, final Integer max,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new LevelConditions<>(min, max, type);
+      return new LevelConditions(min, max, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -698,7 +702,7 @@ public class Conditions {
     }
   }
 
-  public static class FoodConditions<S extends CommandSender> implements Condition<S> {
+  public static class FoodConditions implements Condition {
     private final Integer min;
     private final Integer max;
     private final ConditionListType type;
@@ -709,20 +713,20 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> range(final int min, final int max) {
-      return new FoodConditions<>(min, max, ConditionListType.WHITELIST);
+    public static Condition range(final int min, final int max) {
+      return new FoodConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Integer min, final Integer max,
+    public static Condition from(final Integer min, final Integer max,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new FoodConditions<>(min, max, type);
+      return new FoodConditions(min, max, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -739,7 +743,7 @@ public class Conditions {
     }
   }
 
-  public static class FlightConditions<S extends CommandSender> implements Condition<S> {
+  public static class FlightConditions implements Condition {
     private final Boolean allowFlight;
     private final Boolean flying;
     private final ConditionListType type;
@@ -750,30 +754,31 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Boolean allowFlight, final Boolean flying) {
+    public static Condition allowed(final Boolean allowFlight,
+        final Boolean flying) {
       if (allowFlight == null && flying == null) {
         return NeverCondition.of();
       }
-      return new FlightConditions<>(allowFlight, flying, ConditionListType.WHITELIST);
+      return new FlightConditions(allowFlight, flying, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Boolean allowFlight, final Boolean flying) {
+    public static Condition denied(final Boolean allowFlight, final Boolean flying) {
       if (allowFlight == null && flying == null) {
         return AlwaysCondition.of();
       }
-      return new FlightConditions<>(allowFlight, flying, ConditionListType.BLACKLIST);
+      return new FlightConditions(allowFlight, flying, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Boolean allowFlight, final Boolean flying,
+    public static Condition from(final Boolean allowFlight, final Boolean flying,
         final ConditionListType type) {
       if (allowFlight == null && flying == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new FlightConditions<>(allowFlight, flying, type);
+      return new FlightConditions(allowFlight, flying, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -789,7 +794,7 @@ public class Conditions {
     }
   }
 
-  public static class InvulnerableConditions<S extends CommandSender> implements Condition<S> {
+  public static class InvulnerableConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -798,20 +803,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new InvulnerableConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new InvulnerableConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final boolean expected) {
-      return new InvulnerableConditions<>(expected, ConditionListType.BLACKLIST);
+    public static Condition denied(final boolean expected) {
+      return new InvulnerableConditions(expected, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new InvulnerableConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new InvulnerableConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -820,7 +826,7 @@ public class Conditions {
     }
   }
 
-  public static class SneakingConditions<S extends CommandSender> implements Condition<S> {
+  public static class SneakingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -829,16 +835,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new SneakingConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new SneakingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new SneakingConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new SneakingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -847,7 +854,7 @@ public class Conditions {
     }
   }
 
-  public static class SprintingConditions<S extends CommandSender> implements Condition<S> {
+  public static class SprintingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -856,16 +863,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new SprintingConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new SprintingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new SprintingConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new SprintingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -874,7 +882,7 @@ public class Conditions {
     }
   }
 
-  public static class SwimmingConditions<S extends CommandSender> implements Condition<S> {
+  public static class SwimmingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -883,16 +891,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new SwimmingConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new SwimmingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new SwimmingConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new SwimmingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -901,7 +910,7 @@ public class Conditions {
     }
   }
 
-  public static class GlidingConditions<S extends CommandSender> implements Condition<S> {
+  public static class GlidingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -910,16 +919,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new GlidingConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new GlidingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new GlidingConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new GlidingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -928,7 +938,7 @@ public class Conditions {
     }
   }
 
-  public static class GameRulesConditions<S extends CommandSender> implements Condition<S> {
+  public static class GameRulesConditions implements Condition {
     private final Map<String, String> expectedRules;
     private final ConditionListType type;
 
@@ -937,31 +947,31 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Map<String, String> expectedRules) {
+    public static Condition allowed(final Map<String, String> expectedRules) {
       if (expectedRules == null || expectedRules.isEmpty()) {
         return NeverCondition.of();
       }
-      return new GameRulesConditions<>(expectedRules, ConditionListType.WHITELIST);
+      return new GameRulesConditions(expectedRules, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Map<String, String> expectedRules) {
+    public static Condition denied(final Map<String, String> expectedRules) {
       if (expectedRules == null || expectedRules.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new GameRulesConditions<>(expectedRules, ConditionListType.BLACKLIST);
+      return new GameRulesConditions(expectedRules, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Map<String, String> expectedRules,
+    public static Condition from(final Map<String, String> expectedRules,
         final ConditionListType type) {
       if (expectedRules == null || expectedRules.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new GameRulesConditions<>(expectedRules, type);
+      return new GameRulesConditions(expectedRules, type);
     }
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -994,7 +1004,7 @@ public class Conditions {
     MAIN, OFF
   }
 
-  public static class ItemInHandConditions<S extends CommandSender> implements Condition<S> {
+  public static class ItemInHandConditions implements Condition {
     private final Set<Material> materials;
     private final HandSlot slot;
     private final ConditionListType type;
@@ -1005,30 +1015,32 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<Material> materials, final HandSlot slot) {
+    public static Condition allowed(final Set<Material> materials,
+        final HandSlot slot) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
-      return new ItemInHandConditions<>(materials, slot, ConditionListType.WHITELIST);
+      return new ItemInHandConditions(materials, slot, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<Material> materials, final HandSlot slot) {
+    public static Condition denied(final Set<Material> materials,
+        final HandSlot slot) {
       if (materials == null || materials.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new ItemInHandConditions<>(materials, slot, ConditionListType.BLACKLIST);
+      return new ItemInHandConditions(materials, slot, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<Material> materials, final HandSlot slot,
+    public static Condition from(final Set<Material> materials, final HandSlot slot,
         final ConditionListType type) {
       if (materials == null || materials.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new ItemInHandConditions<>(materials, slot, type);
+      return new ItemInHandConditions(materials, slot, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1043,7 +1055,7 @@ public class Conditions {
     }
   }
 
-  public static class ArmorConditions<S extends CommandSender> implements Condition<S> {
+  public static class ArmorConditions implements Condition {
     private final Map<EquipmentSlot, Set<Material>> armor;
     private final ConditionListType type;
 
@@ -1052,30 +1064,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Map<EquipmentSlot, Set<Material>> armor) {
+    public static Condition allowed(final Map<EquipmentSlot, Set<Material>> armor) {
       if (armor == null || armor.isEmpty()) {
         return NeverCondition.of();
       }
-      return new ArmorConditions<>(armor, ConditionListType.WHITELIST);
+      return new ArmorConditions(armor, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Map<EquipmentSlot, Set<Material>> armor) {
+    public static Condition denied(final Map<EquipmentSlot, Set<Material>> armor) {
       if (armor == null || armor.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new ArmorConditions<>(armor, ConditionListType.BLACKLIST);
+      return new ArmorConditions(armor, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Map<EquipmentSlot, Set<Material>> armor,
+    public static Condition from(final Map<EquipmentSlot, Set<Material>> armor,
         final ConditionListType type) {
       if (armor == null || armor.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new ArmorConditions<>(armor, type);
+      return new ArmorConditions(armor, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1099,7 +1111,7 @@ public class Conditions {
     }
   }
 
-  public static class EmptySlotConditions<S extends CommandSender> implements Condition<S> {
+  public static class EmptySlotConditions implements Condition {
     private final Integer minEmptySlots;
     private final ConditionListType type;
 
@@ -1108,20 +1120,20 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> atLeast(final int minEmptySlots) {
-      return new EmptySlotConditions<>(minEmptySlots, ConditionListType.WHITELIST);
+    public static Condition atLeast(final int minEmptySlots) {
+      return new EmptySlotConditions(minEmptySlots, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Integer minEmptySlots,
+    public static Condition from(final Integer minEmptySlots,
         final ConditionListType type) {
       if (minEmptySlots == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new EmptySlotConditions<>(minEmptySlots, type);
+      return new EmptySlotConditions(minEmptySlots, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1142,7 +1154,7 @@ public class Conditions {
     }
   }
 
-  public static class InventoryContainsConditions<S extends CommandSender> implements Condition<S> {
+  public static class InventoryContainsConditions implements Condition {
     private final Material material;
     private final int minAmount;
     private final ConditionListType type;
@@ -1153,23 +1165,23 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> atLeast(final Material material, final int minAmount) {
+    public static Condition atLeast(final Material material, final int minAmount) {
       if (material == null) {
         return NeverCondition.of();
       }
-      return new InventoryContainsConditions<>(material, minAmount, ConditionListType.WHITELIST);
+      return new InventoryContainsConditions(material, minAmount, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Material material, final int minAmount,
+    public static Condition from(final Material material, final int minAmount,
         final ConditionListType type) {
       if (material == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new InventoryContainsConditions<>(material, minAmount, type);
+      return new InventoryContainsConditions(material, minAmount, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1181,7 +1193,7 @@ public class Conditions {
     }
   }
 
-  public static class RegionConditions<S extends CommandSender> implements Condition<S> {
+  public static class RegionConditions implements Condition {
     private final Set<Region> regions;
     private final ConditionListType type;
 
@@ -1190,29 +1202,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<Region> regions) {
+    public static Condition allowed(final Set<Region> regions) {
       if (regions == null || regions.isEmpty()) {
         return NeverCondition.of();
       }
-      return new RegionConditions<>(regions, ConditionListType.WHITELIST);
+      return new RegionConditions(regions, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<Region> regions) {
+    public static Condition denied(final Set<Region> regions) {
       if (regions == null || regions.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new RegionConditions<>(regions, ConditionListType.BLACKLIST);
+      return new RegionConditions(regions, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<Region> regions, final ConditionListType type) {
+    public static Condition from(final Set<Region> regions,
+        final ConditionListType type) {
       if (regions == null || regions.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new RegionConditions<>(regions, type);
+      return new RegionConditions(regions, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1238,7 +1251,7 @@ public class Conditions {
     }
   }
 
-  public static class LightLevelConditions<S extends CommandSender> implements Condition<S> {
+  public static class LightLevelConditions implements Condition {
     public enum LightType {
       BLOCK, SKY, MAX
     }
@@ -1256,22 +1269,22 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> range(final int min, final int max,
+    public static Condition range(final int min, final int max,
         final LightType lightType) {
-      return new LightLevelConditions<>(min, max, lightType, ConditionListType.WHITELIST);
+      return new LightLevelConditions(min, max, lightType, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Integer min, final Integer max,
+    public static Condition from(final Integer min, final Integer max,
         final LightType lightType,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new LightLevelConditions<>(min, max, lightType, type);
+      return new LightLevelConditions(min, max, lightType, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1303,7 +1316,7 @@ public class Conditions {
     }
   }
 
-  public static class DimensionConditions<S extends CommandSender> implements Condition<S> {
+  public static class DimensionConditions implements Condition {
     private final Set<World.Environment> environments;
     private final ConditionListType type;
 
@@ -1312,30 +1325,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<World.Environment> environments) {
+    public static Condition allowed(final Set<World.Environment> environments) {
       if (environments == null || environments.isEmpty()) {
         return NeverCondition.of();
       }
-      return new DimensionConditions<>(environments, ConditionListType.WHITELIST);
+      return new DimensionConditions(environments, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<World.Environment> environments) {
+    public static Condition denied(final Set<World.Environment> environments) {
       if (environments == null || environments.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new DimensionConditions<>(environments, ConditionListType.BLACKLIST);
+      return new DimensionConditions(environments, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<World.Environment> environments,
+    public static Condition from(final Set<World.Environment> environments,
         final ConditionListType type) {
       if (environments == null || environments.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new DimensionConditions<>(environments, type);
+      return new DimensionConditions(environments, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1347,7 +1360,7 @@ public class Conditions {
     }
   }
 
-  public static class DifficultyConditions<S extends CommandSender> implements Condition<S> {
+  public static class DifficultyConditions implements Condition {
     private final Set<Difficulty> difficulties;
     private final ConditionListType type;
 
@@ -1356,30 +1369,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<Difficulty> difficulties) {
+    public static Condition allowed(final Set<Difficulty> difficulties) {
       if (difficulties == null || difficulties.isEmpty()) {
         return NeverCondition.of();
       }
-      return new DifficultyConditions<>(difficulties, ConditionListType.WHITELIST);
+      return new DifficultyConditions(difficulties, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<Difficulty> difficulties) {
+    public static Condition denied(final Set<Difficulty> difficulties) {
       if (difficulties == null || difficulties.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new DifficultyConditions<>(difficulties, ConditionListType.BLACKLIST);
+      return new DifficultyConditions(difficulties, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<Difficulty> difficulties,
+    public static Condition from(final Set<Difficulty> difficulties,
         final ConditionListType type) {
       if (difficulties == null || difficulties.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new DifficultyConditions<>(difficulties, type);
+      return new DifficultyConditions(difficulties, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1391,7 +1404,7 @@ public class Conditions {
     }
   }
 
-  public static class StatisticConditions<S extends CommandSender> implements Condition<S> {
+  public static class StatisticConditions implements Condition {
     public enum CompareOp {
       EQ, NE, GT, GE, LT, LE
     }
@@ -1413,42 +1426,43 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> of(final Statistic statistic, final int target,
+    public static Condition of(final Statistic statistic, final int target,
         final CompareOp op) {
       if (statistic == null) {
         return NeverCondition.of();
       }
-      return new StatisticConditions<>(statistic, null, null, target, op, ConditionListType.WHITELIST);
+      return new StatisticConditions(statistic, null, null, target, op, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> of(final Statistic statistic, final Material material,
+    public static Condition of(final Statistic statistic, final Material material,
         final int target,
         final CompareOp op) {
       if (statistic == null) {
         return NeverCondition.of();
       }
-      return new StatisticConditions<>(statistic, material, null, target, op, ConditionListType.WHITELIST);
+      return new StatisticConditions(statistic, material, null, target, op, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> of(final Statistic statistic, final EntityType entityType,
+    public static Condition of(final Statistic statistic,
+        final EntityType entityType,
         final int target,
         final CompareOp op) {
       if (statistic == null) {
         return NeverCondition.of();
       }
-      return new StatisticConditions<>(statistic, null, entityType, target, op, ConditionListType.WHITELIST);
+      return new StatisticConditions(statistic, null, entityType, target, op, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Statistic statistic, final Material material,
+    public static Condition from(final Statistic statistic, final Material material,
         final EntityType entityType, final int target, final CompareOp op, final ConditionListType type) {
       if (statistic == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new StatisticConditions<>(statistic, material, entityType, target, op, type);
+      return new StatisticConditions(statistic, material, entityType, target, op, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1493,7 +1507,7 @@ public class Conditions {
     }
   }
 
-  public static class ObjectiveScoreConditions<S extends CommandSender> implements Condition<S> {
+  public static class ObjectiveScoreConditions implements Condition {
     private final String objectiveName;
     private final Integer min;
     private final Integer max;
@@ -1509,25 +1523,25 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> range(final String objectiveName, final Integer min,
+    public static Condition range(final String objectiveName, final Integer min,
         final Integer max) {
       if (objectiveName == null || objectiveName.isEmpty() || (min == null && max == null)) {
         return NeverCondition.of();
       }
-      return new ObjectiveScoreConditions<>(objectiveName, min, max, true, ConditionListType.WHITELIST);
+      return new ObjectiveScoreConditions(objectiveName, min, max, true, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final String objectiveName, final Integer min,
+    public static Condition from(final String objectiveName, final Integer min,
         final Integer max,
         final boolean usePlayerScoreboard, final ConditionListType type) {
       if (objectiveName == null || objectiveName.isEmpty() || (min == null && max == null)) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new ObjectiveScoreConditions<>(objectiveName, min, max, usePlayerScoreboard, type);
+      return new ObjectiveScoreConditions(objectiveName, min, max, usePlayerScoreboard, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1558,7 +1572,7 @@ public class Conditions {
     }
   }
 
-  public static class CooldownConditions<S extends CommandSender> implements Condition<S> {
+  public static class CooldownConditions implements Condition {
     private final CooldownStore<UUID> store;
     private final boolean requireOnCooldown;
     private final ConditionListType type;
@@ -1570,31 +1584,31 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> onCooldown(final CooldownStore<UUID> store) {
+    public static Condition onCooldown(final CooldownStore<UUID> store) {
       if (store == null) {
         return NeverCondition.of();
       }
-      return new CooldownConditions<>(store, true, ConditionListType.WHITELIST);
+      return new CooldownConditions(store, true, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> notOnCooldown(final CooldownStore<UUID> store) {
+    public static Condition notOnCooldown(final CooldownStore<UUID> store) {
       if (store == null) {
         return NeverCondition.of();
       }
-      return new CooldownConditions<>(store, false, ConditionListType.WHITELIST);
+      return new CooldownConditions(store, false, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final CooldownStore<UUID> store,
+    public static Condition from(final CooldownStore<UUID> store,
         final boolean requireOnCooldown,
         final ConditionListType type) {
       if (store == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new CooldownConditions<>(store, requireOnCooldown, type);
+      return new CooldownConditions(store, requireOnCooldown, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1604,7 +1618,7 @@ public class Conditions {
     }
   }
 
-  public static class CurrencyConditions<S extends CommandSender> implements Condition<S> {
+  public static class CurrencyConditions implements Condition {
     public enum CompareOp {
       EQ, NE, GT, GE, LT, LE
     }
@@ -1619,17 +1633,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> atLeast(final double amount) {
-      return new CurrencyConditions<>(amount, CompareOp.GE, ConditionListType.WHITELIST);
+    public static Condition atLeast(final double amount) {
+      return new CurrencyConditions(amount, CompareOp.GE, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final double target, final CompareOp op,
+    public static Condition from(final double target, final CompareOp op,
         final ConditionListType type) {
-      return new CurrencyConditions<>(target, op, type);
+      return new CurrencyConditions(target, op, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1686,7 +1700,7 @@ public class Conditions {
     }
   }
 
-  public static class PlaceholderConditions<S extends CommandSender> implements Condition<S> {
+  public static class PlaceholderConditions implements Condition {
     public enum CompareOp {
       EQUALS, EQUALS_IGNORE_CASE, CONTAINS, STARTS_WITH, ENDS_WITH, REGEX, NOT_EQUALS, GT, GE, LT, LE
     }
@@ -1716,24 +1730,24 @@ public class Conditions {
       this.regexPattern = compiled;
     }
 
-    public static <S extends CommandSender> Condition<S> equals(final String placeholder, final String expected) {
+    public static Condition equals(final String placeholder, final String expected) {
       if (placeholder == null || placeholder.isEmpty()) {
         return NeverCondition.of();
       }
-      return new PlaceholderConditions<>(placeholder, expected, CompareOp.EQUALS, ConditionListType.WHITELIST);
+      return new PlaceholderConditions(placeholder, expected, CompareOp.EQUALS, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final String placeholder, final String expected,
+    public static Condition from(final String placeholder, final String expected,
         final CompareOp op,
         final ConditionListType type) {
       if (placeholder == null || placeholder.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new PlaceholderConditions<>(placeholder, expected, op, type);
+      return new PlaceholderConditions(placeholder, expected, op, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1829,7 +1843,7 @@ public class Conditions {
     }
   }
 
-  public static class PotionEffectConditions<S extends CommandSender> implements Condition<S> {
+  public static class PotionEffectConditions implements Condition {
     private final Set<PotionEffectType> effects;
     private final Integer minAmplifier;
     private final Integer minDuration;
@@ -1843,32 +1857,32 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<PotionEffectType> effects) {
+    public static Condition allowed(final Set<PotionEffectType> effects) {
       if (effects == null || effects.isEmpty()) {
         return NeverCondition.of();
       }
-      return new PotionEffectConditions<>(effects, null, null, ConditionListType.WHITELIST);
+      return new PotionEffectConditions(effects, null, null, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<PotionEffectType> effects) {
+    public static Condition denied(final Set<PotionEffectType> effects) {
       if (effects == null || effects.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new PotionEffectConditions<>(effects, null, null, ConditionListType.BLACKLIST);
+      return new PotionEffectConditions(effects, null, null, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<PotionEffectType> effects,
+    public static Condition from(final Set<PotionEffectType> effects,
         final Integer minAmplifier,
         final Integer minDuration, final ConditionListType type) {
       final boolean empty = (effects == null || effects.isEmpty()) && minAmplifier == null && minDuration == null;
       if (empty) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new PotionEffectConditions<>(effects, minAmplifier, minDuration, type);
+      return new PotionEffectConditions(effects, minAmplifier, minDuration, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1910,7 +1924,7 @@ public class Conditions {
     }
   }
 
-  public static class ExperienceConditions<S extends CommandSender> implements Condition<S> {
+  public static class ExperienceConditions implements Condition {
     public enum Mode {
       TOTAL, LEVEL_PROGRESS
     }
@@ -1927,24 +1941,24 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> totalRange(final double min, final double max) {
-      return new ExperienceConditions<>(min, max, Mode.TOTAL, ConditionListType.WHITELIST);
+    public static Condition totalRange(final double min, final double max) {
+      return new ExperienceConditions(min, max, Mode.TOTAL, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> progressRange(final double min, final double max) {
-      return new ExperienceConditions<>(min, max, Mode.LEVEL_PROGRESS, ConditionListType.WHITELIST);
+    public static Condition progressRange(final double min, final double max) {
+      return new ExperienceConditions(min, max, Mode.LEVEL_PROGRESS, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Double min, final Double max, final Mode mode,
+    public static Condition from(final Double min, final Double max, final Mode mode,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new ExperienceConditions<>(min, max, mode, type);
+      return new ExperienceConditions(min, max, mode, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -1961,7 +1975,7 @@ public class Conditions {
     }
   }
 
-  public static class AbsorptionConditions<S extends CommandSender> implements Condition<S> {
+  public static class AbsorptionConditions implements Condition {
     private final Double min;
     private final Double max;
     private final ConditionListType type;
@@ -1972,24 +1986,24 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> range(final double min, final double max) {
-      return new AbsorptionConditions<>(min, max, ConditionListType.WHITELIST);
+    public static Condition range(final double min, final double max) {
+      return new AbsorptionConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> atLeast(final double min) {
-      return new AbsorptionConditions<>(min, null, ConditionListType.WHITELIST);
+    public static Condition atLeast(final double min) {
+      return new AbsorptionConditions(min, null, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Double min, final Double max,
+    public static Condition from(final Double min, final Double max,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new AbsorptionConditions<>(min, max, type);
+      return new AbsorptionConditions(min, max, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2006,7 +2020,7 @@ public class Conditions {
     }
   }
 
-  public static class SaturationConditions<S extends CommandSender> implements Condition<S> {
+  public static class SaturationConditions implements Condition {
     private final Float min;
     private final Float max;
     private final ConditionListType type;
@@ -2017,20 +2031,20 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> range(final float min, final float max) {
-      return new SaturationConditions<>(min, max, ConditionListType.WHITELIST);
+    public static Condition range(final float min, final float max) {
+      return new SaturationConditions(min, max, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Float min, final Float max,
+    public static Condition from(final Float min, final Float max,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new SaturationConditions<>(min, max, type);
+      return new SaturationConditions(min, max, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2047,7 +2061,7 @@ public class Conditions {
     }
   }
 
-  public static class SleepingConditions<S extends CommandSender> implements Condition<S> {
+  public static class SleepingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -2056,16 +2070,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new SleepingConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new SleepingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new SleepingConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new SleepingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2074,7 +2089,7 @@ public class Conditions {
     }
   }
 
-  public static class RiptidingConditions<S extends CommandSender> implements Condition<S> {
+  public static class RiptidingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -2083,16 +2098,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new RiptidingConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new RiptidingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new RiptidingConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new RiptidingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2101,7 +2117,7 @@ public class Conditions {
     }
   }
 
-  public static class BlockingConditions<S extends CommandSender> implements Condition<S> {
+  public static class BlockingConditions implements Condition {
     private final boolean expected;
     private final ConditionListType type;
 
@@ -2110,16 +2126,17 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final boolean expected) {
-      return new BlockingConditions<>(expected, ConditionListType.WHITELIST);
+    public static Condition allowed(final boolean expected) {
+      return new BlockingConditions(expected, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expected, final ConditionListType type) {
-      return new BlockingConditions<>(expected, type);
+    public static Condition from(final boolean expected,
+        final ConditionListType type) {
+      return new BlockingConditions(expected, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2128,7 +2145,7 @@ public class Conditions {
     }
   }
 
-  public static class HeldItemDetailConditions<S extends CommandSender> implements Condition<S> {
+  public static class HeldItemDetailConditions implements Condition {
     private final Set<Material> materials;
     private final HandSlot slot;
     private final String displayName;
@@ -2156,7 +2173,7 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<Material> materials, final HandSlot slot,
+    public static Condition from(final Set<Material> materials, final HandSlot slot,
         final String displayName, final String displayNameContains, final String loreContains,
         final Integer customModelData, final Map<Enchantment, Integer> minEnchantments, final Integer minDurability,
         final Integer maxDurability, final ConditionListType type) {
@@ -2166,12 +2183,12 @@ public class Conditions {
       if (empty) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new HeldItemDetailConditions<>(materials, slot, displayName, displayNameContains, loreContains,
+      return new HeldItemDetailConditions(materials, slot, displayName, displayNameContains, loreContains,
           customModelData, minEnchantments, minDurability, maxDurability, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2264,7 +2281,7 @@ public class Conditions {
     }
   }
 
-  public static class SpecificSlotConditions<S extends CommandSender> implements Condition<S> {
+  public static class SpecificSlotConditions implements Condition {
     private final int slot;
     private final Set<Material> materials;
     private final boolean requireEmpty;
@@ -2278,28 +2295,29 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> empty(final int slot) {
-      return new SpecificSlotConditions<>(slot, Collections.emptySet(), true, ConditionListType.WHITELIST);
+    public static Condition empty(final int slot) {
+      return new SpecificSlotConditions(slot, Collections.emptySet(), true, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> materials(final int slot, final Set<Material> materials) {
+    public static Condition materials(final int slot,
+        final Set<Material> materials) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
-      return new SpecificSlotConditions<>(slot, materials, false, ConditionListType.WHITELIST);
+      return new SpecificSlotConditions(slot, materials, false, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final int slot, final Set<Material> materials,
+    public static Condition from(final int slot, final Set<Material> materials,
         final boolean requireEmpty,
         final ConditionListType type) {
       if (!requireEmpty && (materials == null || materials.isEmpty())) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new SpecificSlotConditions<>(slot, materials, requireEmpty, type);
+      return new SpecificSlotConditions(slot, materials, requireEmpty, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2319,7 +2337,7 @@ public class Conditions {
     }
   }
 
-  public static class InventoryFullConditions<S extends CommandSender> implements Condition<S> {
+  public static class InventoryFullConditions implements Condition {
     private final boolean expectedFull;
     private final ConditionListType type;
 
@@ -2328,21 +2346,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> full() {
-      return new InventoryFullConditions<>(true, ConditionListType.WHITELIST);
+    public static Condition full() {
+      return new InventoryFullConditions(true, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> notFull() {
-      return new InventoryFullConditions<>(false, ConditionListType.WHITELIST);
+    public static Condition notFull() {
+      return new InventoryFullConditions(false, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expectedFull,
+    public static Condition from(final boolean expectedFull,
         final ConditionListType type) {
-      return new InventoryFullConditions<>(expectedFull, type);
+      return new InventoryFullConditions(expectedFull, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2364,7 +2382,7 @@ public class Conditions {
     }
   }
 
-  public static class CoordinateConditions<S extends CommandSender> implements Condition<S> {
+  public static class CoordinateConditions implements Condition {
     private final Double minX;
     private final Double maxX;
     private final Double minY;
@@ -2384,17 +2402,18 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Double minX, final Double maxX, final Double minY,
+    public static Condition from(final Double minX, final Double maxX,
+        final Double minY,
         final Double maxY,
         final Double minZ, final Double maxZ, final ConditionListType type) {
       if (minX == null && maxX == null && minY == null && maxY == null && minZ == null && maxZ == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new CoordinateConditions<>(minX, maxX, minY, maxY, minZ, maxZ, type);
+      return new CoordinateConditions(minX, maxX, minY, maxY, minZ, maxZ, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2421,7 +2440,7 @@ public class Conditions {
     }
   }
 
-  public static class DistanceConditions<S extends CommandSender> implements Condition<S> {
+  public static class DistanceConditions implements Condition {
     private final Location origin;
     private final Double min;
     private final Double max;
@@ -2439,23 +2458,24 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> within(final Location origin, final double max) {
+    public static Condition within(final Location origin, final double max) {
       if (origin == null) {
         return NeverCondition.of();
       }
-      return new DistanceConditions<>(origin, null, max, true, false, ConditionListType.WHITELIST);
+      return new DistanceConditions(origin, null, max, true, false, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Location origin, final Double min, final Double max,
+    public static Condition from(final Location origin, final Double min,
+        final Double max,
         final boolean sameWorld, final boolean ignoreY, final ConditionListType type) {
       if (origin == null || (min == null && max == null)) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new DistanceConditions<>(origin, min, max, sameWorld, ignoreY, type);
+      return new DistanceConditions(origin, min, max, sameWorld, ignoreY, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2487,7 +2507,7 @@ public class Conditions {
     }
   }
 
-  public static class BlockAtLocationConditions<S extends CommandSender> implements Condition<S> {
+  public static class BlockAtLocationConditions implements Condition {
     public enum Position {
       FEET, HEAD
     }
@@ -2503,30 +2523,31 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> feet(final Set<Material> materials) {
+    public static Condition feet(final Set<Material> materials) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
-      return new BlockAtLocationConditions<>(Position.FEET, materials, ConditionListType.WHITELIST);
+      return new BlockAtLocationConditions(Position.FEET, materials, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> head(final Set<Material> materials) {
+    public static Condition head(final Set<Material> materials) {
       if (materials == null || materials.isEmpty()) {
         return NeverCondition.of();
       }
-      return new BlockAtLocationConditions<>(Position.HEAD, materials, ConditionListType.WHITELIST);
+      return new BlockAtLocationConditions(Position.HEAD, materials, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Position position, final Set<Material> materials,
+    public static Condition from(final Position position,
+        final Set<Material> materials,
         final ConditionListType type) {
       if (materials == null || materials.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new BlockAtLocationConditions<>(position, materials, type);
+      return new BlockAtLocationConditions(position, materials, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2544,7 +2565,7 @@ public class Conditions {
     }
   }
 
-  public static class StructureConditions<S extends CommandSender> implements Condition<S> {
+  public static class StructureConditions implements Condition {
     private final Set<String> structures;
     private final ConditionListType type;
 
@@ -2553,30 +2574,30 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> allowed(final Set<String> structures) {
+    public static Condition allowed(final Set<String> structures) {
       if (structures == null || structures.isEmpty()) {
         return NeverCondition.of();
       }
-      return new StructureConditions<>(structures, ConditionListType.WHITELIST);
+      return new StructureConditions(structures, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> denied(final Set<String> structures) {
+    public static Condition denied(final Set<String> structures) {
       if (structures == null || structures.isEmpty()) {
         return AlwaysCondition.of();
       }
-      return new StructureConditions<>(structures, ConditionListType.BLACKLIST);
+      return new StructureConditions(structures, ConditionListType.BLACKLIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Set<String> structures,
+    public static Condition from(final Set<String> structures,
         final ConditionListType type) {
       if (structures == null || structures.isEmpty()) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new StructureConditions<>(structures, type);
+      return new StructureConditions(structures, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2672,7 +2693,7 @@ public class Conditions {
     SERVER, WORLD
   }
 
-  public static class PlayerCountConditions<S extends CommandSender> implements Condition<S> {
+  public static class PlayerCountConditions implements Condition {
     private final Integer min;
     private final Integer max;
     private final PlayerCountScope scope;
@@ -2686,31 +2707,31 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> server(final Integer min, final Integer max) {
+    public static Condition server(final Integer min, final Integer max) {
       if (min == null && max == null) {
         return NeverCondition.of();
       }
-      return new PlayerCountConditions<>(min, max, PlayerCountScope.SERVER, ConditionListType.WHITELIST);
+      return new PlayerCountConditions(min, max, PlayerCountScope.SERVER, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> world(final Integer min, final Integer max) {
+    public static Condition world(final Integer min, final Integer max) {
       if (min == null && max == null) {
         return NeverCondition.of();
       }
-      return new PlayerCountConditions<>(min, max, PlayerCountScope.WORLD, ConditionListType.WHITELIST);
+      return new PlayerCountConditions(min, max, PlayerCountScope.WORLD, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Integer min, final Integer max,
+    public static Condition from(final Integer min, final Integer max,
         final PlayerCountScope scope,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new PlayerCountConditions<>(min, max, scope, type);
+      return new PlayerCountConditions(min, max, scope, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null) {
         return false;
       }
@@ -2734,7 +2755,7 @@ public class Conditions {
     }
   }
 
-  public static class NearbyEntitiesConditions<S extends CommandSender> implements Condition<S> {
+  public static class NearbyEntitiesConditions implements Condition {
     private final Double radius;
     private final Set<EntityType> entityTypes;
     private final Integer minCount;
@@ -2755,26 +2776,27 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> players(final double radius, final Integer minCount,
+    public static Condition players(final double radius, final Integer minCount,
         final Integer maxCount) {
       if (minCount == null && maxCount == null) {
         return NeverCondition.of();
       }
-      return new NearbyEntitiesConditions<>(radius, Collections.emptySet(), minCount, maxCount, true, false,
+      return new NearbyEntitiesConditions(radius, Collections.emptySet(), minCount, maxCount, true, false,
           ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Double radius, final Set<EntityType> entityTypes,
+    public static Condition from(final Double radius,
+        final Set<EntityType> entityTypes,
         final Integer minCount, final Integer maxCount, final boolean includePlayers, final boolean includeSelf,
         final ConditionListType type) {
       if (radius == null || (minCount == null && maxCount == null)) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new NearbyEntitiesConditions<>(radius, entityTypes, minCount, maxCount, includePlayers, includeSelf, type);
+      return new NearbyEntitiesConditions(radius, entityTypes, minCount, maxCount, includePlayers, includeSelf, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2812,7 +2834,7 @@ public class Conditions {
     }
   }
 
-  public static class PlaytimeConditions<S extends CommandSender> implements Condition<S> {
+  public static class PlaytimeConditions implements Condition {
     public enum Unit {
       TICKS, SECONDS, MINUTES
     }
@@ -2829,20 +2851,20 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> atLeast(final long value, final Unit unit) {
-      return new PlaytimeConditions<>(value, null, unit, ConditionListType.WHITELIST);
+    public static Condition atLeast(final long value, final Unit unit) {
+      return new PlaytimeConditions(value, null, unit, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final Long min, final Long max, final Unit unit,
+    public static Condition from(final Long min, final Long max, final Unit unit,
         final ConditionListType type) {
       if (min == null && max == null) {
         return type == ConditionListType.WHITELIST ? NeverCondition.of() : AlwaysCondition.of();
       }
-      return new PlaytimeConditions<>(min, max, unit, type);
+      return new PlaytimeConditions(min, max, unit, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }
@@ -2874,7 +2896,7 @@ public class Conditions {
     }
   }
 
-  public static class FirstJoinConditions<S extends CommandSender> implements Condition<S> {
+  public static class FirstJoinConditions implements Condition {
     private final boolean expectedFirstJoin;
     private final ConditionListType type;
 
@@ -2883,21 +2905,21 @@ public class Conditions {
       this.type = type == null ? ConditionListType.WHITELIST : type;
     }
 
-    public static <S extends CommandSender> Condition<S> firstJoin() {
-      return new FirstJoinConditions<>(true, ConditionListType.WHITELIST);
+    public static Condition firstJoin() {
+      return new FirstJoinConditions(true, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> returningPlayer() {
-      return new FirstJoinConditions<>(false, ConditionListType.WHITELIST);
+    public static Condition returningPlayer() {
+      return new FirstJoinConditions(false, ConditionListType.WHITELIST);
     }
 
-    public static <S extends CommandSender> Condition<S> from(final boolean expectedFirstJoin,
+    public static Condition from(final boolean expectedFirstJoin,
         final ConditionListType type) {
-      return new FirstJoinConditions<>(expectedFirstJoin, type);
+      return new FirstJoinConditions(expectedFirstJoin, type);
     }
 
     @Override
-    public boolean test(final ExecutionContext<S> context) {
+    public boolean test(final ActionContext context) {
       if (context == null || !context.isPlayer()) {
         return false;
       }

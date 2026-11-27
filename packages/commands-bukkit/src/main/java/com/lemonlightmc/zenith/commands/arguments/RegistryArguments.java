@@ -21,11 +21,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import com.lemonlightmc.zenith.additive.math.NumberConversions;
-import com.lemonlightmc.zenith.actions.ExecutionContext;
+import com.lemonlightmc.zenith.actions.CommandContext;
+import com.lemonlightmc.zenith.commands.arguments.MiscArguments.TimeArgument;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
 import com.lemonlightmc.zenith.commands.exceptions.CommandSyntaxException;
+import com.lemonlightmc.zenith.items.PotionEffect;
 import com.lemonlightmc.zenith.unfinished.ParticleData;
 
 /**
@@ -70,7 +72,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Biome parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public Biome parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.BIOME.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -115,7 +117,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Sound parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public Sound parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.SOUNDS.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -161,7 +163,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ParticleData<?> parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public ParticleData<?> parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return new ParticleData<>(Registry.PARTICLE_TYPE.getOrThrow(NamespacedKey.fromString(reader.readString())), null);
@@ -169,9 +171,14 @@ public class RegistryArguments {
   }
 
   /**
-   * Argument that resolves a {@link PotionEffectType} from the effect registry.
+   * Argument that parses a Zenith {@link PotionEffect}.
+   *
+   * <p>
+   * Format: {@code <type> [duration] [amplifier] [ambient] [particles] [icon]}.
+   * Duration supports multi-unit values like {@code 1m30s4t}; amplifier is 0-255.
+   * </p>
    */
-  public static class PotionEffectArgument extends Argument<PotionEffectType, PotionEffectArgument, CommandSender> {
+  public static class PotionEffectArgument extends Argument<PotionEffect, PotionEffectArgument, CommandSender> {
 
     /** Suggestion names for available potion effect types. */
     public static final String[] NAMES = _mapRegistry(Registry.EFFECT);
@@ -182,7 +189,7 @@ public class RegistryArguments {
      * @param name the argument name
      */
     public PotionEffectArgument(final String name) {
-      super(name, PotionEffectType.class, ArgumentType.POTION_EFFECT);
+      super(name, PotionEffect.class, ArgumentType.POTION_EFFECT);
       withSuggestions(NAMES);
     }
 
@@ -197,19 +204,90 @@ public class RegistryArguments {
     }
 
     /**
-     * Parses the argument value as a potion effect type.
+     * Parses the argument value as a Zenith potion effect.
      *
      * @param source the command source
      * @param reader the string reader
      * @param key    the argument key
-     * @return the parsed potion effect type
+     * @return the parsed potion effect
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public PotionEffectType parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public PotionEffect parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      return Registry.EFFECT.getOrThrow(NamespacedKey.fromString(reader.readString()));
+      final String rawType = reader.readString();
+      final NamespacedKey typeKey = NamespacedKey.fromString(rawType);
+      if (typeKey == null) {
+        throw createError(reader, rawType);
+      }
+      final PotionEffectType type = Registry.EFFECT.get(typeKey);
+      if (type == null) {
+        throw createError(reader, rawType);
+      }
+
+      long durationTicks = 200L;
+      int amplifier = 0;
+      boolean ambient = true;
+      boolean particles = true;
+      boolean icon = true;
+
+      if (reader.canRead()) {
+        reader.skipWhitespace();
+      }
+      if (reader.canRead()) {
+        final String rawDuration = reader.readString();
+        final Long millis = TimeArgument.parseDurationMillis(rawDuration);
+        if (millis == null) {
+          throw createError(reader, rawDuration);
+        }
+        durationTicks = millis < 0 ? PotionEffect.INFINITE_DURATION : Math.max(0L, millis / 50L);
+      }
+      if (reader.canRead()) {
+        reader.skipWhitespace();
+      }
+      if (reader.canRead()) {
+        final String rawAmplifier = reader.readString();
+        try {
+          amplifier = Integer.parseInt(rawAmplifier);
+        } catch (final NumberFormatException ex) {
+          throw createError(reader, rawAmplifier);
+        }
+        if (amplifier < 0 || amplifier > 255) {
+          throw createError(reader, rawAmplifier);
+        }
+      }
+      if (reader.canRead()) {
+        reader.skipWhitespace();
+      }
+      if (reader.canRead()) {
+        ambient = readBooleanToken(reader);
+      }
+      if (reader.canRead()) {
+        reader.skipWhitespace();
+      }
+      if (reader.canRead()) {
+        particles = readBooleanToken(reader);
+      }
+      if (reader.canRead()) {
+        reader.skipWhitespace();
+      }
+      if (reader.canRead()) {
+        icon = readBooleanToken(reader);
+      }
+
+      return new PotionEffect(type, durationTicks, amplifier, ambient, particles, icon);
+    }
+
+    private boolean readBooleanToken(final StringReader reader) throws CommandSyntaxException {
+      final String raw = reader.readString();
+      if ("true".equalsIgnoreCase(raw) || "1".equals(raw) || "yes".equals(raw)) {
+        return true;
+      }
+      if ("false".equalsIgnoreCase(raw) || "0".equals(raw) || "no".equals(raw)) {
+        return false;
+      }
+      throw createError(reader, raw);
     }
   }
 
@@ -251,7 +329,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Enchantment parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public Enchantment parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.ENCHANTMENT.getOrThrow(Objects.requireNonNull(NamespacedKey.fromString(reader.readString())));
@@ -297,7 +375,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Advancement parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public Advancement parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects
@@ -308,6 +386,11 @@ public class RegistryArguments {
   /**
    * Argument that resolves an {@link ItemStack} by material name and optional
    * amount.
+   *
+   * <p>
+   * Supported formats: {@code material}, {@code material:amount},
+   * {@code material amount}, and {@code namespace:material amount}.
+   * </p>
    */
   public static class ItemStackArgument extends Argument<ItemStack, ItemStackArgument, CommandSender> {
 
@@ -344,19 +427,91 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ItemStack parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public ItemStack parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
-      final String[] value = reader.readList(':');
-      if (value.length == 0) {
-        throw createError(reader, Arrays.toString(value));
+      final String raw = readResourceToken(reader);
+      if (raw.isEmpty()) {
+        throw createError(reader, raw);
       }
-      final Material mat = Objects.requireNonNull(Material.getMaterial(value[0]));
-      if (value.length > 1) {
-        final int amount = NumberConversions.parseInt(value[1]);
-        return new ItemStack(mat, amount);
+
+      String materialToken = raw;
+      Integer amount = null;
+
+      final int lastColon = raw.lastIndexOf(':');
+      if (lastColon > 0 && lastColon < raw.length() - 1) {
+        final String tail = raw.substring(lastColon + 1);
+        if (isInteger(tail)) {
+          amount = NumberConversions.parseInt(tail);
+          materialToken = raw.substring(0, lastColon);
+        }
       }
-      return new ItemStack(mat, 1);
+
+      if (amount == null && reader.canRead()) {
+        reader.skipWhitespace();
+        final int cursor = reader.getCursor();
+        if (reader.canRead()) {
+          final String maybeAmount = reader.readString();
+          if (isInteger(maybeAmount)) {
+            amount = NumberConversions.parseInt(maybeAmount);
+          } else {
+            reader.setCursor(cursor);
+          }
+        }
+      }
+
+      final Material material = resolveMaterial(materialToken);
+      if (material == null || material.isAir()) {
+        throw createError(reader, materialToken);
+      }
+      final int finalAmount = amount == null ? 1 : amount;
+      if (finalAmount <= 0) {
+        throw createError(reader, String.valueOf(finalAmount));
+      }
+      return new ItemStack(material, finalAmount);
+    }
+
+    private static boolean isInteger(final String value) {
+      if (value == null || value.isEmpty()) {
+        return false;
+      }
+      for (int i = 0; i < value.length(); i++) {
+        final char c = value.charAt(i);
+        if (c < '0' || c > '9') {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    private static Material resolveMaterial(final String raw) {
+      if (raw == null || raw.isEmpty()) {
+        return null;
+      }
+      Material material = Material.matchMaterial(raw);
+      if (material != null) {
+        return material;
+      }
+      final NamespacedKey key = NamespacedKey.fromString(raw.toLowerCase(java.util.Locale.ROOT));
+      if (key != null) {
+        material = Registry.MATERIAL.get(key);
+      }
+      return material;
+    }
+
+    private static String readResourceToken(final StringReader reader) throws CommandSyntaxException {
+      if (!reader.canRead()) {
+        return "";
+      }
+      final char next = reader.peek();
+      if (StringReader.isQuote(next)) {
+        return reader.readString();
+      }
+      final int start = reader.getCursor();
+      while (reader.canRead() && !Character.isWhitespace(reader.peek())) {
+        reader.skip();
+      }
+      return reader.getString().substring(start, reader.getCursor());
     }
   }
 
@@ -398,7 +553,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Material parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public Material parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Objects.requireNonNull(Material.getMaterial(reader.readString()));
@@ -443,7 +598,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Structure parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public Structure parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.STRUCTURE.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -488,7 +643,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public Attribute parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public Attribute parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.ATTRIBUTE.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -534,7 +689,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public StructureType parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public StructureType parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return Registry.STRUCTURE_TYPE.getOrThrow(NamespacedKey.fromString(reader.readString()));
@@ -579,7 +734,7 @@ public class RegistryArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public EntityType parseArgument(final ExecutionContext<CommandSender> source,
+    public EntityType parseArgument(final CommandContext<CommandSender> source,
         final StringReader reader,
         final String key)
         throws CommandSyntaxException {

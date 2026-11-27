@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import com.lemonlightmc.zenith.actions.ExecutionContext;
+import com.lemonlightmc.zenith.actions.CommandContext;
 import com.lemonlightmc.zenith.commands.argumentsbase.Argument;
 import com.lemonlightmc.zenith.commands.argumentsbase.ArgumentType;
 import com.lemonlightmc.zenith.commands.argumentsbase.StringReader;
@@ -110,7 +110,7 @@ public class StringArguments {
     }
 
     @Override
-    public String parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public String parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       if (type == StringType.GREEDY_PHRASE) {
@@ -200,7 +200,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public String parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return reader.readString();
@@ -241,7 +241,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public String parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String text = reader.getRemaining();
@@ -289,7 +289,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public ChatColor parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public ChatColor parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       return ChatColor.valueOf(reader.readUnquotedString());
@@ -330,7 +330,7 @@ public class StringArguments {
      * @throws CommandSyntaxException if parsing fails
      */
     @Override
-    public String parseArgument(final ExecutionContext<CommandSender> source, final StringReader reader,
+    public String parseArgument(final CommandContext<CommandSender> source, final StringReader reader,
         final String key)
         throws CommandSyntaxException {
       final String text = reader.getRemaining();

@@ -1,4 +1,8 @@
-package com.lemonlightmc.zenith.actions;
+package com.lemonlightmc.zenith.actions.bukkit;
+
+import com.lemonlightmc.zenith.actions.common.Action;
+import com.lemonlightmc.zenith.actions.common.ActionContext;
+import com.lemonlightmc.zenith.actions.common.Condition;
 
 import java.math.BigDecimal;
 

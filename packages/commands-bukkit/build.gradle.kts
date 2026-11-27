@@ -4,7 +4,8 @@ dependencies {
     implementation(project(":zenith-core"))
     implementation(project(":zenith-commands-common"))
     implementation(project(":zenith-additive"))
-    implementation(project(":zenith-actions"))
+    implementation(project(":zenith-actions-common"))
+    implementation(project(":zenith-actions-bukkit"))
     implementation(project(":zenith-items"))
 }
 

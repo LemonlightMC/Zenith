@@ -9,7 +9,8 @@ dependencies {
     compileOnly("com.viaversion:viaversion-api:5.12.1-SNAPSHOT")
     implementation(project(":zenith-core"))
     implementation(project(":zenith-additive"))
-    implementation(project(":zenith-actions"))
+    implementation(project(":zenith-actions-common"))
+    implementation(project(":zenith-actions-bukkit"))
 }
 
 extensions.extraProperties["moduleName"] = "zenith-integrations"

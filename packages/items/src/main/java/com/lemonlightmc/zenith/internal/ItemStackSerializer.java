@@ -199,6 +199,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
    * @param node the configuration node to write to
    * @throws SerializationException if the item stack cannot be serialized
    */
+  @SuppressWarnings("deprecation")
   @Override
   public void serialize(final Type type, final ItemStack obj, final ConfigurationNode node)
       throws SerializationException {
@@ -537,6 +538,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static void applyAttributeEntry(final ItemStackBuilder<?> builder, final String attributeKey,
       final ConfigurationNode node) {
     if (node == null || node.virtual() || node.isNull()) {
@@ -582,6 +584,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static AttributeModifier createAttributeModifier(final NamespacedKey key, final Attribute attribute,
       final double amount, final AttributeModifier.Operation operation, final EquipmentSlotGroup slotGroup) {
     // Modern API (1.20.5+): (NamespacedKey, double, Operation[, EquipmentSlotGroup])
@@ -669,6 +672,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     });
   }
 
+  @SuppressWarnings("deprecation")
   private static void applySkull(final ItemStackBuilder<?> builder, final ConfigurationNode root) {
     final ConfigurationNode skullNode = first(root, "skull", "head", "player-head", "player_head");
     final ConfigurationNode ownerNode = first(root, "skull-owner", "skull_owner", "owner", "player");
@@ -699,11 +703,11 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
             try {
               meta.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
             } catch (final Throwable ex) {
-              meta.setOwner(raw);
+              meta.setOwningPlayer(Bukkit.getOfflinePlayer(raw));
             }
           } else {
             try {
-              meta.setOwner(raw);
+              meta.setOwningPlayer(Bukkit.getOfflinePlayer(raw));
             } catch (final Throwable ignored) {
             }
           }
@@ -1116,6 +1120,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static void serializeAttributes(final ConfigurationNode node, final ItemMeta meta) {
     try {
       if (!meta.hasAttributeModifiers() || meta.getAttributeModifiers() == null
@@ -1182,13 +1187,15 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     } catch (final Throwable ignored) {
     }
     try {
-      if (skull.hasOwner() && skull.getOwner() != null) {
-        node.node("skull-owner").set(skull.getOwner());
+      final org.bukkit.OfflinePlayer owner = skull.getOwningPlayer();
+      if (owner != null && owner.getName() != null) {
+        node.node("skull-owner").set(owner.getName());
       }
     } catch (final Throwable ignored) {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static void serializePotion(final ConfigurationNode node, final ItemMeta meta) {
     if (!(meta instanceof final PotionMeta potion)) {
       return;
@@ -1261,6 +1268,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static void serializeBanner(final ConfigurationNode node, final ItemMeta meta) throws SerializationException {
     if (!(meta instanceof final BannerMeta banner) || banner.getPatterns().isEmpty()) {
       return;
@@ -1319,6 +1327,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static void serializeTrim(final ConfigurationNode node, final ItemMeta meta) {
     if (!(meta instanceof final ArmorMeta armor)) {
       return;
@@ -1378,6 +1387,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static Enchantment parseEnchantment(final String raw, final ConfigurationNode node) {
     if (raw == null || raw.isBlank()) {
       return null;
@@ -1403,6 +1413,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     return null;
   }
 
+  @SuppressWarnings("deprecation")
   private static PotionEffectType parsePotionEffectType(final String raw) {
     if (raw == null || raw.isBlank()) {
       return null;
@@ -1451,6 +1462,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static Attribute parseAttribute(final String raw) {
     if (raw == null || raw.isBlank()) {
       return null;
@@ -1646,6 +1658,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static PatternType parsePatternType(final String raw) {
     if (raw == null) {
       return null;
@@ -1793,6 +1806,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     return Math.max(0, Math.min(255, v));
   }
 
+  @SuppressWarnings("deprecation")
   private static String namespacedOrName(final Material material) {
     try {
       final NamespacedKey key = material.getKey();
@@ -1804,6 +1818,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     return material.name();
   }
 
+  @SuppressWarnings("deprecation")
   private static String enchantKey(final Enchantment enchantment) {
     try {
       return enchantment.getKey().toString();
@@ -1838,6 +1853,7 @@ public final class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private static NamespacedKey attributeKeyToModifierKey(final Attribute attribute) {
     try {
       return new NamespacedKey("zenith", "attr_" + attribute.getKey().getKey());

@@ -100,6 +100,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
    *
    * @return the formatted enchantment name
    */
+  @SuppressWarnings("deprecation")
   @Override
   public String getName() {
     return displayName;
@@ -123,6 +124,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
    *
    * @return the enchantment key
    */
+  @SuppressWarnings("deprecation")
   @Override
   public NamespacedKey getKey() {
     return key;
@@ -177,6 +179,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
    *
    * @return {@code null} because applicability is handled by {@link #canEnchantItem(ItemStack)}
    */
+  @SuppressWarnings("deprecation")
   @Override
   public org.bukkit.enchantments.EnchantmentTarget getItemTarget() {
     return null;
@@ -187,6 +190,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
    *
    * @return {@code true} if this enchantment is treasure-only
    */
+  @SuppressWarnings("deprecation")
   @Override
   public boolean isTreasure() {
     return treasure;
@@ -197,6 +201,7 @@ public class Enchantment extends org.bukkit.enchantments.Enchantment {
    *
    * @return {@code true} if this enchantment is cursed
    */
+  @SuppressWarnings("deprecation")
   @Override
   public boolean isCursed() {
     return cursed;

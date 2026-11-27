@@ -298,6 +298,7 @@ public class WorldUtils {
     private VoidGenerator() {
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean isParallelCapable() {
       return true;

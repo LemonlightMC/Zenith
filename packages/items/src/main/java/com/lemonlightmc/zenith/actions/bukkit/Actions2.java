@@ -1,4 +1,9 @@
-package com.lemonlightmc.zenith.actions;
+package com.lemonlightmc.zenith.actions.bukkit;
+
+import com.lemonlightmc.zenith.actions.common.Action;
+import com.lemonlightmc.zenith.actions.common.ActionContext;
+import com.lemonlightmc.zenith.actions.common.Condition;
+import com.lemonlightmc.zenith.actions.common.Condition.ConditionSet;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -8,8 +13,6 @@ import org.bukkit.entity.Player;
 import com.lemonlightmc.zenith.items.Firework;
 import com.lemonlightmc.zenith.items.Potion;
 import com.lemonlightmc.zenith.scheduler.GlobalScheduler;
-import com.lemonlightmc.zenith.actions.Condition;
-import com.lemonlightmc.zenith.actions.Condition.ConditionSet;
 
 /**
  * Collection of action implementations related to items and effects.

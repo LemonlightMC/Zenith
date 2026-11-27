@@ -3,7 +3,8 @@ dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.7")
     implementation(project(":zenith-additive"))
     implementation(project(":zenith-core"))
-    implementation(project(":zenith-actions"))
+    implementation(project(":zenith-actions-common"))
+    implementation(project(":zenith-actions-bukkit"))
     implementation("org.spongepowered:configurate-yaml:4.2.0")
 }
 

@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
-import com.lemonlightmc.zenith.actions.Condition;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -19,9 +18,10 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import com.lemonlightmc.zenith.IZenithPlugin;
 import com.lemonlightmc.zenith.ZenithConfig;
-import com.lemonlightmc.zenith.actions.Action;
-import com.lemonlightmc.zenith.actions.Actions;
-import com.lemonlightmc.zenith.actions.Conditions;
+import com.lemonlightmc.zenith.actions.common.Action;
+import com.lemonlightmc.zenith.actions.common.Condition;
+import com.lemonlightmc.zenith.internal.ActionSerializer;
+import com.lemonlightmc.zenith.internal.ConditionSerializer;
 import com.lemonlightmc.zenith.additive.files.FileUtils;
 import com.lemonlightmc.zenith.additive.logger.GlobalLogger;
 import com.lemonlightmc.zenith.additive.logger.LoggerAdapter;
@@ -222,9 +222,9 @@ public class ZenithBackend implements com.lemonlightmc.zenith.ZenithBackend {
                 .register(TypeToken.get(TitleAPI.TitleInfo.class),
                     TitleInfo.SERIALIZER)
                 .register(new TypeToken<Action>() {
-                }, Actions.SERIALIZER)
+                }, ActionSerializer.INSTANCE)
                 .register(new TypeToken<Condition>() {
-                }, Conditions.SERIALIZER)
+                }, ConditionSerializer.INSTANCE)
                 .register(TypeToken.get(
                     com.lemonlightmc.zenith.math.MathOperation.class),
                     com.lemonlightmc.zenith.math.MathOperation.MathOperationSerializer.INSTANCE)
